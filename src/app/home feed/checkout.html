@@ -1,0 +1,381 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Checkout | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f3f3f3",
+                    "secondary": "#5d5f5f",
+                    "on-primary-fixed-variant": "#474747",
+                    "outline": "#7e7576",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "accent-yellow": "#F59E0B",
+                    "on-tertiary-container": "#848484",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "secondary-container": "#dfe0e0",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "on-primary-fixed": "#1b1b1b",
+                    "primary-fixed": "#e2e2e2",
+                    "surface-bg": "#F1F5F9",
+                    "background": "#f9f9f9",
+                    "surface-variant": "#e2e2e2",
+                    "on-background": "#1b1b1b",
+                    "primary": "#000000",
+                    "on-secondary-container": "#616363",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-surface-variant": "#4c4546",
+                    "error-red": "#DC2626",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#cfc4c5",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "inverse-primary": "#c6c6c6",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "tertiary-container": "#1b1b1b",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "primary-container": "#1b1b1b",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "surface-container": "#eeeeee",
+                    "on-surface": "#1b1b1b",
+                    "success-green": "#16A34A",
+                    "inverse-on-surface": "#f1f1f1",
+                    "surface-container-high": "#e8e8e8",
+                    "border-gray": "#E5E7EB",
+                    "surface-dim": "#dadada",
+                    "tertiary": "#000000",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-primary-container": "#848484",
+                    "surface-bright": "#f9f9f9",
+                    "text-muted": "#6B7280",
+                    "surface-tint": "#5e5e5e",
+                    "surface": "#f9f9f9",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "md": "12px",
+                    "xxl": "48px",
+                    "container-max": "1280px",
+                    "sm": "8px",
+                    "base": "16px"
+            },
+            "fontFamily": {
+                    "label-bold": ["Inter"],
+                    "body-md": ["Inter"],
+                    "price-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f9; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .step-active { color: #000; font-weight: 700; }
+        .payment-option:hover { border-color: #000; background-color: #f3f3f3; }
+        .payment-radio:checked + label { border-color: #000; background-color: #f3f3f3; }
+    </style>
+</head>
+<body class="text-on-surface bg-background">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-border-gray">
+<div class="flex items-center justify-between px-base md:px-lg max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-xl">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">!MINIBRANDS</a>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200" href="#">Offers</a>
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200" href="#">Categories</a>
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200" href="#">Help</a>
+</nav>
+</div>
+<div class="flex-1 max-w-md mx-xl relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full bg-surface-container py-2 pl-10 pr-4 rounded border-none text-body-md focus:ring-1 focus:ring-primary" placeholder="Search for products, brands and more" type="text">
+</div>
+<div class="flex items-center gap-lg">
+<button class="cursor-pointer active:opacity-70 text-primary">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<button class="cursor-pointer active:opacity-70 text-primary">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="cursor-pointer active:opacity-70 text-primary">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="mt-xxl pt-lg max-w-container-max mx-auto px-base md:px-lg pb-xxl">
+<!-- Checkout Progress (Subtle) -->
+<div class="flex items-center gap-base mb-lg text-body-sm text-secondary">
+<span class="">Cart</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-bold text-primary">Secure Checkout</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="">Order Success</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Left Column: Content Review -->
+<div class="lg:col-span-8 space-y-base">
+<!-- Address Summary Card -->
+<section class="bg-surface-container-lowest p-lg border border-border-gray rounded">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<h2 class="font-headline-sm text-headline-sm">Shipping Address</h2>
+</div>
+<button class="text-primary font-label-bold text-body-sm hover:underline">Change</button>
+</div>
+<div class="text-body-md text-on-surface-variant">
+<p class="font-bold text-on-surface">Arjun Sharma</p>
+<p class="">12th Floor, Tower B, Horizon Commons</p>
+<p class="">Golf Course Road, DLF Phase 5</p>
+<p class="">Gurugram, Haryana - 122002</p>
+<p class="mt-sm"><span class="font-semibold text-on-surface">Phone:</span> +91 98765 43210</p>
+</div>
+</section>
+<!-- Order Review Card -->
+<section class="bg-surface-container-lowest p-lg border border-border-gray rounded">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+<h2 class="font-headline-sm text-headline-sm">Order Summary (2 Items)</h2>
+</div>
+<!-- Item 1 -->
+<div class="flex gap-base py-base border-b border-border-gray last:border-0">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container border border-border-gray rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional high-resolution studio photograph of a sleek, minimalist mechanical keyboard with matte black keys and soft white backlighting. The lighting is crisp and modern, emphasizing the premium build quality. The composition is clean and centered on a neutral grey surface with soft ambient shadows, adhering to a high-density commerce-first aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDotYDjrSHbrwIKvl7x8-v7Y5S7V7X6sIiXrjgUkEzSFIUWBLq_nr3xs-0Im3j1uHiP_0Lo5PUi88g0ZTNIDgTWLfC18ERo3IZeAhDC4_JZSem7hJFrV2zZyMg_uetbvw3Oko-knf-MjsQcnLIgXqJBFRwGFBYJLyOB_EADPtraYDmj5r8WRAM--YFJ5Obgvpoa9Doamqg8jjRcG6-o1Gi-EyxrWZWNlI04LwCoPoY73a2gc1o1fSuQIZA-ILxSsPlo_zNxXzZ0sRsy">
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h3 class="font-label-bold text-body-lg">KeyChron K2 V2 Mechanical Keyboard</h3>
+<p class="font-price-lg text-price-lg">₹7,499</p>
+</div>
+<div class="mt-xs inline-flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[10px] font-bold text-secondary uppercase tracking-tight">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                Verified Seller
+                            </div>
+<p class="text-body-sm text-on-surface-variant mt-xs">Color: Carbon Black | Switches: Gateron Blue</p>
+<p class="text-body-sm text-success-green font-semibold mt-xs">Estimated Delivery: Tomorrow, 10 AM - 2 PM</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-base py-base border-b border-border-gray last:border-0">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container border border-border-gray rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A clean product shot of professional noise-canceling over-ear headphones in a sophisticated slate grey finish. The headphones are displayed on a white background with subtle gradients, highlighting the ergonomic design and leather ear cups. The image conveys a sense of premium technology and comfort, perfect for a high-end electronic commerce platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9KD2pEtHgtXIhHtzZNjcxEgbK01cpR9VtY8uuKGR9PFSimjSxQ-nH6u47Bn8rnbWOdo9S5Hi9lKJISNeIyQML1sxKW4VgipfarBe-ZIMOHggFSoPSbyCluVQww7vITvMC9NwsNS8fgo378RX9og-pNwOlzA5I_zBGVxUVK83npDdXktBBrVuQbY0rKN1Kh8zku-UyyimtbR_H85TNs7YjS1AbnaMcUYAyQ10QnLSXTO9xmN_clNglrrbKfsk9GD4RAcBjVdyh6InE">
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h3 class="font-label-bold text-body-lg">Sony WH-1000XM5 Wireless Headphones</h3>
+<p class="font-price-lg text-price-lg">₹24,990</p>
+</div>
+<div class="mt-xs inline-flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[10px] font-bold text-secondary uppercase tracking-tight">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                Official Store
+                            </div>
+<p class="text-body-sm text-on-surface-variant mt-xs">Color: Platinum Silver</p>
+<p class="text-body-sm text-success-green font-semibold mt-xs">Estimated Delivery: Thursday, 12 Oct</p>
+</div>
+</div>
+</section>
+<!-- Payment Method Card -->
+<section class="bg-surface-container-lowest p-lg border border-border-gray rounded">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">payments</span>
+<h2 class="font-headline-sm text-headline-sm">Select Payment Method</h2>
+</div>
+<div class="space-y-md">
+<!-- UPI Option -->
+<div class="relative">
+<input checked="" class="peer hidden payment-radio" id="upi" name="payment" type="radio">
+<label class="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low" for="upi">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">qr_code_2</span>
+<div>
+<p class="font-label-bold text-body-lg">UPI (GPay, PhonePe, Paytm)</p>
+<p class="text-body-sm text-on-surface-variant">Pay directly from your bank account</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-5 bg-surface-container rounded-sm"></div>
+<div class="w-8 h-5 bg-surface-container rounded-sm"></div>
+</div>
+</label>
+</div>
+<!-- Card Option -->
+<div class="relative">
+<input class="peer hidden payment-radio" id="card" name="payment" type="radio">
+<label class="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low" for="card">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">credit_card</span>
+<div>
+<p class="font-label-bold text-body-lg">Credit / Debit Card</p>
+<p class="text-body-sm text-on-surface-variant">All major cards accepted. Secure 128-bit encryption.</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary opacity-50">contactless</span>
+</div>
+</label>
+</div>
+<!-- Net Banking -->
+<div class="relative">
+<input class="peer hidden payment-radio" id="netbanking" name="payment" type="radio">
+<label class="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low" for="netbanking">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+<div>
+<p class="font-label-bold text-body-lg">Net Banking</p>
+<p class="text-body-sm text-on-surface-variant">Select from 50+ Indian banks</p>
+</div>
+</div>
+</label>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Summary & Escrow -->
+<div class="lg:col-span-4 space-y-base">
+<!-- Escrow Explainer -->
+<section class="bg-primary text-on-primary p-lg rounded flex gap-base items-start">
+<span class="material-symbols-outlined text-accent-yellow text-headline-md" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<h3 class="font-label-bold text-body-lg mb-xs">MINIBRANDS Shield Protection</h3>
+<p class="text-body-sm text-on-primary-container leading-relaxed">Your payment is protected. Funds are held securely and released to the seller only after successful delivery confirmation.</p>
+</div>
+</section>
+<!-- Payment Summary -->
+<section class="bg-surface-container-lowest border border-border-gray rounded sticky top-24 overflow-hidden">
+<div class="p-lg bg-surface-container-low border-b border-border-gray">
+<h2 class="font-headline-sm text-headline-sm">Order Summary</h2>
+</div>
+<div class="p-lg space-y-md">
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span class="">Price (2 items)</span>
+<span class="">₹32,489</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span class="">Delivery Charges</span>
+<span class="text-success-green font-semibold">FREE</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span class="">Secured Packaging Fee</span>
+<span class="">₹59</span>
+</div>
+<div class="flex justify-between text-body-md text-on-surface-variant">
+<span class="">Platform Fee</span>
+<span class="">₹10</span>
+</div>
+<div class="pt-base border-t border-dashed border-border-gray">
+<div class="flex justify-between items-baseline mb-base">
+<span class="font-headline-sm text-headline-sm">Total Payable</span>
+<span class="font-headline-md text-headline-md">₹32,558</span>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary text-on-primary py-lg rounded-lg font-headline-sm flex items-center justify-center gap-base active:scale-[0.98] transition-transform hover:opacity-90">
+<span class="material-symbols-outlined">lock</span>
+                                Pay Securely ₹32,558
+                            </button>
+</div>
+<p class="text-[10px] text-center text-on-surface-variant mt-sm">
+                            By clicking Pay Securely, you agree to our <a class="underline" href="#">Terms of Service</a>. Your data is encrypted and secure.
+                        </p>
+</div>
+<!-- Trust Badges -->
+<div class="px-lg pb-lg flex justify-center items-center gap-lg grayscale opacity-50">
+<span class="material-symbols-outlined" title="Secure SSL">lock</span>
+<span class="material-symbols-outlined" title="Verified Payments">verified</span>
+<span class="material-symbols-outlined" title="24/7 Support">support_agent</span>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xxl bg-surface-container-high border-t border-border-gray">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
+<div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-primary mb-base">MINIBRANDS</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">India's leading marketplace for direct-to-consumer and boutique brands. Quality products, secure payments, and fast delivery.</p>
+</div>
+<div class="space-y-sm">
+<h5 class="font-label-bold text-primary">About</h5>
+<ul class="space-y-xs">
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">About Us</a></li>
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Contact Us</a></li>
+</ul>
+</div>
+<div class="space-y-sm">
+<h5 class="font-label-bold text-primary">Policy</h5>
+<ul class="space-y-xs">
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</a></li>
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</a></li>
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Return Policy</a></li>
+</ul>
+</div>
+<div class="space-y-sm">
+<h5 class="font-label-bold text-primary">Help</h5>
+<ul class="space-y-xs">
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Payments</a></li>
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Shipping</a></li>
+<li class=""><a class="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Cancellation &amp; Returns</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-border-gray py-base px-base text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 MINIBRANDS India. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        // Simple Interaction for payment method selection
+        document.querySelectorAll('input[name="payment"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                console.log(`Payment method changed to: ${e.target.id}`);
+                // Could trigger dynamic payment form fields here (e.g. UPI ID vs Card details)
+            });
+        });
+    </script>
+
+
+</body></html>

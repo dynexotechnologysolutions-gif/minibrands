@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Wishlist | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-red": "#DC2626",
+                        "text-muted": "#6B7280",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-surface-variant": "#4c4546",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface": "#1b1b1b",
+                        "on-tertiary-container": "#848484",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#1b1b1b",
+                        "surface-bright": "#f9f9f9",
+                        "on-primary-fixed": "#1b1b1b",
+                        "tertiary-container": "#1b1b1b",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e2e2e2",
+                        "success-green": "#16A34A",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "secondary": "#5d5f5f",
+                        "inverse-surface": "#303030",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "border-gray": "#E5E7EB",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "surface-container": "#eeeeee",
+                        "on-secondary-container": "#616363",
+                        "surface-container-high": "#e8e8e8",
+                        "outline": "#7e7576",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-background": "#1b1b1b",
+                        "secondary-container": "#dfe0e0",
+                        "accent-yellow": "#F59E0B",
+                        "surface-dim": "#dadada",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface": "#f9f9f9",
+                        "background": "#f9f9f9",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#c6c6c6",
+                        "surface-variant": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "on-primary-container": "#848484",
+                        "outline-variant": "#cfc4c5",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "surface-bg": "#F1F5F9",
+                        "surface-tint": "#5e5e5e",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "primary": "#000000",
+                        "inverse-on-surface": "#f1f1f1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xl": "32px",
+                        "container-max": "1280px",
+                        "base": "16px",
+                        "md": "12px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "price-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 w-full flex justify-between items-center px-base lg:px-xl py-md bg-surface dark:bg-surface-container border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-xl">
+<a class="font-headline-md text-headline-md font-black tracking-tighter text-primary dark:text-primary-fixed" href="#">MINIBRANDS</a>
+<div class="hidden lg:flex items-center gap-lg">
+<nav class="flex gap-lg font-body-md text-body-md">
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer active:opacity-70" href="#">Categories</a>
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer active:opacity-70" href="#">New Arrivals</a>
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer active:opacity-70" href="#">Offers</a>
+<a class="text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary transition-colors cursor-pointer active:opacity-70" href="#">Help</a>
+</nav>
+</div>
+</div>
+<div class="flex-1 max-w-xl mx-xl hidden md:block">
+<div class="relative flex items-center bg-surface-container-low px-md py-xs rounded">
+<span class="material-symbols-outlined text-secondary mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md font-body-md" placeholder="Search for products, brands and more" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex flex-col items-center cursor-pointer group text-primary font-bold border-b-2 border-primary pb-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-[10px] hidden lg:block">Wishlist</span>
+</div>
+<div class="flex flex-col items-center cursor-pointer text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="text-[10px] hidden lg:block">Cart</span>
+</div>
+<div class="flex flex-col items-center cursor-pointer text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] hidden lg:block">Profile</span>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-base lg:px-xl py-xl">
+<!-- Title -->
+<div class="flex items-baseline gap-sm mb-xl">
+<h1 class="font-headline-lg text-headline-lg text-primary">My Wishlist</h1>
+<span class="font-body-lg text-body-lg text-text-muted">(4 Items)</span>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-base lg:gap-lg mb-xxl">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest border border-border-gray relative flex flex-col hover:shadow-md transition-shadow">
+<button class="absolute top-sm right-sm z-10 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center text-secondary hover:text-error-red transition-colors">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<div class="aspect-[3/4] w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional studio photograph of a woman wearing a luxurious navy blue silk saree with intricate gold floral patterns. The model is posed elegantly against a clean white backdrop, showcasing the traditional Indian attire's drapes and the heavy zari border. The lighting is soft and even, emphasizing the rich texture of the fabric and the gold metallic embroidery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_wXsae9Rg9GijThdsbsr2izIRAA7L2O4Zt8zJm781bKt1Oy8udkxNme48zRSJvvWxJGQo4R7npSPsKd3S4n0D__Jdux-wKWh8Brfbnz3kps5ze8S3zGJr7vt5pnMCEvMVJo3vclErt5Z0DiAhIOFyrLnaDBJah2XWVwN2xRtWV87KR-w9rWUI5UzxspF53KgJZ7HTS2GDUPnkz0S1jTtZPbSdinO8Fyk-adCujzJait2gyeX4E_UYg4Jo7t9n88MfNHt02tT1D6CM"/>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<span class="font-label-bold text-body-sm text-text-muted uppercase tracking-wider mb-xs">EthnoVibe</span>
+<h3 class="font-body-md text-body-md text-on-surface truncate mb-sm">Woven Banarasi Silk Saree</h3>
+<div class="flex items-center gap-sm mb-md">
+<span class="font-price-lg text-price-lg text-primary">₹3,499</span>
+<span class="text-body-sm text-text-muted line-through">₹7,999</span>
+<span class="text-body-sm text-accent-yellow font-bold">(56% OFF)</span>
+</div>
+<button class="mt-auto w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg uppercase hover:bg-on-surface-variant transition-colors">
+                        MOVE TO CART
+                    </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest border border-border-gray relative flex flex-col hover:shadow-md transition-shadow">
+<button class="absolute top-sm right-sm z-10 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center text-secondary hover:text-error-red transition-colors">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<div class="aspect-[3/4] w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A full-length fashion shot of a male model wearing a premium charcoal grey oversized hoodie paired with light blue distressed denim jeans. The setting is an urban concrete background with minimalist architecture. The lighting is natural and diffuse, highlighting the fabric quality and the relaxed, modern streetwear aesthetic of the outfit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB467TCGCWXRc07_TCb4NOnz6AX2LvHEzp8UDCEHTlob2h5soJCyFS_Y0_k6cZa4au15LvZU-g3ihIvFq4iCSxOtT0Me835piFFWHdPv_akXC1Ya9zLMdupFM4cgwwPzBi7csmYOjd3TkawdvynfIkKxceijTp3MR7jeInVjVPUPPWQTf4DAgeQcdC0Kl0NbFsaEXyU0ceHN8x_Kxmx_lUfFvMgIOrqAiqQTS7s0SR9BRI08ffnsbNCYZhuXX03aJfvoWFEZvWYYnnR"/>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<span class="font-label-bold text-body-sm text-text-muted uppercase tracking-wider mb-xs">StreetCulture</span>
+<h3 class="font-body-md text-body-md text-on-surface truncate mb-sm">Urban Oversized Hoodie</h3>
+<div class="flex items-center gap-sm mb-md">
+<span class="font-price-lg text-price-lg text-primary">₹1,899</span>
+<span class="text-body-sm text-text-muted line-through">₹2,499</span>
+<span class="text-body-sm text-accent-yellow font-bold">(24% OFF)</span>
+</div>
+<button class="mt-auto w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg uppercase hover:bg-on-surface-variant transition-colors">
+                        MOVE TO CART
+                    </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest border border-border-gray relative flex flex-col hover:shadow-md transition-shadow">
+<button class="absolute top-sm right-sm z-10 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center text-secondary hover:text-error-red transition-colors">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<div class="aspect-[3/4] w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A lifestyle product photo of a sophisticated table lamp with a ceramic base featuring an earthy orange and grey splatter glaze. The lamp has a neutral beige linen shade and is placed on a rustic wooden side table next to a soft cream-colored sofa. The warm ambient glow of the lamp creates a cozy, minimalist interior design atmosphere in a bright room." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdPB8dM_59wWHCvsDgcyARxq6xeVciZtioVGEkVdLlmI9DJgTxzoFD5yyJjYtoUdMlH1BUS443VSBmDfYlGmrnhfjgbSllJ1VFsuFl5NosxXpvGIeolLEEgYqsQkoqeSpa2L_LTiJEJc_lJ4iGmm1JJitGqH6aKEp6PpcqQ5q7WLwft-ODmu8fxp9jQvs44WvnLSBYmKYHKcEr1mrhrd3ByiF8UnfFx9out1fAE8ePiFmFdJjtHm0yIeYtbxzSI5Zt_bSmSWQ5Bd7S"/>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<span class="font-label-bold text-body-sm text-text-muted uppercase tracking-wider mb-xs">Urban Wear</span>
+<h3 class="font-body-md text-body-md text-on-surface truncate mb-sm">Artisanal Ceramic Lamp</h3>
+<div class="flex items-center gap-sm mb-md">
+<span class="font-price-lg text-price-lg text-primary">₹4,200</span>
+<span class="text-body-sm text-text-muted line-through">₹5,500</span>
+<span class="text-body-sm text-accent-yellow font-bold">(23% OFF)</span>
+</div>
+<button class="mt-auto w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg uppercase hover:bg-on-surface-variant transition-colors">
+                        MOVE TO CART
+                    </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest border border-border-gray relative flex flex-col hover:shadow-md transition-shadow">
+<button class="absolute top-sm right-sm z-10 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center text-secondary hover:text-error-red transition-colors">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<div class="aspect-[3/4] w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A portrait of a male model dressed in a smart-casual olive green linen shirt with a mandarin collar, paired with tailored beige chinos and brown suede loafers. He is standing in a brightly lit, minimalist grey-walled studio next to a large window. The look is clean, professional, and elegant, reflecting a high-end contemporary fashion brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-7pGhWeKvjDtFwATwAXYKYkozUPReEvizk_ay1YrQidyFMyHlG0_GGeo14hy55rle3wwpy7qDweL0cddVG9LCd_hmbVQj14yDe6DCrO0QpMybCoEgSglYqxwaTUGc9It0yMIISJuMKpFMbnJADEPANR1NRYSUPL8tXEoGRcj0ekMptMEM-p5bamhv9DT7HXfXMMY9PbrGoidRg7S5FR9fFaui6XlhdWXh1eLo6jIYLNJW76HveBoPvf393zTvVsVpgpFaX7QAEa_L"/>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<span class="font-label-bold text-body-sm text-text-muted uppercase tracking-wider mb-xs">EthnoVibe</span>
+<h3 class="font-body-md text-body-md text-on-surface truncate mb-sm">Pure Linen Mandarin Shirt</h3>
+<div class="flex items-center gap-sm mb-md">
+<span class="font-price-lg text-price-lg text-primary">₹1,599</span>
+<span class="text-body-sm text-text-muted line-through">₹2,999</span>
+<span class="text-body-sm text-accent-yellow font-bold">(46% OFF)</span>
+</div>
+<button class="mt-auto w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg uppercase hover:bg-on-surface-variant transition-colors">
+                        MOVE TO CART
+                    </button>
+</div>
+</div>
+</div>
+<!-- Recently Viewed Section -->
+<section class="border-t border-border-gray pt-xl">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-lg">Recently Viewed</h2>
+<div class="flex overflow-x-auto gap-base pb-base no-scrollbar">
+<!-- Recently Viewed Card 1 -->
+<div class="flex-shrink-0 w-48 bg-surface-container-lowest border border-border-gray group">
+<div class="aspect-[3/4] w-full">
+<img class="w-full h-full object-cover" data-alt="A minimalist pair of white leather sneakers displayed on a light marble pedestal. The lighting is crisp and bright, accentuating the clean lines and premium texture of the footwear. The overall mood is sophisticated and commerce-focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8bo0F_c2tZ8uYsDg63Hl5mU5vi07wZnXoIynWqbviQAcE7kRk4bwhG-Zf08V__FAzbnPVoI8-z6nM8dD_-OCF1L0Io28VidLdek861Z7HE-0J4Rapa2B7EP6QPJfkiFQl9LTvjyxQIHctVgk4BLcOAibSrYqLvFIt-ixYMbAA9OYxHuGU55OP6RMz9rGH4J1Vl6UJhZaCMSqDzzMFQ1V1udnLvrxMEu1Q38sOj5rh_y2-ZdGRrwthxSKz12jxAhBinq6k-NXMkMH_"/>
+</div>
+<div class="p-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface truncate">Classic White Sneakers</h4>
+<p class="font-label-bold text-body-sm text-primary">₹2,999</p>
+</div>
+</div>
+<!-- Recently Viewed Card 2 -->
+<div class="flex-shrink-0 w-48 bg-surface-container-lowest border border-border-gray group">
+<div class="aspect-[3/4] w-full">
+<img class="w-full h-full object-cover" data-alt="A premium black leather wallet and a stainless steel watch set on a dark wood surface. High-contrast lighting highlights the metallic glint and leather grain, conveying quality and luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALVlpoczr3zjbFrvOfSrb49al8XKFYu734hG9EZ2zPSQPH7apIz2f2JkzDXOKRLXDPfvCaDMio9FpGB3Ghd9S8mXNx6cGKx-rafbNi0ctLad6JzAdp0HQJpMSy4PFZmNlYfHf6K5aarRfOIHeABKcAvt-hrzvsBKXMr-ntHvDEPl6bGe2cTA9UIkw9wGF4VouK10f51oksxZ_JBp39UnzCzOqUXsUUUTRG5Nup7e5PnriYsV93cDCHZr68XnzesbaOobwoNwdkkRMB"/>
+</div>
+<div class="p-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface truncate">Essential Acc. Set</h4>
+<p class="font-label-bold text-body-sm text-primary">₹4,499</p>
+</div>
+</div>
+<!-- Recently Viewed Card 3 -->
+<div class="flex-shrink-0 w-48 bg-surface-container-lowest border border-border-gray group">
+<div class="aspect-[3/4] w-full">
+<img class="w-full h-full object-cover" data-alt="A vibrant yellow cotton summer dress hanging on a wooden rail against a white wall. Soft morning light creates gentle shadows, emphasizing the airy fabric and bright, cheerful color." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1W42Ra3YxdOOvC7mfRDVfLBR1fIBLiHz4sVYLogTuzxxpMZ2GFuJ44EPDNAtfPOJizmxe1OwI7H42pMpdkUJBTWvTyTP3azMRM8FwB3KuYxMlRokX1sA9jjxSoHp0dUrO-CrAdFPKfIytPAkkSHI1zSA_Dzn-GOi-TmYiXS8KlM9K5N9NnLuZjlwfJwiviaWXUe_mqn-FJjpcBFwvIU28Jtfvu9M_Loau9uyizhYecRy30YVzK3ammhphdWONiuPOwt9xJRjHpfcb"/>
+</div>
+<div class="p-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface truncate">Sunflower Summer Dress</h4>
+<p class="font-label-bold text-body-sm text-primary">₹1,299</p>
+</div>
+</div>
+<!-- Recently Viewed Card 4 -->
+<div class="flex-shrink-0 w-48 bg-surface-container-lowest border border-border-gray group">
+<div class="aspect-[3/4] w-full">
+<img class="w-full h-full object-cover" data-alt="A sleek navy blue laptop sleeve made of recycled felt, displayed in a clean desktop setting with a small plant. The lighting is professional and clear, showing the modern professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnpLTpuvpmRj0Gghqu69IPXohKANbv2yiBHhymhA12gfi2CK_r59aL_wF2-sNybhJva2P2tuCbrDxF4fE92fuM6-THFmAG8v--G__6Zn499g8tkVtyHQ5FRG9KYT_dC97tGk39Q99GiABfjCF2hPm3whtVsyfHxn6bd9EyT3BuPOthx7oBTYG7bO6DTl_FDO9Nrdi53YpzdjTdyEmt24PS1BP5dg7L-ODvPh_cxSyjsYyEGaQKgiA-MwlltAHt-nVb5nCVlR8ZiZ6h"/>
+</div>
+<div class="p-sm">
+<h4 class="font-body-sm text-body-sm text-on-surface truncate">Eco-Felt Laptop Case</h4>
+<p class="font-label-bold text-body-sm text-primary">₹999</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl px-base lg:px-xl flex flex-col md:flex-row justify-between items-center gap-base bg-surface-container-highest dark:bg-surface-container-low border-t border-outline-variant dark:border-outline">
+<div class="flex flex-col items-center md:items-start gap-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">MINIBRANDS</span>
+<p class="font-body-sm text-body-sm text-on-surface dark:text-on-surface-variant">© 2024 MINIBRANDS India. All rights reserved. Secure Marketplace.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">Buyer Protection</a>
+<a class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">Contact Us</a>
+<a class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">Track Order</a>
+</div>
+</footer>
+<!-- Interaction Script -->
+<script>
+        // Simple micro-interaction for removing items
+        document.querySelectorAll('button .material-symbols-outlined').forEach(btn => {
+            if (btn.innerText === 'close') {
+                btn.closest('button').addEventListener('click', function() {
+                    const card = this.closest('.group');
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        card.remove();
+                        // Update count logic could be added here
+                    }, 300);
+                });
+            }
+        });
+    </script>
+</body></html>

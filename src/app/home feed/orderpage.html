@@ -1,0 +1,355 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>My Orders | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-primary-fixed": "#1b1b1b",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-surface": "#1b1b1b",
+                    "on-primary-container": "#848484",
+                    "secondary": "#5d5f5f",
+                    "surface-tint": "#5e5e5e",
+                    "on-surface-variant": "#4c4546",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#e2e2e2",
+                    "on-background": "#1b1b1b",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#cfc4c5",
+                    "border-gray": "#E5E7EB",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "surface-bright": "#f9f9f9",
+                    "secondary-container": "#dfe0e0",
+                    "primary-container": "#1b1b1b",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "surface-container-highest": "#e2e2e2",
+                    "text-muted": "#6B7280",
+                    "surface-variant": "#e2e2e2",
+                    "on-tertiary-container": "#848484",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#c6c6c6",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "primary": "#000000",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "tertiary-container": "#1b1b1b",
+                    "error-red": "#DC2626",
+                    "outline": "#7e7576",
+                    "surface": "#f9f9f9",
+                    "surface-bg": "#F1F5F9",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dadada",
+                    "inverse-surface": "#303030",
+                    "success-green": "#16A34A",
+                    "surface-container-high": "#e8e8e8",
+                    "accent-yellow": "#F59E0B",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#000000",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary-container": "#616363",
+                    "background": "#f9f9f9",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-container": "#eeeeee"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xxl": "48px",
+                    "xl": "32px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "container-max": "1280px",
+                    "md": "12px",
+                    "base": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "price-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 20px;
+        }
+        body {
+            background-color: #F1F5F9;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-gray sticky top-0 z-50 shadow-sm w-full">
+<div class="max-w-container-max mx-auto px-4 md:px-lg h-16 flex items-center justify-between">
+<div class="flex items-center gap-xl">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">MINIBRANDS</a>
+<div class="hidden md:flex items-center bg-surface-container rounded px-3 py-1.5 border border-gray w-80">
+<span class="material-symbols-outlined text-secondary mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full outline-none" placeholder="Search for products, brands and more" type="text">
+</div>
+<nav class="hidden md:flex items-center gap-base">
+<a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="#">Offers</a>
+<a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="#">Wallet</a>
+<a class="font-body-md text-body-md text-primary border-b-2 border-primary pb-1" href="#">Orders</a>
+</nav>
+</div>
+<div class="flex items-center gap-base">
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-transform active:scale-95">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-transform active:scale-95">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-transform active:scale-95 relative">
+<span class="material-symbols-outlined">cast</span>
+<span class="absolute top-1 right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container rounded-full transition-transform active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-lg py-xl">
+<!-- Header Section -->
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg text-primary">My Orders</h1>
+<p class="font-body-lg text-body-lg text-secondary">Track, manage and review your purchases</p>
+</div>
+<div class="flex flex-col md:flex-row gap-lg">
+<!-- Left Sidebar Filters -->
+
+<!-- Main Order List Area -->
+<section class="flex-1 space-y-base">
+<!-- Order Search & Status Count -->
+<div class="flex flex-col md:flex-row items-center justify-between bg-surface border border-gray rounded p-base gap-base">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full pl-10 pr-base py-2 bg-surface-container border border-gray rounded text-body-sm outline-none focus:border-primary" placeholder="Search your orders" type="text">
+</div>
+<div class="flex items-center gap-base">
+<span class="font-body-sm text-body-sm text-secondary">Showing 1-3 of 42 orders</span>
+<select class="bg-surface-container border border-gray rounded px-2 py-1.5 text-body-sm outline-none cursor-pointer">
+<option>Newest First</option>
+<option>Oldest First</option>
+</select>
+</div>
+</div>
+<!-- DELIVERED ORDER CARD -->
+<div class="bg-surface border border-gray rounded overflow-hidden hover:shadow-md transition-shadow">
+<div class="p-base md:flex items-start gap-lg">
+<div class="w-24 h-24 flex-shrink-0 mb-base md:mb-0">
+<img class="w-full h-full object-cover border border-gray rounded" data-alt="A luxurious, vibrant peacock blue premium silk saree with intricate golden zari embroidery. The fabric is draped elegantly against a minimalist, warm-toned interior backdrop with soft, diffused morning sunlight hitting the fine threads, showcasing a professional commerce-focused aesthetic in high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwM6SyDl6Gu5xKlydWWqg677x4bsMbbw6si-Yq2ga3QcUNh-4KNz0F8zIoxqQs9_XJc8ngUNCISSg0u4ag2W22ijZkUhEOD2pjqYrIUqGLE8vBFrtUTKagFkDsiMkxqwckQ_rG7RnouV53LCqfUyKtZKMAO1Lmt-VqGM1JPt-KX4GWmOnTb-Crv2JvGGf08WYDrL3ZOMXqwGBRbb2bARdy-jk_ZXblGykpTberPAOyVvy4OxTqQZuGlKWNMKxKc3jBN-Dc7tXfjGyh">
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-label-bold text-label-bold text-primary">Premium Silk Saree</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Color: Peacock Blue, Size: One Size</p>
+<p class="font-price-lg text-price-lg mt-sm">₹8,499</p>
+</div>
+<div class="text-right">
+<div class="flex items-center gap-sm text-success-green font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                        Delivered on Oct 12, 2024
+                                    </div>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Your item has been delivered</p>
+</div>
+</div>
+<div class="mt-lg flex items-center gap-base">
+<button class="flex items-center gap-sm px-base py-2 bg-accent-yellow text-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95">
+<span class="material-symbols-outlined">refresh</span>
+                                    Buy It Again
+                                </button>
+<button class="flex items-center gap-sm px-base py-2 border border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95">
+<span class="material-symbols-outlined">grade</span>
+                                    Rate Product
+                                </button>
+<button class="ml-auto text-secondary font-label-bold text-label-bold hover:text-primary transition-colors">Order Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- SHIPPED ORDER CARD -->
+<div class="bg-surface border border-gray rounded overflow-hidden hover:shadow-md transition-shadow">
+<div class="p-base md:flex items-start gap-lg">
+<div class="w-24 h-24 flex-shrink-0 mb-base md:mb-0">
+<img class="w-full h-full object-cover border border-gray rounded" data-alt="A handcrafted ceramic table lamp with a unique hand-thrown texture in a muted oatmeal glaze. The lamp base is substantial and artisanal, topped with a clean linen shade. The shot is a professional product photograph with a soft-focus living room background and warm ambient lighting, reflecting a premium shopping experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCX-VepxEAvCtuihLXsC3wpBcvB922FQpogqeEJcffsqV7ORgpGGPleQxt4YPonLocqGu-ttgX-fonDHxOxnApzvyJIUMm2TIy069TuR1CqDP3jFbNbFOccJx7t0lCvGYdTL4ujuokt0yHTjC5NpwZftoW7YHetBc353Ul5w81c-4_dbAb-wkRamFlvxpAXQIA6XSrkG0xuGx-BG4mbodBqbQEJhPKf5XIZ0vnTzkloGI-ErBWpyYA4uvX4_03taThgTjAJ2jJ0mEA">
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-label-bold text-label-bold text-primary">Hand-Thrown Ceramic Lamp</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Style: Artisanal Grey</p>
+<p class="font-price-lg text-price-lg mt-sm">₹2,250</p>
+</div>
+<div class="text-right">
+<div class="flex items-center gap-sm text-primary font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                                        Arriving by Oct 24
+                                    </div>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Shipped via Logistics Partner</p>
+</div>
+</div>
+<!-- Progress Tracker -->
+<div class="mt-lg pt-base border-t border-gray">
+<div class="relative flex items-center justify-between px-4 max-w-md">
+<!-- Connector Line -->
+<div class="absolute left-8 right-8 top-1.5 h-1 bg-gray z-0">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-1 text-center">
+<div class="w-3 h-3 rounded-full bg-primary border-4 border-white shadow-sm"></div>
+<span class="font-body-sm text-[10px] text-primary font-bold uppercase tracking-tight">Ordered</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-1 text-center">
+<div class="w-3 h-3 rounded-full bg-primary border-4 border-white shadow-sm"></div>
+<span class="font-body-sm text-[10px] text-primary font-bold uppercase tracking-tight">Packed</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-1 text-center">
+<div class="w-3 h-3 rounded-full bg-primary border-4 border-white shadow-sm"></div>
+<span class="font-body-sm text-[10px] text-primary font-bold uppercase tracking-tight">Shipped</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-1 text-center opacity-40">
+<div class="w-3 h-3 rounded-full bg-gray border-4 border-white shadow-sm"></div>
+<span class="font-body-sm text-[10px] text-secondary font-bold uppercase tracking-tight">Delivered</span>
+</div>
+</div>
+</div>
+<div class="mt-lg flex items-center gap-base">
+<button class="px-base py-2 bg-primary text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95">Track Package</button>
+<button class="px-base py-2 border border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95">Support</button>
+</div>
+</div>
+</div>
+</div>
+<!-- PROCESSING ORDER CARD -->
+<div class="bg-surface border border-gray rounded overflow-hidden hover:shadow-md transition-shadow">
+<div class="p-base md:flex items-start gap-lg">
+<div class="w-24 h-24 flex-shrink-0 mb-base md:mb-0">
+<img class="w-full h-full object-cover border border-gray rounded" data-alt="A stylish, ethnic cotton kurti with delicate white block prints on a soft terracotta base. The garment is laid out flat on a clean white surface, showcasing the breathable fabric texture and precise stitching. High-density commercial lighting highlights the quality of the cotton, following a modern commerce aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs7eSuENRsPaWLVFrS665LkLkp6R2vWmy89W0PwJolSPLStLnoXaHtxWvl2aavSovV7uyayxLVc-TlRqTJkd3k0HRIxBtgGZTVvsFTC8CWLTtnFXbxvEjItg0XSd7bDzE1KJul5WC0U3lVCmkGv_Kq69Aiab7_ygejiP8cTP6o0BtfixgHnTsM64o4pIC6LzZMwky3szDhdH40LiN2nA-3cOuyTdvBYWKDTe1qxvE0JnIQ-Seoi88P7ApNM9VuyB1Y4daSDPYIerAA">
+</div>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-label-bold text-label-bold text-primary">Cotton Kurti</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Size: M, Material: 100% Cotton</p>
+<p class="font-price-lg text-price-lg mt-sm">₹1,199</p>
+</div>
+<div class="text-right">
+<div class="flex items-center gap-sm text-accent-yellow font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[18px]">inventory</span>
+                                        Processing
+                                    </div>
+<p class="font-body-sm text-body-sm text-secondary mt-xs">Preparing for dispatch</p>
+</div>
+</div>
+<div class="mt-lg flex items-center gap-base">
+<button class="px-base py-2 border border-error text-error font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95">Cancel Order</button>
+<button class="px-base py-2 border border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95">Change Address</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container border-t border-gray w-full mt-xxl py-xl px-4 md:px-lg">
+<div class="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-lg">
+<div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-primary mb-base">MINIBRANDS</h4>
+<p class="font-body-sm text-body-sm text-on-surface">Experience the joy of high-density shopping with the most trusted brands in India.</p>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-primary mb-md">About</h5>
+<ul class="space-y-sm">
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">About Us</a></li>
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Contact Us</a></li>
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Seller Policies</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-primary mb-md">Support</h5>
+<ul class="space-y-sm">
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li class=""><a class="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-bold text-label-bold text-primary mb-md">Connect</h5>
+<div class="flex gap-base">
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">face_nod</span>
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">hub</span>
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">alternate_email</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-lg">© 2024 MINIBRANDS. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+
+        // Filter checkbox logic mock
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(box => {
+            box.addEventListener('change', () => {
+                const card = box.closest('label');
+                if(box.checked) {
+                    card.querySelector('span').classList.add('text-primary', 'font-bold');
+                } else {
+                    card.querySelector('span').classList.remove('text-primary', 'font-bold');
+                }
+            });
+        });
+    </script>
+
+
+</body></html>

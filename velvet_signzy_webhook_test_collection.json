@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "c1a2e3b4-5678-490a-bcde-f1234567890a",
+    "name": "Velvet Lane - Signzy Webhook Integration",
+    "description": "Collection to test the Signzy webhook endpoint (/api/webhooks/signzy) under different face match outcomes and signature validations. Make sure to define the base_url (default: http://localhost:3000) and signzy_webhook_secret (default: mock_signzy_webhook_secret) environment variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "KYC Status - Auto Approved (Score 85)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Automatically compute the HMAC-SHA256 signature from the request body",
+              "const secret = pm.collectionVariables.get('signzy_webhook_secret') || 'mock_signzy_webhook_secret';",
+              "const body = pm.request.body.raw;",
+              "const hmac = CryptoJS.HmacSHA256(body, secret);",
+              "const signature = hmac.toString(CryptoJS.enc.Hex);",
+              "pm.request.headers.add({",
+              "    key: 'x-signzy-signature',",
+              "    value: signature",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"referenceId\": \"signzy_ref_mock_id_123\",\n  \"status\": \"completed\",\n  \"faceMatchScore\": 85\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/webhooks/signzy",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "webhooks",
+            "signzy"
+          ]
+        },
+        "description": "Simulates a successful Aadhaar KYC face match. Triggers automatic approval (kycStatus = 'auto_approved') and updates trustScore to 50 if the bank account is already verified."
+      },
+      "response": []
+    },
+    {
+      "name": "KYC Status - Manual Review (Score 70)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secret = pm.collectionVariables.get('signzy_webhook_secret') || 'mock_signzy_webhook_secret';",
+              "const body = pm.request.body.raw;",
+              "const hmac = CryptoJS.HmacSHA256(body, secret);",
+              "const signature = hmac.toString(CryptoJS.enc.Hex);",
+              "pm.request.headers.add({",
+              "    key: 'x-signzy-signature',",
+              "    value: signature",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"referenceId\": \"signzy_ref_mock_id_123\",\n  \"status\": \"completed\",\n  \"faceMatchScore\": 70\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/webhooks/signzy",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "webhooks",
+            "signzy"
+          ]
+        },
+        "description": "Simulates a borderline Aadhaar KYC face match. Triggers a manual review flag (kycStatus = 'manual_review')."
+      },
+      "response": []
+    },
+    {
+      "name": "KYC Status - Rejected (Score 45)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secret = pm.collectionVariables.get('signzy_webhook_secret') || 'mock_signzy_webhook_secret';",
+              "const body = pm.request.body.raw;",
+              "const hmac = CryptoJS.HmacSHA256(body, secret);",
+              "const signature = hmac.toString(CryptoJS.enc.Hex);",
+              "pm.request.headers.add({",
+              "    key: 'x-signzy-signature',",
+              "    value: signature",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"referenceId\": \"signzy_ref_mock_id_123\",\n  \"status\": \"completed\",\n  \"faceMatchScore\": 45\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/webhooks/signzy",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "webhooks",
+            "signzy"
+          ]
+        },
+        "description": "Simulates a failed Aadhaar KYC face match. Triggers rejection status (kycStatus = 'rejected')."
+      },
+      "response": []
+    },
+    {
+      "name": "KYC Status - Invalid Signature Test",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-signzy-signature",
+            "value": "incorrect_or_forged_signature_token",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"referenceId\": \"signzy_ref_mock_id_123\",\n  \"status\": \"completed\",\n  \"faceMatchScore\": 85\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/webhooks/signzy",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "webhooks",
+            "signzy"
+          ]
+        },
+        "description": "Ensures that the endpoint rejects calls without a valid signature with HTTP 400 Bad Request."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "signzy_webhook_secret",
+      "value": "mock_signzy_webhook_secret",
+      "type": "string"
+    }
+  ]
+}

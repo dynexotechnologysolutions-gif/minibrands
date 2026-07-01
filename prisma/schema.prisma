@@ -1,0 +1,275 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String       @id
+  name          String
+  email         String
+  emailVerified Boolean      @default(false)
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  userProfile   UserProfile?
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @default(BUYER)
+  createdAt DateTime @default(now())
+  seller    Seller?
+  addresses Address[]
+  orders    Order[]
+
+  @@index([role])
+  @@map("user_profile")
+}
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+model Seller {
+  id               String              @id @default(uuid())
+  userProfileId    String              @unique
+  userProfile      UserProfile         @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  businessName     String
+  storeName        String              @default("")
+  storeLogo        String?
+  storeBanner      String?
+  storeDescription String?
+  category         String
+  city             String
+  verification     SellerVerification?
+  products         Product[]
+  orders           Order[]
+  createdAt        DateTime            @default(now())
+
+  @@index([city])
+  @@index([category])
+  @@map("seller")
+}
+
+model SellerVerification {
+  id                String    @id @default(uuid())
+  sellerId          String    @unique
+  seller            Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  kycStatus         String    @default("pending")
+  signzyReferenceId String?
+  faceMatchScore    Float?
+  bankAccountLast4  String?
+  bankVerified      Boolean   @default(false)
+  trustScore        Float     @default(0)
+  rejectionReason   String?
+  verifiedAt        DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([kycStatus])
+  @@map("seller_verification")
+}
+
+model Product {
+  id                String           @id @default(uuid())
+  sellerId          String
+  seller            Seller           @relation(fields: [sellerId], references: [id])
+  name              String
+  shortDescription  String
+  fullDescription   String
+  category          String
+  subcategory       String?
+  tags              String[]
+  price             Int              // paise (smallest INR unit)
+  isPublished       Boolean          @default(false)
+  publishedAt       DateTime?
+  isDeleted         Boolean          @default(false)
+  aiGenerated       Boolean          @default(false)
+  images            ProductImage[]
+  variants          ProductVariant[]
+  orderItems        OrderItem[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([sellerId])
+  @@index([category])
+  @@index([isPublished])
+  @@index([isDeleted])
+  @@index([isPublished, category])
+  @@map("product")
+}
+
+model ProductImage {
+  id                 String   @id @default(uuid())
+  productId          String
+  product            Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cloudinaryPublicId String
+  url                String
+  sortOrder          Int      @default(0)
+
+  @@index([productId])
+  @@map("product_image")
+}
+
+model ProductVariant {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size        String
+  stockCount  Int      @default(0)
+  orderItems  OrderItem[]
+
+  @@index([productId])
+  @@map("product_variant")
+}
+
+model Address {
+  id            String      @id @default(uuid())
+  userProfileId String
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+  fullName      String
+  phone         String
+  line1         String
+  line2         String?
+  city          String
+  pincode       String
+  isDefault     Boolean     @default(false)
+  isDeleted     Boolean     @default(false)
+  latitude      Float?
+  longitude     Float?
+  createdAt     DateTime    @default(now())
+  orders        Order[]
+
+  @@index([userProfileId])
+  @@index([isDeleted])
+  @@map("address")
+}
+
+model Order {
+  id                  String      @id @default(uuid())
+  buyerId             String
+  buyer               UserProfile @relation(fields: [buyerId], references: [id])
+  sellerId            String
+  seller              Seller      @relation(fields: [sellerId], references: [id])
+  addressId           String
+  address             Address     @relation(fields: [addressId], references: [id])
+  status              OrderStatus @default(created)
+  subtotal            Int         @default(0) // paise
+  shipping            Int         @default(0) // paise
+  tax                 Int         @default(0) // paise
+  totalAmount         Int         // paise
+  commissionAmount    Int         // paise, calculated server-side
+  paymentStatus       String      @default("pending")
+  orderStatus         String      @default("created")
+  razorpayOrderId     String?     @unique
+  razorpayPaymentId   String?     @unique
+  escrowReleaseAt     DateTime?   // intentionally null in this Epic
+  items               OrderItem[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([razorpayOrderId])
+  @@map("order")
+}
+
+enum OrderStatus {
+  created
+  paid
+  confirmed
+  shipped
+  delivered
+  completed
+  cancelled
+  disputed
+}
+
+model OrderItem {
+  id          String         @id @default(uuid())
+  orderId     String
+  order       Order          @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product        @relation(fields: [productId], references: [id])
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  quantity    Int
+  unitPrice   Int            // paise
+
+  @@index([orderId])
+  @@map("order_item")
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+  razorpayPaymentId String   @unique
+  razorpayOrderId   String
+  amount            Int      // paise
+  paymentMethod     String
+  status            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("payment")
+}

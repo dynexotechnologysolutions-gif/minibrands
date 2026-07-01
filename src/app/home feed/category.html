@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Premium Fashion | MINIBRANDS Search Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "text-muted": "#6B7280",
+                        "inverse-primary": "#c6c6c6",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-surface-variant": "#4c4546",
+                        "surface": "#f9f9f9",
+                        "tertiary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-bg": "#F1F5F9",
+                        "surface-bright": "#f9f9f9",
+                        "on-tertiary-container": "#848484",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-primary-fixed": "#1b1b1b",
+                        "error-red": "#DC2626",
+                        "on-secondary-container": "#616363",
+                        "inverse-surface": "#303030",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "success-green": "#16A34A",
+                        "secondary-container": "#dfe0e0",
+                        "primary": "#000000",
+                        "primary-fixed": "#e2e2e2",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#cfc4c5",
+                        "secondary": "#5d5f5f",
+                        "primary-container": "#1b1b1b",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dadada",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-primary-container": "#848484",
+                        "border-gray": "#E5E7EB",
+                        "tertiary-container": "#1b1b1b",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "background": "#f9f9f9",
+                        "tertiary-fixed": "#e2e2e2",
+                        "accent-yellow": "#F59E0B",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "outline": "#7e7576",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-surface": "#1b1b1b",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#5e5e5e",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "on-background": "#1b1b1b",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "xxl": "48px",
+                        "sm": "8px",
+                        "md": "12px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "base": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "body-md": ["Inter"],
+                        "price-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .product-card-hover:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .transition-all { transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-accent-yellow/30">
+<!-- TopNavBar Shell -->
+<header class="sticky top-0 z-50 w-full flex justify-between items-center px-base lg:px-xl py-md bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-black tracking-tighter text-primary">MINIBRANDS</span>
+<nav class="hidden lg:flex items-center gap-lg">
+<a class="text-on-surface-variant font-bold border-b-2 border-primary pb-1 font-body-md" href="#">Categories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md" href="#">New Arrivals</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md" href="#">Offers</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md" href="#">Help</a>
+</nav>
+</div>
+<div class="flex-1 max-w-xl mx-xl hidden md:block">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none text-body-md" placeholder="Search for products, brands and more" type="text" value="Premium Fashion"/>
+</div>
+</div>
+<div class="flex items-center gap-base">
+<button class="cursor-pointer active:opacity-70 text-on-surface hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<button class="cursor-pointer active:opacity-70 text-on-surface hover:text-primary transition-all relative">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute -top-1 -right-1 bg-accent-yellow text-[10px] font-bold px-1 rounded-full">3</span>
+</button>
+<button class="cursor-pointer active:opacity-70 text-on-surface hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-base lg:px-xl py-base">
+<!-- Breadcrumb & Heading -->
+<div class="mb-lg">
+<nav class="flex text-body-sm text-text-muted mb-xs">
+<span>Home</span>
+<span class="mx-xs">/</span>
+<span>Fashion</span>
+<span class="mx-xs">/</span>
+<span class="text-on-surface font-semibold">Western Wear</span>
+</nav>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-base">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Results for 'Premium Fashion'</h1>
+<p class="text-body-md text-text-muted mt-xs">Showing 1,248 products found in 0.42 seconds</p>
+</div>
+<!-- Toolbar: Sort & View Toggle -->
+<div class="flex items-center gap-base">
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="p-1.5 bg-surface shadow-sm rounded-md"><span class="material-symbols-outlined text-[20px]">grid_view</span></button>
+<button class="p-1.5 text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">view_list</span></button>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface border border-outline-variant rounded-lg px-base py-2 pr-10 text-body-md focus:ring-primary focus:border-primary outline-none">
+<option>Sort by: Popularity</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+<option>Newest First</option>
+<option>Customer Rating</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Strip -->
+<div class="flex items-center gap-sm overflow-x-auto hide-scrollbar mb-xl pb-1">
+<button class="whitespace-nowrap px-lg py-2 bg-primary text-on-primary rounded-full font-label-bold text-label-bold transition-all">All</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Dresses</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Shirts</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Kurtis</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Accessories</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Trousers</button>
+<button class="whitespace-nowrap px-lg py-2 bg-surface border border-outline-variant hover:border-primary rounded-full font-label-bold text-label-bold transition-all">Ethnic Wear</button>
+</div>
+<div class="flex gap-xl">
+<!-- Sidebar Filters -->
+<aside class="hidden lg:block w-[280px] shrink-0">
+<div class="bg-surface border border-outline-variant rounded-lg divide-y divide-outline-variant">
+<div class="p-base flex justify-between items-center">
+<span class="font-headline-sm text-headline-sm">Filters</span>
+<button class="text-accent-yellow font-label-bold text-body-sm hover:underline">CLEAR ALL</button>
+</div>
+<!-- Price Filter -->
+<div class="p-base">
+<div class="flex justify-between items-center mb-md">
+<span class="font-label-bold">PRICE</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+<input class="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+<div class="flex justify-between mt-sm text-body-sm text-on-surface-variant">
+<span>₹499</span>
+<span>₹10,000+</span>
+</div>
+</div>
+<!-- Brand Filter -->
+<div class="p-base">
+<div class="flex justify-between items-center mb-md">
+<span class="font-label-bold">BRAND</span>
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+<div class="space-y-sm max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md group-hover:text-primary transition-colors">Zara</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<input checked="" class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md group-hover:text-primary transition-colors">H&amp;M Premium</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md group-hover:text-primary transition-colors">FabIndia</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<input checked="" class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md group-hover:text-primary transition-colors">Label Ritu Kumar</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md group-hover:text-primary transition-colors">Global Desi</span>
+</label>
+</div>
+</div>
+<!-- Rating Filter -->
+<div class="p-base">
+<span class="font-label-bold block mb-md">CUSTOMER RATINGS</span>
+<div class="space-y-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md flex items-center gap-xs">4 <span class="material-symbols-outlined text-accent-yellow scale-75" style="font-variation-settings: 'FILL' 1;">star</span> &amp; above</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="text-body-md flex items-center gap-xs">3 <span class="material-symbols-outlined text-accent-yellow scale-75" style="font-variation-settings: 'FILL' 1;">star</span> &amp; above</span>
+</label>
+</div>
+</div>
+<!-- Discount Filter -->
+<div class="p-base">
+<span class="font-label-bold block mb-md">DISCOUNT</span>
+<div class="space-y-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="border-outline-variant text-primary focus:ring-0" name="discount" type="radio"/>
+<span class="text-body-md">50% or more</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="border-outline-variant text-primary focus:ring-0" name="discount" type="radio"/>
+<span class="text-body-md">30% or more</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="border-outline-variant text-primary focus:ring-0" name="discount" type="radio"/>
+<span class="text-body-md">10% or more</span>
+</label>
+</div>
+</div>
+</div>
+</aside>
+<!-- Product Grid -->
+<div class="flex-1">
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-base lg:gap-lg">
+<!-- Product Card 1 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="A professional studio photograph of a premium silk Kurti with intricate gold embroidery. The fabric has a soft sheen under high-end studio lighting. The model is posed elegantly against a minimalist off-white background, embodying a luxurious and modern fashion aesthetic. Sharp details of the embroidery and the rich black fabric are visible." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDP5LA9k5OpXuU_cJXJeAnm3pUPUJVqbe6xxzCyuGnExisOTmT_WC8QMZUHjnGh7A8CzHep-kSnZdIQ3FSFsMwlS26i5D58fWNQj313uonDlO2QHd7HuyJ-yJ9EZ7QNar3FVPNeYg95cksG3t75xI-Ye64WZIntfdVCPKd2bGlyD2GRneyKAlq9_LHFfef1C3wEfJo7KLxvabLZAf_-QlUl16xZV9zMoWyssTfP9g9oTWB6-1LqFRtbE1CFf0ZG_xqgZqnuROWp0v9"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<span class="absolute top-md left-0 bg-primary text-on-primary text-[10px] font-bold px-base py-1 uppercase tracking-wider">Best Seller</span>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">Label Ritu Kumar</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Black Embroidered Silk Kurti</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.8 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(1.2k)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹4,999</span>
+<span class="text-body-sm text-text-muted line-through">₹8,999</span>
+<span class="text-body-sm font-bold text-success-green">45% OFF</span>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="A lifestyle fashion shot of a premium white linen shirt for men. The model is outdoors in soft evening sunlight, creating a warm, sophisticated mood. The shirt features a tailored fit and high-quality buttons. The overall aesthetic is clean, minimalist, and upscale, perfectly fitting a corporate-modern commerce platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNOgVhA-jrAA8vQrxIewSJj6wiquF2x9U5xijZtPsMAjI9jQVPDa44V5lJvYh0x7oYox4pP4xL7ly0ZAs5OxYE98ohAEYbaDzxvQKTTbxvsexJAcea8Qi1-8knGQIEYGyiBXi_eI-DgITZDWDq0V9Y590K13Tm1o2OKkyWEAKx-W2Iebany13NcB6OlNGQCNxLToH2_S4uUAVsKy4SnqwXwwd8rDVVo1e-996dsOi-pu6EvNpPc5MYEuBjq2Y_rTtWGBVBvA9Hxi5-"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">H&amp;M Premium Selection</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Slim Fit Linen Shirt</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.5 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(856)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹2,499</span>
+<span class="text-body-sm text-text-muted line-through">₹3,499</span>
+<span class="text-body-sm font-bold text-success-green">28% OFF</span>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="A vibrant, high-fashion photograph of a traditional Banarasi silk saree in royal blue. The saree is draped beautifully on a mannequin, showcasing the intricate golden zari work. The lighting is focused and dramatic, emphasizing the texture and rich color of the silk. Set against a clean, modern gray background to keep focus on the product." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRzzyJdtnh1QBEIj_Pm7k7HLWLFpAx7O387fCeZLRj2lyuOW946QShwgnQKMhqRhDuYFaxk97BaymH-SxbYQI0EKLrmtPUxoOSLTm4yIUVPy8C91aFKPv_HZJENntG5knmmNHAQFebkL1k6HYIKKIBTd-UEbAi7vReKDsoULVBC4aLTtWQFeDJpRGfK4JCPQNVFqMIgHuTMSXUg2tbdxO4eZVZBpRzaHXC8TR_qZtlLLJxko5I4L0CKdAbc3o_MVEcADItGgk3GWGM"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<span class="absolute top-md left-0 bg-accent-yellow text-on-surface text-[10px] font-bold px-base py-1 uppercase tracking-wider">New Arrival</span>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">FabIndia Boutique</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Woven Banarasi Silk Saree</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.9 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(240)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹12,499</span>
+<span class="text-body-sm text-text-muted line-through">₹18,000</span>
+<span class="text-body-sm font-bold text-success-green">30% OFF</span>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="An editorial fashion image of a woman wearing a minimalist emerald green satin slip dress. The model is walking through a high-end contemporary art gallery with soft, even light. The dress drapes elegantly, catching light on the satin folds. The style is sophisticated, clean, and representative of premium global fashion trends." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRvXUcNg-4HNnJ0DmCJisdLD3cxgzhSOCmHTwECGtpB8H8FqX8j4S9Bgne_Be9nCQoiHTKWxI-QZoiP1OswLkzgJt6jTfNLUGOtDtgHLEXQdE6jy1qYgCr4_KgVm5OhwsHr9jQhomPLqO9bCj7t_wm-Pfmi99T5SWreqjr1JiyP2G2tPJ-8SvbWQQSn3GslRBqOwzjsrZUo9WExX7wc9bB2iaitgnhTjl50MY2n-VMNKp-yz-OgPIrIyEC-l6aLAhmOfYY8RW7Prww"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">Zara Exclusive</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Satin Finish Slip Dress</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.3 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(5.4k)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹3,999</span>
+<span class="text-body-sm text-text-muted line-through">₹5,999</span>
+<span class="text-body-sm font-bold text-success-green">33% OFF</span>
+</div>
+</div>
+</div>
+<!-- Repeats for more rows -->
+<!-- Product Card 5 (Dummy for variety) -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="Close up of a premium designer leather handbag in tan brown. High information density showing the stitching and hardware. Professional studio lighting with soft shadows. Modern commerce aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT42BdZDhS2k2SB-5G1GH506f3Yl7l2o0CuJkA45ktOELlRdk6JJVcer7coYIkzYeuovTHpgs3UF0craHz01tmjHH9nQj83ynuI0HhXcXwEWqo9I_CMeRNFF08d4hH08xjj3eFBG-qjTKX5gjVXtXhBtlF_ZF8J20G1y3poNxb59nhtDNlGpgpx9len7BgySZoONRNk8InA1V8u2Y10dxIxODjdlaUq47Ps20qKY1ij7NBy_uBuxuuaxYkqVSRtRzg0OlYO1ETg-hY"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">Hidesign Premium</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Leather Satchel Bag</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.7 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(312)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹8,495</span>
+<span class="text-body-sm text-text-muted line-through">₹10,000</span>
+<span class="text-body-sm font-bold text-success-green">15% OFF</span>
+</div>
+</div>
+</div>
+<!-- Repeat Grid items to fill up UI -->
+<!-- Card 6 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="A model wearing an elegant floral print midi dress in high-quality chiffon. Sunny garden setting with warm, diffused lighting. Highly detailed fabric texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6reI20WHHOhb1EOumwg_0WsCCrtA6UanV5uzuEEIP5OUmBxa5yBTMBHyrSaMD7N3oy1YL2hOMEM2oA-5VGPrclqWGj-G-YfLF34CICYrYXpKSHnFl7v62p0B2WSgGGIns8A_DrnV_BlH-5pHkI0JXMFbYfglHhzoUie_DSJljXZt5UWvjCh4AHSlgjnxFSkuIX5mliq5zIcDhTqy0Y3ki2rGKmtOVYmA6POzHrNn9B2oKhZU-25hXz4_SdZ0ZwMEybH0Orp8ocSNu"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">Global Desi</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Floral Chiffon Midi</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.4 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(1.8k)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹1,999</span>
+<span class="text-body-sm text-text-muted line-through">₹3,999</span>
+<span class="text-body-sm font-bold text-success-green">50% OFF</span>
+</div>
+</div>
+</div>
+<!-- Card 7 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="Mens tailored navy blue blazer on a minimalist hanger. Professional commercial lighting highlighting the wool texture and precision stitching. Clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADMQ9yUJB1kJEG8rpMD6vdwdWTNw9u-c7O3QDMLGoxvGA0nAGpZrKpzfbiCk_j_yaiBMJT1pudMRmR65FuTHmdSt3TTXSEshJmAPWw510IkDnSHlL3HgXWkx5BZMk1C9Gm4Bd59TVq17R6gqbsLbVtBggSHcaTaHLPqCXKGkAs55NjogtNsWENVjT-fqc4wQ-7jQwaNy6swVGiezUTobRnXHdo5i0RrWkG3Vcwy2qC503Fu0HxRQGIh0xD42CkCEvoilcN8EMOiIC6"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<span class="absolute top-md left-0 bg-primary text-on-primary text-[10px] font-bold px-base py-1 uppercase tracking-wider">Top Rated</span>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">Van Heusen Elite</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Tailored Navy Blazer</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.6 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(2.1k)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹5,499</span>
+<span class="text-body-sm text-text-muted line-through">₹7,999</span>
+<span class="text-body-sm font-bold text-success-green">31% OFF</span>
+</div>
+</div>
+</div>
+<!-- Card 8 -->
+<div class="group product-card-hover bg-surface-container-lowest border border-border-gray rounded transition-all cursor-pointer overflow-hidden">
+<div class="relative aspect-[3/4]">
+<img class="w-full h-full object-cover" data-alt="A high-end studio shot of a pleated georgette skirt in champagne color. Soft lighting creating a gradient of light and shadow on the pleats. Modern fashion aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmE5HZTcJJPzLIzMHGMpDFlRXlE4e2ygAml3r0iTIyI30HopvcwEBbHj1SZgsByT-rTxKRUVjZNyv9R4C2nlQqVq6BUywcMj_mXK-qasvR443vcMJ4hyqsTZ7Kskb7J8zMoRNZVGp1A0LmgZEGAQeK8122BcZVHKLPAu8iNP6ALM4f7T6L7jtf58GnuYJ0Igmx09qn0eK5IkfVM0wk8ExhD5zNTnIhiRINvGX6AOEieAqo49iv-udlH7lOxFS7yrn6SJI0oEM-8O9c"/>
+<button class="absolute top-md right-md p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-on-surface hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<p class="text-body-sm text-text-muted font-bold uppercase tracking-wide">AND Premium</p>
+<h3 class="text-body-md font-semibold truncate text-on-surface">Champagne Pleated Skirt</h3>
+<div class="flex items-center gap-xs mt-xs">
+<div class="bg-success-green text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-xs">
+                                    4.5 <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm text-text-muted">(92)</span>
+</div>
+<div class="flex items-baseline gap-sm mt-sm">
+<span class="font-price-lg text-price-lg">₹3,299</span>
+<span class="text-body-sm text-text-muted line-through">₹4,599</span>
+<span class="text-body-sm font-bold text-success-green">28% OFF</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-xxl flex justify-center items-center gap-sm">
+<button class="flex items-center gap-xs px-base py-2 text-on-surface-variant hover:text-primary transition-all font-label-bold text-body-md border border-outline-variant rounded-lg">
+<span class="material-symbols-outlined">chevron_left</span> Previous
+                    </button>
+<div class="flex items-center gap-xs">
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-lg font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container rounded-lg font-bold">2</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container rounded-lg font-bold">3</button>
+<span class="w-10 h-10 flex items-center justify-center text-text-muted">...</span>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container rounded-lg font-bold">10</button>
+</div>
+<button class="flex items-center gap-xs px-base py-2 text-on-surface hover:text-primary transition-all font-label-bold text-body-md border border-outline-variant rounded-lg">
+                        Next <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full py-xl px-base lg:px-xl flex flex-col md:flex-row justify-between items-center gap-base bg-surface-container-highest border-t border-outline-variant mt-xxl">
+<div class="flex flex-col gap-sm items-center md:items-start">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">MINIBRANDS</span>
+<p class="font-body-sm text-body-sm text-secondary">© 2024 MINIBRANDS India. All rights reserved. Secure Marketplace.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="text-secondary hover:text-on-surface transition-all font-body-sm" href="#">Privacy Policy</a>
+<a class="text-secondary hover:text-on-surface transition-all font-body-sm" href="#">Terms of Service</a>
+<a class="text-secondary hover:text-on-surface transition-all font-body-sm" href="#">Buyer Protection</a>
+<a class="text-secondary hover:text-on-surface transition-all font-body-sm" href="#">Contact Us</a>
+<a class="text-secondary hover:text-on-surface transition-all font-body-sm" href="#">Track Order</a>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.product-card-hover').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const img = card.querySelector('img');
+                img.style.transform = 'scale(1.05)';
+                img.style.transition = 'transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                const img = card.querySelector('img');
+                img.style.transform = 'scale(1)';
+            });
+        });
+
+        // Toggle Favorite Heart
+        document.querySelectorAll('[data-icon="favorite"]').forEach(btn => {
+            btn.parentElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const icon = btn;
+                const isFilled = icon.style.fontVariationSettings.includes("'FILL' 1");
+                icon.style.fontVariationSettings = isFilled ? "'FILL' 0" : "'FILL' 1";
+                icon.classList.toggle('text-error-red');
+            });
+        });
+    </script>
+</body></html>

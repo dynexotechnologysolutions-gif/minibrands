@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MINIBRANDS - Homepage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e2e2e2",
+                        "text-muted": "#6B7280",
+                        "background": "#f9f9f9",
+                        "on-primary-container": "#848484",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-container-low": "#f3f3f3",
+                        "accent-yellow": "#F59E0B",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "error-red": "#DC2626",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "on-tertiary-container": "#848484",
+                        "on-primary-fixed": "#1b1b1b",
+                        "outline": "#7e7576",
+                        "tertiary": "#000000",
+                        "on-primary-fixed-variant": "#474747",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-background": "#1b1b1b",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eeeeee",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "success-green": "#16A34A",
+                        "on-secondary-fixed-variant": "#454747",
+                        "surface-bright": "#f9f9f9",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-container": "#1b1b1b",
+                        "secondary-container": "#dfe0e0",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e2e2e2",
+                        "primary-fixed": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "primary-container": "#1b1b1b",
+                        "inverse-surface": "#303030",
+                        "on-secondary-container": "#616363",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-tint": "#5e5e5e",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1b1b1b",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-surface-variant": "#4c4546",
+                        "surface-variant": "#e2e2e2",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "surface-bg": "#F1F5F9",
+                        "surface-dim": "#dadada",
+                        "surface": "#f9f9f9",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary": "#5d5f5f",
+                        "on-primary": "#ffffff",
+                        "border-gray": "#E5E7EB",
+                        "primary": "#000000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "16px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xs": "4px",
+                        "md": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "price-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "price-lg": ["18px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+<!-- Top Navigation Container -->
+<header class="sticky top-0 w-full z-50 flex flex-col items-center bg-surface px-base lg:px-xl transition-colors duration-200 border-b border-border-gray">
+<!-- TopAppBar (from JSON) -->
+<div class="flex items-center justify-between w-full max-w-container-max py-sm h-16">
+<div class="flex items-center gap-lg">
+<span class="text-headline-sm font-headline-sm font-black text-primary">MINIBRANDS</span>
+</div>
+<div class="hidden md:flex flex-1 max-w-2xl mx-lg relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-text-muted text-[20px]">search</span>
+<input class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-border-gray rounded-DEFAULT text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search products, brands and categories" type="text"/>
+</div>
+<div class="flex items-center gap-md lg:gap-lg">
+<button class="flex items-center gap-xs text-body-md text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span class="hidden lg:inline">Location</span>
+</button>
+<button class="flex items-center gap-xs text-body-md text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">toll</span>
+<span class="hidden lg:inline">Coins</span>
+</button>
+<div class="h-6 w-px bg-border-gray mx-sm hidden md:block"></div>
+<div class="relative group">
+<button class="flex items-center gap-xs text-body-md text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200">
+<span class="material-symbols-outlined text-[24px]">account_circle</span>
+</button>
+<div class="absolute right-0 top-full pt-xs hidden group-hover:block z-50">
+<div class="bg-surface-container-lowest border border-border-gray rounded-DEFAULT shadow-sm min-w-[180px] py-sm flex flex-col">
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">My Profile</a>
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Orders</a>
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Saved Addresses</a>
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Wishlist</a>
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Notifications</a>
+<div class="h-px bg-border-gray my-xs mx-sm"></div>
+<a class="px-lg py-sm text-body-md text-error-red hover:bg-surface-container-low transition-colors" href="#">Logout</a>
+</div>
+</div>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-xs text-body-md text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200">
+<span class="hidden lg:inline">More</span>
+<span class="material-symbols-outlined text-[24px]">expand_more</span>
+</button>
+<div class="absolute right-0 top-full pt-xs hidden group-hover:block z-50">
+<div class="bg-surface-container-lowest border border-border-gray rounded-DEFAULT shadow-sm min-w-[180px] py-sm flex flex-col">
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Become Seller</a>
+<a class="px-lg py-sm text-body-md text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors" href="#">Notification Settings</a>
+</div>
+</div>
+</div>
+<button class="flex items-center gap-xs text-body-md text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 relative">
+<span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+<span class="absolute top-0 right-0 bg-accent-yellow text-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-surface">2</span>
+</button>
+</div>
+</div>
+</header>
+<main class="w-full flex flex-col items-center pb-xxl">
+<!-- Banner Section -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-lg">
+<div class="w-full h-[320px] rounded-DEFAULT bg-primary overflow-hidden relative flex items-center">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center opacity-60" data-alt="A highly detailed commercial lifestyle shot of a modern, well-lit Indian home interior. The lighting is bright and inviting, creating a high-end e-commerce aesthetic. Minimalist furniture and vibrant accent pieces are visible, evoking a sense of premium quality and comfortable living. The color palette features neutral whites and grays with warm amber accents, fitting perfectly into a clean, corporate shopping interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCuuEUsIxA3_j4nFv64zuFRgxAm0V4JgR9sTRL3od4uWvk6f4YoNBXq9sZMlrt6kGz9_fBoYXYhrcJmwY0eOzGIVzrZ9LYaHIE0NdAw8EGCk_YpgW8sGA9hlcbcTWqz-2Y04eY0vpUErRAjUQJwaqvg_2m3RJcI_GRvOx2gXttJtQxECWyeW1SPl356KVzelQBhT4hvM6CbsYY9yE66gD4tJq4xjqEwkVOdxsU_ae2Qw80e5S8pkfWwmw0cUFYAgLrf7yAnS1UEuIMP')"></div>
+</div>
+<div class="relative z-10 p-xl lg:p-xxl max-w-xl">
+<h1 class="text-headline-lg font-headline-lg text-on-primary mb-md">Discover Premium Brands, Delivered Fast.</h1>
+<p class="text-body-lg font-body-lg text-on-primary/80 mb-xl">Shop the latest collections from top Indian and international sellers. Enjoy exclusive coins and rewards.</p>
+<button class="bg-accent-yellow text-primary font-label-bold text-label-bold px-lg py-md rounded-DEFAULT hover:bg-accent-yellow/90 transition-colors">Explore Now</button>
+</div>
+</div>
+</section>
+<!-- Featured Stores -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-xxl">
+<div class="flex items-center justify-between mb-lg">
+<h2 class="text-headline-md font-headline-md text-primary">Featured Stores</h2>
+<div class="flex items-center gap-md">
+<button class="w-8 h-8 rounded-full border border-border-gray flex items-center justify-center hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-full border border-border-gray flex items-center justify-center hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-lg pb-md no-scrollbar snap-x">
+<!-- Store 1 -->
+<div class="flex flex-col items-center min-w-[120px] snap-start group cursor-pointer">
+<div class="w-20 h-20 rounded-full border border-border-gray bg-surface-container-low p-sm mb-sm overflow-hidden group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="A crisp, high-resolution logo mockup of a modern electronics store. The logo features clean geometric shapes in a bold, professional design. The background is pure white to seamlessly integrate into a clean e-commerce interface. The aesthetic is corporate, tech-focused, and premium." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDvBv23k8mXJ4omqCvTyxQWQtalbnAxhJqCY7iCiY1d_X021pUhpVupEKgo-0cTPeA_-9TQ0aCIzkni_zbOTwuG9uOa-FuIB8WLp68pNi-lNulrr5Rs1ZoLWvNlyEYcS28-gQZayrmy1QssoR649fP_lGKRzq5xxtUl7cMzttBn8xZm21jzYMDoEvCw2VOjDp9rZsd_N_nZ2MuFBiEFS7rsCH4gxp7yE2Y4f-6OzngqajQzXWjxB8eRRmZ8injazSKqtu6Od2RSt0Jr')"></div>
+</div>
+<span class="text-label-bold font-label-bold text-primary text-center">TechHaven</span>
+<span class="text-body-sm font-body-sm text-text-muted text-center">Electronics</span>
+</div>
+<!-- Store 2 -->
+<div class="flex flex-col items-center min-w-[120px] snap-start group cursor-pointer">
+<div class="w-20 h-20 rounded-full border border-border-gray bg-surface-container-low p-sm mb-sm overflow-hidden group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="A clean, minimalist logo for a premium fashion and apparel brand. The design uses elegant serif typography or a sleek monogram. The image is bright and perfectly suited for a high-end online marketplace, utilizing a neutral color palette with sophisticated dark accents." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfACgB8OelxdoEImD8XJVxdN_0MzYSYT_eTD8ISAJpU7M19miENYHSWerZiU4mbr6dKQbXHHEKztjilJ5bhhMSwqjJkOS14VE9dx5-X-9h7RMUasVaXMrwt1iXVE0XgLaIirEOSZSUDIXpppp7fWjAcWojpNgsukghPR6dRhlQ7cWGHfWqIiJ5yhQZvl-4KHYpXHORiaOMC5HjwkKy-CbHvcLZulsxq7vdCx6tob8ejc6Kdm3HYd032TZJbRwb63d1qX-FW-iRoPxO')"></div>
+</div>
+<span class="text-label-bold font-label-bold text-primary text-center">Aura Wear</span>
+<span class="text-body-sm font-body-sm text-text-muted text-center">Fashion</span>
+</div>
+<!-- Store 3 -->
+<div class="flex flex-col items-center min-w-[120px] snap-start group cursor-pointer">
+<div class="w-20 h-20 rounded-full border border-border-gray bg-surface-container-low p-sm mb-sm overflow-hidden group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="A vibrant and modern logo for a home goods and lifestyle brand. The graphic features soft organic shapes and a warm, inviting color scheme, emphasizing comfort and quality. The style is clean, corporate, and designed to look professional in an e-commerce grid." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuALoFa4j61yNWwBS0voewU1LiEVEVOgNpUsX-ibHQ6J1Y1ySHtUMNIe1TJQEy4VGXEvkcsCGT4YlD_V7SkCLL2UYRrp562h4mbldjib-TPJ-cLS-b6O9c4sOAWyGB3KQcI1RQXEYZC6Q3Rxt5NGZbLHx_w39f41d02mFgYH1SchXOUz3AZh6TQF_QqUT0fZEnVeqL3_Rt1ZxknnkWYN6_WEFlEPU0Hj1cJVBnscz_fisvg49dKHZI7Y1a7zTUz5oEALtYOBtj45SytV')"></div>
+</div>
+<span class="text-label-bold font-label-bold text-primary text-center">Nest Living</span>
+<span class="text-body-sm font-body-sm text-text-muted text-center">Home</span>
+</div>
+<!-- Store 4 -->
+<div class="flex flex-col items-center min-w-[120px] snap-start group cursor-pointer">
+<div class="w-20 h-20 rounded-full border border-border-gray bg-surface-container-low p-sm mb-sm overflow-hidden group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="A sleek, professional logo for an outdoor and sports equipment retailer. The design incorporates dynamic, angular lines suggesting movement and durability. The presentation is flat, high-contrast, and optimized for a modern digital storefront." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXhza--BuhlNdO8miXtN50_ADkVJ1bUDS4C1OTm8fTQzoLzND-QCS1cvM7ajsbeJTY1gOH1sgV92Ukgku__ejc41xtxAMjQIV-eWCfJuiRW_FfBuZUTDPYfP592aDKSua2gu76K7ieHzRQnCnZiKWwRITs0VuwTWvk9GuunYC8Hq_J7jTd1hjqpQOoX7yxWA6Sr16jRSexp3-H1TVRZqE5Jp-qLuh3JfYyig9pT0mpNoRYrOri0rIABCdl_hVrx38N4VPAYNKuYmg4')"></div>
+</div>
+<span class="text-label-bold font-label-bold text-primary text-center">Apex Gear</span>
+<span class="text-body-sm font-body-sm text-text-muted text-center">Sports</span>
+</div>
+<!-- Store 5 -->
+<div class="flex flex-col items-center min-w-[120px] snap-start group cursor-pointer">
+<div class="w-20 h-20 rounded-full border border-border-gray bg-surface-container-low p-sm mb-sm overflow-hidden group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat" data-alt="A minimalist logo for a beauty and cosmetics brand." style="background-color: #f1f1f1;"></div>
+</div>
+<span class="text-label-bold font-label-bold text-primary text-center">GlowUp</span>
+<span class="text-body-sm font-body-sm text-text-muted text-center">Beauty</span>
+</div>
+</div>
+</section>
+<!-- Spotlight On (Section 3) -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-xxl"><div class="flex items-center justify-between mb-lg border-b border-border-gray pb-sm"><h2 class="text-headline-md font-headline-md text-primary">Spotlight On</h2></div><div class="flex flex-col gap-lg"><div class="flex flex-col md:flex-row bg-surface border border-border-gray rounded-DEFAULT overflow-hidden group"><div class="w-full md:w-1/3 aspect-[4/3] bg-surface-container-low overflow-hidden relative"><img alt="Handcrafted Artisanal Ceramic Table Lamp" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpWOk-ZwQ8JgkV2og_UuF7IjoaFn0g6JsPMWsDcQ8WQzgp_TXRKF8kqb5PSn4GjKuztrqst81B32n3eICfPPL5JCqSgb28e-FhBDnHIP1t0QyJ1ttOdO2EPM3zqbNe4h7HIWHJr02R6VMm4pFc5YQh4uWw2ja4yEUtJkaRRI7rZhAcUNr097rUvcUzAltyoMVeAvGsEjr7Jl7qZ9ZPjmnuemvjF1QzxmPfpxJjrTKs0j9cDj3QYd9wYVBeb6VWCALvVKmvDCvaoi_6"/></div><div class="flex-1 p-lg flex flex-col justify-center"><span class="text-body-sm font-body-sm text-text-muted mb-xs uppercase tracking-wider">DECOR</span><h3 class="text-headline-sm font-headline-sm text-primary mb-md">Handcrafted Artisanal Ceramic Table Lamp</h3><div class="flex items-center gap-md mb-lg"><span class="text-headline-md font-headline-md text-primary">₹3,499</span><span class="text-body-md font-body-md text-text-muted line-through">₹5,999</span><span class="text-body-md font-body-md text-success-green font-semibold">41% OFF</span></div><button class="w-max bg-primary text-on-primary font-label-bold text-label-bold px-xl py-sm rounded-DEFAULT hover:bg-primary/90 transition-colors">Shop Now</button></div></div><div class="flex flex-col md:flex-row bg-surface border border-border-gray rounded-DEFAULT overflow-hidden group"><div class="w-full md:w-1/3 aspect-[4/3] bg-surface-container-low overflow-hidden relative"><img alt="Premium Minimalist Home Fragrance Diffuser" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-evquyyi9mouavNJ-WqVOZ0ZBYBIq4vMbtl1ado10azwxpzhaCjPYo0_1wSnMFOiOcqCLR9GL2HDBNBS2VT1IPWuDa6wKbkcKLYIOUrih2yTX0NA5UznRwcyp7UPMadYxzyV8rim-eK18HQES0E489DJC3ApvTiGPu8vKoyD1Eup2qNInX6Eadi9mRUBwWPHm3EKN-C7LWFinrBG-zRlSdI1E9GOrUkOD64Uy5xTf7jzovatuNwVKm_Oo-EHkGzWbGjY2uNN-5Phr"/></div><div class="flex-1 p-lg flex flex-col justify-center"><span class="text-body-sm font-body-sm text-text-muted mb-xs uppercase tracking-wider">ESSENCE</span><h3 class="text-headline-sm font-headline-sm text-primary mb-md">Premium Minimalist Home Fragrance Diffuser</h3><div class="flex items-center gap-md mb-lg"><span class="text-headline-md font-headline-md text-primary">₹1,299</span><span class="text-body-md font-body-md text-text-muted line-through">₹2,499</span><span class="text-body-md font-body-md text-success-green font-semibold">48% OFF</span></div><button class="w-max bg-primary text-on-primary font-label-bold text-label-bold px-xl py-sm rounded-DEFAULT hover:bg-primary/90 transition-colors">Shop Now</button></div></div></div></section>
+<!-- Suggested For You (Section 4) -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-border-gray pb-sm">
+<h2 class="text-headline-sm font-headline-sm text-primary">Suggested For You</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-base lg:gap-lg">
+<!-- Product Card -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img alt="Smart Watch" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEdTOTEeyL4m18n9K_S3xR6xNtRyQ-sfuag5jRi0DJV7AwIOv3d7PB5k_DKC8Oh_lwsUM8JthFSyUor587evMkXiDJkKciy2vEI4LLTgoCrl_MKIT_aWRg2JjqL3HDV_R5-WyaNE2aWoHrBs-3ZagcrT4CQXff-x3eUhQp8qcnf6jzIeK-qGeqlQ11AQQ3023_Ojo2VnW23v5KzOUU_79wHKsZGje3HUnV4vszwdTthk9ZbBfD2ueTnPAdWxU7ifeGkfPv-Nux26lW"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">TechHaven</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Nova Series 5 Smartwatch with Health Tracking</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹3,299</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹5,999</span>
+</div>
+</div>
+</div>
+<!-- Product Card -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img alt="Coffee Mug" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXHVtoX-OV59qqnOdFCLWGz0IjTBOA4h_jkF5lU8LH7mt1UHvscch3jFKjrwAdNOgjMXvNFA7FpvmUVA59XW4-VmzazNLV_Ac9HGQL1nPswHVYL60KLeMkwiRzAOF2WfMjUIoAehWqBPQxVvVCzIxA7nJ1ym7Ez7v0NlM6QaN29IvrNKNiJv8cMWHL8yZUvooWUtZUyTy0ugwoB6oSVSuYpKaitYijlgOC3FFzxNiPRMNh6qL4-r-J-25bWezGDBgW58pxYCGm2FsD"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">Nest Living</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Artisan Ceramic Coffee Mug Set of 2</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹899</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹1,299</span>
+</div>
+</div>
+</div>
+<!-- Product Card -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img alt="Backpack" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvIff4XHW1DSD01TjXbkLvY8sET0w6hnQVjerx7JC1Erg6fxKikSQSXpVS_wg-S5xbQGj2XIsm4m8SE4GPiTC-X_Z0kaCcfy69gA9PD0dWqtOVH1yuoChcBjZhqNz5yGVisC9j8dHwnKDPA4iQRGGGCv73Fcziagg2_d1Zxp9BoUw1Ze3VLGa1Fl9viX6O2lSJhIWk-_Erc3vT7HyEiLiGY1_ahPbx1P_dhDgyEHAbmCYwFXf77zIa9BVOwUuuRDqR8uiYMgtz3Zv5"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">Aura Wear</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Urban Commuter Canvas Backpack</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹1,499</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹2,499</span>
+</div>
+</div>
+</div>
+<!-- Product Card -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img alt="Camera" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSmQVG89NWc3MUQZf3Ow4OnTqD-Ua4IcSHkEoLhd7x2uzitB6_qdv-RoPfUzOkCtHUbnsfNgMmcwFwSF12_qED7jISig6qeo5Oz-fiVGL2MSdRtJQe2XQc0MCL41dUvqugf4aFNxSmCA5Go3kwDlOW3SshHTjHGK6uIvZwoHwdgDgN0S_TVQ8o_LO9B2OwToxRcIaVblDlhswMkTGnqGcBK56QeDKioKeflIad43UDBnNIDWhM-nnwEZmlogRWBvJWxbn-If4VRSTs"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">TechHaven</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Retro Style Instant Film Camera</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹5,999</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹7,999</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Brands in Spotlight (Section 5) -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-border-gray pb-sm">
+<h2 class="text-headline-md font-headline-md text-primary">Brands in Spotlight</h2>
+</div>
+<div class="flex flex-col gap-lg h-[400px] overflow-y-auto pr-sm no-scrollbar">
+<!-- Brand Card -->
+<div class="w-full border border-border-gray rounded-DEFAULT overflow-hidden flex flex-col sm:flex-row bg-surface group">
+<div class="w-full sm:w-1/3 h-32 sm:h-auto bg-surface-container-low relative">
+<img alt="Apparel Brand Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZR5AlwNJRas8o7JOvaKlYdRnNbe24KNQgqBiLuyMhyfdA33HXYWetc-ehqpnJO9ohxDdUbqmJYEACl6b0-qurD_0yv9GjtVMcwFtEsu1TSM7uwW_LMq_czZYtumR7j9Isf8sWuLtIt-xQ9yi86eUlgY6JHYg8JSxPbPm5grOJpDYF3cY8a85r8Te0sk02IW3AgMDNsqTzg7NQ6DISW1C8QJS23b9-OgJqgXggtbptAXs0OH7NmJCxMUYFjz-O75qM8_-T-_V5pbm8"/>
+</div>
+<div class="flex-1 p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 rounded-full border border-border-gray overflow-hidden flex-shrink-0 bg-surface-container-lowest">
+<img alt="Brand Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtrTrDQiUGnLgo4PmMLC1X3vCbX-BNGqaEsHDh-XN66owpNVmbBmCpsssLGEsGqM9A6jMC9ARXELMfQHWyDBuTA36ChsBUp3d4ogPjuo0vmMkQfFYzYizUBxIjWEUBtAo4jeKoyCqqSOC8NL7CAztdtNzn49x4fjZEiNOfHhOihdxfReJ8IUsk0wuChH0iSQaB4bEm7fsfCCYlCjO3JCfgoECuTb12Xf9r6opIu6S7ffkQZ35gWJJFtqQW26B-9gGm_9lcQf-u_TBw"/>
+</div>
+<div>
+<div class="flex items-center gap-xs">
+<h3 class="text-headline-sm font-headline-sm text-primary">Aura Wear</h3>
+<span class="material-symbols-outlined text-success-green text-[16px]" style="font-variation-settings: 'FILL' 1;" title="Verified Brand">verified</span>
+</div>
+<span class="text-body-sm font-body-sm text-text-muted">Premium Fashion &amp; Accessories</span>
+</div>
+</div>
+<button class="border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-bold px-md py-xs rounded-DEFAULT transition-colors">Follow</button>
+</div>
+</div>
+<!-- Brand Card -->
+<div class="w-full border border-border-gray rounded-DEFAULT overflow-hidden flex flex-col sm:flex-row bg-surface group">
+<div class="w-full sm:w-1/3 h-32 sm:h-auto bg-surface-container-low relative">
+<img alt="Electronics Brand Banner" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMXUvs0_QuI7rYGumzbQwlNpLRMpBo1EaU25cv27BPyg7WslkYG6EfI3sj1slG-KBB0jW-SNeK2KwryHG7ueD8RuK7qqC8hhEHrVdR0MSYp4LfLVlnwPmI3V_Ctg5MfPgcKTadaP-W8zHcA-Lqrd5kv2axT7Zz0qKQsUpV9XX79rTbDgmRBL0hwbvutEwGfRf0hDnc7PUoZziq5MtUfhO6ID57PHwk7olsbyIl_VD2Ch9n-w-QRyMZZBr-VcVzea3vbsCCgrpzlb2h"/>
+</div>
+<div class="flex-1 p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 rounded-full border border-border-gray overflow-hidden flex-shrink-0 bg-surface-container-lowest">
+<div class="w-full h-full flex items-center justify-center bg-primary text-on-primary font-headline-md">T</div>
+</div>
+<div>
+<div class="flex items-center gap-xs">
+<h3 class="text-headline-sm font-headline-sm text-primary">TechHaven</h3>
+<span class="material-symbols-outlined text-success-green text-[16px]" style="font-variation-settings: 'FILL' 1;" title="Verified Brand">verified</span>
+</div>
+<span class="text-body-sm font-body-sm text-text-muted">Next-Gen Electronics</span>
+</div>
+</div>
+<button class="border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-bold px-md py-xs rounded-DEFAULT transition-colors">Follow</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Feed -->
+<section class="w-full max-w-container-max px-base lg:px-xl mt-xxl">
+<div class="flex items-center justify-between mb-lg border-b border-border-gray pb-sm">
+<h2 class="text-headline-sm font-headline-sm text-primary">Trending Products</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-base lg:gap-lg">
+<!-- Product Card 1 -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A high-quality product photography shot of a sleek, modern smartphone on a clean white background. The lighting is studio-quality, highlighting the device's premium finish and edge-to-edge screen. The overall look is professional, high-density, and perfectly suited for a top-tier e-commerce catalog." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA63viNMQLp9b0QRrCuyS6RLBsbBYjfsv2u29NoNygluEzeI8F8D6fjyOfl3V7iuJbI82jQ0-MVBzasHtw9YvYl_iAc7sHLfGpFPqJyofQgPNsH_lIlOlW7k8W1EI-wSLAG4R1p2RDyDwYUQ0lX7yzXlIiJpZAcf8A08iKTTxxIlwYb2Qrnc3yu6jAeKwg7W-JU3IeCuc0OQqo-oOw4yzymSisNaoz5nsRDdFO8J01Vx1woR9L-FXWgjTB0AqZUTIoRTzPhIRULWr_f"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full bg-surface/90 backdrop-blur-sm py-xs px-sm translate-y-full group-hover:translate-y-0 transition-transform duration-200 flex justify-center border-t border-border-gray z-10">
+<button class="text-label-bold font-label-bold text-primary hover:text-accent-yellow">Quick View</button>
+</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">TechHaven</span>
+<span class="material-symbols-outlined text-success-green text-[14px]" style="font-variation-settings: 'FILL' 1;" title="Verified Seller">verified</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Quantum X Pro Smartphone 256GB - Midnight Black</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹45,999</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹54,999</span>
+<span class="text-body-sm font-body-sm text-success-green font-semibold mb-[2px]">-16%</span>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A professional studio product shot of a premium, ergonomic office chair. The chair features breathable mesh material and a minimalist, structural design. The background is a stark, clean white to emphasize the product details, aligning with a corporate, no-nonsense e-commerce aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGzf3hATHol9-kIOL8QcA_PcgEcers8D1CWlqHokC_aVh9absubaBZN_uNQi9TvtaFefVu3iL3zhLCtA_zlpJtPAmXu9qhcJLXuz0d5te5IrhfwozxTkeo3tS7309itapGvBwGjYE616HODcpws3_GWak3VRYqyDbEu37gIKqaa1SI_saxMlWn5xYxUMD0E4wwbcPkCNWrh--eElVGPduqMw1FKKmT-fBWqWBmWBZE51d6MPdPNQYC7i048SjTPFKpM5QxDE2lC6wy"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+<div class="absolute top-sm left-sm bg-accent-yellow text-primary text-body-sm font-label-bold px-xs py-0.5 rounded-sm z-10">Bestseller</div>
+<div class="absolute bottom-0 left-0 w-full bg-surface/90 backdrop-blur-sm py-xs px-sm translate-y-full group-hover:translate-y-0 transition-transform duration-200 flex justify-center border-t border-border-gray z-10">
+<button class="text-label-bold font-label-bold text-primary hover:text-accent-yellow">Quick View</button>
+</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">ErgoComfort</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">AeroMesh Ergonomic Office Task Chair with Lumbar Support</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹12,499</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹18,000</span>
+<span class="text-body-sm font-body-sm text-success-green font-semibold mb-[2px]">-30%</span>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A clean, high-resolution product image of a high-end noise-canceling wireless headphone set. The headphones are sleek matte black, resting against a pure white background. The lighting is crisp, defining the textures of the ear pads and headband, suitable for a high-density modern catalog." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTjjY43K0K_-jJtJEdrAfQbkEsR7w1BOPksEntdn2e978nFNlSoAlxlyTnjZGVHsi1UxBazgtcLSvw-mr5_T8IWg7mpn4UWxrWlcJu7yxaUjIy4BqqJsX2MRkNEOZ5xIEIeWYDi5zPMT_BDptCfKJ1kWd-JmYbhcm2MilBoZ0gMJ3fc8rNP8y4CaWrQnurtfOOTVauR5qnZGOyyviZCUhFsqRMv0N5wlXWseaLyulgQUcrOwDU4zHQvYt-CK4GgHGf7tRoQ12Nm01b"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full bg-surface/90 backdrop-blur-sm py-xs px-sm translate-y-full group-hover:translate-y-0 transition-transform duration-200 flex justify-center border-t border-border-gray z-10">
+<button class="text-label-bold font-label-bold text-primary hover:text-accent-yellow">Quick View</button>
+</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">AudioVibe</span>
+<span class="material-symbols-outlined text-success-green text-[14px]" style="font-variation-settings: 'FILL' 1;" title="Verified Seller">verified</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">Sonic Pro Active Noise Cancelling Wireless Over-Ear Headphones</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹8,999</span>
+<span class="text-body-sm font-body-sm text-text-muted line-through mb-[2px]">₹14,999</span>
+<span class="text-body-sm font-body-sm text-success-green font-semibold mb-[2px]">-40%</span>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group relative flex flex-col bg-surface border border-border-gray rounded-DEFAULT overflow-hidden hover:shadow-sm transition-shadow duration-200">
+<div class="relative w-full aspect-square bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A pristine, highly detailed product shot of a minimalist, modern coffee maker. The machine features brushed stainless steel and matte black finishes, photographed against an isolated white background. The image is bright and sharp, embodying a functional, commerce-first design language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzw0pKHXYCOQfg6DtNM_8hg1Rq63qfPNYIy2BBNfxEYtfBtzTTlMaJQJk3CdGxcyyUVZnSBhJUn2OJ2VNUmXyMuQWEOmbARPqnYi1VtdgPsNrzTK-YdUqZd7JBCcIqy4jhixTd2jWySm_83TW3nOqLBcCS7LhgSxWkm-3dq-BfzIWc9t0LqThzWMaq3Q-l4Kf6mgnz7-XDWfGs9l_K-McOb904EPoKmn0dpTFXz-y9umotKM0aYv8I143XjPboHSKlA249O-tHcKGj"/>
+<button class="absolute top-sm right-sm w-8 h-8 rounded-full bg-surface/80 flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full bg-surface/90 backdrop-blur-sm py-xs px-sm translate-y-full group-hover:translate-y-0 transition-transform duration-200 flex justify-center border-t border-border-gray z-10">
+<button class="text-label-bold font-label-bold text-primary hover:text-accent-yellow">Quick View</button>
+</div>
+</div>
+<div class="p-sm flex flex-col flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="text-body-sm font-body-sm text-text-muted">HomeBrew</span>
+</div>
+<h3 class="text-body-md font-body-md text-primary font-medium line-clamp-2 mb-sm group-hover:text-accent-yellow transition-colors">BrewMaster Elite Programmable Drip Coffee Maker 12-Cup</h3>
+<div class="mt-auto flex items-end gap-sm">
+<span class="text-price-lg font-price-lg text-primary">₹4,299</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full flex justify-center mt-lg">
+<button class="border border-border-gray text-primary font-label-bold px-xl py-sm rounded-DEFAULT hover:bg-surface-container-low transition-colors">Load More</button>
+</div>
+</section>
+</main>
+<!-- Footer Container -->
+<footer class="w-full bg-tertiary">
+<!-- Footer (from JSON) -->
+<div class="w-full py-xxl px-base lg:px-xl grid grid-cols-2 md:grid-cols-5 gap-lg max-w-container-max mx-auto bg-tertiary">
+<div class="col-span-2 md:col-span-1 flex flex-col">
+<span class="text-headline-sm font-headline-sm text-on-tertiary mb-md">MINIBRANDS</span>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="text-body-sm font-body-sm text-on-secondary-fixed-variant hover:text-accent-yellow transition-colors" href="#">About Us</a>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="text-body-sm font-body-sm text-on-secondary-fixed-variant hover:text-accent-yellow transition-colors" href="#">Help Center</a>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="text-body-sm font-body-sm text-on-secondary-fixed-variant hover:text-accent-yellow transition-colors" href="#">Become a Seller</a>
+<a class="text-body-sm font-body-sm text-on-secondary-fixed-variant hover:text-accent-yellow transition-colors" href="#">Policies</a>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="text-body-sm font-body-sm text-on-secondary-fixed-variant hover:text-accent-yellow transition-colors" href="#">Contact Us</a>
+</div>
+<div class="col-span-2 md:col-span-5 mt-lg pt-lg border-t border-on-secondary-fixed-variant/20 flex flex-col md:flex-row items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-secondary-fixed-variant">© 2024 MINIBRANDS Marketplace. All rights reserved.</span>
+</div>
+</div>
+</footer>
+</body></html>

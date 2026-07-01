@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Address Selection | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f3f3f3",
+                    "secondary": "#5d5f5f",
+                    "on-primary-fixed-variant": "#474747",
+                    "outline": "#7e7576",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "accent-yellow": "#F59E0B",
+                    "on-tertiary-container": "#848484",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "secondary-container": "#dfe0e0",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "on-primary-fixed": "#1b1b1b",
+                    "primary-fixed": "#e2e2e2",
+                    "surface-bg": "#F1F5F9",
+                    "background": "#f9f9f9",
+                    "surface-variant": "#e2e2e2",
+                    "on-background": "#1b1b1b",
+                    "primary": "#000000",
+                    "on-secondary-container": "#616363",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-surface-variant": "#4c4546",
+                    "error-red": "#DC2626",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#cfc4c5",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "inverse-primary": "#c6c6c6",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "tertiary-container": "#1b1b1b",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "primary-container": "#1b1b1b",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "surface-container": "#eeeeee",
+                    "on-surface": "#1b1b1b",
+                    "success-green": "#16A34A",
+                    "inverse-on-surface": "#f1f1f1",
+                    "surface-container-high": "#e8e8e8",
+                    "border-gray": "#E5E7EB",
+                    "surface-dim": "#dadada",
+                    "tertiary": "#000000",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-primary-container": "#848484",
+                    "surface-bright": "#f9f9f9",
+                    "text-muted": "#6B7280",
+                    "surface-tint": "#5e5e5e",
+                    "surface": "#f9f9f9",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "md": "12px",
+                    "xxl": "48px",
+                    "container-max": "1280px",
+                    "sm": "8px",
+                    "base": "16px"
+            },
+            "fontFamily": {
+                    "label-bold": ["Inter"],
+                    "body-md": ["Inter"],
+                    "price-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .radio-card:checked + label {
+            border-color: #000000;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-border-gray h-16">
+<div class="flex items-center justify-between px-base md:px-lg max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">MINIBRANDS</span>
+<div class="hidden md:flex items-center gap-base">
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Offers</a>
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Categories</a>
+<a class="text-secondary font-body-md hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Help</a>
+</div>
+</div>
+<div class="flex-1 max-w-md mx-xl hidden md:block">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container py-2 pl-10 pr-base rounded-lg border-none focus:ring-1 focus:ring-primary font-body-md" placeholder="Search for products, brands and more" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<button class="cursor-pointer active:opacity-70 flex items-center text-primary"><span class="material-symbols-outlined">favorite</span></button>
+<button class="cursor-pointer active:opacity-70 flex items-center text-primary"><span class="material-symbols-outlined">shopping_cart</span></button>
+<button class="cursor-pointer active:opacity-70 flex items-center text-primary"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-xxl px-base md:px-lg max-w-container-max mx-auto min-h-screen">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Left Side: Address Selection -->
+<div class="lg:col-span-8 space-y-xl">
+<header>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-xs">Select Delivery Address</h1>
+<p class="font-body-md text-secondary">Choose a saved address or add a new one to proceed with your order.</p>
+</header>
+<!-- Saved Addresses Section -->
+<section class="space-y-base">
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined">home</span> Saved Addresses
+                    </h2>
+<!-- Address Card 1 (Default) -->
+<div class="relative">
+<input checked="" class="hidden peer radio-card" id="addr_1" name="address" type="radio"/>
+<label class="block p-base bg-white border border-border-gray rounded-lg cursor-pointer hover:border-primary transition-all duration-200 peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary" for="addr_1">
+<div class="flex justify-between items-start">
+<div class="space-y-xs">
+<div class="flex items-center gap-base">
+<span class="font-label-bold text-label-bold text-primary">Priya Sharma</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Default</span>
+</div>
+<p class="font-body-md text-secondary">+91 98XXX XXXXX</p>
+<p class="font-body-md text-on-surface leading-relaxed">
+                                        123, Maple Street, Adyar,<br/>
+                                        Chennai - 600020
+                                    </p>
+</div>
+<button class="text-secondary hover:text-primary transition-colors flex items-center gap-xs font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[20px]">edit</span> Edit
+                                </button>
+</div>
+</label>
+<div class="absolute top-base right-xl pointer-events-none hidden peer-checked:block">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Address Card 2 (Other) -->
+<div class="relative">
+<input class="hidden peer radio-card" id="addr_2" name="address" type="radio"/>
+<label class="block p-base bg-white border border-border-gray rounded-lg cursor-pointer hover:border-primary transition-all duration-200 peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary" for="addr_2">
+<div class="flex justify-between items-start">
+<div class="space-y-xs">
+<div class="flex items-center gap-base">
+<span class="font-label-bold text-label-bold text-primary">Office</span>
+</div>
+<p class="font-body-md text-secondary">+91 98XXX XXXXX</p>
+<p class="font-body-md text-on-surface leading-relaxed">
+                                        Tidel Park, 4th Floor, South Wing, Tharamani,<br/>
+                                        Chennai - 600113
+                                    </p>
+</div>
+<button class="text-secondary hover:text-primary transition-colors flex items-center gap-xs font-label-bold text-label-bold">
+<span class="material-symbols-outlined text-[20px]">edit</span> Edit
+                                </button>
+</div>
+</label>
+<div class="absolute top-base right-xl pointer-events-none hidden peer-checked:block">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</section>
+<div class="h-px bg-border-gray w-full"></div>
+<!-- Add New Address Form Section -->
+<section class="space-y-base">
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined">add_location</span> Add New Address
+                    </h2>
+<form class="bg-white p-base md:p-xl border border-border-gray rounded-lg space-y-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-base">
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Full Name</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="Enter your name" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Mobile Number</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="10-digit mobile number" type="tel"/>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Address Line 1 (House No, Building, Street)</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="Enter address" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Address Line 2 (Locality, Area)</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="Enter locality" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-base">
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">City / District</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="Enter city" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Pincode</label>
+<input class="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md" placeholder="6-digit pincode" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<input class="rounded border-border-gray text-primary focus:ring-primary" id="set_default" type="checkbox"/>
+<label class="font-body-md text-on-surface" for="set_default">Make this my default address</label>
+</div>
+<div class="flex flex-col sm:flex-row gap-base pt-md">
+<button class="bg-primary text-on-primary px-xl py-3 font-label-bold text-label-bold rounded-lg hover:opacity-90 transition-opacity flex-1 sm:flex-none min-w-[200px]" type="submit">
+                                Save Address
+                            </button>
+<button class="border border-primary text-primary px-xl py-3 font-label-bold text-label-bold rounded-lg hover:bg-surface-container-low transition-colors flex-1 sm:flex-none" type="reset">
+                                Cancel
+                            </button>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Side: Order Summary / Checkout Sticky -->
+<div class="lg:col-span-4">
+<div class="sticky top-24 space-y-lg">
+<div class="bg-white border border-border-gray rounded-lg p-base space-y-base">
+<h3 class="font-headline-sm text-headline-sm text-primary">Price Details</h3>
+<div class="space-y-md border-b border-border-gray pb-base">
+<div class="flex justify-between font-body-md text-secondary">
+<span>Price (2 items)</span>
+<span>₹4,998</span>
+</div>
+<div class="flex justify-between font-body-md text-secondary">
+<span>Discount</span>
+<span class="text-success-green">-₹1,000</span>
+</div>
+<div class="flex justify-between font-body-md text-secondary">
+<span>Delivery Charges</span>
+<span class="text-success-green">FREE</span>
+</div>
+</div>
+<div class="flex justify-between font-price-lg text-price-lg text-primary pt-xs">
+<span>Total Amount</span>
+<span>₹3,998</span>
+</div>
+<p class="font-body-sm text-success-green font-semibold">You will save ₹1,000 on this order</p>
+<button class="w-full bg-accent-yellow text-primary py-4 rounded-lg font-label-bold text-label-bold shadow-sm hover:brightness-105 transition-all active:scale-[0.98] mt-xl">
+                            DELIVER HERE
+                        </button>
+<p class="text-center font-body-sm text-on-surface-variant">Safe and Secure Payments. 100% Authentic products.</p>
+</div>
+<!-- Trust Indicators -->
+<div class="grid grid-cols-3 gap-base text-center">
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+<span class="font-body-sm text-on-surface-variant">Secure</span>
+</div>
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">local_shipping</span>
+<span class="font-body-sm text-on-surface-variant">Fast Delivery</span>
+</div>
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">keyboard_return</span>
+<span class="font-body-sm text-on-surface-variant">Easy Returns</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xxl bg-surface-container-high dark:bg-surface-container-high border-t border-border-gray dark:border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
+<div class="space-y-md">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary">MINIBRANDS</span>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">
+                    India's leading destination for curated brands and exclusive collections. Experience the future of commerce.
+                </p>
+<div class="flex gap-base">
+<a class="text-secondary hover:text-primary transition-all" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-secondary hover:text-primary transition-all" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+<div class="space-y-md">
+<h4 class="font-label-bold text-label-bold text-primary">Company</h4>
+<ul class="space-y-sm">
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">About Us</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Careers</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div class="space-y-md">
+<h4 class="font-label-bold text-label-bold text-primary">Policies</h4>
+<ul class="space-y-sm">
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Return Policy</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Refund Policy</a></li>
+</ul>
+</div>
+<div class="space-y-md">
+<h4 class="font-label-bold text-label-bold text-primary">Help & Support</h4>
+<ul class="space-y-sm">
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Contact Us</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">FAQs</a></li>
+<li><a class="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Track Order</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-border-gray px-base py-base">
+<div class="max-w-container-max mx-auto flex flex-col md:row justify-between items-center gap-sm">
+<p class="font-body-sm text-on-surface-variant">© 2024 MINIBRANDS India. All rights reserved.</p>
+<div class="flex gap-base grayscale opacity-60">
+<!-- Fake payment icons for visual density -->
+<span class="material-symbols-outlined">credit_card</span>
+<span class="material-symbols-outlined">account_balance</span>
+<span class="material-symbols-outlined">payments</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple logic for card selection styling toggle (if radio isn't enough)
+        document.querySelectorAll('input[name="address"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.querySelectorAll('.radio-card-wrapper').forEach(w => w.classList.remove('ring-1', 'ring-primary'));
+                if(e.target.checked) {
+                    e.target.closest('.relative').classList.add('ring-1', 'ring-primary');
+                }
+            });
+        });
+
+        // Search bar interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput?.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput?.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

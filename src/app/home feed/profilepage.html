@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#616363",
+                        "on-primary-fixed": "#1b1b1b",
+                        "inverse-surface": "#303030",
+                        "error": "#ba1a1a",
+                        "outline": "#7e7576",
+                        "on-background": "#1b1b1b",
+                        "surface-container-high": "#e8e8e8",
+                        "success-green": "#16A34A",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "on-surface": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-error": "#ffffff",
+                        "text-muted": "#6B7280",
+                        "surface": "#f9f9f9",
+                        "on-surface-variant": "#4c4546",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-primary-container": "#848484",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#848484",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "surface-tint": "#5e5e5e",
+                        "error-container": "#ffdad6",
+                        "error-red": "#DC2626",
+                        "surface-container-highest": "#e2e2e2",
+                        "primary": "#000000",
+                        "tertiary": "#000000",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed": "#e2e2e2",
+                        "tertiary-container": "#1b1b1b",
+                        "background": "#f9f9f9",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "inverse-on-surface": "#f1f1f1",
+                        "surface-bright": "#f9f9f9",
+                        "primary-container": "#1b1b1b",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "border-gray": "#E5E7EB",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-container": "#eeeeee",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "surface-bg": "#F1F5F9",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#c6c6c6",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "accent-yellow": "#F59E0B",
+                        "secondary-container": "#dfe0e0",
+                        "primary-fixed": "#e2e2e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "md": "12px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "container-max": "1280px",
+                        "xxl": "48px",
+                        "xs": "4px",
+                        "base": "16px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Inter"],
+                        "price-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom progress bar transition */
+        .progress-bar-fill {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-container-low border-b border-border-gray dark:border-outline-variant shadow-sm h-16">
+<div class="flex items-center justify-between px-base md:px-xl h-full w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<span class="text-headline-sm font-headline-sm font-black text-primary dark:text-inverse-primary cursor-pointer">MINIBRANDS</span>
+<nav class="hidden md:flex gap-lg">
+<a class="text-primary font-label-bold transition-colors" href="#">Home</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors" href="#">Categories</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors" href="#">Deals</a>
+</nav>
+</div>
+<div class="flex-1 max-w-md mx-xl hidden md:block">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container border border-border-gray rounded-lg pl-10 pr-4 py-2 text-body-md focus:outline-none focus:border-primary transition-all" placeholder="Search for products, brands and more" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-border-gray cursor-pointer active:opacity-80 transition-all">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpvGeNWBUDoqe841o3wofq-HGvzKtAYcEwXFBFheL2teGTF4Tp6bRgKXGUToN7CG2_gYevYtb7_QxE2GAE9CS1Yk2HkEKA2wMpP81AxvtpMDPP4bc2GeMnbSH9vCBT_uC0YbGTvAY-_aEj0_aqCAY94_rg-8OuQY14ze7KJPK8kuAeCsu6H6lsRtwlwmmBw-MW-nl9Y643Hme6794nZ6W-_m3-T1ngfxGG1dAaK6RieIp27aevhAUevgIsfHqKnsfunM9M6wwz2UIz"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="pt-24 pb-20 px-base md:px-xl max-w-container-max mx-auto">
+<div class="flex flex-col md:flex-row gap-lg">
+<!-- SideNavBar (Hidden on Mobile, Visible on Web) -->
+<aside class="h-full w-64 hidden md:flex flex-col p-base gap-sm border-r border-border-gray dark:border-outline-variant bg-surface sticky top-24">
+<div class="flex items-center gap-md mb-lg">
+<div class="h-12 w-12 rounded-full overflow-hidden border border-border-gray">
+<img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpvGeNWBUDoqe841o3wofq-HGvzKtAYcEwXFBFheL2teGTF4Tp6bRgKXGUToN7CG2_gYevYtb7_QxE2GAE9CS1Yk2HkEKA2wMpP81AxvtpMDPP4bc2GeMnbSH9vCBT_uC0YbGTvAY-_aEj0_aqCAY94_rg-8OuQY14ze7KJPK8kuAeCsu6H6lsRtwlwmmBw-MW-nl9Y643Hme6794nZ6W-_m3-T1ngfxGG1dAaK6RieIp27aevhAUevgIsfHqKnsfunM9M6wwz2UIz"/>
+</div>
+<div>
+<p class="text-label-bold font-label-bold text-on-surface">MiniBrands User</p>
+<p class="text-body-sm text-on-surface-variant">Hello, Welcome back!</p>
+</div>
+</div>
+<a class="flex items-center gap-md p-md text-primary dark:text-inverse-primary font-label-bold bg-secondary-container dark:bg-secondary-fixed-dim rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span>Personal Info</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="package">package</span>
+<span>Orders</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span>Addresses</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span>Wishlist</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span>Seller Center</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span>Security</span>
+</a>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col gap-lg">
+<!-- Profile Hero Section -->
+<section class="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm flex flex-col md:flex-row items-center md:items-start gap-lg">
+<div class="relative">
+<div class="h-24 w-24 rounded-full overflow-hidden border-4 border-surface shadow-sm">
+<img alt="Arjun Vardhan" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpvGeNWBUDoqe841o3wofq-HGvzKtAYcEwXFBFheL2teGTF4Tp6bRgKXGUToN7CG2_gYevYtb7_QxE2GAE9CS1Yk2HkEKA2wMpP81AxvtpMDPP4bc2GeMnbSH9vCBT_uC0YbGTvAY-_aEj0_aqCAY94_rg-8OuQY14ze7KJPK8kuAeCsu6H6lsRtwlwmmBw-MW-nl9Y643Hme6794nZ6W-_m3-T1ngfxGG1dAaK6RieIp27aevhAUevgIsfHqKnsfunM9M6wwz2UIz"/>
+</div>
+<button class="absolute bottom-0 right-0 bg-primary text-on-primary p-1.5 rounded-full border-2 border-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+<div class="flex-1 flex flex-col md:flex-row justify-between w-full">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<h1 class="text-headline-md font-headline-md">Arjun Vardhan</h1>
+<span class="bg-secondary-container text-on-secondary-container text-body-sm font-label-bold px-sm py-0.5 rounded-lg">Buyer</span>
+</div>
+<p class="text-body-md text-on-surface-variant">arjun.vardhan@email.com</p>
+<p class="text-body-sm text-text-muted mt-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                Member since Jan 2022
+                            </p>
+</div>
+<div class="grid grid-cols-3 gap-md mt-lg md:mt-0 bg-surface-container-low p-md rounded-lg">
+<div class="text-center px-md border-r border-border-gray">
+<p class="text-label-bold font-label-bold text-primary">12</p>
+<p class="text-body-sm text-on-surface-variant">Orders</p>
+</div>
+<div class="text-center px-md border-r border-border-gray">
+<p class="text-label-bold font-label-bold text-primary">24</p>
+<p class="text-body-sm text-on-surface-variant">Wishlist</p>
+</div>
+<div class="text-center px-md">
+<p class="text-label-bold font-label-bold text-accent-yellow">840</p>
+<p class="text-body-sm text-on-surface-variant">Points</p>
+</div>
+</div>
+</div>
+</section>
+<div class="flex flex-col md:flex-row gap-lg">
+<!-- Left Column 70% -->
+<div class="w-full md:w-[70%] flex flex-col gap-lg">
+<!-- Recent Orders -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h2 class="text-headline-sm font-headline-sm">Recent Orders</h2>
+<a class="text-primary font-label-bold text-body-sm hover:underline" href="#">View All</a>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Order 1 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-md flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-md">
+<div class="h-16 w-16 bg-surface-container rounded overflow-hidden">
+<img alt="Premium Silk Saree" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLt-to84nqb-8nIGnA9DCkw_Ri4Gl-J-eEVcxSKtI6wet2CbdMYUJa7TZFkHsE0dTqPxfPH6yHLY15d6qxqcxIQWpUzD6tfqDCzNB_4MUBdYCRHRZ8R87hVBqHJiKJVikTPH9mCxiv99qbkus_5TmE8B8eDqcTfiBGdELMNlIKRGJh45jLstAaRML3IzpVJnfQ5Mx00toqG8FydkYitfA5MNCD9k0J43-Un5Zfa0h6whEe_hdCLigmXecuE"/>
+</div>
+<div>
+<p class="font-label-bold text-body-md truncate max-w-[200px]">Premium Silk Saree</p>
+<p class="text-body-sm text-on-surface-variant">Order #MB-9821</p>
+<div class="flex items-center gap-xs mt-1">
+<span class="w-2 h-2 rounded-full bg-success-green"></span>
+<span class="text-body-sm font-label-bold text-success-green">Delivered</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<button class="bg-primary text-on-primary px-md py-1.5 rounded text-body-sm font-label-bold">Track Order</button>
+<button class="bg-surface text-primary border border-primary px-md py-1.5 rounded text-body-sm font-label-bold">Details</button>
+</div>
+</div>
+<!-- Order 2 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-md flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-md">
+<div class="h-16 w-16 bg-surface-container rounded overflow-hidden">
+<img alt="Ceramic Table Lamp" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtsnmaVEeDfuex4tp6krbWlqFp6ErslmIXuhIZ5vaDtHnfoBQsUMT9wGS8wVppKr9p9uyZ2VI2VosCwQR17SjqRcnP1eLPg3DYPZmvv6MY5etlcg6ifpFuY60v0mwKH5k_WHIAhrOQU7QUajNoryjwlIcrK0OOsKMswNPwMc9uFTyAH9Nxktz2rPd3LDMC_CqisgBLIB4Dv5rpfa0eKWp9Dn2-OhRUesy9Y9vVrGpsIbg7lUXEanRYclsBe"/>
+</div>
+<div>
+<p class="font-label-bold text-body-md truncate max-w-[200px]">Ceramic Table Lamp</p>
+<p class="text-body-sm text-on-surface-variant">Order #MB-9810</p>
+<div class="flex items-center gap-xs mt-1">
+<span class="w-2 h-2 rounded-full bg-accent-yellow"></span>
+<span class="text-body-sm font-label-bold text-accent-yellow">Shipped</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<button class="bg-primary text-on-primary px-md py-1.5 rounded text-body-sm font-label-bold">Track Order</button>
+<button class="bg-surface text-primary border border-primary px-md py-1.5 rounded text-body-sm font-label-bold">Details</button>
+</div>
+</div>
+<!-- Order 3 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-md flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-md">
+<div class="h-16 w-16 bg-surface-container rounded overflow-hidden">
+<img alt="Oversized Hoodie" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtIpBjC_laQY6gSd5s3jWtVLNoYZ1DC3m-rTjoGtKlQehIam3U6uCwrQRuGyOr-xih1XwyaZ6Bz2vvoisCPa00A871_zECn8hfHchs0ngzAn-JYFTRCa6eWvfdWyPwHVR9PMMHAn_hNy7uueJjeDs9lekGOEyWHuYaE0awnTmnYupe5iiVRoOU-cpyIlu5LUDpBqzEhHhTuwLcHDXn-dtyyqsFee9khmvvtM9NqCtXy7Ts_qVyKBHZ9tS1B"/>
+</div>
+<div>
+<p class="font-label-bold text-body-md truncate max-w-[200px]">Oversized Hoodie</p>
+<p class="text-body-sm text-on-surface-variant">Order #MB-9799</p>
+<div class="flex items-center gap-xs mt-1">
+<span class="w-2 h-2 rounded-full bg-on-secondary-container"></span>
+<span class="text-body-sm font-label-bold text-on-secondary-container">Processing</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<button class="bg-primary text-on-primary px-md py-1.5 rounded text-body-sm font-label-bold">Track Order</button>
+<button class="bg-surface text-primary border border-primary px-md py-1.5 rounded text-body-sm font-label-bold">Details</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Address Preview -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h2 class="text-headline-sm font-headline-sm">Default Address</h2>
+<button class="text-primary font-label-bold text-body-sm hover:underline">Change</button>
+</div>
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-lg">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-label-bold text-body-lg mb-xs">Arjun Vardhan</p>
+<p class="text-body-md text-on-surface-variant leading-relaxed">
+                                            123, Maple Street, Adyar,<br/>
+                                            Chennai - 600020<br/>
+                                            Tamil Nadu, India
+                                        </p>
+<p class="text-body-md font-label-bold mt-sm">+91 98765 43210</p>
+</div>
+<span class="bg-surface-container px-sm py-1 rounded text-body-sm font-label-bold text-on-surface-variant">Home</span>
+</div>
+</div>
+</section>
+<!-- Wishlist Preview -->
+<section class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h2 class="text-headline-sm font-headline-sm">From Your Wishlist</h2>
+<a class="text-primary font-label-bold text-body-sm hover:underline" href="#">View Wishlist</a>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-sm">
+<!-- Wishlist Item 1 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-sm group">
+<div class="aspect-square rounded overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="A stylish modern minimalist ceramic table lamp with a soft linen shade, presented in an high-end interior lighting catalog style with neutral colors and professional soft studio lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC1eTVpQBIw_mH9Kd9bHcdErGWoZ0PJVJ4xHW4oz-ZocUj1vqeQFbrGVezAkJHXUYE9UKKEx2kU8IzVPeGvHVzuNjepIgLBb-KWqXegToawA3tBFf-1HOhlDvkQiFccMvaM46TxSI3CwAXjUY9GlkYp04EjYLcBMeE9954TCvcgvD-Nq_2bo_Ue6vWlF9CjNV441uh303BWSMF3V-oJGzR5-lmvebRn99hzswuRg7KG32KT81GGzFRRweFpWrTYMDfQtpa4ERbZraUI')"></div>
+<button class="absolute top-2 right-2 h-7 w-7 bg-surface/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<p class="text-body-sm font-label-bold truncate">Modern Lamp</p>
+<p class="text-body-sm text-on-surface-variant">₹ 1,499</p>
+<button class="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors">Move to Cart</button>
+</div>
+<!-- Wishlist Item 2 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-sm group">
+<div class="aspect-square rounded overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="A pair of high-performance minimalist white leather sneakers on a clean light grey background, featuring subtle professional detailing and professional ecommerce product photography style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD716CXxWhGipH7IGzRfW1Cb6mzJFJ2fJzT9lBEGTb2o_okeHjbHMjmNUX4dIisa0Y2FIDr2SKCdwoBBHjK-yHj95dbFIxu2Mw661r4wRYFxQTG8Cl9DTVEx3h2h2P-98TSQaEr8Q2DWhRnrI98007JA9hwZ8wD2XDwlrxqCMC59slwU1EhIX9wpU1su82OqTIGFxBxeD75JXJo5GpvwdkIrgHtsj52f4h7XMegTeu-3JmoCy2qYpRSX-GAmLWBMjaqJoF7o-CwbJSH')"></div>
+<button class="absolute top-2 right-2 h-7 w-7 bg-surface/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<p class="text-body-sm font-label-bold truncate">Aesthetic Sneakers</p>
+<p class="text-body-sm text-on-surface-variant">₹ 2,999</p>
+<button class="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors">Move to Cart</button>
+</div>
+<!-- Wishlist Item 3 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-sm group">
+<div class="aspect-square rounded overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="A sophisticated matte black smart watch with a minimal digital interface, photographed on a dark high-contrast background to emphasize its sleek corporate design and premium materials." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCyI19Fvc0spWaVC5r6091FcJixfaEBsgdrPM4sfF2IHObj5aLndKmu9xq-KAFosIXjS_pY4ht-HHQ-dHgL4r3wc6E4j5DgwRZXCwOjbJZfUGE2-1LihEPqxIww60fCwsyTnT-Ai6GbpVqP7ICHfRO7S-T-tAD7di3fbyqU2YL_Ns3B4obiM3BRmjU2WRoOTRO2clipJuOWa69d-owAfT--sx26KnbICYMljGdsdL15sFQAP3CMCuRZzlmrGOinjPoQkdxxy_BmZVo6')"></div>
+<button class="absolute top-2 right-2 h-7 w-7 bg-surface/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<p class="text-body-sm font-label-bold truncate">Pro Smartwatch</p>
+<p class="text-body-sm text-on-surface-variant">₹ 5,499</p>
+<button class="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors">Move to Cart</button>
+</div>
+<!-- Wishlist Item 4 -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg p-sm group">
+<div class="aspect-square rounded overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="A minimalist high-quality organic cotton tote bag in a natural beige color with simple typographic branding, displayed in a clean lifestyle fashion catalog environment." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDO82Lq6zvsLlo1Xm1dLtG8fjLcq1w2jEcI-Ojei8WCDa5joZapUnO44D5yDQpfziFPRVkej5grbuvOJBoEzHofXcRcbI8NTfsF31Op1uHEnmopjw3nIn21nfr2QLIX12XQwVi99MC-gti_BFWlyAbmPWU6zZIOOuJS6Q6ii88ExNI8cq_4mA4p_k3MZU-VEuwUQo0HDl91yGoIIyff26lkBIr_sHEWsMD1pDm1GrZrABhT61K5I3UNICvfNdUwDzDefPoQxM2fiNNG')"></div>
+<button class="absolute top-2 right-2 h-7 w-7 bg-surface/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<p class="text-body-sm font-label-bold truncate">Eco Tote Bag</p>
+<p class="text-body-sm text-on-surface-variant">₹ 899</p>
+<button class="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors">Move to Cart</button>
+</div>
+</div>
+</section>
+<!-- Seller Center Card -->
+<section class="bg-primary text-on-primary rounded-lg p-xl flex items-center justify-between overflow-hidden relative group cursor-pointer">
+<div class="relative z-10 max-w-sm">
+<h3 class="text-headline-sm font-headline-sm mb-sm">Turn Your Passion into Business</h3>
+<p class="text-body-md opacity-80 mb-lg">Join 10,000+ sellers on MINIBRANDS and reach customers across the country.</p>
+<button class="bg-on-primary text-primary px-lg py-2 rounded font-label-bold hover:bg-surface-container-highest transition-colors">Become a Seller</button>
+</div>
+<div class="absolute right-0 top-0 h-full w-48 opacity-20 pointer-events-none group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[160px] translate-x-12 translate-y-8" style="font-variation-settings: 'FILL' 1;">storefront</span>
+</div>
+</section>
+</div>
+<!-- Right Column 30% -->
+<aside class="w-full md:w-[30%] flex flex-col gap-lg">
+<!-- Profile Completion -->
+<section class="bg-surface-container-lowest border border-border-gray rounded-lg p-lg">
+<h3 class="text-label-bold font-label-bold mb-md">Profile Completion</h3>
+<div class="w-full bg-surface-container h-2 rounded-full mb-base">
+<div class="bg-success-green h-full rounded-full progress-bar-fill" style="width: 80%"></div>
+</div>
+<p class="text-body-sm font-label-bold text-on-surface mb-lg">80% Completed</p>
+<ul class="flex flex-col gap-md">
+<li class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-success-green text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-body-sm text-on-surface-variant">Email Verified</span>
+</li>
+<li class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-success-green text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-body-sm text-on-surface-variant">Mobile Verified</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">radio_button_unchecked</span>
+<span class="text-body-sm text-on-surface-variant">Address Added</span>
+</div>
+<span class="text-body-sm font-label-bold">15%</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">radio_button_unchecked</span>
+<span class="text-body-sm text-on-surface-variant">Add Secondary Email</span>
+</div>
+<span class="text-body-sm font-label-bold">5%</span>
+</li>
+</ul>
+</section>
+<!-- Security Status -->
+<section class="bg-surface-container-lowest border border-border-gray rounded-lg p-lg">
+<h3 class="text-label-bold font-label-bold mb-md flex items-center justify-between">
+                                Security Status
+                                <span class="bg-success-green/10 text-success-green text-[10px] px-sm py-0.5 rounded-full uppercase tracking-wider">Active</span>
+</h3>
+<div class="flex items-center gap-sm mb-lg p-sm bg-surface-container-low rounded">
+<span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
+<div>
+<p class="text-body-sm font-label-bold">2FA Enabled</p>
+<p class="text-[10px] text-on-surface-variant">Last checked 2 days ago</p>
+</div>
+</div>
+<p class="text-[11px] font-label-bold text-outline uppercase tracking-wider mb-sm">Recent Login Activity</p>
+<div class="flex flex-col gap-md">
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">laptop_mac</span>
+<div>
+<p class="text-body-sm font-label-bold">MacBook Pro - Mumbai</p>
+<p class="text-[10px] text-text-muted">Today, 10:45 AM</p>
+</div>
+</div>
+<div class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">smartphone</span>
+<div>
+<p class="text-body-sm font-label-bold">iPhone 13 - Delhi</p>
+<p class="text-[10px] text-text-muted">Yesterday, 08:20 PM</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="flex flex-col gap-sm">
+<h3 class="text-label-bold font-label-bold px-base">Quick Links</h3>
+<div class="bg-surface-container-lowest border border-border-gray rounded-lg overflow-hidden">
+<a class="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="#">
+<span class="text-body-md">Manage Addresses</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="#">
+<span class="text-body-md">Orders &amp; Returns</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="#">
+<span class="text-body-md">Wishlist</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-base hover:bg-surface-container-low transition-colors" href="#">
+<span class="text-body-md text-error">Logout</span>
+<span class="material-symbols-outlined text-error">logout</span>
+</a>
+</div>
+</section>
+</aside>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="fixed bottom-0 w-full md:hidden z-50 bg-surface dark:bg-surface-container-lowest border-t border-border-gray dark:border-outline-variant shadow-lg flex justify-around items-center h-14">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-body-sm font-body-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-body-sm font-body-sm">Categories</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="text-body-sm font-body-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-inverse-primary font-label-bold" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-body-sm font-label-bold">Account</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for button states
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('opacity-80'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('opacity-80'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('opacity-80'));
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('ring-2', 'ring-primary/10');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('ring-2', 'ring-primary/10');
+            });
+        }
+    </script>
+</body></html>
