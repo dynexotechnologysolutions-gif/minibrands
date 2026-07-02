@@ -6,6 +6,8 @@ import { redis, ReservationData } from "@/lib/redis";
 import { createRazorpayOrder } from "@/lib/razorpay";
 import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const session = await auth.api.getSession({
