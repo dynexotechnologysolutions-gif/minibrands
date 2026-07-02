@@ -10,6 +10,10 @@ import OrderItem from "@/components/orders/OrderItem";
 import { getOrderStatus } from "@/actions/order-status.action";
 import { cancelOrderAction, returnOrderAction } from "@/actions/order-user-actions";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
+import { confirmDeliveryAction } from "@/actions/order-deliver-confirm.action";
+import EscrowCountdown from "@/components/order/EscrowCountdown";
+import ReviewForm from "@/components/review/ReviewForm";
+
 
 interface OrderItemInfo {
   id: string;
@@ -42,7 +46,15 @@ interface OrderInfo {
   sellerName: string;
   address: AddressInfo;
   items: OrderItemInfo[];
+  // Epic 4 fields
+  trackingUrl?: string | null;
+  icarryAwbNumber?: string | null;
+  escrowReleaseAt?: string | null;
+  hasReview?: boolean;
+  userProfileId?: string;
+  firstProductId?: string;
 }
+
 
 interface OrderDetailClientProps {
   order: OrderInfo;
@@ -68,13 +80,18 @@ export default function OrderDetailClient({
   // Dialog / Toast states
   const [alertMessage, setAlertMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   
-  // Rate Modal States
+  // Rate Modal States (legacy — replaced by ReviewForm)
   const [showRateModal, setShowRateModal] = useState(false);
   const [rateProductName, setRateProductName] = useState("");
   const [ratingValue, setRatingValue] = useState(5);
   const [reviewText, setReviewText] = useState("");
 
-  // Track Modal States
+  // Delivery confirm state
+  const [isConfirmingDelivery, setIsConfirmingDelivery] = useState(false);
+  const [escrowReleaseAt, setEscrowReleaseAt] = useState<string | null>(order.escrowReleaseAt ?? null);
+  const [hasReview, setHasReview] = useState(order.hasReview ?? false);
+
+  // Track Modal States — replaced by real tracking URL
   const [showTrackModal, setShowTrackModal] = useState(false);
 
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
@@ -176,7 +193,31 @@ export default function OrderDetailClient({
     }
   };
 
+  const handleConfirmDelivery = async () => {
+    if (!confirm("Have you received your order? This will start the 7-day payment release countdown.")) return;
+    setIsConfirmingDelivery(true);
+    try {
+      const res = await confirmDeliveryAction(order.id);
+      if (res.success && res.data) {
+        setStatus("delivered");
+        setOrderStatus("delivered");
+        setEscrowReleaseAt(res.data.escrowReleaseAt);
+        triggerToast("Delivery confirmed! Payment will be released to the boutique in 7 days.", "success");
+        startTransition(() => router.refresh());
+      } else {
+        triggerToast(res.error?.message || "Failed to confirm delivery.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast("An error occurred. Please try again.", "error");
+    } finally {
+      setIsConfirmingDelivery(false);
+    }
+  };
+
+
   const handleBuyAgain = async (productId: string, variantId: string) => {
+
     try {
       const res = await reserveCartItem({ productId, variantId, quantity: 1 });
       if (res.success) {
@@ -198,6 +239,7 @@ export default function OrderDetailClient({
     setShowRateModal(true);
   };
 
+  // Kept for legacy modal — ReviewForm handles real submission
   const submitReview = (e: React.FormEvent) => {
     e.preventDefault();
     setShowRateModal(false);
@@ -205,8 +247,14 @@ export default function OrderDetailClient({
   };
 
   const handleTrackOrder = () => {
-    setShowTrackModal(true);
+    // Use real tracking URL if available, otherwise open modal
+    if (order.trackingUrl) {
+      window.open(order.trackingUrl, "_blank", "noopener,noreferrer");
+    } else {
+      setShowTrackModal(true);
+    }
   };
+
 
   const handleSupport = () => {
     triggerToast(`Connecting to Support Desk for Order ${order.id.substring(0, 8)}...`, "success");
@@ -244,7 +292,7 @@ export default function OrderDetailClient({
       <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
         <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
         <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full flex justify-center items-center">
-          <div className="bg-white border border-border-gray p-12 text-center rounded max-w-md w-full shadow-sm">
+          <div className="bg-white border border-border-gray p-12 text-center rounded max-w-[448px] w-full shadow-sm">
             {isTimeout ? (
               <>
                 <div className="w-16 h-16 bg-amber-50 border border-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-6 mx-auto">
@@ -410,6 +458,35 @@ export default function OrderDetailClient({
               </div>
             </div>
 
+            {/* Review Form / Already Reviewed card — shown when delivered */}
+            {isDelivered && (
+              <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
+                <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+                  <span className="material-symbols-outlined text-secondary">grade</span>
+                  {hasReview ? "Your Review" : "Rate Your Purchase"}
+                </h3>
+                {hasReview ? (
+                  <div className="flex items-center gap-sm p-sm bg-emerald-50 border border-emerald-100 rounded">
+                    <span className="material-symbols-outlined text-emerald-500">check_circle</span>
+                    <p className="font-body-sm text-emerald-800">You have already reviewed this order. Thank you!</p>
+                  </div>
+                ) : order.firstProductId && order.userProfileId ? (
+                  <ReviewForm
+                    orderId={order.id}
+                    productId={order.firstProductId}
+                    productName={order.items[0]?.name ?? "Product"}
+                    buyerId={order.userProfileId}
+                    onSuccess={(_newRating, _newCount) => {
+                      setHasReview(true);
+                      triggerToast("Review submitted! Thank you for your feedback.", "success");
+                    }}
+                  />
+                ) : (
+                  <p className="font-body-sm text-secondary text-xs">Review submission is not available for this order.</p>
+                )}
+              </div>
+            )}
+
             {/* Shipping Address Card */}
             <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
               <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
@@ -478,6 +555,20 @@ export default function OrderDetailClient({
                   Track Package
                 </button>
               )}
+              {isShipped && (
+                <button
+                  onClick={handleConfirmDelivery}
+                  disabled={isConfirmingDelivery}
+                  className="w-full py-3 bg-emerald-600 text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center disabled:opacity-60 flex items-center justify-center gap-xs"
+                >
+                  {isConfirmingDelivery ? (
+                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Confirming...</>
+                  ) : (
+                    <><span className="material-symbols-outlined text-[18px]">inventory_2</span> I Received My Order</>
+                  )}
+                </button>
+              )}
+
               {isProcessing && (
                 <>
                   <button
@@ -495,12 +586,20 @@ export default function OrderDetailClient({
                 </>
               )}
               {canReturn && (
-                <button
-                  onClick={handleReturnOrder}
-                  className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center"
+                <Link
+                  href={`/orders/${order.id}/return`}
+                  className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center block"
                 >
-                  Request Return
-                </button>
+                  Request Return / Exchange
+                </Link>
+              )}
+              {(currentNormalizedStatus === "disputed" || currentNormalizedStatus === "returned") && (
+                <Link
+                  href={`/orders/${order.id}/return/track`}
+                  className="w-full py-3 border border-primary text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center block"
+                >
+                  Track Return Progress →
+                </Link>
               )}
               <button
                 onClick={handleSupport}
@@ -510,7 +609,25 @@ export default function OrderDetailClient({
               </button>
             </div>
 
-            {/* Escrow Note Banner */}
+            {/* Escrow countdown — shown when delivered */}
+            {isDelivered && escrowReleaseAt && (
+              <EscrowCountdown escrowReleaseAt={escrowReleaseAt} />
+            )}
+
+            {/* Completed banner */}
+            {currentNormalizedStatus === "completed" && (
+              <div className="p-base bg-emerald-50 border border-emerald-100 rounded flex items-start gap-sm">
+                <span className="material-symbols-outlined text-emerald-500 mt-xs">task_alt</span>
+                <div>
+                  <p className="font-label-bold text-label-bold text-emerald-800 text-xs">Payment Released</p>
+                  <p className="font-body-sm text-[11px] text-emerald-700 leading-normal mt-xs">
+                    Funds have been released to the boutique seller. Thank you for shopping on Velvet!
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Escrow Security Gate banner */}
             <div className="p-base bg-surface border border-border-gray rounded flex items-start gap-sm">
               <span className="material-symbols-outlined text-secondary mt-xs">verified_user</span>
               <div className="space-y-xs">
@@ -521,6 +638,7 @@ export default function OrderDetailClient({
               </div>
             </div>
 
+
           </div>
         </div>
       </main>
@@ -528,7 +646,7 @@ export default function OrderDetailClient({
       {/* Star Rating Modal */}
       {showRateModal && (
         <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-md w-full p-base space-y-base shadow-xl animate-fade-in-up">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
             <div className="flex justify-between items-center border-b border-border-gray pb-sm">
               <h3 className="font-headline-sm text-headline-sm text-primary">Rate & Review</h3>
               <button
@@ -594,7 +712,7 @@ export default function OrderDetailClient({
       {/* Track Package Modal */}
       {showTrackModal && (
         <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-md w-full p-base space-y-base shadow-xl animate-fade-in-up">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
             <div className="flex justify-between items-center border-b border-border-gray pb-sm">
               <h3 className="font-headline-sm text-headline-sm text-primary">Package Tracking</h3>
               <button

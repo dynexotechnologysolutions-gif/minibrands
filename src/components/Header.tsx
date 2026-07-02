@@ -14,7 +14,8 @@ import {
   ClipboardList, 
   ShoppingCart,
   LayoutDashboard,
-  Heart
+  Heart,
+  RefreshCw
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -246,6 +247,22 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
                         >
                           <User className="w-4 h-4 text-slate-400" />
                           <span>Store Profile</span>
+                        </Link>
+                        <Link
+                          href="/seller/orders"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
+                        >
+                          <ClipboardList className="w-4 h-4 text-slate-400" />
+                          <span>Orders</span>
+                        </Link>
+                        <Link
+                          href="/seller/returns"
+                          onClick={() => setIsDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
+                        >
+                          <RefreshCw className="w-4 h-4 text-slate-400" />
+                          <span>Returns & RMA</span>
                         </Link>
                         <Link
                           href="/seller/products"

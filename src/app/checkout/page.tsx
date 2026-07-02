@@ -104,7 +104,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
 
       if (!product || !variant || !product.isPublished) {
         return (
-          <main className="min-h-screen px-4 py-16 max-w-md mx-auto text-center flex flex-col justify-center items-center">
+          <main className="min-h-screen px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center">
             <div className="glass-panel p-8 rounded-2xl border border-slate-100 bg-white/70">
               <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Product Unavailable</h1>
               <p className="text-slate-500 text-xs mb-6">
@@ -182,7 +182,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
 
     if (!product || !variant || !product.isPublished) {
       return (
-        <main className="min-h-screen px-4 py-16 max-w-md mx-auto text-center flex flex-col justify-center items-center">
+        <main className="min-h-screen px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center">
           <div className="glass-panel p-8 rounded-2xl border border-slate-100 bg-white/70">
             <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Product Unavailable</h1>
             <p className="text-slate-500 text-xs mb-6">

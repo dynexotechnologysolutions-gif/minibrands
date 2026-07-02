@@ -205,12 +205,14 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            suppressHydrationWarning={true}
           />
         </form>
         <div className="flex items-center gap-md lg:gap-lg">
           <button 
             onClick={handleHeaderLocationClick}
             className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
+            suppressHydrationWarning={true}
           >
             <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>
               location_on
@@ -225,7 +227,10 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             onMouseEnter={() => setIsAccountOpen(true)}
             onMouseLeave={() => setIsAccountOpen(false)}
           >
-            <button className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none">
+            <button 
+              className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
+              suppressHydrationWarning={true}
+            >
               {activeMode === "BUYER" ? (
                 userProfile?.user?.image ? (
                   <img src={userProfile.user.image} alt={userProfile.user.name || "User"} className="w-5 h-5 rounded-full object-cover shrink-0" />
@@ -291,6 +296,18 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
                       </Link>
                       <Link
                         className="px-lg py-sm text-body-sm text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors"
+                        href="/seller/orders"
+                      >
+                        Orders
+                      </Link>
+                      <Link
+                        className="px-lg py-sm text-body-sm text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors"
+                        href="/seller/returns"
+                      >
+                        Returns & RMA
+                      </Link>
+                      <Link
+                        className="px-lg py-sm text-body-sm text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors"
                         href="/seller/products"
                       >
                         Products
@@ -307,6 +324,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
                           type="button"
                           onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")}
                           className="w-full flex items-center justify-center gap-1.5 px-2 py-1 text-center text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 rounded transition-all cursor-pointer"
+                          suppressHydrationWarning={true}
                         >
                           <span>Switch to {activeMode === "BUYER" ? "Seller Mode" : "Buyer Mode"}</span>
                         </button>
@@ -319,6 +337,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
                     <button
                       onClick={handleSignOut}
                       className="px-lg py-sm text-body-sm text-left text-error-red hover:bg-surface-container-low transition-colors w-full cursor-pointer"
+                      suppressHydrationWarning={true}
                     >
                       Logout
                     </button>
@@ -341,7 +360,10 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             onMouseEnter={() => setIsMoreOpen(true)}
             onMouseLeave={() => setIsMoreOpen(false)}
           >
-            <button className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none">
+            <button 
+              className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
+              suppressHydrationWarning={true}
+            >
               <span className="hidden lg:inline">More</span>
               <span className="material-symbols-outlined text-[24px]">expand_more</span>
             </button>

@@ -525,7 +525,7 @@ export default function ProfileClient({
 
                 {/* Seller Center Card */}
                 <section className="bg-primary text-on-primary rounded-lg p-xl flex items-center justify-between overflow-hidden relative group cursor-pointer shadow-sm">
-                  <div className="relative z-10 max-w-sm">
+                  <div className="relative z-10 max-w-[384px]">
                     {isSeller ? (
                       <>
                         <h3 className="text-headline-sm font-headline-sm mb-sm">{userProfile.seller?.businessName || "Your Boutique Partner"}</h3>

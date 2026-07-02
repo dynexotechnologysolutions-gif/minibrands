@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 import { createCheckoutSession } from "@/actions/checkout-session.action";
 import { addToWishlistAction, removeFromWishlistAction } from "@/actions/wishlist.action";
+import { getDefaultAddress } from "@/actions/address-get-default.action";
 import { authClient } from "@/lib/auth-client";
 import HomeHeader from "@/components/home/HomeHeader";
+import ReviewGallery from "@/components/review/ReviewGallery";
 
 interface ProductDetailClientProps {
   product: {
@@ -57,7 +59,6 @@ interface ProductDetailClientProps {
   } | null;
   cartCount: number;
   similarProducts: {
-
     id: string;
     name: string;
     category: string;
@@ -78,6 +79,12 @@ interface ProductDetailClientProps {
     };
   }[];
   initialIsWishlisted?: boolean;
+  reviewSummary: {
+    averageRating: number;
+    reviewCount: number;
+    distribution: Record<number, number>;
+  };
+  initialReviews: any[];
 }
 
 export default function ProductDetailClient({
@@ -87,8 +94,11 @@ export default function ProductDetailClient({
   similarProducts,
   recentlyViewed,
   initialIsWishlisted = false,
+  reviewSummary,
+  initialReviews,
 }: ProductDetailClientProps) {
   const router = useRouter();
+
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.variants.length === 1 ? product.variants[0].size : null
@@ -100,6 +110,20 @@ export default function ProductDetailClient({
   const [cartCount, setCartCount] = useState(initialCartCount);
   const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState<{ city: string; pincode: string } | null>(null);
+
+  useEffect(() => {
+    if (userProfile) {
+      getDefaultAddress().then((res) => {
+        if (res.success && res.data) {
+          setDeliveryAddress({
+            city: res.data.city,
+            pincode: res.data.pincode,
+          });
+        }
+      });
+    }
+  }, [userProfile]);
 
   const handleToggleWishlist = async () => {
     if (!userProfile) {
@@ -298,100 +322,100 @@ export default function ProductDetailClient({
     similarProducts.length > 0
       ? similarProducts
       : [
-          {
-            id: "similar-1",
-            name: "Modern Abstract Vase",
-            category: "DECOR",
-            price: 129900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDznikgBmkL0JxH58XWOHEAqpnicm1SjBTy-Y7D-4vrEt8_bZQlAxSyW4QTs_NAPn2_b0tETCtm1vVIJooVry1pELDUlQ3zh7As1QBQa7NAw92uorHBAkGyZ6aYkW0TY426cJ6ybGO2cuyEKmG3YpxLvT2TzUQumJ84J-fbrQmd8XH3rfy70ps07xKo4M3X6v2uuFQlLzKTXMPbug5BOEjuVZYpUSeP0DVqTYYyG5VxllBeElfecg7dMsZb6ACjrFLM-YE_Rx0DP0bK",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-          {
-            id: "similar-2",
-            name: "Minimalist Oak Clock",
-            category: "DECOR",
-            price: 89900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9jfdIU6kdumUZfJNExb077UXYil_C9gsRF7cX5GN_rU7gwwV4NhAF8RlGik-15mTJi5cdVvc1pnhO1ItflgJ74MuLmAmcEpOh5iaEW-Mi-amV6oN7UviegOnOmQW6TcsSrbw5a-gqiFhYxI1x-SUrXSnC1eYl5BIIkWsjEtgMSa6V32zWx-YCML-H1KBBaAPDNomaYtNlayIuqMeRFJjrSyIyP8X3o7600JGyl7q4TDSR-nNCEQDRomr3iz4eQo_bRZqe68Voaw8c",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-          {
-            id: "similar-3",
-            name: "Soy Candle Set",
-            category: "LUMIERE",
-            price: 149900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCAjM-mo1tmHeMHTTTtkHfB3cFj-qSmZr6DrEJgpili4ixSbG_k_wD2Vov3a3T0pLvgvAKACeha9Kk-fCoqppD62PRZMhK_5lMy7wRSCQrkBLrwq4sIlIHPRi8hy-6yThnF5zS7KKzchARL9HBbayThX7Ec6kdLrwh9MwdQL9RiVVhgcOi81nLtrpBwdmMR-QLf_n74gSthiVhszL-J8eTCXFiGiwVFDj-W_TMFnwsHePZXQdAU3jYEtcfQ67ox3SmzPZWVZGh9eCuA",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-          {
-            id: "similar-4",
-            name: "Large Jute Basket",
-            category: "CRAFT",
-            price: 99900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCnMcaSTXdsb2QvhIb8QL-hqy3s2gOXrw4zJTGiY5D0FvFytvF9cR1iesOKiBDkHa8_pUROx1vEx-xpQTRi1CpwNpY7A1LkuJlziolH_6j5AsVA7VZq6rwCIVlLIQ8fPGh6ZOCh7kxGEIyrU8Ldpun5fevl2fuusJwbkjlfZgOFLYspbPLvuBq4U9M6GCct_invHHj4R5lR2FEcQXAX-A_6GmYKWgcZkawf3B6Zt3V6oAUCTja0pcsfhimcFCD2gbt77ex1yrP1FI0-",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-          {
-            id: "similar-5",
-            name: "Geometric Terrarium",
-            category: "GREEN",
-            price: 210000,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDbvOkDXF_CDM_IF71dRaczH-NQrjtSs_KHAc6xCLeMWDD3w3hztNuwjV3BZqu9GGwpJzsa3PfxY9XGOlCaz4B9y3i4z0quvvHe1sKjW-v6hI_NX6jWwAMXDvDgAAOKEkGR4MXc0eILY3bUa5zxNtTNRoyEoNy6MdT1yhBohWjdLC3gASA_768D3NLRww9ud2VxsurY7i3VwZK3soF5fZnlvr2R4hgmYGzYw0XFQlQPAYwvEHWUov3uxTSefFrQDyoyC1xhw8SJWzKt",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-        ];
+        {
+          id: "similar-1",
+          name: "Modern Abstract Vase",
+          category: "DECOR",
+          price: 129900,
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDznikgBmkL0JxH58XWOHEAqpnicm1SjBTy-Y7D-4vrEt8_bZQlAxSyW4QTs_NAPn2_b0tETCtm1vVIJooVry1pELDUlQ3zh7As1QBQa7NAw92uorHBAkGyZ6aYkW0TY426cJ6ybGO2cuyEKmG3YpxLvT2TzUQumJ84J-fbrQmd8XH3rfy70ps07xKo4M3X6v2uuFQlLzKTXMPbug5BOEjuVZYpUSeP0DVqTYYyG5VxllBeElfecg7dMsZb6ACjrFLM-YE_Rx0DP0bK",
+            },
+          ],
+          seller: { businessName: "Aura Wear" },
+        },
+        {
+          id: "similar-2",
+          name: "Minimalist Oak Clock",
+          category: "DECOR",
+          price: 89900,
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9jfdIU6kdumUZfJNExb077UXYil_C9gsRF7cX5GN_rU7gwwV4NhAF8RlGik-15mTJi5cdVvc1pnhO1ItflgJ74MuLmAmcEpOh5iaEW-Mi-amV6oN7UviegOnOmQW6TcsSrbw5a-gqiFhYxI1x-SUrXSnC1eYl5BIIkWsjEtgMSa6V32zWx-YCML-H1KBBaAPDNomaYtNlayIuqMeRFJjrSyIyP8X3o7600JGyl7q4TDSR-nNCEQDRomr3iz4eQo_bRZqe68Voaw8c",
+            },
+          ],
+          seller: { businessName: "Aura Wear" },
+        },
+        {
+          id: "similar-3",
+          name: "Soy Candle Set",
+          category: "LUMIERE",
+          price: 149900,
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCAjM-mo1tmHeMHTTTtkHfB3cFj-qSmZr6DrEJgpili4ixSbG_k_wD2Vov3a3T0pLvgvAKACeha9Kk-fCoqppD62PRZMhK_5lMy7wRSCQrkBLrwq4sIlIHPRi8hy-6yThnF5zS7KKzchARL9HBbayThX7Ec6kdLrwh9MwdQL9RiVVhgcOi81nLtrpBwdmMR-QLf_n74gSthiVhszL-J8eTCXFiGiwVFDj-W_TMFnwsHePZXQdAU3jYEtcfQ67ox3SmzPZWVZGh9eCuA",
+            },
+          ],
+          seller: { businessName: "Aura Wear" },
+        },
+        {
+          id: "similar-4",
+          name: "Large Jute Basket",
+          category: "CRAFT",
+          price: 99900,
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCnMcaSTXdsb2QvhIb8QL-hqy3s2gOXrw4zJTGiY5D0FvFytvF9cR1iesOKiBDkHa8_pUROx1vEx-xpQTRi1CpwNpY7A1LkuJlziolH_6j5AsVA7VZq6rwCIVlLIQ8fPGh6ZOCh7kxGEIyrU8Ldpun5fevl2fuusJwbkjlfZgOFLYspbPLvuBq4U9M6GCct_invHHj4R5lR2FEcQXAX-A_6GmYKWgcZkawf3B6Zt3V6oAUCTja0pcsfhimcFCD2gbt77ex1yrP1FI0-",
+            },
+          ],
+          seller: { businessName: "Aura Wear" },
+        },
+        {
+          id: "similar-5",
+          name: "Geometric Terrarium",
+          category: "GREEN",
+          price: 210000,
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDbvOkDXF_CDM_IF71dRaczH-NQrjtSs_KHAc6xCLeMWDD3w3hztNuwjV3BZqu9GGwpJzsa3PfxY9XGOlCaz4B9y3i4z0quvvHe1sKjW-v6hI_NX6jWwAMXDvDgAAOKEkGR4MXc0eILY3bUa5zxNtTNRoyEoNy6MdT1yhBohWjdLC3gASA_768D3NLRww9ud2VxsurY7i3VwZK3soF5fZnlvr2R4hgmYGzYw0XFQlQPAYwvEHWUov3uxTSefFrQDyoyC1xhw8SJWzKt",
+            },
+          ],
+          seller: { businessName: "Aura Wear" },
+        },
+      ];
 
   const finalRecentlyViewed =
     recentlyViewed.length > 0
       ? recentlyViewed
       : [
-          {
-            id: "recent-1",
-            name: "Black Arched Lamp",
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAufCMePcxpC6E6yrxD7YgZTj2S2yrexjSHxOHRu1mDD_I3gYQmvF0-vzv1S9YHiERgvDr9Sg3JlbUTw2MyE8j2dDBxTSQEraSPLf8DQSscH8femXDKgAy0kMbPQMEMqbkdp2SUvDWqgVs2jmi64zT3ZingqwwPjnOfv1u7U41anP9uDt9WwLidMG_4HLSD38a0mhpor1wtsrIDyh7qK1fyPPh8zSaeR5EBCZXauzGgzfT2KoqKukjZvo1lMacUbv-H8Vq299g4W2dM",
-              },
-            ],
-          },
-          {
-            id: "recent-2",
-            name: "Blue Ceramic Mugs",
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDIpbXhe2il_PWhY0QHmYKSW6hD9eoDuxPhZ8KonVbdPw0_Sjc32IK0DWqFTm32x2J1SUgFwH6QjO0jtHAoOPOQNYlaQQGiXeWNfam9dwfZSp5CWbtAD-v-z7nPvo7O-VvCSsJOWzm8zPrSmr56tWh4prm5Mhf-LNSIm0Xn6rhWMNVCf_xhDnA77IMg7O1iu-d4BGBWRkSpLWzmOUDxB_7CV3bw2PjIqZ2Mv4CKYEYPoJ80UVAUuEbFQ3J2eb0N9K2OD3j0hIlwDD2x",
-              },
-            ],
-          },
-          {
-            id: "recent-3",
-            name: "Emerald Velvet Pillow",
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDgYHsf42YFCs7nAtJ8zzZscnBJK1UYpZ3M120QsJvt2uvcPiX01ekrQAJQOMMvMd_Kh0jgUHvHxDel4VRmQuz1nXsEAa4rcLC8CjsOkRZCwwJZsRTXgRq0oZk3v9gv6N4-Lk1B36t_qtLIcmqCmSfgc2nxXj8i-_u_hJQFCX6hxK-e57K15jBRQEozBZX1yN3rZFJ77GlgbeqZ8P6yHG-qsER_dduKd7-r2viZAcS3n_CbW2hyzoK4pyrH0HwoiKVUalNaES1vMmDh",
-              },
-            ],
-          },
-        ];
+        {
+          id: "recent-1",
+          name: "Black Arched Lamp",
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAufCMePcxpC6E6yrxD7YgZTj2S2yrexjSHxOHRu1mDD_I3gYQmvF0-vzv1S9YHiERgvDr9Sg3JlbUTw2MyE8j2dDBxTSQEraSPLf8DQSscH8femXDKgAy0kMbPQMEMqbkdp2SUvDWqgVs2jmi64zT3ZingqwwPjnOfv1u7U41anP9uDt9WwLidMG_4HLSD38a0mhpor1wtsrIDyh7qK1fyPPh8zSaeR5EBCZXauzGgzfT2KoqKukjZvo1lMacUbv-H8Vq299g4W2dM",
+            },
+          ],
+        },
+        {
+          id: "recent-2",
+          name: "Blue Ceramic Mugs",
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDIpbXhe2il_PWhY0QHmYKSW6hD9eoDuxPhZ8KonVbdPw0_Sjc32IK0DWqFTm32x2J1SUgFwH6QjO0jtHAoOPOQNYlaQQGiXeWNfam9dwfZSp5CWbtAD-v-z7nPvo7O-VvCSsJOWzm8zPrSmr56tWh4prm5Mhf-LNSIm0Xn6rhWMNVCf_xhDnA77IMg7O1iu-d4BGBWRkSpLWzmOUDxB_7CV3bw2PjIqZ2Mv4CKYEYPoJ80UVAUuEbFQ3J2eb0N9K2OD3j0hIlwDD2x",
+            },
+          ],
+        },
+        {
+          id: "recent-3",
+          name: "Emerald Velvet Pillow",
+          images: [
+            {
+              url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDgYHsf42YFCs7nAtJ8zzZscnBJK1UYpZ3M120QsJvt2uvcPiX01ekrQAJQOMMvMd_Kh0jgUHvHxDel4VRmQuz1nXsEAa4rcLC8CjsOkRZCwwJZsRTXgRq0oZk3v9gv6N4-Lk1B36t_qtLIcmqCmSfgc2nxXj8i-_u_hJQFCX6hxK-e57K15jBRQEozBZX1yN3rZFJ77GlgbeqZ8P6yHG-qsER_dduKd7-r2viZAcS3n_CbW2hyzoK4pyrH0HwoiKVUalNaES1vMmDh",
+            },
+          ],
+        },
+      ];
 
   const isFallbackId = (id: string) =>
     id.startsWith("similar-") || id.startsWith("recent-");
@@ -451,11 +475,10 @@ export default function ProductDetailClient({
                   <div
                     key={idx}
                     onClick={() => setSelectedImageIdx(idx)}
-                    className={`border-2 p-xs cursor-pointer ${
-                      selectedImageIdx === idx
+                    className={`border-2 p-xs cursor-pointer ${selectedImageIdx === idx
                         ? "border-primary"
                         : "border-border-gray hover:border-primary"
-                    }`}
+                      }`}
                   >
                     <img
                       className="w-full aspect-square object-cover"
@@ -599,13 +622,12 @@ export default function ProductDetailClient({
                         type="button"
                         onClick={() => isAvailable && setSelectedSize(v.size)}
                         disabled={!isAvailable}
-                        className={`min-w-[48px] px-md py-sm text-body-md font-label-bold rounded-sm border transition-all cursor-pointer ${
-                          !isAvailable
+                        className={`min-w-[48px] px-md py-sm text-body-md font-label-bold rounded-sm border transition-all cursor-pointer ${!isAvailable
                             ? "bg-surface-container border-border-gray text-text-muted line-through cursor-not-allowed opacity-50"
                             : isSelected
-                            ? "bg-primary text-on-primary border-primary"
-                            : "bg-white border-border-gray text-on-surface hover:border-primary"
-                        }`}
+                              ? "bg-primary text-on-primary border-primary"
+                              : "bg-white border-border-gray text-on-surface hover:border-primary"
+                          }`}
                       >
                         {v.size}
                       </button>
@@ -658,11 +680,16 @@ export default function ProductDetailClient({
                   <span className="material-symbols-outlined text-text-muted">
                     location_on
                   </span>
-                  Deliver to <span className="font-bold">Chennai 600001</span>
+                  Deliver to <span className="font-bold">
+                    {deliveryAddress ? `${deliveryAddress.city} ${deliveryAddress.pincode}` : "Chennai 600001"}
+                  </span>
                 </div>
-                <button className="text-primary font-bold text-body-sm cursor-pointer hover:underline">
+                <Link
+                  href={`/account/addresses?redirectTo=${encodeURIComponent(`/products/${product.id}`)}`}
+                  className="text-primary font-bold text-body-sm cursor-pointer hover:underline"
+                >
                   Change
-                </button>
+                </Link>
               </div>
               <div className="flex items-center gap-md">
                 <p className="text-body-md font-body-md">
@@ -750,9 +777,8 @@ export default function ProductDetailClient({
                 Product Description
               </h3>
               <p
-                className={`text-body-md font-body-md text-on-surface-variant leading-relaxed ${
-                  isDescExpanded ? "" : "line-clamp-3"
-                }`}
+                className={`text-body-md font-body-md text-on-surface-variant leading-relaxed ${isDescExpanded ? "" : "line-clamp-3"
+                  }`}
               >
                 {product.fullDescription}
               </p>
@@ -764,9 +790,8 @@ export default function ProductDetailClient({
                 >
                   {isDescExpanded ? "READ LESS" : "READ MORE"}{" "}
                   <span
-                    className={`material-symbols-outlined text-sm ml-xs transition-transform duration-200 ${
-                      isDescExpanded ? "rotate-180" : ""
-                    }`}
+                    className={`material-symbols-outlined text-sm ml-xs transition-transform duration-200 ${isDescExpanded ? "rotate-180" : ""
+                      }`}
                   >
                     expand_more
                   </span>
@@ -781,122 +806,13 @@ export default function ProductDetailClient({
           <h2 className="font-headline-sm text-headline-sm text-on-surface mb-lg">
             Ratings &amp; Reviews
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-xl">
-            {/* Average Breakdown */}
-            <div className="md:col-span-4 space-y-md">
-              <div className="flex items-center gap-lg">
-                <div className="text-center">
-                  <div className="text-4xl font-black text-on-surface">
-                    4.8{" "}
-                    <span
-                      className="material-symbols-outlined text-2xl align-middle"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
-                  </div>
-                  <div className="text-body-sm font-body-sm text-text-muted mt-1">
-                    1,248 Ratings
-                  </div>
-                </div>
-                <div className="flex-grow space-y-1">
-                  {/* Bars */}
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm w-4">5★</span>
-                    <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-success-green"
-                        style={{ width: "80%" }}
-                      ></div>
-                    </div>
-                    <span className="text-body-sm w-8 text-right">980</span>
-                  </div>
-
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm w-4">4★</span>
-                    <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-success-green"
-                        style={{ width: "15%" }}
-                      ></div>
-                    </div>
-                    <span className="text-body-sm w-8 text-right">182</span>
-                  </div>
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm w-4">3★</span>
-                    <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-accent-yellow"
-                        style={{ width: "3%" }}
-                      ></div>
-                    </div>
-                    <span className="text-body-sm w-8 text-right">45</span>
-                  </div>
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm w-4">2★</span>
-                    <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-error-red"
-                        style={{ width: "1%" }}
-                      ></div>
-                    </div>
-                    <span className="text-body-sm w-8 text-right">24</span>
-                  </div>
-                  <div className="flex items-center gap-sm">
-                    <span className="text-body-sm w-4">1★</span>
-                    <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-error-red"
-                        style={{ width: "1%" }}
-                      ></div>
-                    </div>
-                    <span className="text-body-sm w-8 text-right">17</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Review Cards */}
-            <div className="md:col-span-8 space-y-lg">
-              <div className="border-b border-border-gray pb-lg">
-                <div className="flex items-center gap-md mb-xs">
-                  <span className="bg-success-green text-on-primary px-sm py-0.5 rounded text-[10px] font-bold">
-                    5 ★
-                  </span>
-                  <span className="font-label-bold text-label-bold font-bold text-sm">
-                    Excellent Craftsmanship!
-                  </span>
-                </div>
-                <p className="text-body-md font-body-md text-on-surface mb-sm">
-                  The texture is amazing. It looks even better in person. The light
-                  is soft and perfect for my reading nook. Highly recommended for
-                  minimalist lovers.
-                </p>
-                <div className="flex items-center gap-sm text-body-sm font-body-sm text-text-muted">
-                  <span className="font-bold text-on-surface">Amit R.</span>
-                  <span className="">• Verified Purchase • 2 weeks ago</span>
-                </div>
-              </div>
-              <div className="border-b border-border-gray pb-lg">
-                <div className="flex items-center gap-md mb-xs">
-                  <span className="bg-success-green text-on-primary px-sm py-0.5 rounded text-[10px] font-bold">
-                    4 ★
-                  </span>
-                  <span className="font-label-bold text-label-bold font-bold text-sm">
-                    Beautiful, but a bit tall
-                  </span>
-                </div>
-                <p className="text-body-md font-body-md text-on-surface mb-sm">
-                  Love the ceramic base. It's solid and well-made. The shade is a
-                  bit larger than I expected but still fits the room nicely.
-                </p>
-                <div className="flex items-center gap-sm text-body-sm font-body-sm text-text-muted">
-                  <span className="font-bold text-on-surface">Priya S.</span>
-                  <span className="">• Verified Purchase • 1 month ago</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ReviewGallery
+            productId={product.id}
+            initialSummary={reviewSummary}
+            initialReviews={initialReviews}
+          />
         </section>
+
 
         {/* Similar Products Carousel */}
         <section className="mt-xxl">

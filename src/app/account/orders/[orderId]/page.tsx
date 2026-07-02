@@ -53,6 +53,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     include: {
       address: true,
       seller: true,
+      review: true,
       items: {
         include: {
           product: {
@@ -105,7 +106,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       pincode: order.address.pincode,
     },
     items: formattedItems,
+    // Epic 4 fields
+    trackingUrl: order.trackingUrl,
+    icarryAwbNumber: order.icarryAwbNumber,
+    escrowReleaseAt: order.escrowReleaseAt ? order.escrowReleaseAt.toISOString() : null,
+    hasReview: !!order.review,
+    userProfileId: userProfile.id,
+    firstProductId: order.items[0]?.productId,
   };
+
 
   // Fetch cart count from Redis
   const allReservations = await getUserReservations(userProfile.id);

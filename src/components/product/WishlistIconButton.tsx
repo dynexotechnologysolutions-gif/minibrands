@@ -64,6 +64,7 @@ export default function WishlistIconButton({
       onClick={handleWishlistClick}
       disabled={isToggling}
       className="absolute top-sm right-sm w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 cursor-pointer disabled:opacity-50 animate-fade-in"
+      suppressHydrationWarning={true}
     >
       <span
         className={`material-symbols-outlined text-[20px] transition-colors ${

@@ -54,16 +54,23 @@ export default function OrderCard({
   const isReturned = currentStatus === "returned" || currentStatus === "refunded" || currentStatus === "disputed";
   const isProcessing = !isDelivered && !isShipped && !isCancelled && !isReturned;
 
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Check if eligible for return: delivered and within 7 days
   const canReturn = (() => {
     if (!isDelivered) return false;
+    if (!mounted) return true;
     const elapsedMs = Date.now() - new Date(order.createdAt).getTime();
     const limitMs = 7 * 24 * 60 * 60 * 1000;
     return elapsedMs <= limitMs;
   })();
 
   return (
-    <div className="bg-surface border border-border-gray rounded overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-surface border border-border-gray rounded overflow-hidden hover:shadow-md transition-shadow" suppressHydrationWarning>
       <div className="p-base md:flex items-start gap-lg">
         {/* Order Items & Info */}
         <div className="flex-1 space-y-md">
@@ -101,7 +108,7 @@ export default function OrderCard({
           )}
 
           {/* Footer Action Buttons */}
-          <div className="mt-lg flex flex-wrap items-center gap-base pt-md">
+          <div className="mt-lg flex flex-wrap items-center gap-base pt-md" suppressHydrationWarning>
             {/* Delivered Actions */}
             {isDelivered && (
               <>
