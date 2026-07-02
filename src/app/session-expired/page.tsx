@@ -73,7 +73,7 @@ export default function SessionExpiredPage() {
 
       {/* Main Content Canvas */}
       <main className="flex-grow flex items-center justify-center px-base pt-xxl pb-xxl mt-xl">
-        <div className="max-w-xl w-full text-center space-y-xl">
+        <div className="max-w-[576px] w-full text-center space-y-xl">
           {/* Illustration Section */}
           <div className="fade-in flex justify-center">
             <div className="w-64 h-64 md:w-80 md:h-80 overflow-hidden">
@@ -90,7 +90,7 @@ export default function SessionExpiredPage() {
             <h1 className="fade-in delay-1 font-headline-lg text-headline-lg text-on-surface">
               Your Session Has Expired
             </h1>
-            <p className="fade-in delay-2 font-body-lg text-body-lg text-secondary max-w-md mx-auto">
+            <p className="fade-in delay-2 font-body-lg text-body-lg text-secondary max-w-[448px] mx-auto">
               For your security, your session has ended due to inactivity or authentication timeout. Don&apos;t worry—your account and data remain secure. Please sign in again to continue where you left off.
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function SessionExpiredPage() {
 
           {/* Security Info Card */}
           <div className="fade-in delay-4 pt-xxl">
-            <div className="bg-surface-container-low border border-outline-variant p-lg rounded-xl text-left flex items-start gap-md max-w-lg mx-auto">
+            <div className="bg-surface-container-low border border-outline-variant p-lg rounded-xl text-left flex items-start gap-md max-w-[512px] mx-auto">
               <div className="bg-surface-container-highest p-sm rounded-full flex-shrink-0">
                 <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
                   shield
@@ -128,6 +128,7 @@ export default function SessionExpiredPage() {
               </div>
             </div>
           </div>
+
 
           {/* Footer Help Link */}
           <div className="fade-in delay-4 pt-lg">

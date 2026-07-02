@@ -72,14 +72,20 @@ model Verification {
 }
 
 model UserProfile {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @default(BUYER)
-  createdAt DateTime @default(now())
-  seller    Seller?
-  addresses Address[]
-  orders    Order[]
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           Role            @default(BUYER)
+  createdAt      DateTime        @default(now())
+  seller         Seller?
+  addresses      Address[]
+  orders         Order[]
+  reviewsGiven   Review[]        @relation("BuyerReviews")
+  returnRequests ReturnRequest[]
+  returnCount    Int             @default(0)
+  refundCount    Int             @default(0)
+  disputeCount   Int             @default(0)
+  abuseScore     Float           @default(0.0)
 
   @@index([role])
   @@map("user_profile")
@@ -92,20 +98,22 @@ enum Role {
 }
 
 model Seller {
-  id               String              @id @default(uuid())
-  userProfileId    String              @unique
-  userProfile      UserProfile         @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
-  businessName     String
-  storeName        String              @default("")
-  storeLogo        String?
-  storeBanner      String?
-  storeDescription String?
-  category         String
-  city             String
-  verification     SellerVerification?
-  products         Product[]
-  orders           Order[]
-  createdAt        DateTime            @default(now())
+  id                    String              @id @default(uuid())
+  userProfileId         String              @unique
+  userProfile           UserProfile         @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  businessName          String
+  storeName             String              @default("")
+  storeLogo             String?
+  storeBanner           String?
+  storeDescription      String?
+  category              String
+  city                  String
+  razorpayFundAccountId String?
+  verification          SellerVerification?
+  products              Product[]
+  orders                Order[]
+  reviews               Review[]
+  createdAt             DateTime            @default(now())
 
   @@index([city])
   @@index([category])
@@ -131,25 +139,28 @@ model SellerVerification {
 }
 
 model Product {
-  id                String           @id @default(uuid())
-  sellerId          String
-  seller            Seller           @relation(fields: [sellerId], references: [id])
-  name              String
-  shortDescription  String
-  fullDescription   String
-  category          String
-  subcategory       String?
-  tags              String[]
-  price             Int              // paise (smallest INR unit)
-  isPublished       Boolean          @default(false)
-  publishedAt       DateTime?
-  isDeleted         Boolean          @default(false)
-  aiGenerated       Boolean          @default(false)
-  images            ProductImage[]
-  variants          ProductVariant[]
-  orderItems        OrderItem[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  sellerId         String
+  seller           Seller           @relation(fields: [sellerId], references: [id])
+  name             String
+  shortDescription String
+  fullDescription  String
+  category         String
+  subcategory      String?
+  tags             String[]
+  price            Int              // paise (smallest INR unit)
+  isPublished      Boolean          @default(false)
+  publishedAt      DateTime?
+  isDeleted        Boolean          @default(false)
+  aiGenerated      Boolean          @default(false)
+  averageRating    Float            @default(0)
+  reviewCount      Int              @default(0)
+  images           ProductImage[]
+  variants         ProductVariant[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@index([sellerId])
   @@index([category])
@@ -223,8 +234,15 @@ model Order {
   orderStatus         String      @default("created")
   razorpayOrderId     String?     @unique
   razorpayPaymentId   String?     @unique
-  escrowReleaseAt     DateTime?   // intentionally null in this Epic
+  escrowReleaseAt     DateTime?   // set when buyer confirms delivery
+  icarryOrderId       String?
+  icarryAwbNumber     String?
+  icarryLabelUrl      String?
+  trackingUrl         String?
+  razorpayPayoutId    String?     @unique
   items               OrderItem[]
+  review              Review?
+  returnRequest       ReturnRequest?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 
@@ -232,6 +250,7 @@ model Order {
   @@index([sellerId])
   @@index([status])
   @@index([razorpayOrderId])
+  @@index([status, escrowReleaseAt])
   @@map("order")
 }
 
@@ -256,6 +275,7 @@ model OrderItem {
   variant     ProductVariant @relation(fields: [variantId], references: [id])
   quantity    Int
   unitPrice   Int            // paise
+  returnItems ReturnItem[]
 
   @@index([orderId])
   @@map("order_item")
@@ -273,3 +293,175 @@ model Payment {
 
   @@map("payment")
 }
+
+model Review {
+  id        String      @id @default(uuid())
+  orderId   String      @unique
+  order     Order       @relation(fields: [orderId], references: [id])
+  buyerId   String
+  buyer     UserProfile @relation("BuyerReviews", fields: [buyerId], references: [id])
+  sellerId  String
+  seller    Seller      @relation(fields: [sellerId], references: [id])
+  productId String
+  product   Product     @relation(fields: [productId], references: [id])
+  rating    Int
+  comment   String?
+  photoUrls String[]
+  isVisible Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  @@index([sellerId])
+  @@index([productId])
+  @@index([buyerId])
+  @@map("review")
+}
+
+model NotificationLog {
+  id           String   @id @default(uuid())
+  to           String
+  template     String
+  params       String[]
+  status       String   // "sent", "failed", "mocked"
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  @@map("notification_log")
+}
+
+enum ReturnRequestStatus {
+  RETURN_REQUESTED
+  SELLER_REVIEW
+  APPROVED
+  PICKUP_SCHEDULED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED_TO_SELLER
+  UNDER_INSPECTION
+  REFUND_APPROVED
+  REFUND_PROCESSING
+  REFUNDED
+  RETURN_COMPLETED
+  REJECTED
+  CANCELLED
+  DISPUTED
+  ESCALATED
+}
+
+enum InspectionResult {
+  PENDING
+  PASSED
+  FAILED
+  PARTIAL
+}
+
+enum RefundMethod {
+  ORIGINAL_PAYMENT
+  STORE_CREDIT
+  MANUAL_BANK_TRANSFER
+}
+
+enum ReturnReason {
+  DAMAGED
+  WRONG_PRODUCT
+  SIZE_ISSUE
+  QUALITY_ISSUE
+  NOT_AS_DESCRIBED
+  CHANGED_MIND
+  OTHER
+}
+
+enum EvidenceType {
+  IMAGE
+  VIDEO
+}
+
+model ReturnRequest {
+  id               String                @id @default(uuid())
+  orderId          String                @unique
+  order            Order                 @relation(fields: [orderId], references: [id])
+  buyerId          String
+  buyer            UserProfile           @relation(fields: [buyerId], references: [id])
+  status           ReturnRequestStatus   @default(RETURN_REQUESTED)
+  reason           ReturnReason
+  comment          String?
+  refundMethod     RefundMethod          @default(ORIGINAL_PAYMENT)
+  refundAmount     Int                   // paise
+  pickupCourier    String?
+  pickupTrackingId String?
+  pickupDate       DateTime?
+  inspectionNotes  String?
+  inspectionResult InspectionResult      @default(PENDING)
+  restockDecision  Boolean?
+  policyEligibleUntil DateTime
+  policyVersion    String
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  items            ReturnItem[]
+  evidence         ReturnEvidence[]
+  statusHistory    ReturnStatusHistory[]
+  refund           Refund?
+
+  @@map("return_request")
+}
+
+model ReturnItem {
+  id              String        @id @default(uuid())
+  returnRequestId String
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItemId     String
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  quantity        Int
+
+  @@map("return_item")
+}
+
+model ReturnEvidence {
+  id               String        @id @default(uuid())
+  returnRequestId  String
+  returnRequest    ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  url              String
+  type             EvidenceType
+  cloudinaryPublicId String?
+  thumbnailUrl     String?
+  mimeType         String?
+  fileSize         Int?
+  uploadedAt       DateTime      @default(now())
+
+  @@map("return_evidence")
+}
+
+model ReturnStatusHistory {
+  id              String              @id @default(uuid())
+  returnRequestId String
+  returnRequest   ReturnRequest       @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  previousStatus  ReturnRequestStatus
+  newStatus       ReturnRequestStatus
+  actorId         String
+  actorRole       String
+  comment         String?
+  createdAt       DateTime            @default(now())
+
+  @@map("return_status_history")
+}
+
+model Refund {
+  id               String        @id @default(uuid())
+  returnRequestId  String        @unique
+  returnRequest    ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  razorpayRefundId String?       @unique
+  razorpayPaymentId String
+  amount           Int           // paise
+  status           String        // "initiated" | "processed" | "failed"
+  reason           String
+  initiatedAt      DateTime      @default(now())
+  processedAt      DateTime?
+  failedAt         DateTime?
+  webhookReceivedAt DateTime?
+  failureReason    String?
+  createdBy        String
+  updatedAt        DateTime      @updatedAt
+
+  @@map("refund")
+}
+
+

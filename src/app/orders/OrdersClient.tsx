@@ -95,28 +95,8 @@ export default function OrdersClient({
     }
   };
 
-  const handleReturnOrder = async (orderId: string) => {
-    if (!confirm("Are you sure you want to request a return for this order?")) return;
-
-    try {
-      const res = await returnOrderAction(orderId);
-      if (res.success) {
-        setOrders((prev) =>
-          prev.map((o) =>
-            o.id === orderId ? { ...o, status: "disputed", orderStatus: "returned" } : o
-          )
-        );
-        triggerToast("Return request submitted successfully. Processing refund.", "success");
-        startTransition(() => {
-          router.refresh();
-        });
-      } else {
-        triggerToast(res.error?.message || "Failed to return order.", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      triggerToast("An error occurred. Please try again.", "error");
-    }
+  const handleReturnOrder = (orderId: string) => {
+    router.push(`/orders/${orderId}/return`);
   };
 
   const handleBuyAgain = async (productId: string, variantId: string) => {
@@ -273,7 +253,7 @@ export default function OrdersClient({
       {/* Rate Product Modal */}
       {showRateModal && (
         <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-md w-full p-base space-y-base shadow-xl animate-fade-in-up">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
             <div className="flex justify-between items-center border-b border-border-gray pb-sm">
               <h3 className="font-headline-sm text-headline-sm text-primary">Rate & Review</h3>
               <button
@@ -339,7 +319,7 @@ export default function OrdersClient({
       {/* Track Package Modal */}
       {showTrackModal && (
         <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-md w-full p-base space-y-base shadow-xl animate-fade-in-up">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
             <div className="flex justify-between items-center border-b border-border-gray pb-sm">
               <h3 className="font-headline-sm text-headline-sm text-primary">Package Tracking</h3>
               <button

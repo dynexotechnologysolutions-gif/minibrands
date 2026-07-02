@@ -38,6 +38,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
             onClick={scrollLeft}
             className="w-8 h-8 rounded-full border border-border-gray flex items-center justify-center hover:bg-surface-container-low transition-colors cursor-pointer select-none"
             aria-label="Scroll left"
+            suppressHydrationWarning={true}
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
@@ -45,6 +46,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
             onClick={scrollRight}
             className="w-8 h-8 rounded-full border border-border-gray flex items-center justify-center hover:bg-surface-container-low transition-colors cursor-pointer select-none"
             aria-label="Scroll right"
+            suppressHydrationWarning={true}
           >
             <span className="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>

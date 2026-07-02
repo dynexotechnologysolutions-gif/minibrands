@@ -56,6 +56,28 @@ export async function POST(req: Request) {
       });
     }
 
+    if (uploadType === "review") {
+      const timestamp = Math.round(new Date().getTime() / 1000);
+      const folder = `velvetlane/reviews/${session.user.id}`;
+
+      const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
+      const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";
+      const cloudName =
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+        process.env.CLOUDINARY_CLOUD_NAME ||
+        "mock_cloudinary_cloud";
+
+      const signature = generateCloudinarySignature({ folder, timestamp }, apiSecret);
+
+      return NextResponse.json({
+        signature,
+        timestamp,
+        apiKey,
+        cloudName,
+        folder,
+      });
+    }
+
     // 3. Fetch UserProfile and Seller details to verify activation status (for products)
     const userProfile = await prisma.userProfile.findUnique({
       where: { userId: session.user.id },

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/escrow-release",
+      "schedule": "30 20 * * *"
+    }
+  ]
+}

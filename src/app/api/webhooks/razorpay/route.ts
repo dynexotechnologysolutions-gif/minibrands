@@ -30,6 +30,12 @@ export async function POST(req: Request) {
     const body = JSON.parse(rawBody);
     const eventType = body.event;
 
+    if (eventType === "refund.processed" || eventType === "refund.failed") {
+      const { handleRefundWebhook } = await import("@/modules/returns/webhooks/razorpay");
+      await handleRefundWebhook(eventType, body.payload?.refund);
+      return NextResponse.json({ received: true });
+    }
+
     if (eventType !== "payment.captured") {
       // Return 200 to acknowledge other events
       console.log(`[Razorpay Webhook] Received unhandled event type: ${eventType}`);

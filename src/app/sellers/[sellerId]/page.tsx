@@ -4,6 +4,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ProductGrid from "@/components/product/ProductGrid";
 import { BadgeCheck, ShieldCheck, MapPin, Store, Calendar, ArrowLeft } from "lucide-react";
+import ReviewGallery from "@/components/review/ReviewGallery";
+
 
 interface PageProps {
   params: Promise<{
@@ -128,6 +130,61 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
 
   const joinedYear = new Date(seller.createdAt).getFullYear();
 
+  // Fetch reviews distribution for seller
+  const reviewGroups = await prisma.review.groupBy({
+    by: ["rating"],
+    where: { sellerId: seller.id, isVisible: true },
+    _count: { rating: true },
+  });
+
+  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  reviewGroups.forEach((g) => {
+    distribution[g.rating] = g._count.rating;
+  });
+
+  // Fetch initial reviews
+  const initialReviews = await prisma.review.findMany({
+    where: { sellerId: seller.id, isVisible: true },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    include: {
+      buyer: {
+        include: {
+          user: {
+            select: { name: true },
+          },
+        },
+      },
+    },
+  });
+
+  const formattedInitialReviews = initialReviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    photoUrls: r.photoUrls,
+    createdAt: r.createdAt.toISOString(),
+    buyer: {
+      user: {
+        name: r.buyer.user.name,
+      },
+    },
+  }));
+
+  const avgAggregate = await prisma.review.aggregate({
+    where: { sellerId: seller.id, isVisible: true },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+  const averageRating = avgAggregate._avg.rating ?? 0;
+  const reviewCount = avgAggregate._count.rating ?? 0;
+
+  const reviewSummary = {
+    averageRating,
+    reviewCount,
+    distribution,
+  };
+
   return (
     <main className="min-h-screen pb-16">
       {/* Inject LocalBusiness Structured Data */}
@@ -200,7 +257,7 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
                 </span>
               </div>
               {seller.storeDescription && (
-                <p className="text-xs text-slate-600 mt-2 max-w-xl border-l-2 border-indigo-500 pl-3 leading-relaxed">
+                <p className="text-xs text-slate-600 mt-2 max-w-[576px] border-l-2 border-indigo-500 pl-3 leading-relaxed">
                   {seller.storeDescription}
                 </p>
               )}
@@ -258,7 +315,7 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
         </div>
 
         {formattedProducts.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl bg-white max-w-md mx-auto shadow-sm">
+          <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl bg-white max-w-[448px] mx-auto shadow-sm">
             <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
               <Store className="w-5 h-5" />
             </div>
@@ -271,6 +328,19 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
           <ProductGrid products={formattedProducts} />
         )}
       </div>
+
+      {/* Reviews Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-slate-100">
+        <h2 className="text-lg sm:text-xl font-bold font-display text-slate-800 mb-8">
+          Boutique Reviews
+        </h2>
+        <ReviewGallery
+          sellerId={seller.id}
+          initialSummary={reviewSummary}
+          initialReviews={formattedInitialReviews}
+        />
+      </div>
     </main>
   );
 }
+

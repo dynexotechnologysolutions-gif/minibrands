@@ -200,3 +200,50 @@ export function verifyWebhookSignature(
 
   return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 }
+
+/**
+ * Initiates a refund in Razorpay for a given payment ID.
+ * If credentials are mock, simulates successful refund.
+ */
+export async function createRazorpayRefund(
+  paymentId: string,
+  amount: number
+): Promise<{ id: string; payment_id: string; amount: number; status: string }> {
+  const isMock =
+    process.env.NODE_ENV === "test" ||
+    (!RAZORPAY_KEY_ID ||
+      RAZORPAY_KEY_ID.includes("mock") ||
+      !RAZORPAY_KEY_SECRET);
+
+  if (isMock) {
+    console.log(`[MOCK RAZORPAY] Refunding payment: ${paymentId}, Amount: ${amount}`);
+    return {
+      id: `rfnd_mock_${Math.random().toString(36).substring(2, 11)}`,
+      payment_id: paymentId,
+      amount,
+      status: "processed",
+    };
+  }
+
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+    throw new Error("Razorpay credentials are required in production.");
+  }
+
+  const authHeader = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString("base64");
+  const response = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}/refund`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${authHeader}`,
+    },
+    body: JSON.stringify({ amount }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Razorpay refund failed: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+}
+

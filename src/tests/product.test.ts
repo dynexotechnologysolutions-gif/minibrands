@@ -38,6 +38,13 @@ vi.mock("../lib/prisma", () => {
     productVariant: {
       deleteMany: vi.fn(),
       createMany: vi.fn(),
+      findMany: vi.fn().mockResolvedValue([]),
+      update: vi.fn(),
+      delete: vi.fn(),
+      create: vi.fn(),
+    },
+    orderItem: {
+      count: vi.fn().mockResolvedValue(0),
     },
     $transaction: vi.fn((callback) => callback(mockPrisma)),
   };
@@ -281,6 +288,88 @@ describe("Product Catalog Unit & Integration Tests", () => {
       const res = await updateProduct(updateInput);
       expect(res.success).toBe(true);
       expect(res.data?.productId).toBe("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
+    });
+
+    it("should soft-retire variants (stockCount=0) if they are removed but referenced in orders", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: "user-owner", email: "test@example.com", emailVerified: true } as any,
+        session: { id: "sess-1", expiresAt: new Date(), token: "t", createdAt: new Date(), updatedAt: new Date(), userId: "user-owner" },
+      });
+
+      vi.mocked(prisma.product.findUnique).mockResolvedValue({
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        sellerId: "seller-1",
+        seller: {
+          id: "seller-1",
+          userProfileId: "user-owner",
+          userProfile: { userId: "user-owner" },
+          verification: { kycStatus: "auto_approved", bankVerified: true },
+        },
+      } as any);
+
+      // Existing variant list
+      vi.mocked(prisma.productVariant.findMany).mockResolvedValue([
+        { id: "var-1", size: "L", stockCount: 5, productId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+      ] as any);
+
+      // Simulate the variant being referenced by 1 order item
+      vi.mocked(prisma.orderItem.count).mockResolvedValue(1);
+
+      // Call update input with size "M" (removed "L")
+      const inputWithNewSize = {
+        ...updateInput,
+        variants: [{ size: "M", stockCount: 15 }],
+      };
+
+      const res = await updateProduct(inputWithNewSize);
+      expect(res.success).toBe(true);
+
+      // Verify that it updated var-1 (L) stock to 0 instead of deleting it
+      expect(prisma.productVariant.update).toHaveBeenCalledWith({
+        where: { id: "var-1" },
+        data: { stockCount: 0 },
+      });
+      expect(prisma.productVariant.delete).not.toHaveBeenCalled();
+    });
+
+    it("should hard-delete variants if they are removed and not referenced in any orders", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: "user-owner", email: "test@example.com", emailVerified: true } as any,
+        session: { id: "sess-1", expiresAt: new Date(), token: "t", createdAt: new Date(), updatedAt: new Date(), userId: "user-owner" },
+      });
+
+      vi.mocked(prisma.product.findUnique).mockResolvedValue({
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        sellerId: "seller-1",
+        seller: {
+          id: "seller-1",
+          userProfileId: "user-owner",
+          userProfile: { userId: "user-owner" },
+          verification: { kycStatus: "auto_approved", bankVerified: true },
+        },
+      } as any);
+
+      // Existing variant list
+      vi.mocked(prisma.productVariant.findMany).mockResolvedValue([
+        { id: "var-2", size: "XL", stockCount: 8, productId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+      ] as any);
+
+      // Simulate the variant NOT referenced by any order item
+      vi.mocked(prisma.orderItem.count).mockResolvedValue(0);
+
+      // Call update input with size "M" (removed "XL")
+      const inputWithNewSize = {
+        ...updateInput,
+        variants: [{ size: "M", stockCount: 15 }],
+      };
+
+      const res = await updateProduct(inputWithNewSize);
+      expect(res.success).toBe(true);
+
+      // Verify that it deleted the variant row cleanly
+      expect(prisma.productVariant.delete).toHaveBeenCalledWith({
+        where: { id: "var-2" },
+      });
     });
   });
 

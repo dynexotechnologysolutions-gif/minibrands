@@ -115,18 +115,59 @@ export async function updateProduct(
         });
       }
 
-      // Synchronize variants (delete old, insert new)
+      // Synchronize variants (delete old safely/soft-retire, insert/update new)
       if (fields.variants) {
-        await tx.productVariant.deleteMany({ where: { productId } });
-        await tx.productVariant.createMany({
-          data: fields.variants.map((v) => ({
-            productId,
-            size: v.size,
-            stockCount: v.stockCount,
-          })),
+        const existingVariants = await tx.productVariant.findMany({
+          where: { productId },
         });
+
+        const newSizes = fields.variants.map((v) => v.size);
+
+        // 1. Identify variants to delete or retire
+        const variantsToRemove = existingVariants.filter(
+          (ev) => !newSizes.includes(ev.size)
+        );
+
+        for (const ev of variantsToRemove) {
+          const referencedCount = await tx.orderItem.count({
+            where: { variantId: ev.id },
+          });
+
+          if (referencedCount > 0) {
+            // Soft-retire by setting stock to 0
+            await tx.productVariant.update({
+              where: { id: ev.id },
+              data: { stockCount: 0 },
+            });
+          } else {
+            // Hard-delete if not referenced by any order items
+            await tx.productVariant.delete({
+              where: { id: ev.id },
+            });
+          }
+        }
+
+        // 2. Upsert (create or update) variants list
+        for (const nv of fields.variants) {
+          const matched = existingVariants.find((ev) => ev.size === nv.size);
+          if (matched) {
+            await tx.productVariant.update({
+              where: { id: matched.id },
+              data: { stockCount: nv.stockCount },
+            });
+          } else {
+            await tx.productVariant.create({
+              data: {
+                productId,
+                size: nv.size,
+                stockCount: nv.stockCount,
+              },
+            });
+          }
+        }
       }
     });
+
 
     // Determine what changed
     const fieldsChanged = Object.keys(fields);

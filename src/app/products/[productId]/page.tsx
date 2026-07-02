@@ -278,6 +278,53 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   }));
 
+  // Fetch reviews distribution
+  const reviewGroups = await prisma.review.groupBy({
+    by: ["rating"],
+    where: { productId: product.id, isVisible: true },
+    _count: { rating: true },
+  });
+
+  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  reviewGroups.forEach((g) => {
+    distribution[g.rating] = g._count.rating;
+  });
+
+  // Fetch initial reviews
+  const initialReviews = await prisma.review.findMany({
+    where: { productId: product.id, isVisible: true },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+    include: {
+      buyer: {
+        include: {
+          user: {
+            select: { name: true },
+          },
+        },
+      },
+    },
+  });
+
+  const formattedInitialReviews = initialReviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    photoUrls: r.photoUrls,
+    createdAt: r.createdAt.toISOString(),
+    buyer: {
+      user: {
+        name: r.buyer.user.name,
+      },
+    },
+  }));
+
+  const reviewSummary = {
+    averageRating: product.averageRating,
+    reviewCount: product.reviewCount,
+    distribution,
+  };
+
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       {/* Inject Structured Data */}
@@ -293,8 +340,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
         similarProducts={formattedSimilarProducts}
         recentlyViewed={formattedRecentlyViewed}
         initialIsWishlisted={initialIsWishlisted}
+        reviewSummary={reviewSummary}
+        initialReviews={formattedInitialReviews}
       />
     </div>
   );
 }
+
 

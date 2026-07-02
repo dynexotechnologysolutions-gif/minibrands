@@ -174,7 +174,7 @@ export default function SellerProductsDashboard() {
 
       {products.length === 0 ? (
         /* Empty State */
-        <div className="border border-dashed border-slate-200 rounded-2xl bg-white p-16 text-center max-w-xl mx-auto shadow-sm">
+        <div className="border border-dashed border-slate-200 rounded-2xl bg-white p-16 text-center max-w-[576px] mx-auto shadow-sm">
           <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <PackagePlus className="w-8 h-8" />
           </div>
