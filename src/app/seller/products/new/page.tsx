@@ -16,15 +16,18 @@ import {
   Upload,
   Image as ImageIcon,
   Sparkles,
-  DollarSign,
-  Plus,
   ArrowRight,
   ArrowLeft,
   Trash2,
   Loader2,
   AlertCircle,
-  CheckCircle,
+  CheckCircle2,
+  PackageCheck,
+  Layers,
+  FileEdit
 } from "lucide-react";
+
+import SellerLayout from "@/components/seller/SellerLayout";
 
 export default function NewProductWizard() {
   const router = useRouter();
@@ -41,6 +44,7 @@ export default function NewProductWizard() {
     setValue,
     watch,
     control,
+    trigger,
     formState: { errors },
   } = useForm<ProductCreateInput>({
     resolver: zodResolver(ProductCreateSchema) as any,
@@ -85,7 +89,6 @@ export default function NewProductWizard() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // A. Request signature from Route Handler
         const signRes = await fetch("/api/cloudinary/sign", {
           method: "POST",
         });
@@ -97,7 +100,6 @@ export default function NewProductWizard() {
 
         const { signature, timestamp, apiKey, cloudName, folder } = await signRes.json();
 
-        // B. Upload file directly to Cloudinary CDN
         const formData = new FormData();
         formData.append("file", file);
         formData.append("api_key", apiKey);
@@ -119,7 +121,6 @@ export default function NewProductWizard() {
 
         const data = await uploadRes.json();
 
-        // C. Update form state with new image url & public ID
         const currentImages = [...watchedImages];
         currentImages.push({
           url: data.secure_url,
@@ -150,7 +151,6 @@ export default function NewProductWizard() {
       return res.data;
     },
     onSuccess: (data) => {
-      // Pre-fill fields with AI Suggestions
       setValue("name", data.productName);
       setValue("shortDescription", data.shortDescription);
       setValue("fullDescription", data.fullDescription);
@@ -158,15 +158,14 @@ export default function NewProductWizard() {
       setValue("subcategory", data.subcategory || "");
       setValue("tags", data.tags);
       setValue("aiGenerated", true);
-      
+
       setAiData(data);
-      setStep(2); // Advance to AI Review
+      setStep(2);
     },
     onError: () => {
-      // Fallback contract: show empty form instead of blocking workflow
       setAiError("We couldn't generate description suggestions. Please fill in the details manually.");
       setValue("aiGenerated", false);
-      setStep(2); // Still advance to Step 2 so they can write manually
+      setStep(2);
     },
   });
 
@@ -179,7 +178,7 @@ export default function NewProductWizard() {
     aiMutation.mutate(imageUrls);
   };
 
-  // 3. Create Product Mutation (Save as Draft or Publish directly)
+  // 3. Create Product Mutation
   const createProductMutation = useMutation({
     mutationFn: async ({
       data,
@@ -214,8 +213,19 @@ export default function NewProductWizard() {
     },
   });
 
+  const handleContinueToStep3 = async () => {
+    const isStep2Valid = await trigger([
+      "name",
+      "shortDescription",
+      "fullDescription",
+      "category",
+    ]);
+    if (isStep2Valid) {
+      setStep(3);
+    }
+  };
+
   const onSubmitForm = (data: ProductCreateInput, publish = false) => {
-    // Check eligibility if trying to publish directly
     if (publish && !eligibility.eligible) {
       alert(eligibility.reason || "Product is not eligible to publish.");
       return;
@@ -224,286 +234,326 @@ export default function NewProductWizard() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      {/* Page Title & Back link */}
-      <div className="mb-6 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => router.push("/seller/products")}
-          className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Catalog</span>
-        </button>
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-          Step {step} of 3
-        </span>
-      </div>
-
-      {/* Stepper Header */}
-      <div className="mb-10 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-around text-xs font-bold uppercase tracking-wider text-slate-400">
-        <div className={`flex items-center gap-2 ${step >= 1 ? "text-indigo-600" : ""}`}>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-[10px] font-extrabold group-aria-current:bg-indigo-600">
-            1
+    <SellerLayout>
+      <div className="max-w-[800px] mx-auto space-y-md">
+        {/* Header Title */}
+        <div className="flex justify-between items-center border-b border-border-gray/40 pb-sm">
+          <button
+            type="button"
+            onClick={() => router.push("/seller/products")}
+            className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-on-surface transition-colors cursor-pointer font-bold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Products Catalog</span>
+          </button>
+          <span className="text-xs font-bold text-text-muted uppercase tracking-widest">
+            Step {step} of 3
           </span>
-          <span>Upload Photos</span>
         </div>
-        <div className={`flex items-center gap-2 ${step >= 2 ? "text-indigo-600" : ""}`}>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-[10px] font-extrabold">
-            2
-          </span>
-          <span>AI Suggestions</span>
-        </div>
-        <div className={`flex items-center gap-2 ${step >= 3 ? "text-indigo-600" : ""}`}>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-[10px] font-extrabold">
-            3
-          </span>
-          <span>Inventory Details</span>
-        </div>
-      </div>
 
-      <div className="glass-panel rounded-3xl p-8 shadow-xl bg-white border border-slate-100 min-h-[450px] flex flex-col justify-between">
-        <div>
-          {/* STEP 1: Cloudinary Photo Upload */}
-          {step === 1 && (
-            <div className="space-y-6 animate-fade-in-up">
-              <div>
-                <h2 className="text-lg font-bold text-slate-800 font-display mb-1 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-indigo-600" />
-                  <span>Upload Product Photos</span>
-                </h2>
-                <p className="text-slate-500 text-xs">
-                  Upload up to 6 high-quality images. The first image will be the primary cover photo.
-                </p>
-              </div>
+        {/* Stepper Header Bar */}
+        <div className="bg-surface-container-lowest border border-border-gray rounded-2xl p-base shadow-xs flex items-center justify-around gap-base flex-wrap text-xs font-bold uppercase tracking-wider text-text-muted">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className={`flex items-center gap-2 cursor-pointer transition-colors ${step >= 1 ? "text-on-surface font-extrabold" : ""}`}
+          >
+            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              step >= 1 ? "bg-primary text-on-primary shadow-xs" : "bg-surface-container text-text-muted"
+            }`}>
+              1
+            </span>
+            <span className="hidden sm:inline">1. Product Photos</span>
+            <span className="sm:hidden">Photos</span>
+          </button>
 
-              {/* Upload Drop Zone */}
-              <div className="relative border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-10 text-center transition-colors bg-slate-50/50">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  disabled={isUploading}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                />
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 mb-4">
-                    {isUploading ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
-                    ) : (
-                      <Upload className="w-6 h-6" />
-                    )}
-                  </div>
-                  <p className="text-xs font-semibold text-slate-700">
-                    {isUploading ? "Uploading photos..." : "Click or Drag to Upload Images"}
+          <span className="text-border-gray font-normal">&rarr;</span>
+
+          <button
+            type="button"
+            onClick={() => watchedImages.length > 0 && setStep(2)}
+            disabled={watchedImages.length === 0}
+            className={`flex items-center gap-2 transition-colors ${
+              watchedImages.length > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+            } ${step >= 2 ? "text-on-surface font-extrabold" : ""}`}
+          >
+            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              step >= 2 ? "bg-primary text-on-primary shadow-xs" : "bg-surface-container text-text-muted"
+            }`}>
+              2
+            </span>
+            <span className="hidden sm:inline">2. Details & AI Assistant</span>
+            <span className="sm:hidden">Details</span>
+          </button>
+
+          <span className="text-border-gray font-normal">&rarr;</span>
+
+          <button
+            type="button"
+            onClick={handleContinueToStep3}
+            disabled={watchedImages.length === 0}
+            className={`flex items-center gap-2 transition-colors ${
+              watchedImages.length > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+            } ${step >= 3 ? "text-on-surface font-extrabold" : ""}`}
+          >
+            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              step >= 3 ? "bg-primary text-on-primary shadow-xs" : "bg-surface-container text-text-muted"
+            }`}>
+              3
+            </span>
+            <span className="hidden sm:inline">3. Variants & Stock</span>
+            <span className="sm:hidden">Variants</span>
+          </button>
+        </div>
+
+        {/* Content Card */}
+        <div className="bg-surface-container-lowest rounded-2xl p-base sm:p-lg border border-border-gray shadow-xs min-h-[460px] flex flex-col justify-between space-y-md">
+          <div>
+            {/* STEP 1: Cloudinary Photo Upload */}
+            {step === 1 && (
+              <div className="space-y-6 animate-fade-in-up">
+                <div>
+                  <h2 className="text-lg font-extrabold text-on-surface mb-1 flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5 text-primary" />
+                    <span>Upload Product Photos</span>
+                  </h2>
+                  <p className="text-text-muted text-xs">
+                    Upload up to 6 high-resolution product imagery files. The first photo becomes the main catalog cover.
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-1">JPEG, PNG, WebP up to 10MB</p>
                 </div>
-              </div>
 
-              {/* Upload Limit and Errors */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-medium">Uploaded: {watchedImages.length} / 6 photos</span>
-                {uploadError && (
-                  <span className="text-red-600 font-semibold flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    {uploadError}
-                  </span>
-                )}
-              </div>
-
-              {/* Image Previews */}
-              {watchedImages.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 pt-4">
-                  {watchedImages.map((img, idx) => (
-                    <div
-                      key={img.cloudinaryPublicId}
-                      className="group relative aspect-square rounded-xl border border-slate-100 overflow-hidden bg-slate-50 shadow-sm"
-                    >
-                      <img src={img.url} alt="product" className="w-full h-full object-cover" />
-                      {idx === 0 && (
-                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-600 text-white uppercase">
-                          Cover
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute top-1 right-1 p-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
-                        title="Remove image"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Step Navigation */}
-              <div className="pt-8 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleContinueToStep2}
-                  disabled={watchedImages.length === 0 || aiMutation.isPending}
-                  className="inline-flex items-center gap-1.5 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow cursor-pointer disabled:cursor-not-allowed"
-                >
-                  {aiMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Writing description...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Generate AI Copy</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: AI Review Form */}
-          {step === 2 && (
-            <div className="space-y-6 animate-fade-in-up">
-              {aiError && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-xs flex items-start gap-2.5 animate-fade-in-up mb-4">
-                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">AI Assistant Offline</p>
-                    <p className="text-red-600/90 mt-0.5 leading-relaxed">{aiError}</p>
-                  </div>
-                </div>
-              )}
-
-              <AIDescriptionForm
-                register={register}
-                errors={errors}
-                setValue={setValue}
-                aiGeneratedData={aiData}
-                onRegenerate={() => aiMutation.mutate(watchedImages.map((img) => img.url))}
-                isAiLoading={aiMutation.isPending}
-              />
-
-              {/* Step Navigation */}
-              <div className="pt-8 flex items-center justify-between border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 font-semibold cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Photos</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStep(3)}
-                  className="inline-flex items-center gap-1.5 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow cursor-pointer"
-                >
-                  <span>Continue to Inventory</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Pricing & Size-Stock Levels */}
-          {step === 3 && (
-            <div className="space-y-6 animate-fade-in-up">
-              <div>
-                <h2 className="text-lg font-bold text-slate-800 font-display mb-1">
-                  Pricing & Size Variants
-                </h2>
-                <p className="text-slate-500 text-xs">
-                  Specify the product price and add sizes with available inventory stock levels.
-                </p>
-              </div>
-
-              {/* Price Input (seller enters Rupees, stored as paise internally) */}
-              <div className="max-w-xs">
-                <label htmlFor="priceRs" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                  Pricing (INR Rupees)
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <span className="text-sm font-semibold">₹</span>
-                  </div>
+                {/* Upload Drop Zone */}
+                <div className="relative border-2 border-dashed border-border-gray hover:border-primary/60 rounded-2xl p-8 sm:p-12 text-center transition-all bg-surface/40">
                   <input
-                    id="priceRs"
-                    type="number"
-                    min="100"
-                    placeholder="2,499"
-                    className={`block w-full pl-8 pr-4 py-3 bg-white border ${
-                      errors.price ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                    } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
-                    value={watchedPrice > 0 ? watchedPrice / 100 : ""}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setValue("price", val * 100); // store in paise
-                    }}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    disabled={isUploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                    suppressHydrationWarning
                   />
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-surface-container-lowest border border-border-gray rounded-2xl flex items-center justify-center shadow-xs text-text-muted mb-3">
+                      {isUploading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      ) : (
+                        <Upload className="w-6 h-6 text-primary" />
+                      )}
+                    </div>
+                    <p className="text-xs font-extrabold text-on-surface">
+                      {isUploading ? "Uploading imagery to Cloudinary..." : "Click or Drag & Drop Product Imagery"}
+                    </p>
+                    <p className="text-[11px] text-text-muted mt-1">JPEG, PNG, WebP up to 10MB per file</p>
+                  </div>
                 </div>
-                {errors.price && (
-                  <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span>{errors.price.message}</span>
-                  </p>
+
+                {/* Upload Limit and Errors */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-text-muted font-bold">Uploaded Photos: {watchedImages.length} / 6</span>
+                  {uploadError && (
+                    <span className="text-error-red font-bold flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {uploadError}
+                    </span>
+                  )}
+                </div>
+
+                {/* Image Previews */}
+                {watchedImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 pt-2">
+                    {watchedImages.map((img, idx) => (
+                      <div
+                        key={img.cloudinaryPublicId}
+                        className="group relative aspect-square rounded-xl border border-border-gray overflow-hidden bg-surface shadow-xs"
+                      >
+                        <img src={img.url} alt="product photo" className="w-full h-full object-cover" />
+                        {idx === 0 && (
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary text-on-primary uppercase">
+                            Cover
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="absolute top-1 right-1 p-1 bg-error-red text-white hover:opacity-90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-xs cursor-pointer"
+                          title="Remove image"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </div>
 
-              {/* Variant / Size Stock Editor */}
-              <div className="border-t border-slate-100 pt-6">
-                <VariantStockEditor control={control} register={register} errors={errors} />
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 font-semibold cursor-pointer w-full sm:w-auto"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Details</span>
-                </button>
-
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                  {/* Save Draft */}
+                {/* Step 1 CTA */}
+                <div className="pt-6 flex justify-end border-t border-border-gray/40">
                   <button
                     type="button"
-                    onClick={handleSubmit((data) => onSubmitForm(data, false))}
-                    disabled={createProductMutation.isPending}
-                    className="flex-1 sm:flex-initial px-5 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                    onClick={handleContinueToStep2}
+                    disabled={watchedImages.length === 0 || aiMutation.isPending}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-xs hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer disabled:cursor-not-allowed active:scale-95"
                   >
-                    Save as Draft
+                    {aiMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>AI Copywriter Generating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        <span>Generate AI Copy & Details</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: AI Details Review Form */}
+            {step === 2 && (
+              <div className="space-y-6 animate-fade-in-up">
+                {aiError && (
+                  <div className="p-4 bg-error-red/10 border border-error-red/20 rounded-xl text-error-red text-xs flex items-start gap-2.5 animate-fade-in-up mb-4">
+                    <AlertCircle className="w-4 h-4 text-error-red shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold">AI Assistant Offline</p>
+                      <p className="text-error-red/90 mt-0.5 leading-relaxed">{aiError}</p>
+                    </div>
+                  </div>
+                )}
+
+                <AIDescriptionForm
+                  register={register}
+                  errors={errors}
+                  setValue={setValue}
+                  aiGeneratedData={aiData}
+                  onRegenerate={() => aiMutation.mutate(watchedImages.map((img) => img.url))}
+                  isAiLoading={aiMutation.isPending}
+                />
+
+                {/* Step 2 CTA */}
+                <div className="pt-6 flex items-center justify-between border-t border-border-gray/40">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-on-surface font-bold cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Photos</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleContinueToStep3}
+                    className="inline-flex items-center gap-1.5 px-6 py-3 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-xs hover:opacity-90 transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Continue to Inventory & Pricing</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: Pricing & Size-Stock Levels */}
+            {step === 3 && (
+              <div className="space-y-6 animate-fade-in-up">
+                <div>
+                  <h2 className="text-lg font-extrabold text-on-surface mb-1 flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-primary" />
+                    <span>Listing Price & Stock Levels</span>
+                  </h2>
+                  <p className="text-text-muted text-xs">
+                    Specify catalog pricing in Rupees and configure size variant stock quantities.
+                  </p>
+                </div>
+
+                {/* Price Input */}
+                <div className="w-full max-w-[480px] bg-surface-container-low border border-border-gray rounded-2xl p-base space-y-2">
+                  <label htmlFor="priceRs" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Listing Price (INR ₹)
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface">
+                      <span className="text-base font-black">₹</span>
+                    </div>
+                    <input
+                      id="priceRs"
+                      type="number"
+                      min="100"
+                      placeholder="e.g. 2499"
+                      className={`block w-full pl-9 pr-4 py-3 bg-surface-container-lowest border ${
+                        errors.price ? "border-error-red focus:ring-error-red" : "border-border-gray focus:ring-primary"
+                      } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-base font-extrabold text-on-surface transition-all`}
+                      value={watchedPrice > 0 ? watchedPrice / 100 : ""}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setValue("price", val * 100);
+                      }}
+                      suppressHydrationWarning
+                    />
+                  </div>
+                  {errors.price && (
+                    <p className="text-error-red text-xs mt-1 flex items-center gap-1 font-bold">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{errors.price.message}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Variant / Size Stock Editor */}
+                <div className="border-t border-border-gray/40 pt-4">
+                  <VariantStockEditor control={control} register={register} errors={errors} />
+                </div>
+
+                {/* Submit Action Buttons */}
+                <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-base border-t border-border-gray/40">
+                  <button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-on-surface font-bold cursor-pointer w-full sm:w-auto"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Product Details</span>
                   </button>
 
-                  {/* Publish Directly */}
-                  <div className="relative group flex-1 sm:flex-initial">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    {/* Save Draft */}
                     <button
                       type="button"
-                      onClick={handleSubmit((data) => onSubmitForm(data, true))}
-                      disabled={!eligibility.eligible || createProductMutation.isPending}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow cursor-pointer disabled:cursor-not-allowed"
+                      onClick={handleSubmit((data) => onSubmitForm(data, false))}
+                      disabled={createProductMutation.isPending}
+                      className="flex-1 sm:flex-initial px-5 py-3 border border-border-gray hover:bg-surface-container text-on-surface text-xs font-bold rounded-xl transition-colors cursor-pointer"
                     >
-                      {createProductMutation.isPending ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : null}
-                      <span>Publish Listing</span>
+                      Save as Draft
                     </button>
-                    {!eligibility.eligible && (
-                      <div className="absolute bottom-full mb-2 right-1/2 translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg text-center leading-normal z-20">
-                        {eligibility.reason}
-                      </div>
-                    )}
+
+                    {/* Publish Directly */}
+                    <div className="relative group flex-1 sm:flex-initial">
+                      <button
+                        type="button"
+                        onClick={handleSubmit((data) => onSubmitForm(data, true))}
+                        disabled={!eligibility.eligible || createProductMutation.isPending}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-3 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-xs hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer disabled:cursor-not-allowed active:scale-95"
+                      >
+                        {createProductMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : null}
+                        <span>Publish Listing</span>
+                      </button>
+                      {!eligibility.eligible && (
+                        <div className="absolute bottom-full mb-2 right-1/2 translate-x-1/2 hidden group-hover:block w-48 p-2 bg-on-surface text-surface text-[10px] rounded-lg shadow-lg text-center leading-normal z-20 font-medium">
+                          {eligibility.reason}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </SellerLayout>
   );
 }

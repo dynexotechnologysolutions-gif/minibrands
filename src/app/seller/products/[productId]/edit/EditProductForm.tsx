@@ -302,70 +302,70 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      {/* Top Navigation / Header */}
-      <div className="mb-6 flex items-center justify-between">
+    <div className="space-y-md">
+      {/* Top Header Navigation */}
+      <div className="flex justify-between items-center border-b border-border-gray/40 pb-sm">
         <button
           type="button"
           onClick={() => router.push("/seller/products")}
-          className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer font-semibold"
+          className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-on-surface transition-colors cursor-pointer font-bold"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="w-4 h-4" />
           <span>Back to Catalog</span>
         </button>
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <span className="text-xs font-bold text-text-muted uppercase tracking-widest">
           Product Editor
         </span>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-base">
         <div>
-          <h1 className="text-2xl font-bold font-display text-slate-800 flex items-center gap-2">
-            <span>Edit Product</span>
+          <h1 className="font-headline-md text-headline-md font-extrabold text-on-surface flex items-center gap-2">
+            <span>Edit {product.name}</span>
             {product.isPublished ? (
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold bg-success-green/10 text-success-green border border-success-green/20 uppercase tracking-wider">
                 <Globe className="w-3 h-3" />
                 <span>Live</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-100">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold bg-surface-container text-text-muted border border-border-gray uppercase tracking-wider">
                 <EyeOff className="w-3 h-3" />
                 <span>Draft</span>
               </span>
             )}
           </h1>
-          <p className="text-slate-500 text-xs mt-1">ID: {product.id}</p>
+          <p className="text-body-sm text-text-muted font-mono mt-0.5">Product ID: {product.id}</p>
         </div>
 
-        {/* Top level actions */}
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        {/* Top Level Action Controls */}
+        <div className="flex items-center gap-sm w-full sm:w-auto">
           {product.isPublished ? (
             <button
               type="button"
               onClick={() => unpublishMutation.mutate()}
               disabled={unpublishMutation.isPending}
-              className="flex-1 md:flex-initial inline-flex justify-center items-center gap-1 px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex justify-center items-center gap-1 px-4 py-2 border border-border-gray hover:bg-surface-container text-on-surface text-xs font-bold rounded-xl transition-colors cursor-pointer"
             >
               {unpublishMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <EyeOff className="w-3.5 h-3.5" />
               )}
-              <span>Unpublish</span>
+              <span>Unpublish Listing</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={handlePublish}
               disabled={!eligibility.eligible || publishMutation.isPending}
-              className="flex-1 md:flex-initial inline-flex justify-center items-center gap-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow transition-colors cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-initial inline-flex justify-center items-center gap-1 px-4 py-2 bg-success-green text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-90 transition-colors cursor-pointer disabled:opacity-50"
             >
               {publishMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Globe className="w-3.5 h-3.5" />
               )}
-              <span>Publish</span>
+              <span>Publish Live</span>
             </button>
           )}
 
@@ -373,76 +373,76 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="px-3 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+            className="p-2 border border-border-gray hover:border-error-red hover:bg-error-red/10 text-error-red rounded-xl transition-colors cursor-pointer"
             title="Delete Product"
           >
-            {deleteMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Tabs Layout */}
-      <div className="bg-white border border-slate-100 rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      {/* Tabs Layout Container */}
+      <div className="bg-surface-container-lowest border border-border-gray rounded-2xl shadow-xs overflow-hidden flex flex-col md:flex-row min-h-[500px]">
         {/* Sidebar Nav */}
-        <div className="md:w-64 bg-slate-50/50 border-r border-slate-100 p-6 space-y-1">
+        <div className="md:w-64 bg-surface border-r border-border-gray p-base space-y-1">
           <button
             type="button"
             onClick={() => setActiveTab("media")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "media"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
-                : "text-slate-600 hover:bg-slate-100/80"
+                ? "bg-primary text-on-primary shadow-xs"
+                : "text-text-muted hover:bg-surface-container-low hover:text-on-surface"
             }`}
           >
             <ImageIcon className="w-4 h-4" />
             <span>Product Photos</span>
-            <span className="ml-auto text-[10px] bg-slate-200/50 text-slate-600 group-hover:bg-slate-300 rounded-full px-1.5 py-0.5">
+            <span className={`ml-auto text-[10px] rounded-full px-2 py-0.5 font-bold ${
+              activeTab === "media" ? "bg-white/20 text-white" : "bg-surface-container text-text-muted"
+            }`}>
               {watchedImages.length}
             </span>
           </button>
+
           <button
             type="button"
             onClick={() => setActiveTab("details")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "details"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
-                : "text-slate-600 hover:bg-slate-100/80"
+                ? "bg-primary text-on-primary shadow-xs"
+                : "text-text-muted hover:bg-surface-container-low hover:text-on-surface"
             }`}
           >
             <Sparkles className="w-4 h-4" />
             <span>Details & AI Writer</span>
             {errors.name || errors.shortDescription || errors.fullDescription || errors.category || errors.price ? (
-              <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="ml-auto w-2 h-2 rounded-full bg-error-red animate-pulse" />
             ) : null}
           </button>
+
           <button
             type="button"
             onClick={() => setActiveTab("inventory")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === "inventory"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
-                : "text-slate-600 hover:bg-slate-100/80"
+                ? "bg-primary text-on-primary shadow-xs"
+                : "text-text-muted hover:bg-surface-container-low hover:text-on-surface"
             }`}
           >
             <Globe className="w-4 h-4" />
             <span>Inventory & Pricing</span>
             {errors.variants || errors.price ? (
-              <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="ml-auto w-2 h-2 rounded-full bg-error-red animate-pulse" />
             ) : null}
           </button>
 
-          <div className="pt-8 mt-8 border-t border-slate-100/80 hidden md:block">
-            <div className="p-3 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl">
-              <h4 className="text-[10px] font-bold text-indigo-950 uppercase tracking-wider mb-1">
-                Publish Status
+          <div className="pt-8 mt-8 border-t border-border-gray hidden md:block">
+            <div className="p-3 bg-surface-container-low border border-border-gray rounded-xl">
+              <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-wider mb-1">
+                Publish Readiness
               </h4>
-              <p className="text-[11px] text-indigo-900 leading-normal">
+              <p className="text-[11px] text-text-muted leading-normal">
                 {eligibility.eligible
-                  ? "✓ Eligible to publish. You can set this product live in the catalog."
+                  ? "✓ Product is ready and eligible to go live."
                   : `✗ Not ready: ${eligibility.reason}`}
               </p>
             </div>
@@ -450,22 +450,22 @@ export default function EditProductForm({ product }: EditProductFormProps) {
         </div>
 
         {/* Tab Content Panel */}
-        <div className="flex-1 p-8 flex flex-col justify-between">
-          <form onSubmit={handleSubmit(handleSave)} className="space-y-6">
+        <div className="flex-1 p-base md:p-lg flex flex-col justify-between">
+          <form onSubmit={handleSubmit(handleSave)} className="space-y-md">
             {/* MEDIA TAB */}
             {activeTab === "media" && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div className="space-y-md animate-fade-in-up">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 font-display mb-1">
-                    Manage Photos
+                  <h2 className="font-headline-sm text-headline-sm font-extrabold text-on-surface mb-1">
+                    Manage Product Photos
                   </h2>
-                  <p className="text-slate-500 text-xs">
-                    Add or remove images for your listing. The first image serves as the main catalog cover.
+                  <p className="text-body-sm text-text-muted">
+                    Upload or replace images for your listing. The first image serves as the primary catalog thumbnail.
                   </p>
                 </div>
 
-                {/* Upload Area */}
-                <div className="relative border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-8 text-center transition-colors bg-slate-50/50">
+                {/* Upload Dropzone */}
+                <div className="relative border-2 border-dashed border-border-gray hover:border-primary rounded-2xl p-lg text-center transition-colors bg-surface/50">
                   <input
                     type="file"
                     multiple
@@ -475,22 +475,22 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                   />
                   <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 mb-3">
+                    <div className="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center shadow-xs text-text-muted mb-3">
                       {isUploading ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
                       ) : (
                         <Upload className="w-5 h-5" />
                       )}
                     </div>
-                    <p className="text-xs font-semibold text-slate-700">
-                      {isUploading ? "Uploading photos..." : "Add More Product Photos"}
+                    <p className="text-xs font-bold text-on-surface">
+                      {isUploading ? "Uploading photos to Cloudinary CDN..." : "Click or Drag to Add More Photos"}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-1">JPEG, PNG, WebP up to 10MB</p>
+                    <p className="text-[10px] text-text-muted mt-1">JPEG, PNG, WebP up to 10MB</p>
                   </div>
                 </div>
 
                 {uploadError && (
-                  <div className="text-red-600 text-xs font-semibold flex items-center gap-1">
+                  <div className="text-error-red text-xs font-bold flex items-center gap-1">
                     <AlertCircle className="w-3.5 h-3.5" />
                     {uploadError}
                   </div>
@@ -498,22 +498,22 @@ export default function EditProductForm({ product }: EditProductFormProps) {
 
                 {/* Image Previews Grid */}
                 {watchedImages.length > 0 ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-base">
                     {watchedImages.map((img, idx) => (
                       <div
                         key={img.cloudinaryPublicId}
-                        className="group relative aspect-square rounded-xl border border-slate-100 overflow-hidden bg-slate-50 shadow-sm"
+                        className="group relative aspect-square rounded-xl border border-border-gray overflow-hidden bg-surface shadow-xs"
                       >
                         <img src={img.url} alt="product" className="w-full h-full object-cover" />
                         {idx === 0 && (
-                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-indigo-600 text-white uppercase">
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary text-on-primary uppercase">
                             Cover
                           </span>
                         )}
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(idx)}
-                          className="absolute top-1 right-1 p-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                          className="absolute top-1 right-1 p-1 bg-error-red text-on-primary rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-xs cursor-pointer"
                           title="Remove image"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -522,22 +522,22 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl">
-                    <p className="text-slate-400 text-xs">At least one image is required.</p>
+                  <div className="text-center py-6 border border-dashed border-border-gray rounded-xl">
+                    <p className="text-text-muted text-xs">At least one image is required.</p>
                   </div>
                 )}
 
                 {/* AI copywriting generation trigger */}
                 {watchedImages.length > 0 && (
-                  <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Want to completely regenerate names and details using AI?
+                  <div className="pt-4 border-t border-border-gray flex items-center justify-between">
+                    <span className="text-xs text-text-muted">
+                      Want AI to regenerate titles, descriptions, and tags from photos?
                     </span>
                     <button
                       type="button"
                       onClick={handleTriggerAi}
                       disabled={aiMutation.isPending}
-                      className="inline-flex items-center gap-1 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-md py-2 bg-surface-container hover:bg-surface-container-high border border-border-gray text-primary text-xs font-bold rounded-xl transition-colors cursor-pointer"
                     >
                       {aiMutation.isPending ? (
                         <>
@@ -547,7 +547,7 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                       ) : (
                         <>
                           <Sparkles className="w-3.5 h-3.5" />
-                          <span>Regenerate Details</span>
+                          <span>Regenerate with AI</span>
                         </>
                       )}
                     </button>
@@ -558,13 +558,13 @@ export default function EditProductForm({ product }: EditProductFormProps) {
 
             {/* DETAILS TAB */}
             {activeTab === "details" && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div className="space-y-md animate-fade-in-up">
                 {aiError && (
-                  <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-xs flex items-start gap-2.5 animate-fade-in-up">
-                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <div className="p-4 bg-error-red/10 border border-error-red/20 rounded-xl text-error-red text-xs flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold">AI Assistant Offline</p>
-                      <p className="text-red-600/90 mt-0.5 leading-relaxed">{aiError}</p>
+                      <p className="font-bold">AI Assistant Offline</p>
+                      <p className="text-error-red/90 mt-0.5 leading-relaxed">{aiError}</p>
                     </div>
                   </div>
                 )}
@@ -582,72 +582,76 @@ export default function EditProductForm({ product }: EditProductFormProps) {
 
             {/* INVENTORY & PRICING TAB */}
             {activeTab === "inventory" && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div className="space-y-md animate-fade-in-up">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 font-display mb-1">
+                  <h2 className="font-headline-sm text-headline-sm font-extrabold text-on-surface mb-1">
                     Pricing & Size Variants
                   </h2>
-                  <p className="text-slate-500 text-xs">
-                    Specify the listing price and sizes in stock.
+                  <p className="text-body-sm text-text-muted">
+                    Set the catalog selling price and specify size variant stock counts.
                   </p>
                 </div>
 
-                {/* Price Input */}
-                <div className="max-w-xs">
-                  <label htmlFor="priceRs" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                    Pricing (INR Rupees)
+                {/* Price Input Block */}
+                <div className="bg-surface-container-low border border-border-gray rounded-2xl p-base space-y-2 w-full max-w-[480px]">
+                  <label htmlFor="priceRs" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Listing Price (INR ₹)
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <span className="text-sm font-semibold">₹</span>
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface">
+                      <span className="text-base font-black">₹</span>
                     </div>
                     <input
                       id="priceRs"
                       type="number"
                       min="100"
-                      placeholder="2,499"
-                      className={`block w-full pl-8 pr-4 py-3 bg-white border ${
-                        errors.price ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                      } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                      placeholder="e.g. 2499"
+                      className={`block w-full pl-9 pr-4 py-3 bg-surface-container-lowest border ${
+                        errors.price ? "border-error-red focus:ring-error-red" : "border-border-gray focus:ring-primary"
+                      } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-base font-extrabold text-on-surface transition-all`}
                       value={watchedPrice > 0 ? watchedPrice / 100 : ""}
                       onChange={(e) => {
                         const val = Number(e.target.value);
-                        setValue("price", val * 100); // store in paise
+                        setValue("price", val * 100);
                       }}
                     />
                   </div>
+                  <p className="text-[11px] text-text-muted font-medium">
+                    This is the public selling price displayed to buyers on Velvet Lane.
+                  </p>
                   {errors.price && (
-                    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <p className="text-error-red text-xs mt-1 flex items-center gap-1 font-bold">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>{errors.price.message}</span>
                     </p>
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 pt-6">
+                <div className="border-t border-border-gray pt-md">
                   <VariantStockEditor control={control} register={register} errors={errors} />
                 </div>
               </div>
             )}
 
-            {/* Bottom Actions Row */}
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+            {/* Bottom Save Action Controls */}
+            <div className="pt-md border-t border-border-gray flex items-center justify-end gap-base">
               <button
                 type="button"
                 onClick={() => router.push("/seller/products")}
-                className="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                className="px-lg py-2.5 border border-border-gray hover:bg-surface-container text-secondary text-xs font-bold rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
                 disabled={updateProductMutation.isPending}
-                className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-xs px-xl py-2.5 bg-primary text-on-primary font-bold text-xs rounded-xl shadow-xs hover:opacity-90 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 {updateProductMutation.isPending ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Save className="w-3.5 h-3.5" />
+                  <Save className="w-4 h-4" />
                 )}
                 <span>Save Changes</span>
               </button>

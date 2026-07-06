@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
@@ -100,6 +100,21 @@ export default function ProductDetailClient({
   const router = useRouter();
 
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
+  const [imgVisible, setImgVisible] = useState(true);
+  const mainImageRef = useRef<HTMLDivElement>(null);
+
+  const handleThumbnailClick = (idx: number, isMobile = false) => {
+    if (idx === selectedImageIdx) return;
+    setImgVisible(false);
+    const timer = setTimeout(() => {
+      setSelectedImageIdx(idx);
+      setImgVisible(true);
+    }, 140);
+    if (isMobile && mainImageRef.current) {
+      mainImageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    return () => clearTimeout(timer);
+  };
   const [selectedSize, setSelectedSize] = useState<string | null>(
     product.variants.length === 1 ? product.variants[0].size : null
   );
@@ -432,9 +447,9 @@ export default function ProductDetailClient({
       />
 
       {/* Main Container */}
-      <main className="max-w-container-max mx-auto px-base lg:px-xl py-lg">
+      <main className="max-w-container-max mx-auto px-base lg:px-xl py-md sm:py-lg w-full max-w-full overflow-x-hidden">
         {/* Breadcrumbs */}
-        <nav className="flex text-body-sm font-body-sm text-text-muted mb-md gap-xs flex-wrap">
+        <nav className="flex items-center text-body-xs sm:text-body-sm font-body-sm text-text-muted mb-md gap-xs flex-wrap">
           <Link className="hover:text-primary" href="/">
             Home
           </Link>
@@ -459,26 +474,27 @@ export default function ProductDetailClient({
             </>
           )}
           <span className="">/</span>
-          <span className="text-on-surface truncate max-w-[200px] sm:max-w-none">
+          <span className="text-on-surface truncate max-w-[120px] sm:max-w-none">
             {product.name}
           </span>
         </nav>
 
         {/* Product View Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-lg md:gap-xl">
           {/* Left Column: Gallery (40%) */}
           <div className="md:col-span-5 flex flex-col lg:flex-row gap-md">
-            {/* Vertical Thumbnails */}
+            {/* Vertical Thumbnails (Desktop) */}
             {images.length > 1 && (
               <div className="hidden lg:flex flex-col gap-sm w-16 shrink-0">
                 {images.map((img, idx) => (
                   <div
                     key={idx}
-                    onClick={() => setSelectedImageIdx(idx)}
-                    className={`border-2 p-xs cursor-pointer ${selectedImageIdx === idx
-                        ? "border-primary"
+                    onClick={() => handleThumbnailClick(idx, false)}
+                    className={`border-2 p-xs cursor-pointer transition-all rounded-sm ${
+                      selectedImageIdx === idx
+                        ? "border-primary scale-[1.03] shadow-sm"
                         : "border-border-gray hover:border-primary"
-                      }`}
+                    }`}
                   >
                     <img
                       className="w-full aspect-square object-cover"
@@ -491,10 +507,12 @@ export default function ProductDetailClient({
             )}
 
             {/* Main Image */}
-            <div className="flex-grow relative border border-border-gray bg-white h-fit">
+            <div ref={mainImageRef} className="flex-grow relative border border-border-gray bg-white h-fit w-full overflow-hidden rounded-sm">
               <img
                 alt={product.name}
-                className="w-full h-auto object-cover"
+                className={`w-full h-auto object-cover max-h-[520px] mx-auto transition-opacity duration-[140ms] ease-in-out ${
+                  imgVisible ? "opacity-100" : "opacity-0"
+                }`}
                 src={currentImage}
               />
               <div className="absolute top-md left-md flex flex-col gap-xs">
@@ -520,13 +538,37 @@ export default function ProductDetailClient({
                 </span>
               </button>
             </div>
+
+            {/* Horizontal Thumbnails (Mobile & Tablet) */}
+            {images.length > 1 && (
+              <div className="flex lg:hidden overflow-x-auto gap-sm pb-xs no-scrollbar pt-xs">
+                {images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleThumbnailClick(idx, true)}
+                    className={`w-16 h-16 shrink-0 border-2 cursor-pointer rounded-sm overflow-hidden transition-all ${
+                      selectedImageIdx === idx
+                        ? "border-primary scale-[1.05] shadow-md ring-1 ring-primary/30"
+                        : "border-border-gray hover:border-primary opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      className="w-full h-full object-cover"
+                      src={img.url}
+                      alt={`Thumbnail ${idx + 1}`}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Details (60%) */}
-          <div className="md:col-span-7 space-y-md">
+          <div className="md:col-span-7 space-y-md min-w-0">
             {/* Title & Brand */}
             <div className="space-y-xs">
-              <div className="flex items-center gap-xs">
+              <div className="flex items-center gap-xs flex-wrap">
                 <span className="font-label-bold text-label-bold text-text-muted uppercase">
                   {product.category}
                 </span>
@@ -544,10 +586,10 @@ export default function ProductDetailClient({
                   </>
                 )}
               </div>
-              <h1 className="font-headline-md text-headline-md text-on-surface">
+              <h1 className="font-headline-sm sm:font-headline-md text-headline-sm sm:text-headline-md text-on-surface break-words">
                 {product.name}
               </h1>
-              <div className="flex items-center gap-md py-1">
+              <div className="flex items-center gap-xs sm:gap-md py-1 flex-wrap">
                 <div className="bg-success-green text-on-primary flex items-center px-sm py-0.5 rounded gap-xs text-body-sm font-bold">
                   4.8{" "}
                   <span
@@ -557,7 +599,7 @@ export default function ProductDetailClient({
                     star
                   </span>
                 </div>
-                <span className="text-body-md font-body-md text-text-muted">
+                <span className="text-body-sm sm:text-body-md font-body-md text-text-muted">
                   1,248 Ratings, 231 Reviews
                 </span>
               </div>
@@ -565,11 +607,11 @@ export default function ProductDetailClient({
 
             {/* Pricing */}
             <div className="space-y-xs py-md border-y border-border-gray">
-              <div className="flex items-baseline gap-md">
-                <span className="font-price-lg text-price-lg text-on-surface">
+              <div className="flex items-baseline gap-xs sm:gap-md flex-wrap">
+                <span className="font-price-md sm:font-price-lg text-price-md sm:text-price-lg text-on-surface">
                   ₹{priceInINR.toLocaleString("en-IN")}
                 </span>
-                <span className="font-body-md text-body-md text-text-muted line-through">
+                <span className="font-body-sm sm:font-body-md text-body-sm sm:text-body-md text-text-muted line-through">
                   ₹{originalPriceInINR.toLocaleString("en-IN")}
                 </span>
                 <span className="font-label-bold text-label-bold text-success-green">
@@ -612,7 +654,7 @@ export default function ProductDetailClient({
                     </span>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-sm">
+                <div className="flex flex-wrap gap-xs sm:gap-sm">
                   {product.variants.map((v) => {
                     const isAvailable = v.stockCount > 0;
                     const isSelected = selectedSize === v.size;
@@ -622,7 +664,7 @@ export default function ProductDetailClient({
                         type="button"
                         onClick={() => isAvailable && setSelectedSize(v.size)}
                         disabled={!isAvailable}
-                        className={`min-w-[48px] px-md py-sm text-body-md font-label-bold rounded-sm border transition-all cursor-pointer ${!isAvailable
+                        className={`min-w-[42px] sm:min-w-[48px] px-sm sm:px-md py-xs sm:py-sm text-body-sm sm:text-body-md font-label-bold rounded-sm border transition-all cursor-pointer ${!isAvailable
                             ? "bg-surface-container border-border-gray text-text-muted line-through cursor-not-allowed opacity-50"
                             : isSelected
                               ? "bg-primary text-on-primary border-primary"
@@ -637,47 +679,47 @@ export default function ProductDetailClient({
               </div>
             )}
 
-            {/* Purchase Buttons */}
+            {/* Purchase Buttons (Inline) */}
             <div className="space-y-sm py-md">
-              <div className="grid grid-cols-2 gap-md">
+              <div className="grid grid-cols-2 gap-sm sm:gap-md">
                 <button
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || isReserving}
-                  className="bg-accent-yellow text-primary py-xl font-bold rounded-sm flex items-center justify-center gap-sm hover:brightness-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-accent-yellow text-primary py-md sm:py-xl text-xs sm:text-body-md font-bold rounded-sm flex items-center justify-center gap-xs sm:gap-sm hover:brightness-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="material-symbols-outlined">shopping_cart</span>{" "}
+                  <span className="material-symbols-outlined text-sm sm:text-base">shopping_cart</span>{" "}
                   {isReserving ? "RESERVING..." : "ADD TO CART"}
                 </button>
                 <button
                   type="button"
                   onClick={handleBuyNow}
                   disabled={isOutOfStock || isReserving}
-                  className="bg-tertiary text-on-tertiary py-xl font-bold rounded-sm flex items-center justify-center gap-sm hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-tertiary text-on-tertiary py-md sm:py-xl text-xs sm:text-body-md font-bold rounded-sm flex items-center justify-center gap-xs sm:gap-sm hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="material-symbols-outlined">bolt</span>{" "}
+                  <span className="material-symbols-outlined text-sm sm:text-base">bolt</span>{" "}
                   {isReserving ? "RESERVING..." : "BUY NOW"}
                 </button>
               </div>
 
               {/* Feedback messages */}
               {errorMessage && (
-                <div className="p-sm bg-error-container text-error text-body-md rounded-DEFAULT font-bold border border-error/20 mt-xs">
+                <div className="p-sm bg-error-container text-error text-body-sm sm:text-body-md rounded-DEFAULT font-bold border border-error/20 mt-xs">
                   {errorMessage}
                 </div>
               )}
               {successMessage && (
-                <div className="p-sm bg-surface-container-low text-success-green text-body-md rounded-DEFAULT font-bold border border-success-green/20 mt-xs">
+                <div className="p-sm bg-surface-container-low text-success-green text-body-sm sm:text-body-md rounded-DEFAULT font-bold border border-success-green/20 mt-xs">
                   {successMessage}
                 </div>
               )}
             </div>
 
             {/* Delivery Info */}
-            <div className="bg-surface-container-low p-md rounded-lg space-y-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-xs text-body-md font-body-md">
-                  <span className="material-symbols-outlined text-text-muted">
+            <div className="bg-surface-container-low p-sm sm:p-md rounded-lg space-y-sm">
+              <div className="flex items-center justify-between gap-sm flex-wrap">
+                <div className="flex items-center gap-xs text-body-sm sm:text-body-md font-body-md">
+                  <span className="material-symbols-outlined text-text-muted text-sm sm:text-base">
                     location_on
                   </span>
                   Deliver to <span className="font-bold">
@@ -691,22 +733,22 @@ export default function ProductDetailClient({
                   Change
                 </Link>
               </div>
-              <div className="flex items-center gap-md">
-                <p className="text-body-md font-body-md">
+              <div className="flex items-center gap-sm sm:gap-md flex-wrap text-body-sm sm:text-body-md">
+                <p className="text-body-sm sm:text-body-md font-body-md">
                   Delivery by <span className="font-bold">Tomorrow, Oct 24</span>
                 </p>
-                <span className="h-4 w-[1px] bg-outline-variant"></span>
-                <p className="text-success-green font-bold text-body-md uppercase">
+                <span className="h-4 w-[1px] bg-outline-variant hidden sm:inline-block"></span>
+                <p className="text-success-green font-bold text-body-sm sm:text-body-md uppercase">
                   FREE
                 </p>
               </div>
             </div>
 
             {/* Store Card */}
-            <div className="flex items-center justify-between p-md bg-surface-container-low rounded-lg border border-border-gray">
-              <div className="flex items-center gap-md">
+            <div className="flex items-center justify-between gap-xs sm:gap-md p-sm sm:p-md bg-surface-container-low rounded-lg border border-border-gray min-w-0">
+              <div className="flex items-center gap-xs sm:gap-md min-w-0 flex-1">
                 {/* Logo Box */}
-                <div className="w-12 h-12 bg-white flex items-center justify-center rounded shadow-sm shrink-0 overflow-hidden relative">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white flex items-center justify-center rounded-md shadow-sm shrink-0 overflow-hidden relative">
                   {product.seller.logoUrl ? (
                     <img
                       src={product.seller.logoUrl}
@@ -714,26 +756,26 @@ export default function ProductDetailClient({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="font-black text-primary text-lg">
+                    <span className="font-black text-primary text-base sm:text-lg">
                       {getSellerInitials(product.seller.businessName)}
                     </span>
                   )}
                 </div>
                 {/* Store Info */}
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0 pr-xs">
                   <Link
                     href={`/sellers/${product.seller.id}`}
-                    className="font-label-bold text-on-surface hover:text-primary font-bold text-sm"
+                    className="font-label-bold text-on-surface hover:text-primary font-bold text-xs sm:text-sm truncate"
                   >
                     {product.seller.businessName}
                   </Link>
-                  <div className="flex items-center gap-xs text-body-sm text-text-muted">
-                    <span className="">{product.seller.city}</span>
+                  <div className="flex items-center gap-xs text-[11px] sm:text-body-sm text-text-muted truncate">
+                    <span className="truncate">{product.seller.city}</span>
                     <span className="">•</span>
-                    <span className="text-success-green font-bold flex items-center gap-xs">
+                    <span className="text-success-green font-bold flex items-center gap-xs shrink-0">
                       4.9{" "}
                       <span
-                        className="material-symbols-outlined text-xs"
+                        className="material-symbols-outlined text-[10px] leading-none"
                         style={{ fontVariationSettings: "'FILL' 1" }}
                       >
                         star
@@ -743,14 +785,14 @@ export default function ProductDetailClient({
                 </div>
               </div>
               {/* Action Buttons */}
-              <div className="flex items-center gap-sm">
+              <div className="flex items-center gap-xs sm:gap-sm shrink-0">
                 <Link
                   href={`/sellers/${product.seller.id}`}
-                  className="px-lg py-sm border border-border-gray bg-white font-bold text-body-sm hover:bg-surface-container transition-colors rounded-sm text-center"
+                  className="px-sm sm:px-lg py-xs sm:py-sm border border-border-gray bg-white font-bold text-[11px] sm:text-body-sm hover:bg-surface-container transition-colors rounded-sm text-center shrink-0"
                 >
                   Visit Store
                 </Link>
-                <button className="px-lg py-sm bg-tertiary text-on-tertiary font-bold text-body-sm hover:opacity-90 transition-all rounded-sm cursor-pointer">
+                <button className="px-sm sm:px-lg py-xs sm:py-sm bg-tertiary text-on-tertiary font-bold text-[11px] sm:text-body-sm hover:opacity-90 transition-all rounded-sm cursor-pointer shrink-0">
                   Follow
                 </button>
               </div>
@@ -761,11 +803,11 @@ export default function ProductDetailClient({
               <h3 className="font-label-bold text-label-bold text-on-surface mb-sm uppercase tracking-tight">
                 Highlights
               </h3>
-              <ul className="grid grid-cols-2 gap-sm text-body-md font-body-md">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-xs sm:gap-sm text-body-sm sm:text-body-md font-body-md">
                 {highlights.map((highlight, idx) => (
                   <li key={idx} className="flex items-center gap-xs">
-                    <span className="w-1 h-1 bg-text-muted rounded-full"></span>{" "}
-                    {highlight}
+                    <span className="w-1.5 h-1.5 bg-text-muted rounded-full shrink-0"></span>{" "}
+                    <span className="truncate">{highlight}</span>
                   </li>
                 ))}
               </ul>
@@ -815,7 +857,7 @@ export default function ProductDetailClient({
 
 
         {/* Similar Products Carousel */}
-        <section className="mt-xxl">
+        <section className="mt-xxl max-w-full overflow-hidden">
           <div className="flex items-center justify-between mb-lg">
             <h2 className="font-headline-sm text-headline-sm text-on-surface">
               Similar Products
@@ -839,7 +881,7 @@ export default function ProductDetailClient({
               </button>
             </div>
           </div>
-          <div className="flex gap-md overflow-x-auto hide-scrollbar">
+          <div className="flex gap-sm sm:gap-md overflow-x-auto hide-scrollbar pb-sm max-w-full snap-x scroll-smooth">
             {finalSimilarProducts.map((item) => {
               const isFallback = isFallbackId(item.id);
               const itemPriceInINR = Math.round(item.price / 100);
@@ -848,27 +890,27 @@ export default function ProductDetailClient({
                 <Link
                   key={item.id}
                   href={isFallback ? "#" : `/products/${item.id}`}
-                  className="min-w-[200px] border border-border-gray bg-white rounded-sm group cursor-pointer shrink-0 block hover:border-primary transition-colors"
+                  className="w-[150px] sm:w-[200px] max-w-[150px] sm:max-w-[200px] flex-shrink-0 snap-start border border-border-gray bg-white rounded-sm group cursor-pointer block hover:border-primary transition-colors overflow-hidden"
                 >
-                  <div className="h-48 overflow-hidden">
+                  <div className="aspect-[3/4] overflow-hidden w-full">
                     <img
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       src={item.images?.[0]?.url || "/placeholder.jpg"}
                       alt={item.name}
                     />
                   </div>
                   <div className="p-sm space-y-xs">
-                    <p className="text-body-sm font-body-sm text-text-muted truncate uppercase">
+                    <p className="text-[10px] sm:text-body-sm font-body-sm text-text-muted truncate uppercase tracking-wide">
                       {item.category}
                     </p>
-                    <h4 className="text-body-md font-label-bold truncate text-on-surface font-bold text-sm">
+                    <h4 className="text-xs sm:text-sm font-bold truncate text-on-surface">
                       {item.name}
                     </h4>
-                    <div className="flex items-center gap-sm">
-                      <span className="font-bold text-on-surface">
+                    <div className="flex items-center gap-xs flex-wrap">
+                      <span className="font-bold text-on-surface text-xs sm:text-sm">
                         ₹{itemPriceInINR.toLocaleString("en-IN")}
                       </span>
-                      <span className="text-body-sm text-text-muted line-through">
+                      <span className="text-[10px] text-text-muted line-through">
                         ₹{itemOriginalPriceInINR.toLocaleString("en-IN")}
                       </span>
                     </div>
@@ -880,11 +922,11 @@ export default function ProductDetailClient({
         </section>
 
         {/* Recently Viewed */}
-        <section className="mt-xxl">
+        <section className="mt-xxl max-w-full overflow-hidden">
           <h2 className="font-headline-sm text-headline-sm text-on-surface mb-lg">
             Recently Viewed
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-md">
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-xs sm:gap-md">
             {finalRecentlyViewed.map((item) => {
               const isFallback = isFallbackId(item.id);
               return (
@@ -894,11 +936,11 @@ export default function ProductDetailClient({
                   className="border border-border-gray p-xs rounded-sm hover:shadow-md transition-shadow cursor-pointer block hover:border-primary"
                 >
                   <img
-                    className="w-full aspect-square object-cover mb-sm"
+                    className="w-full aspect-square object-cover mb-xs sm:mb-sm"
                     src={item.images?.[0]?.url || "/placeholder.jpg"}
                     alt={item.name}
                   />
-                  <p className="text-body-sm font-label-bold truncate text-on-surface font-bold text-sm">
+                  <p className="text-body-xs sm:text-body-sm font-label-bold truncate text-on-surface font-bold text-xs sm:text-sm">
                     {item.name}
                   </p>
                 </Link>
@@ -908,11 +950,11 @@ export default function ProductDetailClient({
         </section>
 
         {/* Explore More Like This */}
-        <section className="mt-xxl mb-xxl">
+        <section className="mt-xxl mb-xxl max-w-full overflow-hidden">
           <h2 className="font-headline-sm text-headline-sm text-on-surface mb-lg">
             Explore More Like This
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-lg">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-sm sm:gap-lg">
             {/* Grid Item 1 */}
             <Link
               href="/products?category=Decor"
@@ -925,10 +967,10 @@ export default function ProductDetailClient({
                   alt="Botanical Art Prints"
                 />
               </div>
-              <h4 className="font-label-bold text-body-md text-on-surface font-bold text-sm">
+              <h4 className="font-label-bold text-body-sm sm:text-body-md text-on-surface font-bold text-xs sm:text-sm">
                 Botanical Art Prints
               </h4>
-              <p className="text-body-sm text-text-muted">Explore Wall Decor</p>
+              <p className="text-body-xs sm:text-body-sm text-text-muted">Explore Wall Decor</p>
             </Link>
             {/* Grid Item 2 */}
             <Link
@@ -942,10 +984,10 @@ export default function ProductDetailClient({
                   alt="Texture Wool Rugs"
                 />
               </div>
-              <h4 className="font-label-bold text-body-md text-on-surface font-bold text-sm">
+              <h4 className="font-label-bold text-body-sm sm:text-body-md text-on-surface font-bold text-xs sm:text-sm">
                 Texture Wool Rugs
               </h4>
-              <p className="text-body-sm text-text-muted">Explore Carpets</p>
+              <p className="text-body-xs sm:text-body-sm text-text-muted">Explore Carpets</p>
             </Link>
             {/* Grid Item 3 */}
             <Link
@@ -959,10 +1001,10 @@ export default function ProductDetailClient({
                   alt="Matte Kitchenware"
                 />
               </div>
-              <h4 className="font-label-bold text-body-md text-on-surface font-bold text-sm">
+              <h4 className="font-label-bold text-body-sm sm:text-body-md text-on-surface font-bold text-xs sm:text-sm">
                 Matte Kitchenware
               </h4>
-              <p className="text-body-sm text-text-muted">Explore Kitchen</p>
+              <p className="text-body-xs sm:text-body-sm text-text-muted">Explore Kitchen</p>
             </Link>
             {/* Grid Item 4 */}
             <Link
@@ -976,17 +1018,39 @@ export default function ProductDetailClient({
                   alt="Mid-Century Dressers"
                 />
               </div>
-              <h4 className="font-label-bold text-body-md text-on-surface font-bold text-sm">
+              <h4 className="font-label-bold text-body-sm sm:text-body-md text-on-surface font-bold text-xs sm:text-sm">
                 Mid-Century Dressers
               </h4>
-              <p className="text-body-sm text-text-muted">Explore Furniture</p>
+              <p className="text-body-xs sm:text-body-sm text-text-muted">Explore Furniture</p>
             </Link>
           </div>
         </section>
       </main>
 
+      {/* Mobile Floating Sticky CTA (Add to Cart / Buy Now) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-border-gray p-xs sm:p-sm md:hidden flex items-center gap-xs sm:gap-sm shadow-2xl pb-safe">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={isOutOfStock || isReserving}
+          className="flex-1 bg-accent-yellow text-primary py-sm font-bold rounded-sm text-xs flex items-center justify-center gap-xs hover:brightness-95 transition-all cursor-pointer disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-sm">shopping_cart</span>
+          {isReserving ? "RESERVING..." : "ADD TO CART"}
+        </button>
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          disabled={isOutOfStock || isReserving}
+          className="flex-1 bg-tertiary text-on-tertiary py-sm font-bold rounded-sm text-xs flex items-center justify-center gap-xs hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-sm">bolt</span>
+          {isReserving ? "RESERVING..." : "BUY NOW"}
+        </button>
+      </div>
+
       {/* Footer (Shared Component) */}
-      <footer className="w-full py-xxl px-base lg:px-xl grid grid-cols-2 md:grid-cols-5 gap-lg bg-tertiary dark:bg-on-background text-on-tertiary dark:text-inverse-on-surface">
+      <footer className="w-full py-xxl px-base lg:px-xl grid grid-cols-2 md:grid-cols-5 gap-lg bg-tertiary dark:bg-on-background text-on-tertiary dark:text-inverse-on-surface max-w-full overflow-hidden">
         <div className="col-span-2">
           <div className="text-headline-sm font-headline-sm text-on-tertiary font-black mb-md">
             MINIBRANDS

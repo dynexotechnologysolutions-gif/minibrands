@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SellerProfileClient from "./SellerProfileClient";
 
+import SellerLayout from "@/components/seller/SellerLayout";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -38,11 +40,22 @@ export default async function SellerProfilePage() {
     redirect("/login?role=seller");
   }
 
+  const seller = userProfile.seller;
+  const sellerInfo = {
+    id: seller.id,
+    businessName: seller.businessName,
+    storeName: seller.storeName,
+    isKycVerified: seller.verification?.kycStatus === "approved" || seller.verification?.kycStatus === "auto_approved",
+    userEmail: userProfile.user.email,
+  };
+
   return (
-    <SellerProfileClient 
-      seller={userProfile.seller} 
-      verification={userProfile.seller.verification} 
-      userProfile={userProfile}
-    />
+    <SellerLayout sellerInfo={sellerInfo}>
+      <SellerProfileClient 
+        seller={seller} 
+        verification={seller.verification} 
+        userProfile={userProfile}
+      />
+    </SellerLayout>
   );
 }

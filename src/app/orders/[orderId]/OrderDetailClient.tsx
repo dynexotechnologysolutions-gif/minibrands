@@ -93,10 +93,38 @@ export default function OrderDetailClient({
 
   // Track Modal States — replaced by real tracking URL
   const [showTrackModal, setShowTrackModal] = useState(false);
+  const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
 
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
     setAlertMessage({ type, text });
     setTimeout(() => setAlertMessage(null), 4000);
+  };
+
+  const handleDownloadInvoice = async () => {
+    if (isDownloadingInvoice) return;
+    setIsDownloadingInvoice(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/invoice`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to download tax invoice.");
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `minibrands_Invoice_${order.id.substring(0, 8).toUpperCase()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      triggerToast("Tax invoice downloaded successfully.", "success");
+    } catch (err: any) {
+      console.error(err);
+      triggerToast(err.message || "Failed to generate tax invoice.", "error");
+    } finally {
+      setIsDownloadingInvoice(false);
+    }
   };
 
   useEffect(() => {
@@ -272,11 +300,13 @@ export default function OrderDetailClient({
     });
   };
 
-  const currentNormalizedStatus = (orderStatus || status || "").toLowerCase();
-  const isDelivered = currentNormalizedStatus === "delivered" || currentNormalizedStatus === "completed";
-  const isShipped = currentNormalizedStatus === "shipped" || currentNormalizedStatus === "out_for_delivery" || currentNormalizedStatus === "out for delivery";
-  const isCancelled = currentNormalizedStatus === "cancelled";
-  const isReturned = currentNormalizedStatus === "returned" || currentNormalizedStatus === "refunded" || currentNormalizedStatus === "disputed";
+  const s = (status || "").toLowerCase();
+  const os = (orderStatus || "").toLowerCase();
+  const isCompleted = s === "completed" || os === "completed";
+  const isDelivered = s === "delivered" || s === "completed" || os === "delivered" || os === "completed";
+  const isShipped = !isDelivered && (s === "shipped" || os === "shipped" || s === "out_for_delivery" || os === "out_for_delivery" || s === "out for delivery" || os === "out for delivery");
+  const isCancelled = s === "cancelled" || os === "cancelled";
+  const isReturned = s === "returned" || os === "returned" || s === "refunded" || os === "refunded" || s === "disputed" || os === "disputed";
   const isProcessing = !isDelivered && !isShipped && !isCancelled && !isReturned;
 
   const canReturn = (() => {
@@ -537,11 +567,54 @@ export default function OrderDetailClient({
 
             {/* Dynamic Interactive Order Timeline */}
             {!isCancelled && !isReturned && (
-              <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
-                <h3 className="font-headline-sm text-headline-sm text-primary">
-                  Order Status Timeline
-                </h3>
-                <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
+              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md space-y-md shadow-sm">
+                <div className="flex items-center justify-between border-b border-border-gray/40 pb-sm">
+                  <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-primary text-xl">route</span>
+                    Order Status Timeline
+                  </h3>
+                  <span className="text-xs font-bold text-success-green bg-success-green/10 px-sm py-0.5 rounded-full uppercase tracking-wider">
+                    {order.status === "DELIVERED" ? "Delivered" : "On Schedule"}
+                  </span>
+                </div>
+                <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
+              </div>
+            )}
+
+            {/* Tax Invoice Download Section — Only shown for delivered/completed orders */}
+            {isDelivered && (
+              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-base">
+                <div className="flex items-start gap-md">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="material-symbols-outlined text-xl">description</span>
+                  </div>
+                  <div>
+                    <h4 className="font-label-bold text-on-surface font-bold text-sm sm:text-base">
+                      Tax Invoice
+                    </h4>
+                    <p className="text-body-sm text-text-muted text-xs sm:text-sm">
+                      Your official GST tax invoice is now available for download.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDownloadInvoice}
+                  disabled={isDownloadingInvoice}
+                  className="px-lg py-sm bg-primary text-on-primary font-bold rounded-sm text-xs sm:text-body-sm flex items-center justify-center gap-xs hover:opacity-90 transition-all cursor-pointer disabled:opacity-60 shrink-0 shadow-sm"
+                >
+                  {isDownloadingInvoice ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Generating PDF...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-base">download</span>
+                      Download Invoice PDF
+                    </>
+                  )}
+                </button>
               </div>
             )}
 
@@ -593,7 +666,7 @@ export default function OrderDetailClient({
                   Request Return / Exchange
                 </Link>
               )}
-              {(currentNormalizedStatus === "disputed" || currentNormalizedStatus === "returned") && (
+              {isReturned && (
                 <Link
                   href={`/orders/${order.id}/return/track`}
                   className="w-full py-3 border border-primary text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center block"
@@ -615,7 +688,7 @@ export default function OrderDetailClient({
             )}
 
             {/* Completed banner */}
-            {currentNormalizedStatus === "completed" && (
+            {isCompleted && (
               <div className="p-base bg-emerald-50 border border-emerald-100 rounded flex items-start gap-sm">
                 <span className="material-symbols-outlined text-emerald-500 mt-xs">task_alt</span>
                 <div>

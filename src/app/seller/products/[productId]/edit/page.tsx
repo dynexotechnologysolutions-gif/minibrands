@@ -10,6 +10,8 @@ interface PageProps {
   }>;
 }
 
+import SellerLayout from "@/components/seller/SellerLayout";
+
 export default async function EditProductPage({ params }: PageProps) {
   const { productId } = await params;
 
@@ -27,10 +29,10 @@ export default async function EditProductPage({ params }: PageProps) {
   // 2. Fetch user profile and verify role
   const userProfile = await prisma.userProfile.findUnique({
     where: { userId },
-    include: { seller: true },
+    include: { seller: { include: { verification: true } }, user: true },
   });
 
-  if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
+  if (!userProfile || (userProfile.role !== "SELLER" && userProfile.role !== "ADMIN")) {
     redirect("/login?role=seller");
   }
 
@@ -48,12 +50,16 @@ export default async function EditProductPage({ params }: PageProps) {
     },
   });
 
-  // 4. Verify product exists, is not deleted, and belongs to the seller
-  if (!product || product.isDeleted || product.seller.userProfileId !== userProfile.id) {
+  // 4. Verify product exists and is not deleted
+  if (!product || product.isDeleted) {
     notFound();
   }
 
-  // Convert schema object to raw props matching the form expectation
+  // 5. Verify ownership
+  if (userProfile.role !== "ADMIN" && product.seller.userProfileId !== userProfile.id) {
+    redirect("/seller/products");
+  }
+
   const formattedProduct = {
     id: product.id,
     name: product.name,
@@ -75,9 +81,21 @@ export default async function EditProductPage({ params }: PageProps) {
     })),
   };
 
+  const sellerInfo = userProfile.seller
+    ? {
+        id: userProfile.seller.id,
+        businessName: userProfile.seller.businessName,
+        storeName: userProfile.seller.storeName,
+        isKycVerified:
+          userProfile.seller.verification?.kycStatus === "approved" ||
+          userProfile.seller.verification?.kycStatus === "auto_approved",
+        userEmail: userProfile.user.email,
+      }
+    : undefined;
+
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <SellerLayout sellerInfo={sellerInfo}>
       <EditProductForm product={formattedProduct} />
-    </div>
+    </SellerLayout>
   );
 }

@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-
-import { useEffect } from "react";
 import { switchActiveRole } from "@/actions/switch-role.action";
 import { getDefaultAddress } from "@/actions/address-get-default.action";
 import { getPreciseLocation } from "@/lib/geolocation";
@@ -39,6 +37,28 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
   const [locationText, setLocationText] = useState("Select Location");
+
+  const accountRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  // Click / touch outside listener to close dropdowns reliably
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+        setIsAccountOpen(false);
+      }
+      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+        setIsMoreOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     // 1. Check local storage cache
@@ -185,12 +205,12 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
   };
 
   return (
-    <header className="sticky top-0 w-full z-50 flex flex-col items-center bg-surface px-base lg:px-xl transition-colors duration-200 border-b border-border-gray">
-      {/* TopAppBar (from JSON) */}
+    <header className="sticky top-0 w-full z-50 flex flex-col items-center bg-surface px-base lg:px-xl transition-colors duration-200 border-b border-border-gray max-w-full">
+      {/* TopAppBar */}
       <div className="flex items-center justify-between w-full max-w-container-max py-sm h-16">
         <div className="flex items-center gap-lg">
           <Link href="/" className="select-none">
-            <span className="text-[24px] font-black text-primary uppercase font-headline-md tracking-tight">
+            <span className="text-[20px] sm:text-[24px] font-black text-primary uppercase font-headline-md tracking-tight">
               MINIBRANDS
             </span>
           </Link>
@@ -208,10 +228,10 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             suppressHydrationWarning={true}
           />
         </form>
-        <div className="flex items-center gap-md lg:gap-lg">
+        <div className="flex items-center gap-sm sm:gap-md lg:gap-lg">
           <button 
             onClick={handleHeaderLocationClick}
-            className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
+            className="hidden lg:flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
             suppressHydrationWarning={true}
           >
             <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 0" }}>
@@ -223,11 +243,21 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
 
           {/* Account Circle Menu */}
           <div
+            ref={accountRef}
             className="relative"
-            onMouseEnter={() => setIsAccountOpen(true)}
-            onMouseLeave={() => setIsAccountOpen(false)}
+            onMouseEnter={() => {
+              if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+                setIsAccountOpen(true);
+              }
+            }}
+            onMouseLeave={() => {
+              if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+                setIsAccountOpen(false);
+              }
+            }}
           >
             <button 
+              onClick={() => setIsAccountOpen((prev) => !prev)}
               className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
               suppressHydrationWarning={true}
             >
@@ -251,7 +281,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
               </span>
             </button>
             {isAccountOpen && (
-              <div className="absolute right-0 top-full pt-xs z-50">
+              <div className="absolute right-0 top-full pt-xs z-[100]">
                 <div className="bg-surface-container-lowest border border-border-gray rounded-DEFAULT shadow-sm min-w-[180px] py-sm flex flex-col">
                   {activeMode === "BUYER" ? (
                     <>
@@ -356,11 +386,21 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
 
           {/* More menu dropdown */}
           <div
+            ref={moreRef}
             className="relative"
-            onMouseEnter={() => setIsMoreOpen(true)}
-            onMouseLeave={() => setIsMoreOpen(false)}
+            onMouseEnter={() => {
+              if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+                setIsMoreOpen(true);
+              }
+            }}
+            onMouseLeave={() => {
+              if (typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches) {
+                setIsMoreOpen(false);
+              }
+            }}
           >
             <button 
+              onClick={() => setIsMoreOpen((prev) => !prev)}
               className="flex items-center gap-xs text-body-sm text-on-surface-variant hover:bg-surface-container-low px-sm py-xs rounded-DEFAULT transition-colors duration-200 cursor-pointer select-none"
               suppressHydrationWarning={true}
             >
@@ -368,7 +408,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
               <span className="material-symbols-outlined text-[24px]">expand_more</span>
             </button>
             {isMoreOpen && (
-              <div className="absolute right-0 top-full pt-xs z-50">
+              <div className="absolute right-0 top-full pt-xs z-[100]">
                 <div className="bg-surface-container-lowest border border-border-gray rounded-DEFAULT shadow-sm min-w-[180px] py-sm flex flex-col">
                   <Link
                     className="px-lg py-sm text-body-sm text-on-surface hover:bg-surface-container-low hover:text-accent-yellow transition-colors"
@@ -406,6 +446,23 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             </span>
           </Link>
         </div>
+      </div>
+
+      {/* Mobile Search Bar (Below MINIBRANDS Logo & Actions) */}
+      <div className="w-full max-w-container-max pb-sm md:hidden px-xs">
+        <form onSubmit={handleSearchSubmit} className="w-full relative">
+          <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-text-muted text-[18px] pointer-events-none">
+            search
+          </span>
+          <input
+            className="w-full pl-xl pr-md py-2 bg-surface-container-low border border-border-gray rounded-DEFAULT text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+            placeholder="Search products, brands and categories"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            suppressHydrationWarning={true}
+          />
+        </form>
       </div>
     </header>
   );

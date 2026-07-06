@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, AlertTriangle } from "lucide-react";
 
 export interface ProductCardProps {
   product: {
@@ -23,7 +22,17 @@ export interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.images?.[0]?.url || "/placeholder.jpg";
-  const formattedPrice = (product.price / 100).toLocaleString("en-IN", {
+
+  const priceInINR = Math.round(product.price / 100);
+  const mrpInINR = Math.round(priceInINR * 1.4);
+  const discountPct = Math.round(((mrpInINR - priceInINR) / mrpInINR) * 100);
+
+  const formattedPrice = priceInINR.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
+  const formattedMrp = mrpInINR.toLocaleString("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
@@ -35,7 +44,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       product.seller.verification.kycStatus === "approved") &&
     product.seller.verification.bankVerified;
 
-  // Find any variant that has low stock (<= 3 and > 0)
   const lowStockVariant = product.variants?.find(
     (v) => v.stockCount > 0 && v.stockCount <= 3
   );
@@ -48,60 +56,75 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-100 hover:border-indigo-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+      aria-label={`${product.name} — ${formattedPrice}`}
+      className="group relative flex flex-col bg-surface-container-lowest border border-border-gray rounded-sm overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:-translate-y-[2px] hover:border-on-surface/20"
     >
-      {/* Product Image Container */}
-      <div className="relative aspect-square w-full overflow-hidden bg-slate-50">
+      {/* ── Image Container ─────────────────────────────── */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low flex-shrink-0">
         <Image
           src={primaryImage}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+          className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-500 ease-out"
           priority={false}
         />
 
-        {/* Floating Badges */}
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
-          {isOutOfStock ? (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wider">
-              Out of Stock
-            </span>
-          ) : lowStockVariant ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-600 border border-amber-100 animate-pulse">
-              <AlertTriangle className="w-3 h-3 text-amber-500" />
-              <span>Only {lowStockVariant.stockCount} Left</span>
-            </span>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Info Content */}
-      <div className="flex-1 p-4 flex flex-col justify-between">
-        <div>
-          {/* Seller Name and Verification */}
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="text-xs font-medium text-slate-500 truncate max-w-[120px]">
-              {product.seller.businessName}
-            </span>
-            {isSellerVerified && (
-              <span className="inline-flex items-center text-emerald-600" title="Verified Seller">
-                <BadgeCheck className="w-3.5 h-3.5 fill-emerald-50 text-emerald-600" />
+        {/* Stock badge — top-left */}
+        {(isOutOfStock || lowStockVariant) && (
+          <div className="absolute top-xs left-xs">
+            {isOutOfStock ? (
+              <span className="inline-flex items-center px-[6px] py-[3px] rounded-[2px] text-[10px] font-bold bg-error text-on-error uppercase tracking-wider leading-tight select-none">
+                Sold Out
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-[3px] px-[6px] py-[3px] rounded-[2px] text-[10px] font-bold bg-accent-yellow text-on-surface uppercase tracking-wider leading-tight select-none">
+                Only {lowStockVariant!.stockCount} left
               </span>
             )}
           </div>
+        )}
+      </div>
 
-          {/* Product Name */}
-          <h3 className="font-semibold text-slate-800 text-sm tracking-tight line-clamp-1 group-hover:text-indigo-600 transition-colors">
-            {product.name}
-          </h3>
+      {/* ── Info Section ────────────────────────────────── */}
+      <div className="flex flex-col flex-1 px-[10px] pt-[10px] pb-[12px] gap-[3px]">
+
+        {/* Brand + Verified */}
+        <div className="flex items-center gap-[4px] min-w-0">
+          <span className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.04em] truncate leading-tight">
+            {product.seller.businessName}
+          </span>
+          {isSellerVerified && (
+            <span
+              className="material-symbols-outlined text-success-green flex-shrink-0"
+              style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
+              title="Verified Seller"
+            >
+              verified
+            </span>
+          )}
         </div>
 
-        {/* Pricing Info */}
-        <div className="mt-3 flex items-center justify-between">
-          <span className="font-extrabold text-slate-900 text-base">{formattedPrice}</span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-slate-400">
-            {product.category}
+        {/* Product Name — 2-line clamp */}
+        <h3 className="text-[13px] font-semibold text-on-surface leading-[1.35] line-clamp-2 min-h-[35px] group-hover:text-primary transition-colors duration-200">
+          {product.name}
+        </h3>
+
+        {/* Category pill */}
+        <span className="self-start text-[10px] font-medium text-text-muted uppercase tracking-[0.05em] mt-[1px]">
+          {product.category}
+        </span>
+
+        {/* Price row */}
+        <div className="flex items-baseline gap-[6px] mt-[6px] flex-wrap">
+          <span className="text-[15px] font-bold text-on-surface leading-tight tracking-tight">
+            {formattedPrice}
+          </span>
+          <span className="text-[12px] text-text-muted line-through leading-tight">
+            {formattedMrp}
+          </span>
+          <span className="text-[11px] font-bold text-success-green leading-tight">
+            -{discountPct}%
           </span>
         </div>
       </div>

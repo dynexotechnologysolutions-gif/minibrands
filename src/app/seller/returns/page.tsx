@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import SellerReturnQueueClient from "./SellerReturnQueueClient";
 
+import SellerLayout from "@/components/seller/SellerLayout";
+
 export default async function SellerReturnQueuePage() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -17,7 +19,12 @@ export default async function SellerReturnQueuePage() {
   const userProfile = await prisma.userProfile.findUnique({
     where: { userId: session.user.id },
     include: {
-      seller: true,
+      user: true,
+      seller: {
+        include: {
+          verification: true,
+        },
+      },
     },
   });
 
@@ -25,7 +32,8 @@ export default async function SellerReturnQueuePage() {
     redirect("/seller/dashboard");
   }
 
-  const sellerId = userProfile.seller.id;
+  const seller = userProfile.seller;
+  const sellerId = seller.id;
 
   const returnRequests = await prisma.returnRequest.findMany({
     where: {
@@ -116,9 +124,17 @@ export default async function SellerReturnQueuePage() {
       : null,
   }));
 
+  const sellerInfo = {
+    id: seller.id,
+    businessName: seller.businessName,
+    storeName: seller.storeName,
+    isKycVerified: seller.verification?.kycStatus === "approved" || seller.verification?.kycStatus === "auto_approved",
+    userEmail: userProfile.user.email,
+  };
+
   return (
-    <div className="min-h-screen bg-surface py-xl px-base max-w-6xl mx-auto">
+    <SellerLayout sellerInfo={sellerInfo}>
       <SellerReturnQueueClient returns={formattedReturns} />
-    </div>
+    </SellerLayout>
   );
 }

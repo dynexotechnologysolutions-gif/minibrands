@@ -7,6 +7,7 @@ import { confirmOrderAction } from "@/actions/order-confirm.action";
 import { shipOrderAction } from "@/actions/order-ship.action";
 import StatusBadge from "@/components/order/StatusBadge";
 import EscrowCountdown from "@/components/order/EscrowCountdown";
+import OrderTimeline from "@/components/orders/OrderTimeline";
 
 interface OrderItem {
   id: string;
@@ -140,77 +141,65 @@ export default function SellerOrderDetailClient({ order, sellerName }: SellerOrd
   const currentIndex = statusOrder.indexOf(currentStatus);
 
   return (
-    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col">
+    <div className="space-y-lg">
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
-          <div className={`p-base border rounded-lg shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
-            toast.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-              : "bg-red-50 border-red-200 text-red-800"
-          }`}>
+        <div className="fixed bottom-6 right-6 z-[110] animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div
+            className={`px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 font-bold text-xs border ${
+              toast.type === "success"
+                ? "bg-emerald-900 text-white border-emerald-800"
+                : "bg-red-900 text-white border-red-800"
+            }`}
+          >
             <span className="material-symbols-outlined">
               {toast.type === "success" ? "check_circle" : "error"}
             </span>
-            {toast.text}
+            <span>{toast.text}</span>
           </div>
         </div>
       )}
 
-      <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full space-y-lg">
-        {/* Back nav */}
-        <div>
-          <Link href="/seller/orders" className="text-secondary font-label-bold text-label-bold hover:text-primary flex items-center gap-xs mb-sm text-xs">
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Orders
-          </Link>
-          <div className="flex items-start justify-between gap-base flex-wrap">
-            <div>
-              <h1 className="font-headline-lg text-headline-lg text-primary">
-                Order #{order.id.slice(0, 8).toUpperCase()}
-              </h1>
-              <p className="font-body-md text-secondary">
-                Placed {new Date(order.createdAt).toLocaleDateString("en-IN", {
-                  day: "numeric", month: "long", year: "numeric"
-                })}
-              </p>
-            </div>
-            <StatusBadge status={currentStatus} />
+      {/* Header & Back Navigation */}
+      <div className="border-b border-border-gray/40 pb-md space-y-xs">
+        <Link href="/seller/orders" className="text-text-muted font-bold text-xs hover:text-on-surface flex items-center gap-xs">
+          <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+          Back to All Orders
+        </Link>
+        <div className="flex items-start justify-between gap-base flex-wrap pt-xs">
+          <div>
+            <h1 className="font-headline-md text-headline-md font-extrabold text-on-surface">
+              Order #{order.id.slice(0, 8).toUpperCase()}
+            </h1>
+            <p className="text-body-sm text-text-muted mt-0.5">
+              Placed on {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
+              })}
+            </p>
           </div>
+          <StatusBadge status={currentStatus} />
         </div>
+      </div>
 
         {/* Two column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
           {/* Left: Timeline + Items + Address */}
           <div className="lg:col-span-8 space-y-lg">
             {/* Order Status Timeline */}
-            <div className="bg-white border border-border-gray rounded p-base shadow-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary mb-base">Order Timeline</h3>
-              <div className="relative pl-base">
-                <div className="absolute left-0 top-0 bottom-0 w-px bg-border-gray ml-[7px]" />
-                {TIMELINE_STEPS.map((step, idx) => {
-                  const isDone = idx <= currentIndex;
-                  const isCurrent = idx === currentIndex;
-                  return (
-                    <div key={step.key} className="flex items-start gap-base mb-base last:mb-0 relative">
-                      <div className={`w-3.5 h-3.5 rounded-full mt-xs border-2 flex-shrink-0 z-10 ${
-                        isDone
-                          ? "bg-primary border-primary"
-                          : "bg-white border-border-gray"
-                      } ${isCurrent ? "ring-2 ring-primary ring-offset-2" : ""}`} />
-                      <div>
-                        <p className={`font-label-bold text-label-bold text-xs ${isDone ? "text-primary" : "text-secondary"}`}>
-                          {step.label}
-                        </p>
-                        {isCurrent && (
-                          <p className="font-body-sm text-[10px] text-secondary">Current status</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+            {!["cancelled", "returned", "refunded"].includes((order.orderStatus || currentStatus || "").toLowerCase()) && (
+              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md space-y-md shadow-sm">
+                <div className="flex items-center justify-between border-b border-border-gray/40 pb-sm">
+                  <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-primary text-xl">route</span>
+                    Order Status Timeline
+                  </h3>
+                  <span className="text-xs font-bold text-success-green bg-success-green/10 px-sm py-0.5 rounded-full uppercase tracking-wider">
+                    {currentStatus.toLowerCase() === "delivered" || order.orderStatus?.toLowerCase() === "delivered" ? "Delivered" : "On Schedule"}
+                  </span>
+                </div>
+                <OrderTimeline status={currentStatus} orderStatus={order.orderStatus} variant="detailed" />
               </div>
-            </div>
+            )}
 
             {/* Order Items */}
             <div className="bg-white border border-border-gray rounded p-base shadow-sm space-y-base">
@@ -388,7 +377,6 @@ export default function SellerOrderDetailClient({ order, sellerName }: SellerOrd
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }

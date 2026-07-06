@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Seller Hub - Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-container": "#848484",
+            "surface-bright": "#f9f9f9",
+            "on-tertiary-fixed-variant": "#474747",
+            "primary-container": "#1b1b1b",
+            "on-error-container": "#93000a",
+            "success-green": "#16A34A",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#1b1b1b",
+            "tertiary-fixed-dim": "#c6c6c6",
+            "outline-variant": "#cfc4c5",
+            "on-secondary-fixed-variant": "#454747",
+            "primary-fixed": "#e2e2e2",
+            "text-muted": "#6B7280",
+            "tertiary-container": "#1b1b1b",
+            "secondary": "#5d5f5f",
+            "primary": "#000000",
+            "on-tertiary-fixed": "#1b1b1b",
+            "outline": "#7e7576",
+            "tertiary": "#000000",
+            "secondary-container": "#dfe0e0",
+            "background": "#f9f9f9",
+            "surface-container": "#eeeeee",
+            "on-secondary": "#ffffff",
+            "on-primary-fixed-variant": "#474747",
+            "inverse-surface": "#303030",
+            "tertiary-fixed": "#e2e2e2",
+            "secondary-fixed": "#e2e2e2",
+            "surface-container-high": "#e8e8e8",
+            "on-background": "#1b1b1b",
+            "on-tertiary-container": "#848484",
+            "on-secondary-container": "#616363",
+            "surface": "#f9f9f9",
+            "surface-dim": "#dadada",
+            "border-gray": "#E5E7EB",
+            "on-error": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "secondary-fixed-dim": "#c6c6c7",
+            "on-surface-variant": "#4c4546",
+            "on-primary": "#ffffff",
+            "inverse-primary": "#c6c6c6",
+            "surface-variant": "#e2e2e2",
+            "surface-container-low": "#f3f3f3",
+            "surface-bg": "#F1F5F9",
+            "on-secondary-fixed": "#1a1c1c",
+            "on-surface": "#1b1b1b",
+            "accent-yellow": "#F59E0B",
+            "surface-container-highest": "#e2e2e2",
+            "error-container": "#ffdad6",
+            "error-red": "#DC2626",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#5e5e5e",
+            "inverse-on-surface": "#f1f1f1",
+            "primary-fixed-dim": "#c6c6c6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "xl": "32px",
+            "xxl": "48px",
+            "md": "12px",
+            "base": "16px",
+            "lg": "24px",
+            "container-max": "1280px",
+            "sm": "8px",
+            "xs": "4px"
+          },
+          "fontFamily": {
+            "label-bold": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "price-lg": ["Inter"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f9f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+    }
+    .status-badge-healthy { @apply bg-success-green/10 text-success-green border border-success-green/20; }
+    .status-badge-low { @apply bg-accent-yellow/10 text-accent-yellow border border-accent-yellow/20; }
+    .status-badge-out { @apply bg-error-red/10 text-error-red border border-error-red/20; }
+
+    /* Mobile Drawer & Collapsible logic */
+    @media (max-width: 767px) {
+      .sidebar-mobile-hidden { transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+      .sidebar-mobile-visible { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Mobile Overlay -->
+<div class="fixed inset-0 bg-black/50 z-[55] hidden lg:hidden" id="mobile-overlay" onclick="toggleSidebar()"></div>
+<!-- Side Navigation Shell -->
+<aside class="flex flex-col h-screen fixed left-0 top-0 bg-surface border-r border-border-gray z-[60] sidebar-mobile-hidden lg:sidebar-mobile-visible w-[280px] md:w-20 xl:w-64 transition-all duration-300" id="sidebar">
+<div class="p-base xl:p-lg flex items-center gap-sm overflow-hidden whitespace-nowrap">
+<div class="w-8 h-8 bg-primary rounded flex-shrink-0 flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+</div>
+<div class="md:hidden xl:block">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight">Seller Hub</h1>
+<p class="text-[10px] uppercase tracking-wider text-text-muted font-bold">Verified Merchant</p>
+</div>
+</div>
+<nav class="flex-1 px-base space-y-1 mt-md custom-scrollbar overflow-y-auto overflow-x-hidden">
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="dashboard">dashboard</span>
+<span class="md:hidden xl:block">Overview</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="inventory_2">inventory_2</span>
+<span class="md:hidden xl:block">Products</span>
+</a>
+<!-- Active Tab: Inventory -->
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors text-primary font-bold border-r-2 md:border-r-0 xl:border-r-2 border-primary bg-surface-container-low font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="shelves">shelves</span>
+<span class="md:hidden xl:block">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="store">store</span>
+<span class="md:hidden xl:block">Store Profile</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="verified_user">verified_user</span>
+<span class="md:hidden xl:block">Verification</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="settings">settings</span>
+<span class="md:hidden xl:block">Settings</span>
+</a>
+<div class="pt-lg pb-sm px-md text-[10px] uppercase font-bold text-on-primary-container tracking-widest md:hidden xl:block">Post-Launch</div>
+<div class="h-px bg-border-gray my-4 md:block xl:hidden"></div>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted opacity-60 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="shopping_cart">shopping_cart</span>
+<span class="md:hidden xl:block">Orders (Soon)</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded transition-colors hover:bg-surface-container-low text-text-muted opacity-60 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined flex-shrink-0" data-icon="analytics">analytics</span>
+<span class="md:hidden xl:block">Analytics (Soon)</span>
+</a>
+</nav>
+<div class="p-base border-t border-border-gray">
+<div class="bg-surface-container-low p-sm md:p-1 xl:p-md rounded-lg flex items-center gap-sm overflow-hidden">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</div>
+<div class="md:hidden xl:block overflow-hidden">
+<p class="font-label-bold text-label-bold truncate">Premium Electronics</p>
+<p class="text-body-sm text-body-sm text-text-muted truncate">admin@p-elec.com</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-20 xl:ml-64 min-h-screen transition-all duration-300">
+<!-- Top Nav Bar -->
+<header class="flex justify-between items-center w-full px-base md:px-lg h-16 sticky top-0 z-50 bg-surface border-b border-border-gray shadow-sm">
+<div class="flex items-center gap-base md:gap-lg flex-1">
+<button class="lg:hidden p-2 -ml-2 rounded-full hover:bg-surface-container-low" onclick="toggleSidebar()">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="relative flex-1 max-w-sm md:max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base" data-icon="search">search</span>
+<input class="w-full pl-9 pr-4 py-1.5 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-body-md text-body-md transition-all" placeholder="Search SKU..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-xs md:gap-base ml-base">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant hidden sm:flex">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant hidden sm:flex">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="h-6 w-[1px] bg-border-gray mx-1 hidden sm:block"></div>
+<button class="px-3 md:px-base py-2 bg-primary text-on-primary font-label-bold text-xs md:text-label-bold rounded-lg hover:opacity-90 transition-all flex items-center gap-xs whitespace-nowrap">
+<span class="material-symbols-outlined text-base" data-icon="add">add</span>
+<span class="hidden sm:inline">Add Product</span>
+<span class="sm:hidden">Add</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-base md:p-lg max-w-[1920px] mx-auto">
+<div class="mb-lg flex flex-col md:flex-row md:justify-between md:items-end gap-base">
+<div>
+<h2 class="font-headline-md text-headline-sm md:text-headline-md text-on-surface">Inventory Management</h2>
+<p class="text-body-sm md:text-body-md text-text-muted mt-1">Monitor stock levels and manage product variants.</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 md:flex-none px-base py-2 border border-border-gray bg-surface hover:bg-surface-container-low transition-colors font-label-bold text-body-sm rounded-lg flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-base" data-icon="file_download">file_download</span>
+            Export
+          </button>
+<button class="flex-1 md:flex-none px-base py-2 border border-border-gray bg-surface hover:bg-surface-container-low transition-colors font-label-bold text-body-sm rounded-lg flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-base" data-icon="filter_list">filter_list</span>
+            Filters
+          </button>
+</div>
+</div>
+<!-- Inventory Summary Widgets -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-base mb-lg">
+<div class="bg-surface-container-lowest border border-border-gray p-base rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-text-muted font-label-bold text-label-bold">Total Items</span>
+<span class="material-symbols-outlined text-primary" data-icon="inventory_2">inventory_2</span>
+</div>
+<div class="font-headline-lg text-2xl md:text-headline-lg">1,248</div>
+<div class="text-body-sm text-success-green mt-xs flex items-center gap-xs font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span>
+            +12 this week
+          </div>
+</div>
+<div class="bg-surface-container-lowest border border-border-gray p-base rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-text-muted font-label-bold text-label-bold">Healthy Stock</span>
+<span class="material-symbols-outlined text-success-green" data-icon="check_circle">check_circle</span>
+</div>
+<div class="font-headline-lg text-2xl md:text-headline-lg">1,102</div>
+<div class="text-body-sm text-text-muted mt-xs">88.3% of inventory</div>
+</div>
+<div class="bg-surface-container-lowest border border-border-gray p-base rounded-xl shadow-sm border-l-4 border-l-accent-yellow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-text-muted font-label-bold text-label-bold">Low Stock</span>
+<span class="material-symbols-outlined text-accent-yellow" data-icon="warning">warning</span>
+</div>
+<div class="font-headline-lg text-2xl md:text-headline-lg">94</div>
+<div class="text-body-sm text-accent-yellow mt-xs font-bold">Action Required</div>
+</div>
+<div class="bg-surface-container-lowest border border-border-gray p-base rounded-xl shadow-sm border-l-4 border-l-error-red">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-text-muted font-label-bold text-label-bold">Out of Stock</span>
+<span class="material-symbols-outlined text-error-red" data-icon="error">error</span>
+</div>
+<div class="font-headline-lg text-2xl md:text-headline-lg">52</div>
+<div class="text-body-sm text-error-red mt-xs font-bold">Urgent Restock</div>
+</div>
+</div>
+<!-- Actionable Filtering -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-sm mb-base">
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-4 py-1.5 bg-primary text-on-primary font-label-bold text-xs md:text-label-bold rounded-full">All</button>
+<button class="flex-1 sm:flex-none px-4 py-1.5 bg-surface border border-border-gray hover:bg-surface-container-low transition-colors font-label-bold text-xs md:text-label-bold rounded-full flex items-center justify-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-accent-yellow"></span>
+            Low
+          </button>
+<button class="flex-1 sm:flex-none px-4 py-1.5 bg-surface border border-border-gray hover:bg-surface-container-low transition-colors font-label-bold text-xs md:text-label-bold rounded-full flex items-center justify-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-error-red"></span>
+            Out
+          </button>
+</div>
+<div class="flex-1"></div>
+<div class="text-body-sm text-text-muted w-full sm:w-auto text-right">50 of 1,248 products</div>
+</div>
+<!-- Inventory Table Container -->
+<div class="bg-surface-container-lowest border border-border-gray rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-border-gray">
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider">Product</th>
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider">Variant</th>
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider">Stock</th>
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider">Updated</th>
+<th class="px-base py-md font-label-bold text-body-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-gray">
+<!-- Table Row 1 (Healthy) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-base py-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container border border-border-gray rounded-lg flex-shrink-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_r3jyWgpgAYK-l3utF9a_m-E1IFXDnZwrHqVzJIo8O48r75az3CkznMUDqXmOk61q9hQCaPGszp6DU2T96M_kbXxL1MPq3TJ7TK1Ut7TlmJh7_ggZJxdrqWwZjvffc8u7DjAW14YGqTW_PdPE0HD_DMvpxzN_VGvPJK0BSVFXZQrvoq2xZIgnIScr5uUcB6l2zDdXDbU6kRTU1qQm6OnN6wqLRIYGKit6Y4QVvUDKx6BtNuNNZZCaLYxhX2eSkB_bOkcuS4oN3nBv')"></div>
+<div class="max-w-[200px]">
+<div class="font-label-bold text-label-bold truncate">Sony WH-1000XM5</div>
+<div class="text-[11px] text-text-muted font-mono">SNY-HPH-992</div>
+</div>
+</div>
+</td>
+<td class="px-base py-md">
+<span class="font-body-md text-body-md">Midnight Black</span>
+</td>
+<td class="px-base py-md">
+<span class="font-label-bold text-label-bold">422 units</span>
+</td>
+<td class="px-base py-md text-center">
+<span class="status-badge-healthy px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Healthy</span>
+</td>
+<td class="px-base py-md">
+<div class="text-body-md text-body-md">Oct 24, 2023</div>
+<div class="text-[10px] text-text-muted">11:42 AM</div>
+</td>
+<td class="px-base py-md text-right whitespace-nowrap">
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="edit">edit</span></button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Table Row 2 (Low Stock) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-base py-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container border border-border-gray rounded-lg flex-shrink-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ_54LY7yueI3ab8FK4GkNALdj6fhWsT8SL6p5gZ92EH89iRRyvwBkLLVDqi3zbUMnjQ5fmhRHkLkTbqtTMfYNLu0KESPD26EgBD0PZEZtdHXaBhjmD1sWziPJVuwy-Rh39teLGb-EyGZR0KzG_EOHdh5OsswDl_GEsVpJL6VDMpHyUXu1nPBTp1O95qznyxOFt3nSEBaHpU8brj1zFqliV4lkAFLwppUaIh167Ept9mmZ8Alej2PPMfnI9fRQ_4CGXsQ63sf_9fRI')"></div>
+<div class="max-w-[200px]">
+<div class="font-label-bold text-label-bold truncate">Logitech MX Mechanical</div>
+<div class="text-[11px] text-text-muted font-mono">LOG-KB-012</div>
+</div>
+</div>
+</td>
+<td class="px-base py-md">
+<span class="font-body-md text-body-md">Tactile Quiet / Gray</span>
+</td>
+<td class="px-base py-md">
+<span class="font-label-bold text-label-bold text-accent-yellow">8 units</span>
+</td>
+<td class="px-base py-md text-center">
+<span class="status-badge-low px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Low Stock</span>
+</td>
+<td class="px-base py-md">
+<div class="text-body-md text-body-md">Oct 26, 2023</div>
+<div class="text-[10px] text-text-muted">09:15 AM</div>
+</td>
+<td class="px-base py-md text-right whitespace-nowrap">
+<button class="px-3 py-1 bg-accent-yellow text-primary font-bold text-[10px] rounded hover:opacity-90 mr-1">RESTOCK</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Table Row 3 (Out of Stock) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-base py-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container border border-border-gray rounded-lg flex-shrink-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1oCyUIM37XhjjT8HHxt6CVXXFu00IL0qQlWDRcRKUsQoND3frsITtbP6DxKLG2K_WWENNvfW1TOmHWFxKJDMjoGU56oyvJ0owS-35bxzm5IkEIjjVDnRWHTNK_V-xxGX41XhN_NjGUKQ2AuPTedwH_E3Y9hbYAYmWNJGExwDrjYYnx3UHvs_95i4E1509FITJP4oirieJ6N-rOA4QL090Xiz09M1BhOW2rhbDAgExveSw1yVFr_QhZr_GncW3ozC7feMjRiVzBAJm')"></div>
+<div class="max-w-[200px]">
+<div class="font-label-bold text-label-bold truncate">Apple Watch Series 9</div>
+<div class="text-[11px] text-text-muted font-mono">APP-WTC-S9</div>
+</div>
+</div>
+</td>
+<td class="px-base py-md">
+<span class="font-body-md text-body-md">45mm / Starlight</span>
+</td>
+<td class="px-base py-md">
+<span class="font-label-bold text-label-bold text-error-red">0 units</span>
+</td>
+<td class="px-base py-md text-center">
+<span class="status-badge-out px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Out of Stock</span>
+</td>
+<td class="px-base py-md">
+<div class="text-body-md text-body-md">Oct 26, 2023</div>
+<div class="text-[10px] text-text-muted">10:02 AM</div>
+</td>
+<td class="px-base py-md text-right whitespace-nowrap">
+<button class="px-3 py-1 bg-error-red text-on-primary font-bold text-[10px] rounded hover:opacity-90 mr-1">URGENT</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<!-- Table Row 4 (Healthy) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-base py-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container border border-border-gray rounded-lg flex-shrink-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsY0SN0WOpS11Hm0eugMKKyNtaA6QnOYhm7s4R6J4lVBKtiyefP475uSXt3bSzIBnODwoYo0yfJeD2A6Uuc0JIdypF0uQd18VTPn2H6ofwbLD-F215W3b0LYHremyib_UKcr3guh-IdMqlAQNnEcW84gWZ5w-p2HGyH_OB2JTixpvFs3TwztjONk2LGYs_AIEHYTzm9doRuWMrV07Hspx83yW-TzxvNBamlTDrG4keWU5t4frxyMtIP-CknGCbdmsMcUPUVW_NyVwC')"></div>
+<div class="max-w-[200px]">
+<div class="font-label-bold text-label-bold truncate">Herman Miller Aeron</div>
+<div class="text-[11px] text-text-muted font-mono">HM-AER-102</div>
+</div>
+</div>
+</td>
+<td class="px-base py-md">
+<span class="font-body-md text-body-md">Size B / Graphite</span>
+</td>
+<td class="px-base py-md">
+<span class="font-label-bold text-label-bold">14 units</span>
+</td>
+<td class="px-base py-md text-center">
+<span class="status-badge-healthy px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Healthy</span>
+</td>
+<td class="px-base py-md">
+<div class="text-body-md text-body-md">Oct 25, 2023</div>
+<div class="text-[10px] text-text-muted">04:30 PM</div>
+</td>
+<td class="px-base py-md text-right whitespace-nowrap">
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="edit">edit</span></button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination -->
+<div class="px-base py-4 flex flex-col sm:flex-row justify-between items-center bg-surface-container-low border-t border-border-gray gap-base">
+<div class="text-body-sm text-text-muted">1 to 4 of 1,248 products</div>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center border border-border-gray rounded-lg hover:bg-surface transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-base" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center bg-primary text-on-primary font-bold text-xs rounded-lg">1</button>
+<button class="w-8 h-8 flex items-center justify-center border border-border-gray rounded-lg hover:bg-surface transition-colors font-bold text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center border border-border-gray rounded-lg hover:bg-surface transition-colors font-bold text-xs">3</button>
+<span class="w-8 h-8 flex items-center justify-center text-text-muted text-xs">...</span>
+<button class="w-8 h-8 flex items-center justify-center border border-border-gray rounded-lg hover:bg-surface transition-colors font-bold text-xs">32</button>
+<button class="w-8 h-8 flex items-center justify-center border border-border-gray rounded-lg hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Floating Action -->
+<div class="fixed bottom-6 right-6 flex flex-col gap-sm z-50">
+<button class="w-14 h-14 bg-accent-yellow text-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group relative">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="absolute right-full mr-4 px-2 py-1 bg-primary text-on-primary text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block">QUICK RESTOCK</span>
+</button>
+</div>
+<script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+      sidebar.classList.toggle('sidebar-mobile-visible');
+      sidebar.classList.toggle('sidebar-mobile-hidden');
+      overlay.classList.toggle('hidden');
+      document.body.classList.toggle('overflow-hidden');
+    }
+
+    // Lightweight micro-interactions for table
+    document.querySelectorAll('tr').forEach(row => {
+      row.addEventListener('mouseenter', () => {
+        row.querySelector('.material-symbols-outlined[data-icon="edit"]')?.classList.add('text-primary');
+      });
+      row.addEventListener('mouseleave', () => {
+        row.querySelector('.material-symbols-outlined[data-icon="edit"]')?.classList.remove('text-primary');
+      });
+    });
+  </script>
+</body></html>

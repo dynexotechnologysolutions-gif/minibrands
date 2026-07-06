@@ -233,7 +233,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   const allSellers = [...featuredSellers.map(shapeSeller), ...mockSellers];
 
   return (
-    <div className="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
+    <div className="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col w-full max-w-full overflow-x-hidden">
       {/* Navigation Header */}
       <HomeHeader
         userProfile={userProfile as any}
@@ -242,10 +242,10 @@ export default async function HomePage({ searchParams }: PageProps) {
       />
 
       {/* Main Container */}
-      <main className="w-full flex flex-col items-center pb-xxl">
+      <main className="w-full flex flex-col items-center pb-xxl overflow-x-hidden">
         {/* Banner Section */}
         <section className="w-full max-w-container-max px-base lg:px-xl mt-lg">
-          <div className="w-full h-[320px] rounded-DEFAULT bg-primary overflow-hidden relative flex items-center">
+          <div className="w-full h-[280px] sm:h-[320px] rounded-DEFAULT bg-primary overflow-hidden relative flex items-center">
             <div className="absolute inset-0 z-0">
               <div
                 className="w-full h-full bg-cover bg-center opacity-60"
@@ -254,16 +254,16 @@ export default async function HomePage({ searchParams }: PageProps) {
                 }}
               />
             </div>
-            <div className="relative z-10 p-xl lg:p-xxl max-w-[36rem]">
-              <h1 className="text-headline-lg font-bold text-on-primary mb-md font-headline-lg leading-tight">
-                Discover Premium Brands,<br />Delivered Fast.
+            <div className="relative z-10 p-md sm:p-xl lg:p-xxl max-w-[36rem]">
+              <h1 className="text-headline-md sm:text-headline-lg font-bold text-on-primary mb-md font-headline-lg leading-tight">
+                Discover Premium Brands,<br className="hidden sm:inline" /> Delivered Fast.
               </h1>
-              <p className="text-body-lg text-on-primary/80 mb-xl font-body-lg leading-relaxed">
+              <p className="text-body-md sm:text-body-lg text-on-primary/80 mb-lg sm:mb-xl font-body-lg leading-relaxed">
                 Shop the latest collections from top Indian and international<br className="hidden sm:inline" /> sellers. Enjoy exclusive coins and rewards.
               </p>
               <Link
                 href="/products"
-                className="inline-block bg-accent-yellow text-primary font-label-bold text-label-bold px-lg py-md rounded-DEFAULT hover:bg-accent-yellow/90 transition-colors select-none"
+                className="inline-block bg-accent-yellow text-primary font-label-bold text-label-bold px-md sm:px-lg py-sm sm:py-md rounded-DEFAULT hover:bg-accent-yellow/90 transition-colors select-none text-xs sm:text-body-md"
               >
                 Explore Now
               </Link>
@@ -303,7 +303,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
-                    <div className="flex-1 p-lg flex flex-col justify-center">
+                    <div className="flex-1 p-md md:p-lg flex flex-col justify-center">
                       <span className="text-body-sm font-body-sm text-text-muted mb-xs uppercase tracking-wider">
                         {product.category}
                       </span>
@@ -323,7 +323,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                       </div>
                       <Link
                         href={`/products/${product.id}`}
-                        className="w-max bg-primary text-on-primary font-label-bold text-label-bold px-xl py-sm rounded-DEFAULT hover:bg-primary/90 transition-colors select-none"
+                        className="w-max bg-primary text-on-primary font-label-bold text-label-bold px-lg sm:px-xl py-sm rounded-DEFAULT hover:bg-primary/90 transition-colors select-none text-xs sm:text-body-md"
                       >
                         Shop Now
                       </Link>
@@ -367,9 +367,9 @@ export default async function HomePage({ searchParams }: PageProps) {
                         initialIsWishlisted={isWishlisted}
                       />
                     </div>
-                    <div className="p-sm flex flex-col flex-1">
-                      <div className="flex items-center gap-xs mb-xs">
-                        <span className="text-body-sm font-body-sm text-text-muted">
+                    <div className="p-sm flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-xs mb-xs truncate">
+                        <span className="text-body-sm font-body-sm text-text-muted truncate">
                           {product.seller.businessName}
                         </span>
                       </div>
@@ -378,7 +378,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                           {product.name}
                         </h3>
                       </Link>
-                      <div className="mt-auto flex items-end gap-sm">
+                      <div className="mt-auto flex items-end gap-xs sm:gap-sm flex-wrap">
                         <span className="text-price-lg font-price-lg text-primary">
                           ₹{priceInINR.toLocaleString("en-IN")}
                         </span>
@@ -423,20 +423,20 @@ export default async function HomePage({ searchParams }: PageProps) {
                 return (
                   <div
                     key={seller.id}
-                    className="w-full h-[200px] border border-border-gray rounded-none overflow-hidden flex bg-white group"
+                    className="w-full h-auto md:h-[200px] border border-border-gray rounded-none overflow-hidden flex flex-col md:flex-row bg-white group shadow-xs"
                   >
-                    <div className="w-[320px] h-full relative overflow-hidden flex-shrink-0">
+                    <div className="w-full h-36 md:w-[320px] md:h-full relative overflow-hidden flex-shrink-0">
                       <Image
                         src={bannerUrl}
                         alt={`${seller.businessName} banner`}
                         fill
-                        sizes="320px"
+                        sizes="(max-width: 768px) 100vw, 320px"
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1 px-lg flex items-center justify-between">
-                      <div className="flex items-center gap-md">
-                        <div className="w-12 h-12 rounded-lg border border-border-gray overflow-hidden flex-shrink-0 bg-black flex items-center justify-center relative">
+                    <div className="flex-1 p-md md:px-lg flex items-center justify-between gap-sm">
+                      <div className="flex items-center gap-sm md:gap-md min-w-0">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-border-gray overflow-hidden flex-shrink-0 bg-black flex items-center justify-center relative">
                           {logoUrl ? (
                             <Image
                               src={logoUrl}
@@ -451,27 +451,27 @@ export default async function HomePage({ searchParams }: PageProps) {
                             </div>
                           )}
                         </div>
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-xs">
-                            <h3 className="text-xl font-bold text-primary font-headline-sm">
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-xs truncate">
+                            <h3 className="text-base md:text-xl font-bold text-primary font-headline-sm truncate">
                               {seller.businessName}
                             </h3>
                             <span
-                              className="material-symbols-outlined text-success-green text-lg"
+                              className="material-symbols-outlined text-success-green text-base md:text-lg shrink-0"
                               style={{ fontVariationSettings: "'FILL' 1" }}
                               title="Verified Brand"
                             >
                               verified
                             </span>
                           </div>
-                          <span className="text-[14px] text-text-muted mt-xs">
+                          <span className="text-xs md:text-[14px] text-text-muted mt-xs truncate">
                             {tagline}
                           </span>
                         </div>
                       </div>
                       <Link
                         href={`/sellers/${seller.id}`}
-                        className="border border-primary text-primary px-lg py-sm font-label-bold text-label-bold hover:bg-primary hover:text-on-primary transition-colors select-none"
+                        className="border border-primary text-primary px-md md:px-lg py-xs md:py-sm font-label-bold text-xs md:text-label-bold hover:bg-primary hover:text-on-primary transition-colors select-none shrink-0"
                       >
                         Follow
                       </Link>

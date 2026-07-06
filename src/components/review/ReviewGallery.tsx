@@ -118,13 +118,13 @@ export default function ReviewGallery({
     <div className="grid grid-cols-1 md:grid-cols-12 gap-xl">
       {/* Left Column: Average Breakdown */}
       <div className="md:col-span-4 space-y-md">
-        <div className="flex items-center gap-lg">
+        <div className="flex items-center gap-md sm:gap-lg">
           {/* Large average score */}
           <div className="text-center shrink-0">
-            <div className="text-4xl font-black text-on-surface flex items-center justify-center gap-1">
+            <div className="text-3xl sm:text-4xl font-black text-on-surface flex items-center justify-center gap-1">
               <span>{summary.averageRating.toFixed(1)}</span>
               <span 
-                className="material-symbols-outlined text-2xl text-accent-yellow"
+                className="material-symbols-outlined text-xl sm:text-2xl text-accent-yellow"
                 style={{ fontVariationSettings: "'FILL' 1" }}
               >
                 star
@@ -141,7 +141,7 @@ export default function ReviewGallery({
               const count = summary.distribution[star] ?? 0;
               const pct = maxDistValue > 0 ? (count / maxDistValue) * 100 : 0;
               return (
-                <div key={star} className="flex items-center gap-sm">
+                <div key={star} className="flex items-center gap-xs sm:gap-sm">
                   <span className="text-body-sm w-5 text-left shrink-0">{star}★</span>
                   <div className="flex-grow h-1.5 bg-surface-container rounded-full overflow-hidden">
                     <div 
@@ -158,7 +158,7 @@ export default function ReviewGallery({
       </div>
 
       {/* Right Column: Review Cards list / Carousel */}
-      <div className="md:col-span-8 space-y-md">
+      <div className="md:col-span-8 space-y-md min-w-0">
         {/* Customer Reviews Header & Carousel Controls */}
         <div className="flex items-center justify-between">
           <span className="text-body-sm font-label-bold text-secondary uppercase tracking-wider">
@@ -190,12 +190,12 @@ export default function ReviewGallery({
         {reviews.length > 2 ? (
           <div 
             ref={scrollContainerRef}
-            className="flex gap-lg overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar pb-sm"
+            className="flex gap-md sm:gap-lg overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar pb-sm max-w-full"
           >
             {reviews.map((review) => (
               <div 
                 key={review.id} 
-                className="snap-start shrink-0 w-full md:w-[calc(50%-12px)]"
+                className="snap-start shrink-0 w-full sm:w-[calc(50%-12px)]"
               >
                 <ReviewCard review={review} />
               </div>

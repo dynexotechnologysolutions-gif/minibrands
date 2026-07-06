@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SellerOrdersClient from "./SellerOrdersClient";
 
+import SellerLayout from "@/components/seller/SellerLayout";
+
 export const metadata = {
   title: "Orders | Seller Dashboard — Velvet Lane",
   description: "Manage and fulfil customer orders for your boutique on Velvet Lane.",
@@ -18,15 +20,17 @@ export default async function SellerOrdersPage() {
 
   const userProfile = await prisma.userProfile.findUnique({
     where: { userId: session.user.id },
-    include: { seller: true },
+    include: { seller: { include: { verification: true } }, user: true },
   });
 
   if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
     redirect("/login?role=seller");
   }
 
+  const seller = userProfile.seller;
+
   const orders = await prisma.order.findMany({
-    where: { sellerId: userProfile.seller.id },
+    where: { sellerId: seller.id },
     orderBy: { createdAt: "desc" },
     take: 100,
     include: {
@@ -54,5 +58,17 @@ export default async function SellerOrdersPage() {
     trackingUrl: o.trackingUrl ?? null,
   }));
 
-  return <SellerOrdersClient orders={serialized} sellerName={userProfile.seller.businessName} />;
+  const sellerInfo = {
+    id: seller.id,
+    businessName: seller.businessName,
+    storeName: seller.storeName,
+    isKycVerified: seller.verification?.kycStatus === "approved" || seller.verification?.kycStatus === "auto_approved",
+    userEmail: userProfile.user.email,
+  };
+
+  return (
+    <SellerLayout sellerInfo={sellerInfo}>
+      <SellerOrdersClient orders={serialized} sellerName={seller.businessName} />
+    </SellerLayout>
+  );
 }

@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SellerOrderDetailClient from "./SellerOrderDetailClient";
 
+import SellerLayout from "@/components/seller/SellerLayout";
+
 export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;
   return {
@@ -26,7 +28,7 @@ export default async function SellerOrderDetailPage({
 
   const userProfile = await prisma.userProfile.findUnique({
     where: { userId: session.user.id },
-    include: { seller: true },
+    include: { seller: { include: { verification: true } }, user: true },
   });
 
   if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
@@ -88,10 +90,22 @@ export default async function SellerOrderDetailPage({
     })),
   };
 
+  const sellerInfo = {
+    id: userProfile.seller.id,
+    businessName: userProfile.seller.businessName,
+    storeName: userProfile.seller.storeName,
+    isKycVerified:
+      userProfile.seller.verification?.kycStatus === "approved" ||
+      userProfile.seller.verification?.kycStatus === "auto_approved",
+    userEmail: userProfile.user.email,
+  };
+
   return (
-    <SellerOrderDetailClient
-      order={serialized}
-      sellerName={userProfile.seller.businessName}
-    />
+    <SellerLayout sellerInfo={sellerInfo}>
+      <SellerOrderDetailClient
+        order={serialized}
+        sellerName={userProfile.seller.businessName}
+      />
+    </SellerLayout>
   );
 }
