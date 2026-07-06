@@ -30,8 +30,8 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
   };
 
   return (
-    <section className="w-full max-w-container-max px-base lg:px-xl mt-xxl">
-      <div className="flex items-center justify-between mb-lg">
+    <section className="w-full max-w-container-max px-base lg:px-xl mt-xxl overflow-hidden">
+      <div className="flex items-center justify-between mb-lg border-b border-border-gray pb-sm">
         <h2 className="text-headline-md font-bold text-primary font-headline-md">Featured Stores</h2>
         <div className="flex items-center gap-md">
           <button
@@ -55,7 +55,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
 
       <div
         ref={rowRef}
-        className="flex overflow-x-auto gap-lg pb-md no-scrollbar snap-x scroll-smooth"
+        className="flex overflow-x-auto gap-md sm:gap-lg pb-md no-scrollbar snap-x scroll-smooth max-w-full"
       >
         {sellers.map((seller) => (
           <Link

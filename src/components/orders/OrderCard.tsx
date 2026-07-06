@@ -46,12 +46,12 @@ export default function OrderCard({
   onSupport,
   onChangeAddress,
 }: OrderCardProps) {
-  const currentStatus = (order.orderStatus || order.status || "").toLowerCase();
-
-  const isDelivered = currentStatus === "delivered" || currentStatus === "completed";
-  const isShipped = currentStatus === "shipped" || currentStatus === "out_for_delivery" || currentStatus === "out for delivery";
-  const isCancelled = currentStatus === "cancelled";
-  const isReturned = currentStatus === "returned" || currentStatus === "refunded" || currentStatus === "disputed";
+  const s = (order.status || "").toLowerCase();
+  const os = (order.orderStatus || "").toLowerCase();
+  const isDelivered = s === "delivered" || s === "completed" || os === "delivered" || os === "completed";
+  const isShipped = !isDelivered && (s === "shipped" || os === "shipped" || s === "out_for_delivery" || os === "out_for_delivery" || s === "out for delivery" || os === "out for delivery");
+  const isCancelled = s === "cancelled" || os === "cancelled";
+  const isReturned = s === "returned" || os === "returned" || s === "refunded" || os === "refunded" || s === "disputed" || os === "disputed";
   const isProcessing = !isDelivered && !isShipped && !isCancelled && !isReturned;
 
   const [mounted, setMounted] = React.useState(false);
@@ -102,8 +102,8 @@ export default function OrderCard({
             ))}
           </div>
 
-          {/* Timeline for shipped/active orders */}
-          {isShipped && (
+          {/* Timeline for active orders */}
+          {!isCancelled && !isReturned && (
             <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
           )}
 
@@ -112,6 +112,14 @@ export default function OrderCard({
             {/* Delivered Actions */}
             {isDelivered && (
               <>
+                <a
+                  href={`/api/orders/${order.id}/invoice`}
+                  download={`minibrands_Invoice_${order.id.substring(0, 8).toUpperCase()}.pdf`}
+                  className="flex items-center gap-sm px-base py-2 bg-primary text-on-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">download</span>
+                  Invoice PDF
+                </a>
                 <button
                   onClick={() => {
                     const firstItem = order.items[0];

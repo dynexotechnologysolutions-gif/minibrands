@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Seller Hub - Store Profile | MINIBRANDS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#eeeeee",
+                    "surface-dim": "#dadada",
+                    "inverse-surface": "#303030",
+                    "tertiary": "#000000",
+                    "surface-bright": "#f9f9f9",
+                    "error-red": "#DC2626",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-variant": "#e2e2e2",
+                    "secondary": "#5d5f5f",
+                    "success-green": "#16A34A",
+                    "on-primary": "#ffffff",
+                    "accent-yellow": "#F59E0B",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "on-secondary-container": "#616363",
+                    "on-tertiary-container": "#848484",
+                    "tertiary-container": "#1b1b1b",
+                    "on-error": "#ffffff",
+                    "text-muted": "#6B7280",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#7e7576",
+                    "on-secondary": "#ffffff",
+                    "background": "#f9f9f9",
+                    "on-surface-variant": "#4c4546",
+                    "inverse-primary": "#c6c6c6",
+                    "on-background": "#1b1b1b",
+                    "primary-container": "#1b1b1b",
+                    "tertiary-fixed": "#e2e2e2",
+                    "secondary-container": "#dfe0e0",
+                    "secondary-fixed": "#e2e2e2",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "surface-container-low": "#f3f3f3",
+                    "error": "#ba1a1a",
+                    "border-gray": "#E5E7EB",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "surface-tint": "#5e5e5e",
+                    "surface-bg": "#F1F5F9",
+                    "on-primary-container": "#848484",
+                    "on-surface": "#1b1b1b",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "on-error-container": "#93000a",
+                    "surface": "#f9f9f9",
+                    "primary": "#000000",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#e2e2e2",
+                    "on-secondary-fixed-variant": "#454747",
+                    "surface-container-highest": "#e2e2e2",
+                    "surface-container-high": "#e8e8e8",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "outline-variant": "#cfc4c5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem",
+                    "card": "20px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "md": "12px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "base": "16px",
+                    "sm": "8px",
+                    "container-max": "1280px",
+                    "xxl": "48px"
+            },
+            "fontFamily": {
+                    "label-bold": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "price-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "price-lg": ["18px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e2e2; border-radius: 10px; }
+        .progress-ring-circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        
+        @media (max-width: 1024px) {
+            .mobile-sidebar-hidden { transform: translateX(-100%); }
+            .mobile-sidebar-visible { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Mobile Sidebar Overlay -->
+<div class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" id="sidebarOverlay"></div>
+<!-- SideNavBar -->
+<aside class="flex flex-col h-screen fixed left-0 top-0 bg-surface dark:bg-surface-container border-r border-border-gray dark:border-outline-variant w-64 z-50 transition-transform duration-300 mobile-sidebar-hidden lg:translate-x-0" id="sideNav">
+<div class="p-lg flex justify-between items-center">
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface-variant">Seller Hub</h1>
+<p class="font-body-sm text-body-sm text-text-muted">Verified Merchant</p>
+</div>
+<button class="lg:hidden p-sm rounded-full hover:bg-surface-container-low transition-colors" id="closeSidebar">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<nav class="flex-1 px-base overflow-y-auto custom-scroll">
+<ul class="space-y-sm">
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">dashboard</span><span class="font-body-md text-body-md">Overview</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">inventory_2</span><span class="font-body-md text-body-md">Products</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">shelves</span><span class="font-body-md text-body-md">Inventory</span></a></li>
+<!-- Active Tab -->
+<li><a class="flex items-center gap-md p-sm rounded-lg text-primary dark:text-primary-fixed font-bold border-r-2 border-primary dark:border-primary-fixed bg-surface-container-low" href="#"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">store</span><span class="font-body-md text-body-md">Store Profile</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">verified_user</span><span class="font-body-md text-body-md">Verification</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors" href="#"><span class="material-symbols-outlined">settings</span><span class="font-body-md text-body-md">Settings</span></a></li>
+<li class="pt-base"><span class="px-sm text-[10px] font-bold uppercase tracking-wider text-text-muted">Operations</span></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted opacity-50 cursor-not-allowed" href="#"><span class="material-symbols-outlined">shopping_cart</span><span class="font-body-md text-body-md">Orders (Soon)</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted opacity-50 cursor-not-allowed" href="#"><span class="material-symbols-outlined">analytics</span><span class="font-body-md text-body-md">Analytics (Soon)</span></a></li>
+<li><a class="flex items-center gap-md p-sm rounded-lg text-text-muted opacity-50 cursor-not-allowed" href="#"><span class="material-symbols-outlined">payments</span><span class="font-body-md text-body-md">Payouts (Soon)</span></a></li>
+</ul>
+</nav>
+</aside>
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg h-16 sticky top-0 z-30 lg:ml-64 bg-surface dark:bg-surface-container border-b border-border-gray dark:border-outline-variant shadow-sm dark:shadow-none">
+<div class="flex items-center gap-md flex-1 max-w-xl">
+<button class="lg:hidden p-sm rounded-full hover:bg-surface-container-low transition-colors mr-sm" id="openSidebar">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-base top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-xl pr-base font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-base">
+<button class="material-symbols-outlined p-sm rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant hidden sm:block">notifications</button>
+<button class="material-symbols-outlined p-sm rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant hidden sm:block">help</button>
+<div class="h-8 w-[1px] bg-border-gray hidden sm:block"></div>
+<div class="flex items-center gap-sm pl-sm cursor-pointer group">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-xs">EV</div>
+<span class="font-label-bold text-label-bold hidden md:block">EthnoVibe Store</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 p-base sm:p-lg md:p-xl max-w-[1440px] mx-auto">
+<div class="flex flex-col lg:flex-row gap-lg md:gap-xl">
+<!-- Left Column -->
+<div class="w-full lg:w-[70%] space-y-lg md:space-y-xl">
+<!-- Store Cover Card -->
+<section class="bg-white rounded-card overflow-hidden card-shadow relative">
+<div class="h-48 sm:h-56 md:h-64 relative group">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300"></div>
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDRY4zFrdXpjjSVZSifS3gXLZssnuHuAogZU_7M6RkRnMrR8Lui-ivJgRe7w9VqQZ0w1bxId-LfWZazfBSuIUx4h5madyPUlajiC7yu_DImvHJB38ifXm3grhNa74b_cmvbRZ8uBq521Eab8evIlmwtwsoAvyMTQUR29UTynKTiLwxap5h2kU9riP8HLVzTs0ilYiabzlqNTy1IixgS753WbpeRg0-ghs-t7lIwIwm1f98KG-p0jK0BqGhYB-ekxpMvtTX9bz6Y3YMo')"></div>
+<button class="absolute top-sm right-sm sm:top-base sm:right-base flex items-center gap-xs sm:gap-sm bg-white/90 backdrop-blur-sm px-sm sm:px-base py-xs sm:py-sm rounded-lg font-label-bold text-xs sm:text-label-bold text-primary hover:bg-white transition-all shadow-sm">
+<span class="material-symbols-outlined text-base">photo_camera</span>
+<span class="hidden sm:inline">Change Banner</span>
+</button>
+</div>
+<div class="px-base sm:px-xl pb-base sm:pb-xl pt-0 -mt-12 sm:-mt-16 flex flex-col md:flex-row items-center md:items-end gap-md md:gap-lg text-center md:text-left">
+<div class="relative group">
+<div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg">
+<div class="w-full h-full bg-cover bg-center flex items-center justify-center bg-surface-container-high" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwSv98tpYziBmpJyeT0E2H4yY1n47HVnO7DKeRqo3Bsux_-9t9fdeKHPxNPbTDfRkTFeiCrClPDrBvmkobzdbtnkupxH_YaF4n1q_akgxSpw4QoXFCoeVaWyf0Dv1prxOQkSwWhSuW2q6agFFPRLI-tQqYvHcRdzDt_E_z5_Wir52b-xn5nXM0pa456uDdauPeFMp8vrfcMiEZwnK_DEz9jiuhE9j43x6gBjX1qTAlH1PBo-Fg56iU471pY-XfBRDaPfP0sDrN-Q8I')"></div>
+</div>
+<button class="absolute bottom-1 right-1 bg-primary text-white w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="flex-1 md:pb-xs w-full">
+<div class="flex flex-col md:flex-row items-center gap-sm flex-wrap">
+<h2 class="font-headline-lg text-2xl sm:text-headline-lg">EthnoVibe</h2>
+<div class="flex gap-sm">
+<span class="bg-success-green/10 text-success-green px-sm py-xs rounded flex items-center gap-xs font-label-bold text-[10px] uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    Verified
+                                </span>
+<span class="bg-primary-container/10 text-primary-container px-sm py-xs rounded font-label-bold text-[10px] uppercase tracking-wider">
+                                    Trust: 98/100
+                                </span>
+</div>
+</div>
+<p class="text-text-muted font-body-md flex items-center justify-center md:justify-start gap-xs mt-xs text-sm sm:text-base">
+<span class="material-symbols-outlined text-sm">apparel</span>
+                            Premium Ethnic Wear
+                            <span class="mx-xs">•</span>
+<span class="material-symbols-outlined text-sm">location_on</span>
+                            Varanasi
+                        </p>
+</div>
+</div>
+</section>
+<!-- Brand Information Card -->
+<section class="bg-white rounded-card p-base sm:p-xl card-shadow">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-xl">
+<h3 class="font-headline-md text-xl sm:text-headline-md">Brand Information</h3>
+<button class="w-full sm:w-auto bg-primary text-white px-xl py-md rounded-lg font-label-bold hover:bg-zinc-800 transition-colors">Save Changes</button>
+</div>
+<form class="space-y-lg md:space-y-xl">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-base sm:gap-lg">
+<div class="space-y-sm">
+<label class="font-label-bold text-label-bold text-on-surface">Registered Business Name</label>
+<input class="w-full border-border-gray border rounded-lg p-md font-body-md focus:ring-primary focus:border-primary" type="text" value="EthnoVibe Retail Pvt Ltd"/>
+</div>
+<div class="space-y-sm">
+<label class="font-label-bold text-label-bold text-on-surface">Store Public Name</label>
+<input class="w-full border-border-gray border rounded-lg p-md font-body-md focus:ring-primary focus:border-primary" type="text" value="EthnoVibe"/>
+</div>
+<div class="space-y-sm">
+<label class="font-label-bold text-label-bold text-on-surface">Primary Category</label>
+<select class="w-full border-border-gray border rounded-lg p-md font-body-md focus:ring-primary focus:border-primary">
+<option>Ethnic Wear</option>
+<option>Occasion Wear</option>
+<option>Handloom</option>
+</select>
+</div>
+<div class="space-y-sm">
+<label class="font-label-bold text-label-bold text-on-surface">City</label>
+<input class="w-full border-border-gray border rounded-lg p-md font-body-md focus:ring-primary focus:border-primary" type="text" value="Varanasi"/>
+</div>
+</div>
+<div class="space-y-sm">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-xs">
+<label class="font-label-bold text-label-bold text-on-surface">Brand Story / Description</label>
+<span class="text-xs text-text-muted">450 / 1000 characters</span>
+</div>
+<textarea class="w-full border-border-gray border rounded-lg p-md font-body-md focus:ring-primary focus:border-primary" placeholder="Tell your brand story here..." rows="6">Founded in the heart of Varanasi, EthnoVibe is dedicated to preserving the rich heritage of Indian handlooms. We collaborate directly with master weavers to bring authentic Banarasi silks and intricate embroideries to the modern global wardrobe. Each piece in our collection tells a story of craftsmanship, tradition, and timeless elegance.</textarea>
+</div>
+</form>
+</section>
+<!-- Additional Details Bento -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-base sm:gap-lg">
+<div class="bg-white rounded-card p-base sm:p-lg card-shadow space-y-md">
+<span class="material-symbols-outlined text-primary bg-surface-container-low p-sm rounded-lg">language</span>
+<h4 class="font-label-bold">Store Link</h4>
+<p class="text-xs text-text-muted break-all">minibrands.com/s/ethnovibe</p>
+<button class="text-primary font-label-bold text-xs flex items-center gap-xs">Copy Link <span class="material-symbols-outlined text-xs">content_copy</span></button>
+</div>
+<div class="bg-white rounded-card p-base sm:p-lg card-shadow space-y-md">
+<span class="material-symbols-outlined text-primary bg-surface-container-low p-sm rounded-lg">mail</span>
+<h4 class="font-label-bold">Support Email</h4>
+<p class="text-xs text-text-muted break-all">care@ethnovibe.com</p>
+<button class="text-primary font-label-bold text-xs flex items-center gap-xs">Change Email <span class="material-symbols-outlined text-xs">edit</span></button>
+</div>
+<div class="bg-white rounded-card p-base sm:p-lg card-shadow space-y-md sm:col-span-2 md:col-span-1">
+<span class="material-symbols-outlined text-primary bg-surface-container-low p-sm rounded-lg">phone</span>
+<h4 class="font-label-bold">Contact No.</h4>
+<p class="text-xs text-text-muted">+91 98765 43210</p>
+<button class="text-primary font-label-bold text-xs flex items-center gap-xs">Verify New <span class="material-symbols-outlined text-xs">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="w-full lg:w-[30%] space-y-lg md:space-y-xl">
+<!-- Profile Completeness Card -->
+<section class="bg-white rounded-card p-base sm:p-xl card-shadow text-center">
+<h3 class="font-label-bold text-label-bold mb-lg">Profile Completeness</h3>
+<div class="relative w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-lg">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<circle class="text-primary stroke-current progress-ring-circle" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.2" stroke-dashoffset="37.68" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl sm:text-2xl font-bold">85%</span>
+</div>
+</div>
+<ul class="text-left space-y-md mt-base">
+<li class="flex items-center gap-sm text-sm">
+<span class="material-symbols-outlined text-success-green text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface">Store Logo Uploaded</span>
+</li>
+<li class="flex items-center gap-sm text-sm">
+<span class="material-symbols-outlined text-success-green text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface">Banner Image Uploaded</span>
+</li>
+<li class="flex items-center gap-sm text-sm">
+<span class="material-symbols-outlined text-success-green text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface">Store Description Added</span>
+</li>
+<li class="flex items-center gap-sm text-sm opacity-50">
+<span class="material-symbols-outlined text-text-muted text-sm">circle</span>
+<span class="text-on-surface">Add Social Media Links</span>
+</li>
+</ul>
+</section>
+<!-- Trust & Verification Card -->
+<section class="bg-white rounded-card p-base sm:p-xl card-shadow space-y-lg">
+<div class="flex items-center justify-between">
+<h3 class="font-label-bold text-label-bold">Trust &amp; KYC</h3>
+<span class="text-xs font-bold text-success-green">Healthy</span>
+</div>
+<div class="space-y-base">
+<div class="flex items-center justify-between p-md bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm sm:text-base">badge</span>
+<span class="text-sm font-body-md">Identity (KYC)</span>
+</div>
+<span class="text-xs font-bold text-success-green">Verified</span>
+</div>
+<div class="flex items-center justify-between p-md bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm sm:text-base">account_balance</span>
+<span class="text-sm font-body-md">Bank Account</span>
+</div>
+<span class="text-xs font-bold text-success-green">Active</span>
+</div>
+<div class="flex items-center justify-between p-md bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm sm:text-base">star</span>
+<span class="text-sm font-body-md">Merchant Trust</span>
+</div>
+<span class="text-xs font-bold">98/100</span>
+</div>
+</div>
+</section>
+<!-- Storefront Preview -->
+<section class="bg-white rounded-card p-base sm:p-xl card-shadow">
+<h3 class="font-label-bold text-label-bold mb-lg">Storefront Preview</h3>
+<div class="border border-border-gray rounded-xl overflow-hidden bg-background p-sm">
+<div class="bg-white rounded-lg shadow-sm p-base space-y-sm">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container"></div>
+<div class="space-y-xs">
+<div class="w-16 h-2 bg-surface-container rounded"></div>
+<div class="w-10 h-1.5 bg-surface-container-low rounded"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="aspect-square bg-surface-container rounded"></div>
+<div class="aspect-square bg-surface-container rounded"></div>
+</div>
+<div class="w-full h-8 bg-primary rounded-lg"></div>
+</div>
+</div>
+<button class="w-full mt-lg text-primary font-label-bold text-sm border border-primary py-md rounded-lg hover:bg-primary hover:text-white transition-all">View Public Store</button>
+</section>
+<!-- Future Insights -->
+<section class="bg-surface-container-low rounded-card p-base sm:p-xl border border-dashed border-border-gray text-center space-y-sm">
+<span class="material-symbols-outlined text-text-muted text-3xl sm:text-4xl">analytics</span>
+<h3 class="font-label-bold text-label-bold text-text-muted">Advanced Metrics</h3>
+<p class="text-xs text-text-muted">Visitor tracking and follower growth charts arriving soon.</p>
+<div class="inline-block px-sm py-xs bg-white text-primary text-[10px] font-bold uppercase rounded-full">Coming Soon</div>
+</section>
+</div>
+</div>
+</main>
+<script>
+    // Character counter for textarea
+    const textarea = document.querySelector('textarea');
+    const counter = document.querySelector('.text-xs.text-text-muted');
+    
+    textarea.addEventListener('input', (e) => {
+        const count = e.target.value.length;
+        counter.textContent = `${count} / 1000 characters`;
+        if(count > 900) counter.classList.add('text-error-red');
+        else counter.classList.remove('text-error-red');
+    });
+
+    // Mobile Navigation logic
+    const openSidebar = document.getElementById('openSidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sideNav = document.getElementById('sideNav');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    const toggleNav = () => {
+        sideNav.classList.toggle('mobile-sidebar-hidden');
+        sideNav.classList.toggle('mobile-sidebar-visible');
+        overlay.classList.toggle('hidden');
+        document.body.classList.toggle('overflow-hidden');
+    };
+
+    openSidebar.addEventListener('click', toggleNav);
+    closeSidebar.addEventListener('click', toggleNav);
+    overlay.addEventListener('click', toggleNav);
+
+    // Tab active state logic
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if(link.classList.contains('cursor-not-allowed')) return;
+            navLinks.forEach(l => {
+                l.classList.remove('text-primary', 'dark:text-primary-fixed', 'font-bold', 'border-r-2', 'border-primary', 'bg-surface-container-low');
+                l.classList.add('text-text-muted', 'dark:text-on-surface-variant');
+            });
+            link.classList.add('text-primary', 'dark:text-primary-fixed', 'font-bold', 'border-r-2', 'border-primary', 'bg-surface-container-low');
+            link.classList.remove('text-text-muted', 'dark:text-on-surface-variant');
+            
+            // Auto close mobile menu on selection
+            if (window.innerWidth < 1024) toggleNav();
+        });
+    });
+</script>
+</body></html>

@@ -21,13 +21,14 @@ interface CatalogPageProps {
 }
 
 const ProductCardSkeleton = () => (
-  <div className="bg-surface-container-lowest border border-border-gray rounded overflow-hidden animate-pulse">
-    <div className="aspect-[3/4] bg-surface-container-low" />
-    <div className="p-md space-y-sm">
-      <div className="h-3 bg-surface-container-low rounded w-1/3" />
-      <div className="h-4 bg-surface-container-low rounded w-2/3" />
-      <div className="h-3 bg-surface-container-low rounded w-1/2" />
-      <div className="h-4 bg-surface-container-low rounded w-3/4" />
+  <div className="flex flex-col bg-surface-container-lowest border border-border-gray rounded-sm overflow-hidden animate-pulse">
+    <div className="aspect-[3/4] bg-surface-container" />
+    <div className="px-[10px] pt-[10px] pb-[12px] flex flex-col gap-[6px]">
+      <div className="h-[10px] bg-surface-container rounded-full w-1/3" />
+      <div className="h-[13px] bg-surface-container rounded w-3/4" />
+      <div className="h-[13px] bg-surface-container rounded w-1/2" />
+      <div className="h-[10px] bg-surface-container rounded-full w-1/4 mt-[2px]" />
+      <div className="h-[15px] bg-surface-container rounded w-2/5 mt-[2px]" />
     </div>
   </div>
 );

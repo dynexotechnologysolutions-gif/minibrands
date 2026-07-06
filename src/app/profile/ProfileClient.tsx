@@ -345,6 +345,7 @@ export default function ProfileClient({
                   onClick={() => {
                     setShowEditModal(true);
                   }}
+                  suppressHydrationWarning
                   className="absolute bottom-0 right-0 bg-primary text-on-primary p-1.5 rounded-full border-2 border-surface flex items-center justify-center cursor-pointer hover:opacity-90 active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined text-[16px]">edit</span>
@@ -512,6 +513,7 @@ export default function ProfileClient({
                             <p className="text-body-sm text-on-surface-variant">{formatPrice(item.price)}</p>
                             <button
                               onClick={() => handleMoveToCart(item.id)}
+                              suppressHydrationWarning
                               className="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors cursor-pointer"
                             >
                               Move to Cart
@@ -658,6 +660,7 @@ export default function ProfileClient({
                     </Link>
                     <button
                       onClick={handleLogout}
+                      suppressHydrationWarning
                       className="w-full flex items-center justify-between p-base hover:bg-surface-container-low transition-colors text-left cursor-pointer"
                     >
                       <span className="text-body-md text-error-red">Logout</span>

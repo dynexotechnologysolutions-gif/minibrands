@@ -345,7 +345,7 @@ export default function OnboardingForm({
                 <div className="py-12 flex flex-col items-center text-center">
                   <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
                   <h3 className="font-bold text-slate-700 mb-1">Verifying Identity...</h3>
-                  <p className="text-slate-500 text-xs max-w-xs leading-relaxed">
+                  <p className="text-slate-500 text-xs max-w-[360px] leading-relaxed">
                     We are waiting for validation feedback from our e-KYC provider. Please do not close this page.
                   </p>
                 </div>
@@ -354,10 +354,10 @@ export default function OnboardingForm({
                 <div className="py-8 px-6 bg-amber-50/80 border border-amber-100 rounded-xl text-center flex flex-col items-center">
                   <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" />
                   <h3 className="font-bold text-amber-800 mb-1">Under Manual Review</h3>
-                  <p className="text-amber-700 text-xs max-w-sm leading-relaxed mb-6">
+                  <p className="text-amber-700 text-xs max-w-[440px] leading-relaxed mb-6">
                     Your verification requires manual review because the facial matching confidence score was slightly below threshold (60-79%).
                   </p>
-                  <div className="p-3 bg-white border border-amber-100 rounded-lg text-slate-500 text-xs text-left max-w-md">
+                  <div className="p-3 bg-white border border-amber-100 rounded-lg text-slate-500 text-xs text-left max-w-[480px]">
                     <strong>Note:</strong> We will review your submission and notify you via <strong>{userEmail}</strong> within 4 hours. You can continue onboarding or wait for confirmation.
                   </div>
                   <button
@@ -373,7 +373,7 @@ export default function OnboardingForm({
                 <div className="py-8 px-6 bg-red-50/80 border border-red-100 rounded-xl text-center flex flex-col items-center">
                   <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
                   <h3 className="font-bold text-red-800 mb-1">Verification Failed</h3>
-                  <p className="text-red-700 text-xs max-w-sm leading-relaxed mb-6">
+                  <p className="text-red-700 text-xs max-w-[440px] leading-relaxed mb-6">
                     Aadhaar validation failed. The facial matching confidence score was below 60%.
                   </p>
                   <button
