@@ -86,6 +86,12 @@ model UserProfile {
   refundCount    Int             @default(0)
   disputeCount   Int             @default(0)
   abuseScore     Float           @default(0.0)
+  isSuspended    Boolean         @default(false)
+  suspendedReason String?
+  failedLoginAttempts Int        @default(0)
+  lockoutUntil   DateTime?
+  lastLoginAt    DateTime?
+  lastLoginIp    String?
 
   @@index([role])
   @@map("user_profile")
@@ -95,6 +101,7 @@ enum Role {
   BUYER
   SELLER
   ADMIN
+  SUPER_ADMIN
 }
 
 model Seller {
@@ -463,5 +470,38 @@ model Refund {
 
   @@map("refund")
 }
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  actorEmail String
+  actorRole  String
+  action     String
+  targetType String?
+  targetId   String?
+  ipAddress  String?
+  userAgent  String?
+  oldValue   String?  @db.Text
+  newValue   String?  @db.Text
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model PlatformSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("platform_setting")
+}
+
 
 

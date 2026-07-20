@@ -10,7 +10,7 @@ import { getPreciseLocation } from "@/lib/geolocation";
 
 interface UserProfileData {
   id: string;
-  role: "BUYER" | "SELLER" | "ADMIN";
+  role: "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
   user: {
     name: string;
     email: string;

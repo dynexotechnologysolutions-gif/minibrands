@@ -40,9 +40,11 @@ export async function handleRefundWebhook(
       // 1. Update Refund Ledger
       await tx.refund.update({
         where: { id: refund.id },
-        status: "processed",
-        processedAt: new Date(),
-        webhookReceivedAt: new Date(),
+        data: {
+          status: "processed",
+          processedAt: new Date(),
+          webhookReceivedAt: new Date(),
+        },
       });
 
       // 2. Update Return Request Status to RETURN_COMPLETED
@@ -92,10 +94,12 @@ export async function handleRefundWebhook(
       // 1. Update Refund Ledger
       await tx.refund.update({
         where: { id: refund.id },
-        status: "failed",
-        failedAt: new Date(),
-        webhookReceivedAt: new Date(),
-        failureReason,
+        data: {
+          status: "failed",
+          failedAt: new Date(),
+          webhookReceivedAt: new Date(),
+          failureReason,
+        },
       });
 
       // 2. Transition Return Request to ESCALATED

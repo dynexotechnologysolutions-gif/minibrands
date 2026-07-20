@@ -1,17 +1,18 @@
+// src/components/Header.tsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  ShoppingBag, 
-  Store, 
-  User, 
-  LogOut, 
-  ChevronDown, 
-  Menu, 
-  X, 
-  ClipboardList, 
+import {
+  ShoppingBag,
+  Store,
+  User,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X,
+  ClipboardList,
   ShoppingCart,
   LayoutDashboard,
   Heart,
@@ -23,7 +24,7 @@ import { switchActiveRole } from "@/actions/switch-role.action";
 
 interface UserProfileData {
   id: string;
-  role: "BUYER" | "SELLER" | "ADMIN";
+  role: "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
   user: {
     name: string;
     email: string;
@@ -48,6 +49,9 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
+
+  // Added search state for desktop header
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Read active mode from cookies on mount
   useEffect(() => {
@@ -77,6 +81,16 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Search submit handler (desktop)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?q=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push("/products");
     }
   };
 
@@ -131,14 +145,28 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link 
-              href="/products" 
+            <Link
+              href="/products"
               className="text-slate-600 hover:text-indigo-600 font-medium text-sm transition-colors flex items-center gap-1.5"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Shop Catalog</span>
             </Link>
           </nav>
+
+          {/* Desktop Search Form */}
+          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-2xl mx-4 relative" style={{ flexGrow: 1 }}>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ fontVariationSettings: "'FILL' 0" }}>
+              search
+            </span>
+            <input
+              type="text"
+              placeholder="Search products, brands and categories"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl text-xs font-medium"
+            />
+          </form>
 
           {/* Desktop Auth Actions & User Profile */}
           <div className="hidden md:flex items-center gap-4">
@@ -191,113 +219,72 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
                         {activeMode === "SELLER" ? "Seller Partner" : "Buyer Account"}
                       </span>
                     </div>
-
-                    <div className="border-t border-slate-100 my-1"></div>
-
-                    {/* Role-Specific Links */}
+                    <div className="border-t border-slate-100 my-1" />
+                    {/* Role‑Specific Links */}
                     {activeMode === "BUYER" ? (
                       <>
-                        <Link
-                          href="/account/profile"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <User className="w-4 h-4 text-slate-400" />
+                        <Link href="/account/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <User className="w-4 h-4" />
                           <span>My Profile</span>
                         </Link>
-                        <Link
-                          href="/account/orders"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <ClipboardList className="w-4 h-4 text-slate-400" />
+                        <Link href="/account/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <ClipboardList className="w-4 h-4" />
                           <span>My Orders</span>
                         </Link>
-                        <Link
-                          href="/account/wishlist"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <Heart className="w-4 h-4 text-slate-400" />
+                        <Link href="/account/wishlist" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <Heart className="w-4 h-4" />
                           <span>My Wishlist</span>
                         </Link>
-                        <Link
-                          href="/account/addresses"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <ShoppingCart className="w-4 h-4 text-slate-400" />
+                        <Link href="/account/addresses" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <ShoppingCart className="w-4 h-4" />
                           <span>Saved Addresses</span>
                         </Link>
                       </>
                     ) : (
                       <>
-                        <Link
-                          href="/seller/dashboard"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                        <Link href="/seller/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <LayoutDashboard className="w-4 h-4" />
                           <span>Seller Dashboard</span>
                         </Link>
-                        <Link
-                          href="/seller/profile"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <User className="w-4 h-4 text-slate-400" />
+                        <Link href="/seller/profile" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <User className="w-4 h-4" />
                           <span>Store Profile</span>
                         </Link>
-                        <Link
-                          href="/seller/orders"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <ClipboardList className="w-4 h-4 text-slate-400" />
+                        <Link href="/seller/orders" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <ClipboardList className="w-4 h-4" />
                           <span>Orders</span>
                         </Link>
-                        <Link
-                          href="/seller/returns"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <RefreshCw className="w-4 h-4 text-slate-400" />
+                        <Link href="/seller/returns" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <RefreshCw className="w-4 h-4" />
                           <span>Returns & RMA</span>
                         </Link>
-                        <Link
-                          href="/seller/products"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                        >
-                          <ShoppingBag className="w-4 h-4 text-slate-400" />
+                        <Link href="/seller/products" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                          <ShoppingBag className="w-4 h-4" />
                           <span>Products</span>
                         </Link>
                       </>
                     )}
-
                     {/* Role Switcher Action */}
                     {userProfile.seller && (
                       <>
-                        <div className="border-t border-slate-100 my-1"></div>
+                        <div className="border-t border-slate-100 my-1" />
                         <div className="px-3 py-1">
                           <button
                             type="button"
                             onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")}
-                            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-center text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 rounded-xl transition-all cursor-pointer"
+                            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-center text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 rounded transition-all cursor-pointer"
                           >
                             <span>Switch to {activeMode === "BUYER" ? "Seller Mode" : "Buyer Mode"}</span>
                           </button>
                         </div>
                       </>
                     )}
-
-                    <div className="border-t border-slate-100 my-1"></div>
-
+                    <div className="border-t border-slate-100 my-1" />
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs font-semibold text-left transition-all cursor-pointer"
                     >
-                      <LogOut className="w-4 h-4 text-slate-400" />
+                      <LogOut className="w-4 h-4" />
                       <span>Sign Out</span>
                     </button>
                   </div>
@@ -306,22 +293,13 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
             ) : (
               /* Unauthenticated CTAs */
               <>
-                <Link
-                  href="/login?role=buyer"
-                  className="text-slate-600 hover:text-indigo-600 font-semibold text-sm px-3 py-2 transition-colors"
-                >
+                <Link href="/login?role=buyer" className="text-slate-600 hover:text-indigo-600 font-semibold text-sm px-3 py-2 transition-colors">
                   Buyer Sign In
                 </Link>
-                <Link
-                  href="/login?role=buyer"
-                  className="border border-indigo-100 hover:bg-indigo-50 text-indigo-700 font-semibold px-4 py-2 rounded-xl text-sm transition-all shadow-sm"
-                >
+                <Link href="/login?role=buyer" className="border border-indigo-100 hover:bg-indigo-50 text-indigo-700 font-semibold px-4 py-2 rounded-xl text-sm transition-all shadow-sm">
                   Buyer Sign Up
                 </Link>
-                <Link
-                  href={sellerHref}
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition-all flex items-center gap-1.5"
-                >
+                <Link href={sellerHref} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition-all flex items-center gap-1.5">
                   <Store className="w-4 h-4" />
                   <span>Seller Portal</span>
                 </Link>
@@ -345,20 +323,16 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200/40 bg-white/95 backdrop-blur-lg animate-fade-in-up px-4 pt-2 pb-6 space-y-4 shadow-inner">
           <div className="flex flex-col gap-2">
-            <Link
-              href="/products"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all"
-            >
+            <Link href="/products" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 p-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-all">
               <ShoppingBag className="w-4 h-4 text-slate-400" />
               <span>Shop Catalog</span>
             </Link>
           </div>
 
-          <div className="border-t border-slate-100 my-2"></div>
+          <div className="border-t border-slate-100 my-2" />
 
           {userProfile ? (
-            /* Mobile Authenticated Options */
+            // Mobile Authenticated Options
             <div className="space-y-4">
               <div className="px-2.5">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Signed In As</p>
@@ -369,73 +343,41 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
               <div className="flex flex-col gap-1">
                 {userProfile.role === "BUYER" ? (
                   <>
-                    <Link
-                      href="/orders"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                    >
+                    <Link href="/orders" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all">
                       <ClipboardList className="w-4 h-4 text-slate-400" />
                       <span>My Orders</span>
                     </Link>
-                    <Link
-                      href="/cart"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                    >
+                    <Link href="/cart" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all">
                       <ShoppingCart className="w-4 h-4 text-slate-400" />
                       <span>My Shopping Cart</span>
                     </Link>
-                    <Link
-                      href="/wishlist"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                    >
+                    <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all">
                       <Heart className="w-4 h-4 text-slate-400" />
                       <span>My Wishlist</span>
                     </Link>
                   </>
                 ) : (
-                  <Link
-                    href={sellerHref}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                  <Link href={sellerHref} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all">
+                    <LayoutDashboard className="w-4 h-4" />
                     <span>Seller Dashboard</span>
                   </Link>
                 )}
-
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs font-semibold text-left transition-all cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 text-slate-400" />
+                <button onClick={handleSignOut} className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs font-semibold text-left transition-all cursor-pointer">
+                  <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
                 </button>
               </div>
             </div>
           ) : (
-            /* Mobile Unauthenticated Options */
+            // Mobile Unauthenticated Options
             <div className="flex flex-col gap-3">
-              <Link
-                href="/login?role=buyer"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all"
-              >
+              <Link href="/login?role=buyer" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all">
                 Buyer Sign In
               </Link>
-              <Link
-                href="/login?role=buyer"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-semibold text-sm transition-all"
-              >
+              <Link href="/login?role=buyer" onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-semibold text-sm transition-all">
                 Buyer Sign Up
               </Link>
-              <Link
-                href={sellerHref}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-sm shadow-sm transition-all"
-              >
+              <Link href={sellerHref} onClick={() => setIsMobileMenuOpen(false)} className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-sm shadow-sm transition-all">
                 <Store className="w-4 h-4" />
                 <span>Seller Portal</span>
               </Link>

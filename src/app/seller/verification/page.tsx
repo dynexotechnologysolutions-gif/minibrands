@@ -86,7 +86,7 @@ export default async function SellerVerificationPage() {
             <span className={`text-xl font-bold block ${isKycVerified ? "text-success-green" : "text-accent-yellow"}`}>
               {isKycVerified ? "e-KYC Verified" : "Pending Verification"}
             </span>
-            <p className="text-body-sm text-text-muted mt-1">GSTIN: {seller.gstin || "Configured"}</p>
+            <p className="text-body-sm text-text-muted mt-1">GSTIN: {(seller as any).gstin || "Configured"}</p>
           </div>
         </div>
 

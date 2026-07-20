@@ -4,6 +4,12 @@ import { emailOTP } from "better-auth/plugins";
 import { prisma } from "./prisma";
 import { Resend } from "resend";
 import * as Sentry from "@sentry/nextjs";
+import {
+  getVerificationEmailHtml,
+  getPasswordResetEmailHtml,
+  getWelcomeEmailHtml,
+  getAccountLockoutEmailHtml,
+} from "./email-templates";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "re_mock_key");
 
@@ -11,6 +17,52 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    process.env.NEXT_PUBLIC_APP_URL || "",
+  ].filter(Boolean),
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
+    requireEmailVerification: false, // Handled via OTP / token verification flow
+    async sendResetPassword({ user, token, url }) {
+      try {
+        if (!process.env.RESEND_API_KEY) {
+          console.log(`[MOCK EMAIL] Password Reset Token for ${user.email}: ${token} (URL: ${url})`);
+          return;
+        }
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM || "Velvet Lane Security <onboarding@resend.dev>",
+          to: user.email,
+          subject: "Reset Your MiniBrands Password",
+          html: getPasswordResetEmailHtml({
+            name: user.name,
+            resetUrl: url || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`,
+            code: token,
+            expiresInMinutes: 15,
+          }),
+        });
+      } catch (error) {
+        Sentry.captureException(error);
+        console.error("Failed to send reset password email:", error);
+      }
+    },
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "mock-google-client-id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock-google-client-secret",
+    },
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+    },
+  },
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
@@ -19,17 +71,19 @@ export const auth = betterAuth({
             console.log(`[MOCK EMAIL] OTP for ${email} (${type}): ${otp}`);
             return;
           }
+          const subject = type === "forget-password"
+            ? "Your MiniBrands Password Reset Code"
+            : "Your MiniBrands Verification Code";
+
+          const html = type === "forget-password"
+            ? getPasswordResetEmailHtml({ code: otp, expiresInMinutes: 5 })
+            : getVerificationEmailHtml({ code: otp, expiresInMinutes: 5 });
+
           await resend.emails.send({
             from: process.env.EMAIL_FROM || "Velvet Lane Auth <onboarding@resend.dev>",
             to: email,
-            subject: "Your Velvet Lane Verification Code",
-            text: `Your verification code is: ${otp}`,
-            html: `<div style="font-family: sans-serif; padding: 20px; color: #333;">
-              <h2 style="color: #4f46e5;">Velvet Lane Verification</h2>
-              <p>Your one-time password (OTP) is:</p>
-              <div style="font-size: 24px; font-weight: bold; letter-spacing: 2px; padding: 10px 0; color: #4f46e5;">${otp}</div>
-              <p>This code will expire in 5 minutes.</p>
-            </div>`,
+            subject,
+            html,
           });
         } catch (error) {
           Sentry.captureException(error);
@@ -44,7 +98,7 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           try {
-            // Check if profile already exists (safety check)
+            // Safety check: ensure UserProfile exists
             const existingProfile = await prisma.userProfile.findUnique({
               where: { userId: user.id },
             });
@@ -55,6 +109,16 @@ export const auth = betterAuth({
                   role: "BUYER",
                 },
               });
+
+              // Send welcome email if Resend is configured
+              if (process.env.RESEND_API_KEY) {
+                resend.emails.send({
+                  from: process.env.EMAIL_FROM || "Velvet Lane <onboarding@resend.dev>",
+                  to: user.email,
+                  subject: "Welcome to MiniBrands Velvet Lane!",
+                  html: getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: "BUYER" }),
+                }).catch((err) => console.error("Error sending welcome email:", err));
+              }
             }
           } catch (error) {
             Sentry.captureException(error);
@@ -72,7 +136,11 @@ export const auth = betterAuth({
     customRules: {
       "/email-otp/send-verification-otp": {
         window: 600,
-        max: 5, // Block on 6th request (max 5 sends in 10 minutes)
+        max: 5, // Max 5 OTP sends in 10 minutes
+      },
+      "/sign-in/email-password": {
+        window: 900, // 15 minutes
+        max: 10,
       },
     },
   },

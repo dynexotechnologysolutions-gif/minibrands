@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
-export default function SessionExpiredPage() {
+function SessionExpiredContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -154,5 +154,13 @@ export default function SessionExpiredPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function SessionExpiredPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-xs">Loading...</div>}>
+      <SessionExpiredContent />
+    </Suspense>
   );
 }

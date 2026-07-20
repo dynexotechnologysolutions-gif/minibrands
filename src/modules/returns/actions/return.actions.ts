@@ -393,7 +393,7 @@ async function triggerRefundExecution(returnRequestId: string, actorId: string):
     const ledger = await prisma.refund.create({
       data: {
         returnRequestId,
-        razorpayPaymentId: order.razorpayPaymentId,
+        razorpayPaymentId: order.razorpayPaymentId!,
         amount: returnRequest.refundAmount,
         status: "initiated",
         reason: returnRequest.reason,
@@ -402,7 +402,7 @@ async function triggerRefundExecution(returnRequestId: string, actorId: string):
     });
 
     // 2. Invoke Razorpay Refund API
-    const response = await createRazorpayRefund(order.razorpayPaymentId, returnRequest.refundAmount);
+    const response = await createRazorpayRefund(order.razorpayPaymentId!, returnRequest.refundAmount);
 
     // 3. Update ledger entry and move status to REFUND_PROCESSING
     await prisma.$transaction(async (tx) => {
@@ -420,7 +420,6 @@ async function triggerRefundExecution(returnRequestId: string, actorId: string):
         where: { id: returnRequestId },
         data: {
           status: ReturnRequestStatus.REFUND_PROCESSING,
-          razorpayRefundId: response.id,
         },
       });
 

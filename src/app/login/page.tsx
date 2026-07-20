@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import HomeHeader from "@/components/home/HomeHeader";
+import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
 import * as z from "zod";
 
 const emailSchema = z.string().email("Please enter a valid email address");
@@ -16,12 +17,16 @@ const otpCodeSchema = z
 function LoginForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "otp">("email");
+
+  const [authMode, setAuthMode] = useState<"password" | "otp">("password");
+  const [otpStep, setOtpStep] = useState<"email" | "otp">("email");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,20 +38,21 @@ function LoginForm() {
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
-        const { data: session } = await authClient.getSession();
-        if (session && session.user) {
+        const res = await authClient.getSession().catch(() => null);
+        if (res && res.data && res.data.user) {
           if (roleIntent === "seller") {
             router.push("/seller/onboarding");
           } else {
-            router.push("/products");
+            const redirectTo = searchParams.get("redirectTo") || "/";
+            router.push(redirectTo);
           }
         }
       } catch (err) {
-        console.error("Failed to check active session:", err);
+        // Silently handle session check failure on unauthenticated page
       }
     };
     checkActiveSession();
-  }, [roleIntent, router]);
+  }, [roleIntent, searchParams, router]);
 
   // Resend code countdown timer
   useEffect(() => {
@@ -56,12 +62,57 @@ function LoginForm() {
     }
   }, [resendTimer]);
 
+  // Email + Password Sign In
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+
+    const emailValidation = emailSchema.safeParse(email);
+    if (!emailValidation.success) {
+      setError(emailValidation.error.issues[0].message);
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await authClient.signIn.email({
+        email: email,
+        password: password,
+        rememberMe: rememberMe,
+      });
+
+      if (response.error) {
+        setError(response.error.message || "Invalid email or password. Please check your credentials.");
+      } else {
+        setSuccessMessage("Login successful! Redirecting...");
+        setTimeout(() => {
+          if (roleIntent === "seller") {
+            router.push("/seller/onboarding");
+          } else {
+            const redirectTo = searchParams.get("redirectTo") || "/";
+            router.push(redirectTo);
+          }
+        }, 1000);
+      }
+    } catch (err: any) {
+      setError("Login failed. Please check your internet connection.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Email OTP - Send Code
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
 
-    // Validate email
     const emailValidation = emailSchema.safeParse(email);
     if (!emailValidation.success) {
       setError(emailValidation.error.issues[0].message);
@@ -78,8 +129,8 @@ function LoginForm() {
       if (response.error) {
         setError(response.error.message || "Failed to send code. Please try again.");
       } else {
-        setStep("otp");
-        setResendTimer(30); // Disable resend for 30s
+        setOtpStep("otp");
+        setResendTimer(30);
         setSuccessMessage(`Verification code sent to ${email}`);
       }
     } catch (err) {
@@ -89,12 +140,12 @@ function LoginForm() {
     }
   };
 
+  // Email OTP - Verify Code
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
 
-    // Validate OTP code
     const otpValidation = otpCodeSchema.safeParse(otpCode);
     if (!otpValidation.success) {
       setError(otpValidation.error.issues[0].message);
@@ -112,12 +163,15 @@ function LoginForm() {
       if (response.error) {
         setError(response.error.message || "Invalid or expired verification code.");
       } else {
-        // Successful login redirect based on role
-        if (roleIntent === "seller") {
-          router.push("/seller/onboarding");
-        } else {
-          router.push("/");
-        }
+        setSuccessMessage("Code verified! Redirecting...");
+        setTimeout(() => {
+          if (roleIntent === "seller") {
+            router.push("/seller/onboarding");
+          } else {
+            const redirectTo = searchParams.get("redirectTo") || "/";
+            router.push(redirectTo);
+          }
+        }, 1000);
       }
     } catch (err) {
       setError("Verification failed. Please check your internet connection.");
@@ -153,107 +207,122 @@ function LoginForm() {
     setError(null);
     setIsLoading(true);
     try {
-      await authClient.signIn.social({
+      const res = await authClient.signIn.social({
         provider: "google",
-        callbackURL: roleIntent === "seller" ? "/seller/onboarding" : "/",
+        callbackURL: roleIntent === "seller" ? "/seller/onboarding" : searchParams.get("redirectTo") || "/",
       });
+      if (res?.error) {
+        setError(res.error.message || "Google OAuth requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file.");
+      }
     } catch (err: any) {
-      setError(err.message || "Google Authentication is not configured or failed.");
+      setError(err.message || "Google Authentication failed. Please verify GOOGLE_CLIENT_ID in your .env file.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleForgotPasswordClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(
-      "MINIBRANDS uses secure passwordless verification. Simply enter your email and click Login to receive a code. No password is required!"
-    );
-  };
-
-  const handleCreateAccountClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(
-      "Enter your email and click Login. If you do not have an account yet, one will be created for you automatically!"
-    );
-  };
-
   return (
     <div className="bg-surface-container-low min-h-screen flex flex-col w-full text-on-surface">
-      {/* TopNavBar (Shared Component) */}
       <HomeHeader
         userProfile={null}
         cartCount={0}
         sellerHref={roleIntent === "seller" ? "/seller/onboarding" : "/login?role=seller"}
       />
 
-      {/* Main Content Area */}
       <main className="flex-grow flex flex-col items-center justify-center px-base py-xxl">
-        {/* Login Card */}
         <div className="w-full max-w-[440px] bg-white rounded-lg p-xl login-card border border-border-gray shadow-sm">
-          {/* Login Header */}
-          <div className="mb-xl">
-            <h1 className="font-headline-md text-headline-md text-primary mb-xs">
-              {roleIntent === "seller" ? "Seller Login" : "Login"}
+          {/* Header */}
+          <div className="mb-lg">
+            <h1 className="font-headline-md text-headline-md text-primary mb-xs font-bold">
+              {roleIntent === "seller" ? "Seller Login" : "Welcome Back"}
             </h1>
             <p className="font-body-md text-body-md text-on-surface-variant">
               {roleIntent === "seller"
-                ? "Access your seller workspace and manage your business."
-                : "Access your account and discover the latest in fashion."}
+                ? "Access your seller workspace and manage your boutique store."
+                : "Access your account and discover curated artisanal fashion."}
             </p>
+          </div>
+
+          {/* Mode Switcher Tabs */}
+          <div className="flex bg-surface-container-low p-1 rounded-lg mb-lg border border-outline-variant">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("password");
+                setError(null);
+                setSuccessMessage(null);
+              }}
+              className={`flex-1 py-2 text-label-bold font-bold text-xs sm:text-sm rounded-md transition-all cursor-pointer ${
+                authMode === "password"
+                  ? "bg-white text-primary shadow-sm"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("otp");
+                setOtpStep("email");
+                setError(null);
+                setSuccessMessage(null);
+              }}
+              className={`flex-1 py-2 text-label-bold font-bold text-xs sm:text-sm rounded-md transition-all cursor-pointer ${
+                authMode === "otp"
+                  ? "bg-white text-primary shadow-sm"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              Code (OTP) Login
+            </button>
           </div>
 
           {/* Feedback Banners */}
           {error && (
             <div className="mb-4 p-md bg-error-container text-error text-body-md rounded font-bold border border-error/20 flex gap-2 items-center">
-              <span className="material-symbols-outlined text-[20px]">
-                warning
-              </span>
+              <span className="material-symbols-outlined text-[20px]">warning</span>
               <span>{error}</span>
             </div>
           )}
           {successMessage && (
             <div className="mb-4 p-md bg-surface-container-low text-success-green text-body-md rounded font-bold border border-success-green/20 flex gap-2 items-center">
-              <span className="material-symbols-outlined text-[20px]">info</span>
+              <span className="material-symbols-outlined text-[20px]">check_circle</span>
               <span>{successMessage}</span>
             </div>
           )}
 
-          {/* Login Form */}
-          <form
-            className="flex flex-col gap-lg"
-            onSubmit={step === "email" ? handleSendCode : handleVerifyCode}
-          >
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-bold text-label-bold text-on-surface">
-                Email or Mobile Number
-              </label>
-              <input
-                className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white disabled:bg-surface-container-low"
-                placeholder="Enter your email or phone"
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading || step === "otp"}
-                required
-              />
-            </div>
+          {/* Password Login Form */}
+          {authMode === "password" ? (
+            <form className="flex flex-col gap-lg" onSubmit={handlePasswordLogin}>
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-bold text-label-bold text-on-surface">
+                  Email Address
+                </label>
+                <input
+                  className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white"
+                  placeholder="Enter your email address"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
 
-            {step === "email" ? (
-              <div className="flex flex-col gap-xs animate-fade-in-up">
+              <div className="flex flex-col gap-xs">
                 <label className="font-label-bold text-label-bold text-on-surface">
                   Password
                 </label>
                 <div className="relative">
                   <input
                     className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white"
-                    placeholder="Enter password"
+                    placeholder="Enter your password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
+                    required
                   />
                   <button
                     className="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] select-none hover:text-primary transition-colors cursor-pointer"
@@ -263,85 +332,133 @@ function LoginForm() {
                     {showPassword ? "visibility_off" : "visibility"}
                   </button>
                 </div>
+                {password && <PasswordStrengthMeter password={password} />}
               </div>
-            ) : (
-              <div className="flex flex-col gap-xs animate-fade-in-up">
-                <label className="font-label-bold text-label-bold text-on-surface">
-                  6-Digit Verification Code
-                </label>
-                <div className="relative">
+
+              <div className="flex justify-between items-center">
+                <label className="flex items-center gap-sm cursor-pointer group">
                   <input
-                    className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white tracking-[0.2em] font-mono font-bold"
-                    placeholder="000000"
-                    type="text"
-                    maxLength={6}
-                    value={otpCode}
-                    onChange={(e) =>
-                      setOtpCode(e.target.value.replace(/\D/g, ""))
-                    }
+                    className="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary cursor-pointer"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                     disabled={isLoading}
-                    required
                   />
-                  {resendTimer > 0 ? (
-                    <span className="absolute right-md top-1/2 -translate-y-1/2 text-body-sm text-text-muted select-none font-semibold">
-                      Resend in {resendTimer}s
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleResendCode}
-                      disabled={isLoading}
-                      className="absolute right-md top-1/2 -translate-y-1/2 text-body-sm text-primary hover:underline select-none font-semibold cursor-pointer disabled:opacity-50"
-                    >
-                      Resend
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center">
-              <label className="flex items-center gap-sm cursor-pointer group">
-                <input
-                  className="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary cursor-pointer"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={isLoading}
-                />
-                <span className="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface select-none">
-                  Remember Me
-                </span>
-              </label>
-              <button
-                type="button"
-                onClick={handleForgotPasswordClick}
-                className="font-body-sm text-body-sm text-primary hover:underline font-semibold bg-transparent border-none cursor-pointer"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            {/* Primary Action */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-sm disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin text-[20px]">
-                    sync
+                  <span className="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface select-none">
+                    Remember Me
                   </span>
-                  {step === "email" ? "Sending Code..." : "Verifying..."}
-                </>
-              ) : step === "email" ? (
-                "Login"
-              ) : (
-                "Verify & Login"
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="font-body-sm text-body-sm text-primary hover:underline font-semibold"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-sm disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
+                    Signing In...
+                  </>
+                ) : (
+                  "Log In"
+                )}
+              </button>
+            </form>
+          ) : (
+            /* Email OTP Form */
+            <form
+              className="flex flex-col gap-lg"
+              onSubmit={otpStep === "email" ? handleSendCode : handleVerifyCode}
+            >
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-bold text-label-bold text-on-surface">
+                  Email Address
+                </label>
+                <input
+                  className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white disabled:bg-surface-container-low"
+                  placeholder="Enter your email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading || otpStep === "otp"}
+                  required
+                />
+              </div>
+
+              {otpStep === "otp" && (
+                <div className="flex flex-col gap-xs animate-fade-in-up">
+                  <label className="font-label-bold text-label-bold text-on-surface">
+                    6-Digit Verification Code
+                  </label>
+                  <div className="relative">
+                    <input
+                      className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none text-body-md bg-white tracking-[0.2em] font-mono font-bold"
+                      placeholder="000000"
+                      type="text"
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                      disabled={isLoading}
+                      required
+                    />
+                    {resendTimer > 0 ? (
+                      <span className="absolute right-md top-1/2 -translate-y-1/2 text-body-sm text-text-muted select-none font-semibold">
+                        Resend in {resendTimer}s
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleResendCode}
+                        disabled={isLoading}
+                        className="absolute right-md top-1/2 -translate-y-1/2 text-body-sm text-primary hover:underline select-none font-semibold cursor-pointer disabled:opacity-50"
+                      >
+                        Resend
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
-            </button>
-          </form>
+
+              <div className="flex justify-between items-center">
+                <label className="flex items-center gap-sm cursor-pointer group">
+                  <input
+                    className="w-4 h-4 rounded-sm border-outline-variant text-primary focus:ring-primary cursor-pointer"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={isLoading}
+                  />
+                  <span className="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface select-none">
+                    Remember Me
+                  </span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-sm disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
+                    {otpStep === "email" ? "Sending Code..." : "Verifying..."}
+                  </>
+                ) : otpStep === "email" ? (
+                  "Send Verification Code"
+                ) : (
+                  "Verify & Log In"
+                )}
+              </button>
+            </form>
+          )}
 
           {/* Divider */}
           <div className="relative my-xl flex items-center">
@@ -369,39 +486,23 @@ function LoginForm() {
                 Continue with Google
               </span>
             </button>
-            <button
-              onClick={() =>
-                setError("Apple Login is not configured for this environment.")
-              }
-              disabled={isLoading}
-              type="button"
-              className="w-full py-md bg-white border border-outline-variant rounded-lg flex items-center justify-center gap-md hover:bg-surface-container transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[22px] text-on-surface">
-                apps
-              </span>
-              <span className="font-label-bold text-label-bold text-on-surface select-none">
-                Continue with Apple
-              </span>
-            </button>
           </div>
 
           {/* Sign Up */}
           <div className="mt-xl text-center">
             <p className="font-body-md text-body-md text-on-surface-variant">
-              New to MINIBRANDS?
-              <button
-                type="button"
-                onClick={handleCreateAccountClick}
-                className="text-primary font-bold hover:underline ml-xs cursor-pointer"
+              New to MINIBRANDS?{" "}
+              <Link
+                href={roleIntent === "seller" ? "/signup?role=seller" : "/signup"}
+                className="text-primary font-bold hover:underline"
               >
                 Create an Account
-              </button>
+              </Link>
             </p>
           </div>
         </div>
 
-        {/* Trust Section */}
+        {/* Trust Indicators */}
         <div className="mt-xl flex flex-wrap justify-center gap-xl opacity-80 select-none">
           <div className="flex items-center gap-xs">
             <span className="material-symbols-outlined text-on-surface-variant text-[18px]">
@@ -430,46 +531,28 @@ function LoginForm() {
         </div>
       </main>
 
-      {/* Footer (Shared Component) */}
+      {/* Footer */}
       <footer className="w-full py-xl px-base lg:px-xl flex flex-col md:flex-row justify-between items-center gap-base bg-surface-container-highest border-t border-outline-variant">
         <div className="flex flex-col items-center md:items-start gap-xs">
           <span className="font-headline-sm text-headline-sm font-bold text-primary">
             MINIBRANDS
           </span>
           <span className="font-body-sm text-body-sm text-on-surface">
-            © 2024 MINIBRANDS India. All rights reserved. Secure Marketplace.
+            © 2026 MINIBRANDS India. All rights reserved. Secure Marketplace.
           </span>
         </div>
         <div className="flex flex-wrap justify-center gap-base">
-          <Link
-            className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all cursor-pointer"
-            href="/products"
-          >
+          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
             Privacy Policy
           </Link>
-          <Link
-            className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all cursor-pointer"
-            href="/products"
-          >
+          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
             Terms of Service
           </Link>
-          <Link
-            className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all cursor-pointer"
-            href="/products"
-          >
+          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
             Buyer Protection
           </Link>
-          <Link
-            className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all cursor-pointer"
-            href="/products"
-          >
+          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
             Contact Us
-          </Link>
-          <Link
-            className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all cursor-pointer"
-            href="/products"
-          >
-            Track Order
           </Link>
         </div>
       </footer>
@@ -482,9 +565,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex-grow flex items-center justify-center min-h-screen bg-surface-container-low">
-          <span className="material-symbols-outlined animate-spin text-[36px] text-primary">
-            sync
-          </span>
+          <span className="material-symbols-outlined animate-spin text-[36px] text-primary">sync</span>
         </div>
       }
     >

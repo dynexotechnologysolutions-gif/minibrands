@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Providers from "@/app/providers";
 import OnboardingForm from "./OnboardingForm";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export default async function OnboardingPage() {
   });
 
   if (!session || !session.user) {
-    redirect("/login?role=seller");
+    redirect("/seller/login");
   }
 
   // 2. Fetch current profile and verification status
@@ -53,15 +54,17 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col">
-      <OnboardingForm
-        initialStep={initialStep}
-        initialSellerId={seller?.id || null}
-        initialKycStatus={verification?.kycStatus || null}
-        initialBankVerified={verification?.bankVerified || false}
-        initialHasInitiatedKyc={!!verification?.signzyReferenceId}
-        userEmail={session.user.email}
-      />
-    </div>
+    <Providers>
+      <div className="flex-1 min-h-screen flex flex-col">
+        <OnboardingForm
+          initialStep={initialStep}
+          initialSellerId={seller?.id || null}
+          initialKycStatus={verification?.kycStatus || null}
+          initialBankVerified={verification?.bankVerified || false}
+          initialHasInitiatedKyc={!!verification?.signzyReferenceId}
+          userEmail={session.user.email}
+        />
+      </div>
+    </Providers>
   );
 }

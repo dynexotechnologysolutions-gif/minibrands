@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ReturnRequestStatus } from "@prisma/client";
 import { adminOverrideReturnRequestAction } from "@/modules/returns/actions/return.actions";
-import HomeHeader from "@/components/home/HomeHeader";
 
 interface ReturnRecord {
   id: string;
@@ -66,8 +65,6 @@ export default function AdminReturnConsoleClient({ returns, metrics }: AdminRetu
 
   return (
     <div className="space-y-lg">
-      <HomeHeader />
-
       {/* Admin Title Banner */}
       <div className="flex items-center justify-between border-b border-border-gray pb-md pt-md">
         <div>

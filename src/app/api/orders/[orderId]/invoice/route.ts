@@ -162,7 +162,7 @@ export async function GET(
     // 9. Return PDF Response
     const filename = `minibrands_Invoice_${order.id.substring(0, 8).toUpperCase()}.pdf`;
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

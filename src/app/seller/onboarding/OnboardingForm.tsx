@@ -21,7 +21,10 @@ import {
   UserCheck, 
   CreditCard, 
   AlertCircle,
-  LogOut
+  LogOut,
+  ShieldCheck,
+  Store,
+  Check
 } from "lucide-react";
 
 interface OnboardingFormProps {
@@ -161,96 +164,146 @@ export default function OnboardingForm({
 
   const handleLogout = async () => {
     await authClient.signOut();
-    router.push("/");
+    router.push("/seller/login");
   };
 
+  const stepDetails = [
+    { id: 1, title: "Business Profile", icon: Building2 },
+    { id: 2, title: "Identity e-KYC", icon: UserCheck },
+    { id: 3, title: "Bank Account", icon: CreditCard },
+    { id: 4, title: "Store Ready", icon: Store },
+  ];
+
   return (
-    <div className="flex-1 flex flex-col justify-between py-12 px-4 max-w-2xl mx-auto w-full">
+    <div className="bg-surface-container-low min-h-screen flex flex-col justify-between py-8 sm:py-12 px-4 max-w-3xl mx-auto w-full text-on-surface font-sans">
       {/* Top Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Seller Portal</span>
-          <h1 className="text-xl font-bold font-display text-slate-800 mt-1">Velvet Lane Onboarding</h1>
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-border-gray/60">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+            <Store className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold text-primary uppercase tracking-widest block">Seller Onboarding Portal</span>
+            <h1 className="text-xl sm:text-2xl font-black font-headline-md text-primary tracking-tight">Velvet Lane Onboarding</h1>
+          </div>
         </div>
         <button
           onClick={handleLogout}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-600 font-medium transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-text-muted hover:text-error hover:bg-error-container/30 font-semibold rounded-lg transition-colors cursor-pointer"
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Sign Out</span>
         </button>
       </div>
 
-      {/* Progress Indicator */}
-      <div className="mb-10">
-        <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+      {/* Premium Step Progress Indicator */}
+      <div className="mb-8 bg-white p-4 sm:p-6 rounded-2xl border border-border-gray shadow-xs">
+        <div className="flex justify-between items-center text-xs font-bold text-text-muted uppercase tracking-wider mb-4">
           <span>Step {step} of 4</span>
-          <span className="text-indigo-600">
-            {step === 1 && "Business Profile"}
-            {step === 2 && "Aadhaar KYC"}
-            {step === 3 && "Bank Account Link"}
-            {step === 4 && "Store Ready"}
+          <span className="text-primary font-black">
+            {step === 1 && "Business Profile Setup"}
+            {step === 2 && "Aadhaar Identity e-KYC"}
+            {step === 3 && "Bank Penny-Drop Link"}
+            {step === 4 && "Boutique Activated"}
           </span>
         </div>
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+
+        {/* Desktop Step Badges */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 relative">
+          {stepDetails.map((s) => {
+            const isCompleted = step > s.id;
+            const isCurrent = step === s.id;
+            const Icon = s.icon;
+
+            return (
+              <div key={s.id} className="flex flex-col items-center text-center group">
+                <div
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 ${
+                    isCompleted
+                      ? "bg-success-green text-white shadow-xs"
+                      : isCurrent
+                      ? "bg-primary text-on-primary ring-4 ring-primary/20 shadow-md"
+                      : "bg-surface-container text-text-muted border border-border-gray"
+                  }`}
+                >
+                  {isCompleted ? <Check className="w-4 h-4 text-white stroke-[3]" /> : <Icon className="w-4 h-4" />}
+                </div>
+                <span
+                  className={`mt-2 text-[11px] font-semibold leading-tight hidden sm:block ${
+                    isCurrent ? "text-primary font-bold" : isCompleted ? "text-on-surface font-medium" : "text-text-muted"
+                  }`}
+                >
+                  {s.title}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Smooth Animated Progress Bar */}
+        <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden mt-4">
           <div
-            className="h-full bg-indigo-600 transition-all duration-500 ease-out"
-            style={{ width: `${step * 25}%` }}
+            className="h-full bg-primary transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${(step / 4) * 100}%` }}
           />
         </div>
       </div>
 
       {/* Form Content Panel */}
-      <div className="glass-panel rounded-2xl p-8 shadow-lg flex-1 flex flex-col justify-between min-h-[400px]">
+      <div className="bg-white rounded-2xl p-6 sm:p-8 lg:p-10 border border-border-gray shadow-md flex-1 flex flex-col justify-between min-h-[420px] transition-all">
         <div>
           {/* Step 1: Business Profile */}
           {step === 1 && (
             <div className="animate-fade-in-up">
-              <h2 className="text-lg font-bold text-slate-800 font-display mb-2 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-indigo-600" />
-                <span>Tell us about your Business</span>
-              </h2>
-              <p className="text-slate-500 text-sm mb-8">
-                Onboard your boutique store or local designer label to access customers in Chennai.
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-primary font-headline-sm">
+                  Tell us about your Business
+                </h2>
+              </div>
+              <p className="text-on-surface-variant text-body-sm mb-8 leading-relaxed">
+                Onboard your boutique store or local designer label to access fashion customers in Chennai.
               </p>
 
               <form onSubmit={handleSubmitBusiness(onBusinessSubmit)} className="space-y-6">
-                <div>
-                  <label htmlFor="businessName" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                    Official Business Name
+                <div className="space-y-1.5">
+                  <label htmlFor="businessName" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Official Business Name <span className="text-error-red">*</span>
                   </label>
                   <input
                     id="businessName"
                     type="text"
-                    placeholder="e.g. Kavitha Silks Ltd or Jane Doe"
+                    placeholder="e.g. Kavitha Silks Ltd or Jane Doe Studio"
                     className={`block w-full py-3 px-4 bg-white border ${
-                      businessErrors.businessName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                    } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                      businessErrors.businessName ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                    } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all`}
                     {...registerBusiness("businessName")}
                   />
                   {businessErrors.businessName && (
-                    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>{businessErrors.businessName.message}</span>
                     </p>
                   )}
                 </div>
 
-                <div>
-                  <label htmlFor="storeName" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                    Store Brand Name (Public Display Name)
+                <div className="space-y-1.5">
+                  <label htmlFor="storeName" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Store Brand Name (Public Display Name) <span className="text-error-red">*</span>
                   </label>
                   <input
                     id="storeName"
                     type="text"
                     placeholder="e.g. Kavitha's Ethnic Silks"
                     className={`block w-full py-3 px-4 bg-white border ${
-                      businessErrors.storeName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                    } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                      businessErrors.storeName ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                    } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all`}
                     {...registerBusiness("storeName")}
                   />
                   {businessErrors.storeName && (
-                    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>{businessErrors.storeName.message}</span>
                     </p>
@@ -258,15 +311,15 @@ export default function OnboardingForm({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="category" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                      Primary Category
+                  <div className="space-y-1.5">
+                    <label htmlFor="category" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                      Primary Category <span className="text-error-red">*</span>
                     </label>
                     <select
                       id="category"
                       className={`block w-full py-3 px-4 bg-white border ${
-                        businessErrors.category ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                      } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                        businessErrors.category ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                      } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all`}
                       {...registerBusiness("category")}
                     >
                       <option value="">Select a category...</option>
@@ -276,28 +329,28 @@ export default function OnboardingForm({
                       <option value="Handloom">Handloom</option>
                     </select>
                     {businessErrors.category && (
-                      <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                      <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                         <AlertCircle className="w-3.5 h-3.5" />
                         <span>{businessErrors.category.message}</span>
                       </p>
                     )}
                   </div>
 
-                  <div>
-                    <label htmlFor="city" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                      Operating City
+                  <div className="space-y-1.5">
+                    <label htmlFor="city" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                      Operating City <span className="text-error-red">*</span>
                     </label>
                     <select
                       id="city"
                       className={`block w-full py-3 px-4 bg-white border ${
-                        businessErrors.city ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                      } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                        businessErrors.city ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                      } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all`}
                       {...registerBusiness("city")}
                     >
                       <option value="Chennai">Chennai</option>
                     </select>
                     {businessErrors.city && (
-                      <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                      <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                         <AlertCircle className="w-3.5 h-3.5" />
                         <span>{businessErrors.city.message}</span>
                       </p>
@@ -309,12 +362,12 @@ export default function OnboardingForm({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-xl text-sm shadow-sm transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary font-bold rounded-xl text-label-bold shadow-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Saving profile...</span>
+                        <span>Saving Profile...</span>
                       </>
                     ) : (
                       <>
@@ -331,38 +384,42 @@ export default function OnboardingForm({
           {/* Step 2: Aadhaar KYC */}
           {step === 2 && (
             <div className="animate-fade-in-up">
-              <h2 className="text-lg font-bold text-slate-800 font-display mb-2 flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-indigo-600" />
-                <span>Identity Verification</span>
-              </h2>
-              <p className="text-slate-500 text-sm mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-primary font-headline-sm">
+                  Identity Verification
+                </h2>
+              </div>
+              <p className="text-on-surface-variant text-body-sm mb-8 leading-relaxed">
                 Verify your business identity using Aadhaar e-KYC. This build is a sandbox test.
               </p>
 
               {/* Status display logic */}
               {kycStatus === "pending" && hasInitiatedKyc && pollCount > 0 ? (
                 /* Polling UI state */
-                <div className="py-12 flex flex-col items-center text-center">
-                  <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
-                  <h3 className="font-bold text-slate-700 mb-1">Verifying Identity...</h3>
-                  <p className="text-slate-500 text-xs max-w-[360px] leading-relaxed">
+                <div className="py-12 flex flex-col items-center text-center bg-surface-container-low/50 rounded-2xl border border-border-gray p-6">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+                  <h3 className="font-bold text-on-surface text-body-md mb-1">Verifying Identity...</h3>
+                  <p className="text-on-surface-variant text-xs max-w-[360px] leading-relaxed">
                     We are waiting for validation feedback from our e-KYC provider. Please do not close this page.
                   </p>
                 </div>
               ) : kycStatus === "manual_review" ? (
                 /* Manual Review UI state */
-                <div className="py-8 px-6 bg-amber-50/80 border border-amber-100 rounded-xl text-center flex flex-col items-center">
+                <div className="py-8 px-6 bg-amber-50 border border-amber-200 rounded-2xl text-center flex flex-col items-center">
                   <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" />
-                  <h3 className="font-bold text-amber-800 mb-1">Under Manual Review</h3>
-                  <p className="text-amber-700 text-xs max-w-[440px] leading-relaxed mb-6">
+                  <h3 className="font-bold text-amber-900 text-body-md mb-1">Under Manual Review</h3>
+                  <p className="text-amber-800 text-xs max-w-[440px] leading-relaxed mb-6">
                     Your verification requires manual review because the facial matching confidence score was slightly below threshold (60-79%).
                   </p>
-                  <div className="p-3 bg-white border border-amber-100 rounded-lg text-slate-500 text-xs text-left max-w-[480px]">
+                  <div className="p-4 bg-white border border-amber-200 rounded-xl text-on-surface-variant text-xs text-left max-w-[480px]">
                     <strong>Note:</strong> We will review your submission and notify you via <strong>{userEmail}</strong> within 4 hours. You can continue onboarding or wait for confirmation.
                   </div>
                   <button
                     onClick={() => setStep(3)}
-                    className="mt-6 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                    className="mt-6 inline-flex items-center gap-1.5 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
                     <span>Proceed to Bank Setup</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -370,16 +427,16 @@ export default function OnboardingForm({
                 </div>
               ) : kycStatus === "rejected" ? (
                 /* Rejected UI state */
-                <div className="py-8 px-6 bg-red-50/80 border border-red-100 rounded-xl text-center flex flex-col items-center">
+                <div className="py-8 px-6 bg-red-50 border border-red-200 rounded-2xl text-center flex flex-col items-center">
                   <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
-                  <h3 className="font-bold text-red-800 mb-1">Verification Failed</h3>
-                  <p className="text-red-700 text-xs max-w-[440px] leading-relaxed mb-6">
+                  <h3 className="font-bold text-red-900 text-body-md mb-1">Verification Failed</h3>
+                  <p className="text-red-800 text-xs max-w-[440px] leading-relaxed mb-6">
                     Aadhaar validation failed. The facial matching confidence score was below 60%.
                   </p>
                   <button
                     onClick={handleStartKyc}
                     disabled={isSubmitting}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors disabled:bg-indigo-400 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary hover:opacity-90 text-on-primary text-xs font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -390,19 +447,22 @@ export default function OnboardingForm({
               ) : (
                 /* Initial start state */
                 <div className="space-y-6">
-                  <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl text-slate-600 text-xs leading-relaxed">
-                    <p className="font-semibold text-indigo-800 mb-1">Verification Process</p>
-                    <ul className="list-disc pl-4 space-y-1 mt-1">
+                  <div className="p-5 bg-surface-container-low border border-border-gray rounded-2xl text-on-surface-variant text-xs leading-relaxed">
+                    <p className="font-bold text-primary mb-2 text-sm flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      <span>Verification Process</span>
+                    </p>
+                    <ul className="list-disc pl-4 space-y-1.5">
                       <li>You will be redirected to the secure Signzy Sandbox flow.</li>
-                      <li>Prepare your Aadhaar details for validation.</li>
-                      <li>Completing verification unlocks immediate store status.</li>
+                      <li>Prepare your Aadhaar details for instant validation.</li>
+                      <li>Completing verification unlocks immediate store activation.</li>
                     </ul>
                   </div>
 
                   <button
                     onClick={handleStartKyc}
                     disabled={isSubmitting}
-                    className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-xl text-sm shadow-sm transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary font-bold rounded-xl text-label-bold shadow-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
@@ -424,62 +484,66 @@ export default function OnboardingForm({
           {/* Step 3: Bank Account Link */}
           {step === 3 && (
             <div className="animate-fade-in-up">
-              <h2 className="text-lg font-bold text-slate-800 font-display mb-2 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-indigo-600" />
-                <span>Bank Details & Payout Account</span>
-              </h2>
-              <p className="text-slate-500 text-sm mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <CreditCard className="w-4 h-4" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-primary font-headline-sm">
+                  Bank Details & Payout Account
+                </h2>
+              </div>
+              <p className="text-on-surface-variant text-body-sm mb-8 leading-relaxed">
                 Provide your bank details to enable secure automated payouts via Razorpay. We will verify your account with a penny-drop test.
               </p>
 
               <form onSubmit={handleSubmitBank(onBankSubmit)} className="space-y-6">
-                <div>
-                  <label htmlFor="accountNumber" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                    Bank Account Number
+                <div className="space-y-1.5">
+                  <label htmlFor="accountNumber" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Bank Account Number <span className="text-error-red">*</span>
                   </label>
                   <input
                     id="accountNumber"
                     type="password"
                     placeholder="••••••••••••"
                     className={`block w-full py-3 px-4 bg-white border ${
-                      bankErrors.accountNumber ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                    } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                      bankErrors.accountNumber ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                    } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all`}
                     {...registerBank("accountNumber")}
                   />
                   {bankErrors.accountNumber && (
-                    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>{bankErrors.accountNumber.message}</span>
                     </p>
                   )}
                 </div>
 
-                <div>
-                  <label htmlFor="ifsc" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
-                    IFSC Code
+                <div className="space-y-1.5">
+                  <label htmlFor="ifsc" className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    IFSC Code <span className="text-error-red">*</span>
                   </label>
                   <input
                     id="ifsc"
                     type="text"
                     placeholder="HDFC0001234"
                     className={`block w-full py-3 px-4 bg-white border ${
-                      bankErrors.ifsc ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"
-                    } rounded-xl shadow-sm focus:outline-none focus:ring-2 text-sm transition-all`}
+                      bankErrors.ifsc ? "border-error focus:ring-error" : "border-outline-variant focus:border-primary focus:ring-primary/20"
+                    } rounded-xl shadow-xs focus:outline-none focus:ring-2 text-body-md transition-all font-mono tracking-wider`}
                     {...registerBank("ifsc")}
                     onChange={(e) => {
                       e.target.value = e.target.value.toUpperCase();
                     }}
                   />
                   {bankErrors.ifsc && (
-                    <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1 font-medium">
+                    <p className="text-error text-xs mt-1.5 flex items-center gap-1 font-semibold">
                       <AlertCircle className="w-3.5 h-3.5" />
                       <span>{bankErrors.ifsc.message}</span>
                     </p>
                   )}
                 </div>
 
-                <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl text-slate-500 text-xs flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <div className="p-4 bg-surface-container-low border border-border-gray rounded-xl text-on-surface-variant text-xs flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-success-green shrink-0 mt-0.5" />
                   <span>
                     Your full account details are never stored. Only the last 4 digits are persisted for payout tracking.
                   </span>
@@ -489,7 +553,7 @@ export default function OnboardingForm({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-xl text-sm shadow-sm transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary font-bold rounded-xl text-label-bold shadow-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
@@ -511,19 +575,19 @@ export default function OnboardingForm({
           {/* Step 4: Success confirmation */}
           {step === 4 && (
             <div className="animate-fade-in-up text-center py-8">
-              <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-6">
+              <div className="w-16 h-16 bg-success-green/10 border border-success-green/20 rounded-full flex items-center justify-center text-success-green mx-auto mb-6 shadow-xs">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 font-display mb-3">
+              <h2 className="text-2xl font-black text-primary font-headline-md mb-3">
                 Your Store is Being Set Up!
               </h2>
-              <p className="text-slate-500 text-sm max-w-md mx-auto mb-10 leading-relaxed">
-                Congratulations! You have completed the identity and bank account onboarding verification. Your trust score is now updated to 50.
+              <p className="text-on-surface-variant text-body-md max-w-md mx-auto mb-10 leading-relaxed">
+                Congratulations! You have completed identity and bank account verification. Your merchant trust score is now updated to 50.
               </p>
 
               <button
                 onClick={() => router.push("/seller/dashboard")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-sm transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary hover:opacity-90 text-on-primary font-bold rounded-xl text-label-bold shadow-md transition-all cursor-pointer"
               >
                 <span>Go to Seller Dashboard</span>
                 <ArrowRight className="w-4 h-4" />
@@ -534,11 +598,11 @@ export default function OnboardingForm({
 
         {/* Global Error Banner */}
         {actionError && (
-          <div className="mt-8 p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-xs flex items-start gap-2.5 animate-fade-in-up">
-            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <div className="mt-8 p-4 bg-error-container border border-error/20 rounded-xl text-error text-xs flex items-start gap-2.5 animate-fade-in-up font-semibold">
+            <AlertCircle className="w-4 h-4 text-error shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Action Failed</p>
-              <p className="text-red-600/90 mt-0.5 leading-relaxed">{actionError}</p>
+              <p className="font-bold">Action Failed</p>
+              <p className="mt-0.5 leading-relaxed">{actionError}</p>
             </div>
           </div>
         )}

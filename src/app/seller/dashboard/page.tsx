@@ -29,7 +29,7 @@ export default async function SellerDashboardPage() {
   });
 
   if (!session || !session.user) {
-    redirect("/login?role=seller");
+    redirect("/seller/login");
   }
 
   const userProfile = await prisma.userProfile.findUnique({
@@ -49,7 +49,7 @@ export default async function SellerDashboardPage() {
   });
 
   if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
-    redirect("/login?role=seller");
+    redirect("/seller/login");
   }
 
   const seller = userProfile.seller;
@@ -125,6 +125,49 @@ export default async function SellerDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Verification Status Banners */}
+      {(!sellerInfo.isKycVerified || verification?.kycStatus === "rejected") && (
+        <div className="my-base">
+          {verification?.kycStatus === "rejected" ? (
+            <div className="p-base bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-base text-red-900 shadow-sm">
+              <div className="flex items-start gap-sm">
+                <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-bold text-body-md text-red-950">Verification Rejected</h3>
+                  <p className="text-body-sm text-red-700 mt-0.5">
+                    {verification.rejectionReason || "Identity document verification failed. Please review your details and resubmit."}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/seller/onboarding"
+                className="px-md py-sm bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition-all shrink-0"
+              >
+                Resubmit Documents →
+              </Link>
+            </div>
+          ) : (
+            <div className="p-base bg-amber-50 border border-amber-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-base text-amber-900 shadow-sm">
+              <div className="flex items-start gap-sm">
+                <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-bold text-body-md text-amber-950">Your verification is under review</h3>
+                  <p className="text-body-sm text-amber-800 mt-0.5">
+                    Our compliance team is verifying your Aadhaar KYC and bank details. Complete pending steps to activate payouts.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/seller/onboarding"
+                className="px-md py-sm bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition-all shrink-0"
+              >
+                Check Onboarding Status →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Summary KPI Cards Grid */}
       <SellerKpiGrid data={kpiData} />

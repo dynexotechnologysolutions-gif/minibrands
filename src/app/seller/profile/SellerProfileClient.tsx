@@ -189,8 +189,8 @@ export default function SellerProfileClient({
         storeName={seller.storeName || seller.businessName}
         category={seller.category}
         city={seller.city}
-        bannerUrl={watchedBanner}
-        logoUrl={watchedLogo}
+        bannerUrl={watchedBanner || undefined}
+        logoUrl={watchedLogo || undefined}
         isKycVerified={isKycVerified}
         trustScore={verification?.trustScore || 98}
         isUploadingBanner={isUploadingBanner}
@@ -208,7 +208,7 @@ export default function SellerProfileClient({
               register={register}
               errors={errors}
               businessName={seller.businessName}
-              watchedDescription={watchedDescription}
+              watchedDescription={watchedDescription || undefined}
               isSubmitting={isSubmitting || isPending}
               onSave={handleSubmit(onSubmit)}
             />
