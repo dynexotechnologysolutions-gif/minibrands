@@ -59,6 +59,10 @@ export async function GET(request: Request) {
         orderCount: s.orders.length,
         totalGmv: gmvPaise / 100,
         totalCommission: commissionPaise / 100,
+        panCardUrl: s.panCardUrl,
+        aadhaarFrontUrl: s.aadhaarFrontUrl,
+        aadhaarBackUrl: s.aadhaarBackUrl,
+        cancelledChequeUrl: s.cancelledChequeUrl,
         createdAt: s.createdAt.toISOString(),
       };
     });

@@ -104,6 +104,20 @@ enum Role {
   SUPER_ADMIN
 }
 
+enum SellerStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model Seller {
   id                    String              @id @default(uuid())
   userProfileId         String              @unique
@@ -121,6 +135,34 @@ model Seller {
   orders                Order[]
   reviews               Review[]
   createdAt             DateTime            @default(now())
+
+  // Verification & Document Fields
+  status                SellerStatus        @default(DRAFT)
+  gstin                 String?
+  businessAddress       String?
+  panNumber             String?
+  panName               String?
+  panCardUrl            String?
+  aadhaarNumber         String?
+  aadhaarName           String?
+  aadhaarFrontUrl       String?
+  aadhaarBackUrl        String?
+  bankAccountNumber     String?
+  bankIfsc              String?
+  bankAccountName       String?
+  cancelledChequeUrl    String?
+  verificationMetadata  String?
+  adminNotes            String?
+  submittedAt           DateTime?
+  verifiedAt            DateTime?
+  rejectedAt            DateTime?
+  suspendedAt           DateTime?
+  approvedBy            String?
+  rejectedBy            String?
+  suspendedBy           String?
+
+  currentStep           Int                 @default(1)
+  updatedAt             DateTime            @updatedAt
 
   @@index([city])
   @@index([category])
@@ -168,6 +210,8 @@ model Product {
   reviews          Review[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+
+  status           ProductStatus    @default(DRAFT)
 
   @@index([sellerId])
   @@index([category])
@@ -298,6 +342,7 @@ model Payment {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+  @@index([razorpayOrderId])
   @@map("payment")
 }
 
@@ -408,6 +453,8 @@ model ReturnRequest {
   statusHistory    ReturnStatusHistory[]
   refund           Refund?
 
+  @@index([buyerId])
+  @@index([status])
   @@map("return_request")
 }
 
@@ -419,6 +466,8 @@ model ReturnItem {
   orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
   quantity        Int
 
+  @@index([returnRequestId])
+  @@index([orderItemId])
   @@map("return_item")
 }
 
@@ -434,6 +483,7 @@ model ReturnEvidence {
   fileSize         Int?
   uploadedAt       DateTime      @default(now())
 
+  @@index([returnRequestId])
   @@map("return_evidence")
 }
 
@@ -448,6 +498,7 @@ model ReturnStatusHistory {
   comment         String?
   createdAt       DateTime            @default(now())
 
+  @@index([returnRequestId])
   @@map("return_status_history")
 }
 
@@ -468,6 +519,8 @@ model Refund {
   createdBy        String
   updatedAt        DateTime      @updatedAt
 
+  @@index([returnRequestId])
+  @@index([razorpayPaymentId])
   @@map("refund")
 }
 
@@ -502,6 +555,3 @@ model PlatformSetting {
 
   @@map("platform_setting")
 }
-
-
-

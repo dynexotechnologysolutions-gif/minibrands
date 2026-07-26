@@ -29,94 +29,121 @@ export default async function FounderDashboardPage() {
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const [
-    orders,
-    thirtyDayOrders,
-    todayOrders,
-    sellers,
-    sellerVerifications,
-    buyers,
-    products,
-    reviews,
-    returns,
-    variants,
+    totalGmvAgg,
+    todayGmvAgg,
+    thirtyDayGmvAgg,
+    commissionEarnedAgg,
+    pendingEscrowAgg,
+    releasedEscrowAgg,
+    completedOrders,
+    pendingOrders,
+    cancelledOrders,
+    pendingKyc,
+    verifiedSellers,
+    activeSellers,
+    buyerCount,
+    productCount,
+    totalReviews,
+    reviewsRatingAgg,
+    trustScoreAgg,
+    pendingReturns,
+    lowStock,
+    outOfStock,
     recentAuditLogs,
+    recentOrdersForFeedAndTable,
+    recentReturns,
   ] = await Promise.all([
-    prisma.order.findMany({
-      include: {
-        seller: true,
-        buyer: { include: { user: true } },
-      },
+    // GMV All-Time
+    prisma.order.aggregate({
+      _sum: { totalAmount: true },
+      where: { status: { not: "cancelled" } },
+    }),
+    // GMV Today
+    prisma.order.aggregate({
+      _sum: { totalAmount: true },
+      where: { status: { not: "cancelled" }, createdAt: { gte: startOfToday } },
+    }),
+    // GMV 30-Day
+    prisma.order.aggregate({
+      _sum: { totalAmount: true },
+      where: { status: { not: "cancelled" }, createdAt: { gte: thirtyDaysAgo } },
+    }),
+    // Net Commission
+    prisma.order.aggregate({
+      _sum: { commissionAmount: true },
+      where: { status: { not: "cancelled" } },
+    }),
+    // Pending Escrow
+    prisma.order.aggregate({
+      _sum: { totalAmount: true, commissionAmount: true },
+      where: { status: { in: ["shipped", "delivered", "confirmed", "paid"] } },
+    }),
+    // Released Escrow
+    prisma.order.aggregate({
+      _sum: { totalAmount: true, commissionAmount: true },
+      where: { status: "completed" },
+    }),
+    // Order Counts
+    prisma.order.count({ where: { status: "completed" } }),
+    prisma.order.count({ where: { status: { in: ["created", "paid", "confirmed"] } } }),
+    prisma.order.count({ where: { status: "cancelled" } }),
+    // KYC Counts
+    prisma.sellerVerification.count({ where: { kycStatus: "pending" } }),
+    prisma.sellerVerification.count({ where: { kycStatus: { in: ["approved", "auto_approved"] } } }),
+    // Active Sellers, Buyers, Products
+    prisma.seller.count(),
+    prisma.userProfile.count(),
+    prisma.product.count(),
+    // Reviews Stats
+    prisma.review.count(),
+    prisma.review.aggregate({ _avg: { rating: true } }),
+    prisma.sellerVerification.aggregate({
+      _avg: { trustScore: true },
+      where: { kycStatus: { in: ["approved", "auto_approved"] } },
+    }),
+    // Returns Stats
+    prisma.returnRequest.count({
+      where: { status: { notIn: ["RETURN_COMPLETED", "REJECTED"] } },
+    }),
+    // Inventory Stats
+    prisma.productVariant.count({ where: { stockCount: { gt: 0, lte: 10 } } }),
+    prisma.productVariant.count({ where: { stockCount: 0 } }),
+    // Table/Feed Lists (Optimized)
+    prisma.auditLog.findMany({
+      take: 15,
       orderBy: { createdAt: "desc" },
     }),
     prisma.order.findMany({
-      where: { createdAt: { gte: thirtyDaysAgo } },
-    }),
-    prisma.order.findMany({
-      where: { createdAt: { gte: startOfToday } },
-    }),
-    prisma.seller.findMany({
-      include: { verification: true },
-    }),
-    prisma.sellerVerification.findMany({
-      include: { seller: true },
-    }),
-    prisma.userProfile.findMany(),
-    prisma.product.findMany(),
-    prisma.review.findMany(),
-    prisma.returnRequest.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
       include: {
+        seller: { select: { businessName: true } },
         buyer: { include: { user: true } },
-        order: { include: { seller: true } },
       },
     }),
-    prisma.productVariant.findMany(),
-    prisma.auditLog.findMany({
-      take: 15,
+    prisma.returnRequest.findMany({
+      take: 5,
       orderBy: { createdAt: "desc" },
     }),
   ]);
 
   // ── Financial Metrics (paise → INR) ─────────────────────────────────────
-  const paidOrders = orders.filter((o) => o.status !== "cancelled");
-  const totalGmv = paidOrders.reduce((s, o) => s + o.totalAmount, 0) / 100;
-  const todayGmv = todayOrders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + o.totalAmount, 0) / 100;
-  const thirtyDayGmv = thirtyDayOrders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + o.totalAmount, 0) / 100;
-  const commissionEarned = paidOrders.reduce((s, o) => s + (o.commissionAmount || 0), 0) / 100;
+  const totalGmv = (totalGmvAgg._sum.totalAmount || 0) / 100;
+  const todayGmv = (todayGmvAgg._sum.totalAmount || 0) / 100;
+  const thirtyDayGmv = (thirtyDayGmvAgg._sum.totalAmount || 0) / 100;
+  const commissionEarned = (commissionEarnedAgg._sum.commissionAmount || 0) / 100;
 
   // ── Escrow Metrics ───────────────────────────────────────────────────────
-  const pendingEscrow = orders
-    .filter((o) => ["shipped", "delivered", "confirmed", "paid"].includes(o.status))
-    .reduce((s, o) => s + (o.totalAmount - (o.commissionAmount || 0)), 0) / 100;
-
-  const releasedEscrow = orders
-    .filter((o) => o.status === "completed")
-    .reduce((s, o) => s + (o.totalAmount - (o.commissionAmount || 0)), 0) / 100;
-
-  // ── Order Counts ─────────────────────────────────────────────────────────
-  const completedOrders = orders.filter((o) => o.status === "completed").length;
-  const pendingOrders = orders.filter((o) => ["created", "paid", "confirmed"].includes(o.status)).length;
-  const cancelledOrders = orders.filter((o) => o.status === "cancelled").length;
-
-  // ── Inventory ────────────────────────────────────────────────────────────
-  const lowStock = variants.filter((v) => v.stockCount > 0 && v.stockCount <= 10).length;
-  const outOfStock = variants.filter((v) => v.stockCount === 0).length;
-
-  // ── KYC / Sellers ────────────────────────────────────────────────────────
-  const pendingKyc = sellerVerifications.filter((v) => v.kycStatus === "pending").length;
-  const verifiedSellers = sellerVerifications.filter((v) => ["approved", "auto_approved"].includes(v.kycStatus)).length;
+  const pendingEscrow = ((pendingEscrowAgg._sum.totalAmount || 0) - (pendingEscrowAgg._sum.commissionAmount || 0)) / 100;
+  const releasedEscrow = ((releasedEscrowAgg._sum.totalAmount || 0) - (releasedEscrowAgg._sum.commissionAmount || 0)) / 100;
 
   // ── Reviews / Trust ──────────────────────────────────────────────────────
-  const totalReviews = reviews.length;
-  const averageRating = totalReviews
-    ? Number((reviews.reduce((s, r) => s + r.rating, 0) / totalReviews).toFixed(1))
+  const averageRating = reviewsRatingAgg._avg.rating
+    ? Number(reviewsRatingAgg._avg.rating.toFixed(1))
     : 5.0;
-  const approvedVerifs = sellerVerifications.filter((v) => ["approved", "auto_approved"].includes(v.kycStatus));
-  const trustScoreAverage = approvedVerifs.length
-    ? Number((approvedVerifs.reduce((s, v) => s + (v.trustScore || 95), 0) / approvedVerifs.length).toFixed(1))
+  const trustScoreAverage = trustScoreAgg._avg.trustScore
+    ? Number(trustScoreAgg._avg.trustScore.toFixed(1))
     : 95.0;
-
-  // ── Returns ──────────────────────────────────────────────────────────────
-  const pendingReturns = returns.filter((r) => !["RETURN_COMPLETED", "REJECTED"].includes(r.status)).length;
 
   // ── Revenue Trend (bar chart data) ───────────────────────────────────────
   const revenueTrend = [
@@ -133,13 +160,13 @@ export default async function FounderDashboardPage() {
       description: log.reason || `Action by ${log.actorEmail}`,
       timestamp: log.createdAt.toISOString(),
     })),
-    ...orders.slice(0, 10).map((o) => ({
+    ...recentOrdersForFeedAndTable.slice(0, 10).map((o) => ({
       id: `ord-${o.id}`,
       title: `New Order #${o.id.slice(0, 8)}`,
       description: `Placed by ${o.buyer.user.name || "Buyer"} for ₹${(o.totalAmount / 100).toLocaleString("en-IN")}`,
       timestamp: o.createdAt.toISOString(),
     })),
-    ...returns.slice(0, 5).map((r) => ({
+    ...recentReturns.slice(0, 5).map((r) => ({
       id: `ret-${r.id}`,
       title: `Return Requested #${r.id.slice(0, 8)}`,
       description: `Refund claim ₹${(r.refundAmount / 100).toLocaleString("en-IN")}`,
@@ -150,7 +177,7 @@ export default async function FounderDashboardPage() {
     .slice(0, 30);
 
   // ── Recent Orders Table ──────────────────────────────────────────────────
-  const recentOrders = orders.slice(0, 8).map((o) => ({
+  const recentOrders = recentOrdersForFeedAndTable.slice(0, 8).map((o) => ({
     id: o.id,
     buyerName: o.buyer.user.name || "Buyer",
     sellerName: o.seller.businessName,
@@ -173,9 +200,9 @@ export default async function FounderDashboardPage() {
     pendingKyc,
     verifiedSellers,
     pendingReturns,
-    activeSellers: sellers.length,
-    buyerCount: buyers.length,
-    productCount: products.length,
+    activeSellers,
+    buyerCount,
+    productCount,
     lowStock,
     outOfStock,
     averageRating,

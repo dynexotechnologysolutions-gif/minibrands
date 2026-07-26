@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
@@ -9,16 +10,39 @@ interface PageProps {
   }>;
 }
 
+
+// Cached seller fetcher to share between generateMetadata and page render
+const getCachedSeller = cache(async (sellerId: string) => {
+  return prisma.seller.findUnique({
+    where: { id: sellerId },
+    include: {
+      verification: true,
+      products: {
+        where: {
+          isDeleted: false,
+          isPublished: true,
+        },
+        include: {
+          images: {
+            orderBy: {
+              sortOrder: "asc",
+            },
+          },
+          variants: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+});
+
 // 1. Dynamic SEO Metadata Generation for Seller Storefront
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { sellerId } = await params;
 
-  const seller = await prisma.seller.findUnique({
-    where: { id: sellerId },
-    include: {
-      verification: true,
-    },
-  });
+  const seller = await getCachedSeller(sellerId);
 
   if (!seller) {
     return {
@@ -45,36 +69,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SellerStorefrontPage({ params }: PageProps) {
   const { sellerId } = await params;
 
-  // 2. Fetch Seller details with verification and their active published products
-  const seller = await prisma.seller.findUnique({
-    where: { id: sellerId },
-    include: {
-      verification: true,
-      products: {
-        where: {
-          isDeleted: false,
-          isPublished: true,
-        },
-        include: {
-          images: {
-            orderBy: {
-              sortOrder: "asc",
-            },
-          },
-          variants: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
-  });
+  // 2. Fetch Seller details using cached function
+  const seller = await getCachedSeller(sellerId);
 
-  if (!seller) {
-    notFound();
-  }
-
-  if (!seller.verification) {
+  if (!seller || !seller.verification) {
     notFound();
   }
 
@@ -126,33 +124,41 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
 
   const joinedYear = new Date(seller.createdAt).getFullYear();
 
-  // Fetch reviews distribution for seller
-  const reviewGroups = await prisma.review.groupBy({
-    by: ["rating"],
-    where: { sellerId: seller.id, isVisible: true },
-    _count: { rating: true },
-  });
+  // Fetch reviews stats and initial list in parallel
+  const [reviewGroups, initialReviews, avgAggregate] = await Promise.all([
+    prisma.review.groupBy({
+      by: ["rating"],
+      where: { sellerId: seller.id, isVisible: true },
+      _count: { rating: true },
+    }),
+    prisma.review.findMany({
+      where: { sellerId: seller.id, isVisible: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      include: {
+        buyer: {
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    }),
+    prisma.review.aggregate({
+      where: { sellerId: seller.id, isVisible: true },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+  ]);
 
   const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   reviewGroups.forEach((g) => {
     distribution[g.rating] = g._count.rating;
   });
 
-  // Fetch initial reviews
-  const initialReviews = await prisma.review.findMany({
-    where: { sellerId: seller.id, isVisible: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-    include: {
-      buyer: {
-        include: {
-          user: {
-            select: { name: true },
-          },
-        },
-      },
-    },
-  });
+  const averageRating = avgAggregate._avg.rating ?? 0;
+  const reviewCount = avgAggregate._count.rating ?? 0;
 
   const formattedInitialReviews = initialReviews.map((r) => ({
     id: r.id,
@@ -166,14 +172,6 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
       },
     },
   }));
-
-  const avgAggregate = await prisma.review.aggregate({
-    where: { sellerId: seller.id, isVisible: true },
-    _avg: { rating: true },
-    _count: { rating: true },
-  });
-  const averageRating = avgAggregate._avg.rating ?? 0;
-  const reviewCount = avgAggregate._count.rating ?? 0;
 
   const reviewSummary = {
     averageRating,

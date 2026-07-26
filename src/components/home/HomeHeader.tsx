@@ -183,9 +183,8 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
 
   const handleSignOut = async () => {
     try {
-      await authClient.signOut();
-      router.refresh();
-      router.push("/");
+      const { atomicLogout } = await import("@/actions/logout.action");
+      await atomicLogout();
     } catch (err) {
       console.error("Sign out error:", err);
     }

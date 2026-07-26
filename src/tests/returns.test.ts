@@ -1,8 +1,19 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { ReturnStateMachine } from "../modules/returns/state-machine/return-state-machine";
 import { ReturnPolicyService } from "../modules/returns/services/return-policy";
 import { createRazorpayRefund } from "../lib/razorpay";
 import { ReturnRequestStatus } from "@prisma/client";
+
+vi.mock("../lib/prisma", () => {
+  return {
+    prisma: {
+      order: {
+        findUnique: vi.fn().mockResolvedValue(null),
+      },
+    },
+  };
+});
+
 
 describe("Epic X: Return & Refund System Unit Tests", () => {
   describe("ReturnStateMachine", () => {

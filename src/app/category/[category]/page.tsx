@@ -38,12 +38,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     where: {
       isDeleted: false,
       isPublished: true,
+      status: "PUBLISHED",
       category: categoryName,
       seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
+        status: "APPROVED",
       },
     },
     include: {

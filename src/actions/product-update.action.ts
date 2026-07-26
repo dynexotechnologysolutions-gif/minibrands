@@ -68,23 +68,29 @@ export async function updateProduct(
       };
     }
 
-    const verification = product.seller.verification;
-    const isVerified =
-      verification &&
-      (verification.kycStatus === "auto_approved" ||
-        verification.kycStatus === "approved" ||
-        verification.kycStatus === "manual_review") &&
-      verification.bankVerified;
+    const seller = product.seller;
 
-    if (!isVerified) {
+    if (seller.status === "DRAFT") {
       return {
         success: false,
         error: {
-          code: "SELLER_NOT_VERIFIED",
-          message: "Complete seller identity and bank verification before updating products.",
+          code: "SELLER_NOT_ONBOARDED",
+          message: "Please complete onboarding before updating products.",
         },
       };
     }
+
+    if (seller.status === "SUSPENDED") {
+      return {
+        success: false,
+        error: {
+          code: "SELLER_SUSPENDED",
+          message: "Your seller account is suspended. You cannot edit products.",
+        },
+      };
+    }
+
+    const isSellerApproved = seller.status === "APPROVED";
 
     // 4. Update product details, images, and variants inside transaction
     await prisma.$transaction(async (tx) => {
@@ -99,6 +105,8 @@ export async function updateProduct(
           subcategory: fields.subcategory,
           tags: fields.tags,
           price: fields.price,
+          status: isSellerApproved ? undefined : "DRAFT",
+          isPublished: isSellerApproved ? undefined : false,
         },
       });
 
@@ -167,7 +175,6 @@ export async function updateProduct(
         }
       }
     });
-
 
     // Determine what changed
     const fieldsChanged = Object.keys(fields);

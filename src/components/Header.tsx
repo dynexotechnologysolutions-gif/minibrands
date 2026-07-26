@@ -109,11 +109,10 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
 
   const handleSignOut = async () => {
     try {
-      await authClient.signOut();
       setIsDropdownOpen(false);
       setIsMobileMenuOpen(false);
-      router.refresh();
-      router.push("/");
+      const { atomicLogout } = await import("@/actions/logout.action");
+      await atomicLogout();
     } catch (err) {
       console.error("Sign out error:", err);
     }

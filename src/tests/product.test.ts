@@ -184,6 +184,8 @@ describe("Product Catalog Unit & Integration Tests", () => {
         role: "SELLER",
         seller: {
           id: "seller-1",
+          status: "DRAFT",
+
           verification: {
             kycStatus: "pending", // not approved
             bankVerified: false,
@@ -193,7 +195,7 @@ describe("Product Catalog Unit & Integration Tests", () => {
 
       const res = await createProduct(defaultInput);
       expect(res.success).toBe(false);
-      expect(res.error?.code).toBe("SELLER_NOT_VERIFIED");
+      expect(res.error?.code).toBe("SELLER_NOT_ONBOARDED");
     });
 
     it("should successfully create product when seller is verified and bank verified", async () => {
@@ -208,6 +210,8 @@ describe("Product Catalog Unit & Integration Tests", () => {
         role: "SELLER",
         seller: {
           id: "seller-1",
+          status: "APPROVED",
+
           verification: {
             kycStatus: "auto_approved",
             bankVerified: true,

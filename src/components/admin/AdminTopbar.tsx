@@ -144,13 +144,16 @@ export default function AdminTopbar({
                   </Link>
                 </div>
                 <div className="pt-1 border-t border-border-gray/40">
-                  <Link
-                    href="/account"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-error-red hover:bg-error-red/10 transition-colors"
+                  <button
+                    onClick={async () => {
+                      const { atomicLogout } = await import("@/actions/logout.action");
+                      await atomicLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-error-red hover:bg-error-red/10 transition-colors text-left cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}

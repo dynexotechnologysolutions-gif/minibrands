@@ -78,23 +78,45 @@ export async function POST(req: Request) {
       });
     }
 
+    if (uploadType === "verification") {
+      const timestamp = Math.round(new Date().getTime() / 1000);
+      const folder = `velvetlane/verifications/${session.user.id}`;
+
+      const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
+      const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";
+      const cloudName =
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+        process.env.CLOUDINARY_CLOUD_NAME ||
+        "mock_cloudinary_cloud";
+
+      const signature = generateCloudinarySignature({ folder, timestamp }, apiSecret);
+
+      return NextResponse.json({
+        signature,
+        timestamp,
+        apiKey,
+        cloudName,
+        folder,
+      });
+    }
+
     // 3. Fetch UserProfile and Seller details to verify activation status (for products)
     const userProfile = await prisma.userProfile.findUnique({
       where: { userId: session.user.id },
       include: {
-        seller: {
-          include: {
-            verification: true,
-          },
-        },
+        seller: true,
       },
     });
 
+    const isSellerOrAdmin =
+      userProfile?.role === "SELLER" ||
+      userProfile?.role === "ADMIN" ||
+      userProfile?.role === "SUPER_ADMIN";
+
     if (
       !userProfile ||
-      userProfile.role !== "SELLER" ||
-      !userProfile.seller ||
-      !userProfile.seller.verification
+      !isSellerOrAdmin ||
+      !userProfile.seller
     ) {
       return NextResponse.json(
         {
@@ -105,21 +127,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const verification = userProfile.seller.verification;
-    const isVerified =
-      verification &&
-      (verification.kycStatus === "auto_approved" ||
-        verification.kycStatus === "approved" ||
-        verification.kycStatus === "manual_review") &&
-      verification.bankVerified;
-
-    if (!isVerified) {
+    // Allow upload if seller status is not DRAFT
+    if (userProfile.seller.status === "DRAFT") {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: "SELLER_NOT_VERIFIED",
-            message: "Complete seller identity and bank verification before uploading photos.",
+            message: "Complete seller onboarding before uploading photos.",
           },
         },
         { status: 403 }

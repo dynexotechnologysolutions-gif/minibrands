@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redis } from "@/lib/redis";
-import { enrichProductWithComputedFields } from "@/features/catalog/utils/deterministic";
+import { enrichProductWithComputedFields, getProductDiscountAndMrp, getProductRatingAndReviews } from "@/features/catalog/utils/deterministic";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,7 @@ async function getWishlistProductIds() {
     
     const profile = await prisma.userProfile.findUnique({
       where: { userId: session.user.id },
+      select: { id: true },
     });
     if (!profile) return [];
     
@@ -45,11 +46,9 @@ export async function GET(request: Request) {
     const whereClause: any = {
       isDeleted: false,
       isPublished: true,
+      status: "PUBLISHED",
       seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
+        status: "APPROVED",
       },
     };
 
@@ -65,20 +64,6 @@ export async function GET(request: Request) {
       ];
     }
 
-    const dbProducts = await prisma.product.findMany({
-      where: whereClause,
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-    });
-
-    // 2. Enrich with computed fields
-    let products = dbProducts.map((p) => enrichProductWithComputedFields(p, wishlistIds));
-
-    // 3. Filter in-memory
-    // Price Range Filter
     if (priceRange) {
       const parts = priceRange.split("-");
       const minPrice = parseFloat(parts[0] || "0");
@@ -87,20 +72,42 @@ export async function GET(request: Request) {
       const minPaise = minPrice * 100;
       const maxPaise = maxPrice * 100;
 
-      products = products.filter((p) => {
-        if (maxPrice >= 10000) {
-          // treat ₹10,000+ as unlimited max
-          return p.price >= minPaise;
-        }
-        return p.price >= minPaise && p.price <= maxPaise;
-      });
+      if (maxPrice >= 10000) {
+        whereClause.price = { gte: minPaise };
+      } else {
+        whereClause.price = { gte: minPaise, lte: maxPaise };
+      }
     }
+
+    // Fetch lightweight list of all matching products to apply computed field filters/sorting
+    const allMatchingProducts = await prisma.product.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        price: true,
+        createdAt: true,
+      },
+    });
+
+    // 2. Enrich with minimal computed fields for filtering & sorting in memory
+    let productsForFiltering = allMatchingProducts.map((p) => {
+      const { discountPercent } = getProductDiscountAndMrp(p.price, p.id);
+      const { rating, reviewCount } = getProductRatingAndReviews(p.id);
+      return {
+        id: p.id,
+        price: p.price,
+        createdAt: p.createdAt,
+        discountPercent,
+        rating,
+        reviewCount,
+      };
+    });
 
     // Rating Filter
     if (ratingParam) {
       const minRating = parseFloat(ratingParam);
       if (!isNaN(minRating)) {
-        products = products.filter((p) => p.rating >= minRating);
+        productsForFiltering = productsForFiltering.filter((p) => p.rating >= minRating);
       }
     }
 
@@ -108,32 +115,108 @@ export async function GET(request: Request) {
     if (discountParam) {
       const minDiscount = parseFloat(discountParam);
       if (!isNaN(minDiscount)) {
-        products = products.filter((p) => p.discountPercent >= minDiscount);
+        productsForFiltering = productsForFiltering.filter((p) => p.discountPercent >= minDiscount);
       }
     }
 
     // 4. Sort
     if (sort === "price_asc") {
-      products.sort((a, b) => a.price - b.price);
+      productsForFiltering.sort((a, b) => a.price - b.price);
     } else if (sort === "price_desc") {
-      products.sort((a, b) => b.price - a.price);
+      productsForFiltering.sort((a, b) => b.price - a.price);
     } else if (sort === "newest") {
-      products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      productsForFiltering.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } else if (sort === "rating") {
-      products.sort((a, b) => b.rating - a.rating);
+      productsForFiltering.sort((a, b) => b.rating - a.rating);
     } else {
-      // default: popularity
-      products.sort((a, b) => b.reviewCount - a.reviewCount);
+      // default: popularity (reviewCount)
+      productsForFiltering.sort((a, b) => b.reviewCount - a.reviewCount);
     }
 
     // 5. Paginate
-    const totalItems = products.length;
+    const totalItems = productsForFiltering.length;
     const totalPages = Math.ceil(totalItems / limit);
     const offset = (page - 1) * limit;
-    const paginatedProducts = products.slice(offset, offset + limit);
+    const paginatedItems = productsForFiltering.slice(offset, offset + limit);
+    const paginatedIds = paginatedItems.map((p) => p.id);
+
+    if (paginatedIds.length === 0) {
+      return NextResponse.json({
+        products: [],
+        pagination: {
+          totalItems,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
+      });
+    }
+
+    // Fetch full details using targeted select blocks only for the paginated IDs
+    const dbProducts = await prisma.product.findMany({
+      where: {
+        id: { in: paginatedIds },
+      },
+      select: {
+        id: true,
+        sellerId: true,
+        name: true,
+        shortDescription: true,
+        fullDescription: true,
+        category: true,
+        subcategory: true,
+        tags: true,
+        price: true,
+        isPublished: true,
+        isDeleted: true,
+        createdAt: true,
+        updatedAt: true,
+        images: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            productId: true,
+            url: true,
+            sortOrder: true,
+          },
+        },
+        variants: {
+          select: {
+            id: true,
+            productId: true,
+            size: true,
+            stockCount: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            businessName: true,
+            storeName: true,
+            storeLogo: true,
+            verification: {
+              select: {
+                kycStatus: true,
+                bankVerified: true,
+                trustScore: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Map dbProducts back to the correct sorted order of paginatedIds
+    const productMap = new Map(dbProducts.map((p) => [p.id, p]));
+    const orderedProducts = paginatedIds
+      .map((id) => productMap.get(id))
+      .filter(Boolean);
+
+    // Enrich with full computed fields
+    const enrichedProducts = orderedProducts.map((p) => enrichProductWithComputedFields(p, wishlistIds));
 
     return NextResponse.json({
-      products: paginatedProducts,
+      products: enrichedProducts,
       pagination: {
         totalItems,
         totalPages,

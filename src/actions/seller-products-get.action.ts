@@ -28,7 +28,12 @@ export async function getSellerProducts(): Promise<ActionResponse<any[]>> {
       include: { seller: true },
     });
 
-    if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
+    const isSellerOrAdmin =
+      userProfile?.role === "SELLER" ||
+      userProfile?.role === "ADMIN" ||
+      userProfile?.role === "SUPER_ADMIN";
+
+    if (!userProfile || !isSellerOrAdmin || !userProfile.seller) {
       return {
         success: false,
         error: { code: "FORBIDDEN", message: "Only registered sellers can access the dashboard" },

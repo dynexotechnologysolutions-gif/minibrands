@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 import { getUserReservations, redis } from "@/lib/redis";
 import WishlistIconButton from "@/components/product/WishlistIconButton";
 import HomeHeader from "@/components/home/HomeHeader";
@@ -16,6 +17,186 @@ export const metadata: Metadata = {
   description:
     "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
 };
+
+
+// Optimized select objects
+const sellerCardSelect = {
+  id: true,
+  businessName: true,
+  category: true,
+  storeLogo: true,
+  userProfile: {
+    select: {
+      user: {
+        select: {
+          image: true,
+        },
+      },
+    },
+  },
+};
+
+const productCardSelect = {
+  id: true,
+  name: true,
+  price: true,
+  images: {
+    select: {
+      url: true,
+    },
+    orderBy: { sortOrder: "asc" as const },
+  },
+  variants: {
+    select: {
+      id: true,
+      size: true,
+      stockCount: true,
+    },
+  },
+  seller: {
+    select: {
+      id: true,
+      businessName: true,
+      city: true,
+      verification: {
+        select: {
+          trustScore: true,
+          kycStatus: true,
+          bankVerified: true,
+        },
+      },
+    },
+  },
+};
+
+// Cached fetchers
+const getFeaturedSellers = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
+      where: {
+        verification: {
+          kycStatus: { in: ["auto_approved", "approved"] },
+          bankVerified: true,
+        },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      select: sellerCardSelect,
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    });
+  },
+  ["homepage-featured-sellers"],
+  { revalidate: 300, tags: ["homepage-featured-sellers", "homepage"] }
+);
+
+const getSpotlightProducts = unstable_cache(
+  async () => {
+    return prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      select: productCardSelect,
+      orderBy: { createdAt: "desc" },
+      take: 2,
+    });
+  },
+  ["homepage-spotlight-products"],
+  { revalidate: 300, tags: ["homepage-spotlight-products", "homepage"] }
+);
+
+const getSuggestedProducts = unstable_cache(
+  async () => {
+    return prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      select: productCardSelect,
+      orderBy: { createdAt: "desc" },
+      skip: 2,
+      take: 4,
+    });
+  },
+  ["homepage-suggested-products"],
+  { revalidate: 300, tags: ["homepage-suggested-products", "homepage"] }
+);
+
+const getBrandsSellers = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
+      where: {
+        verification: {
+          kycStatus: { in: ["auto_approved", "approved"] },
+          bankVerified: true,
+        },
+      },
+      select: {
+        ...sellerCardSelect,
+        _count: { select: { products: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 2,
+    });
+  },
+  ["homepage-brands-sellers"],
+  { revalidate: 300, tags: ["homepage-brands-sellers", "homepage"] }
+);
+
+const getTrendingCount = unstable_cache(
+  async () => {
+    return prisma.product.count({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+    });
+  },
+  ["homepage-trending-count"],
+  { revalidate: 300, tags: ["homepage-trending-count", "homepage"] }
+);
+
+const getTrendingProducts = unstable_cache(
+  async (page: number, itemsPerPage: number) => {
+    return prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      select: productCardSelect,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * itemsPerPage,
+      take: itemsPerPage,
+    });
+  },
+  ["homepage-trending-products"],
+  { revalidate: 300, tags: ["homepage-trending-products", "homepage"] }
+);
+
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;

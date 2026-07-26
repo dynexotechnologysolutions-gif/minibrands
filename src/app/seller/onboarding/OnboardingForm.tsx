@@ -34,6 +34,14 @@ interface OnboardingFormProps {
   initialBankVerified: boolean;
   initialHasInitiatedKyc: boolean;
   userEmail: string;
+  initialPanNumber?: string;
+  initialPanName?: string;
+  initialPanCardUrl?: string;
+  initialAadhaarNumber?: string;
+  initialAadhaarName?: string;
+  initialAadhaarFrontUrl?: string;
+  initialAadhaarBackUrl?: string;
+  initialCancelledChequeUrl?: string;
 }
 
 export default function OnboardingForm({
@@ -43,6 +51,14 @@ export default function OnboardingForm({
   initialBankVerified,
   initialHasInitiatedKyc,
   userEmail,
+  initialPanNumber = "",
+  initialPanName = "",
+  initialPanCardUrl = "",
+  initialAadhaarNumber = "",
+  initialAadhaarName = "",
+  initialAadhaarFrontUrl = "",
+  initialAadhaarBackUrl = "",
+  initialCancelledChequeUrl = "",
 }: OnboardingFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(initialStep);
@@ -53,6 +69,17 @@ export default function OnboardingForm({
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pollCount, setPollCount] = useState(0);
+
+  // Verification document states
+  const [panNumber, setPanNumber] = useState(initialPanNumber);
+  const [panName, setPanName] = useState(initialPanName);
+  const [panCardUrl, setPanCardUrl] = useState(initialPanCardUrl);
+  const [aadhaarNumber, setAadhaarNumber] = useState(initialAadhaarNumber);
+  const [aadhaarName, setAadhaarName] = useState(initialAadhaarName);
+  const [aadhaarFrontUrl, setAadhaarFrontUrl] = useState(initialAadhaarFrontUrl);
+  const [aadhaarBackUrl, setAadhaarBackUrl] = useState(initialAadhaarBackUrl);
+  const [cancelledChequeUrl, setCancelledChequeUrl] = useState(initialCancelledChequeUrl);
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
 
   // Setup Step 1 (Business Info) Form
   const {
@@ -123,6 +150,106 @@ export default function OnboardingForm({
     }
   };
 
+  // Handle Document Upload to Cloudinary
+  const handleDocumentUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    docType: "pan" | "aadhaarFront" | "aadhaarBack" | "cheque"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDoc(docType);
+    setActionError(null);
+
+    try {
+      const signRes = await fetch("/api/cloudinary/sign", {
+        method: "POST",
+        body: JSON.stringify({ uploadType: "verification" }),
+      });
+
+      if (!signRes.ok) {
+        const errData = await signRes.json();
+        throw new Error(errData.error?.message || "Failed to authorize upload");
+      }
+
+      const { signature, timestamp, apiKey, cloudName, folder } = await signRes.json();
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", timestamp.toString());
+      formData.append("signature", signature);
+      formData.append("folder", folder);
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadRes.ok) {
+        throw new Error("Direct Cloudinary upload failed.");
+      }
+
+      const data = await uploadRes.json();
+      const url = data.secure_url;
+
+      if (docType === "pan") setPanCardUrl(url);
+      else if (docType === "aadhaarFront") setAadhaarFrontUrl(url);
+      else if (docType === "aadhaarBack") setAadhaarBackUrl(url);
+      else if (docType === "cheque") setCancelledChequeUrl(url);
+    } catch (err: any) {
+      setActionError(err.message || "Failed to upload document.");
+    } finally {
+      setUploadingDoc(null);
+    }
+  };
+
+  // Handle saving KYC documents before starting e-KYC
+  const handleSaveKycDocuments = async () => {
+    if (!panNumber.trim() || !panName.trim() || !panCardUrl) {
+      setActionError("Please fill out PAN number, name, and upload PAN Card.");
+      return;
+    }
+    if (!aadhaarNumber.trim() || !aadhaarName.trim() || !aadhaarFrontUrl || !aadhaarBackUrl) {
+      setActionError("Please fill out Aadhaar number, name, and upload both Front and Back images.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setActionError(null);
+
+    try {
+      const res = await fetch("/api/seller/onboarding/submit", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          panNumber,
+          panName,
+          panCardUrl,
+          aadhaarNumber,
+          aadhaarName,
+          aadhaarFrontUrl,
+          aadhaarBackUrl,
+          submit: false,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to save verification documents.");
+      }
+
+      // Automatically trigger Signzy Aadhaar e-KYC session now that data is persisted
+      await handleStartKyc();
+    } catch (err: any) {
+      setActionError(err.message || "Failed to save KYC documents.");
+      setIsSubmitting(false);
+    }
+  };
+
   // Handle KYC Session Initiation
   const handleStartKyc = async () => {
     setIsSubmitting(true);
@@ -135,28 +262,51 @@ export default function OnboardingForm({
         window.location.href = res.data.signzyRedirectUrl;
       } else {
         setActionError(res.error?.message || "Failed to initiate identity verification session");
+        setIsSubmitting(false);
       }
     } catch (err) {
       setActionError("Failed to connect to verification server.");
-    } finally {
       setIsSubmitting(false);
     }
   };
 
   // Handle Step 3 Submit
   const onBankSubmit = async (data: BankVerifyInput) => {
+    if (!cancelledChequeUrl) {
+      setActionError("Please upload a cancelled cheque to complete onboarding.");
+      return;
+    }
+
     setIsSubmitting(true);
     setActionError(null);
     try {
       const res = await verifyBank(data);
       if (res.success && res.data) {
         setBankVerified(true);
+        
+        // Final submit to API to set status = PENDING_VERIFICATION
+        const submitRes = await fetch("/api/seller/onboarding/submit", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bankAccountNumber: data.accountNumber,
+            bankIfsc: data.ifsc,
+            cancelledChequeUrl,
+            submit: true,
+          }),
+        });
+
+        if (!submitRes.ok) {
+          const errData = await submitRes.json();
+          throw new Error(errData.error || "Failed to submit onboarding.");
+        }
+
         setStep(4);
       } else {
         setActionError(res.error?.message || "Bank penny-drop verification failed.");
       }
-    } catch (err) {
-      setActionError("An unexpected error occurred during bank verification.");
+    } catch (err: any) {
+      setActionError(err.message || "An unexpected error occurred during bank verification.");
     } finally {
       setIsSubmitting(false);
     }
@@ -383,20 +533,19 @@ export default function OnboardingForm({
 
           {/* Step 2: Aadhaar KYC */}
           {step === 2 && (
-            <div className="animate-fade-in-up">
+            <div className="animate-fade-in-up space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-primary font-headline-sm">
-                  Identity Verification
+                  Identity Verification Documents
                 </h2>
               </div>
-              <p className="text-on-surface-variant text-body-sm mb-8 leading-relaxed">
-                Verify your business identity using Aadhaar e-KYC. This build is a sandbox test.
+              <p className="text-on-surface-variant text-body-sm mb-4 leading-relaxed">
+                Provide your PAN and Aadhaar details and upload the supporting documents.
               </p>
 
-              {/* Status display logic */}
               {kycStatus === "pending" && hasInitiatedKyc && pollCount > 0 ? (
                 /* Polling UI state */
                 <div className="py-12 flex flex-col items-center text-center bg-surface-container-low/50 rounded-2xl border border-border-gray p-6">
@@ -434,44 +583,159 @@ export default function OnboardingForm({
                     Aadhaar validation failed. The facial matching confidence score was below 60%.
                   </p>
                   <button
-                    onClick={handleStartKyc}
-                    disabled={isSubmitting}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary hover:opacity-90 text-on-primary text-xs font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                    onClick={() => setKycStatus(null)}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary hover:opacity-90 text-on-primary text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    {isSubmitting ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : null}
-                    <span>Retry Verification</span>
+                    <span>Edit Documents & Retry</span>
                   </button>
                 </div>
               ) : (
-                /* Initial start state */
+                /* Document Inputs Form */
                 <div className="space-y-6">
-                  <div className="p-5 bg-surface-container-low border border-border-gray rounded-2xl text-on-surface-variant text-xs leading-relaxed">
-                    <p className="font-bold text-primary mb-2 text-sm flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-primary" />
-                      <span>Verification Process</span>
-                    </p>
-                    <ul className="list-disc pl-4 space-y-1.5">
-                      <li>You will be redirected to the secure Signzy Sandbox flow.</li>
-                      <li>Prepare your Aadhaar details for instant validation.</li>
-                      <li>Completing verification unlocks immediate store activation.</li>
-                    </ul>
+                  {/* PAN Details Section */}
+                  <div className="border border-border-gray/80 rounded-2xl p-5 space-y-4">
+                    <h3 className="font-bold text-sm text-primary uppercase tracking-wider">PAN Details</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">PAN Number</label>
+                        <input
+                          type="text"
+                          placeholder="ABCDE1234F"
+                          maxLength={10}
+                          className="block w-full py-2.5 px-4 bg-white border border-outline-variant focus:border-primary focus:ring-primary/20 rounded-xl focus:outline-none focus:ring-2 text-body-md font-mono uppercase"
+                          value={panNumber}
+                          onChange={(e) => setPanNumber(e.target.value.toUpperCase())}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Name on PAN Card</label>
+                        <input
+                          type="text"
+                          placeholder="As on PAN"
+                          className="block w-full py-2.5 px-4 bg-white border border-outline-variant focus:border-primary focus:ring-primary/20 rounded-xl focus:outline-none focus:ring-2 text-body-md"
+                          value={panName}
+                          onChange={(e) => setPanName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Upload PAN Card (Image/PDF)</label>
+                      <div className="flex items-center gap-3">
+                        <label className="px-4 py-2 border border-border-gray hover:bg-slate-50 text-text-muted hover:text-on-surface text-xs font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+                          <Building2 className="w-4 h-4" />
+                          <span>{uploadingDoc === "pan" ? "Uploading..." : "Select Document"}</span>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={(e) => handleDocumentUpload(e, "pan")}
+                            disabled={!!uploadingDoc}
+                          />
+                        </label>
+                        {panCardUrl ? (
+                          <span className="text-success-green text-xs font-bold flex items-center gap-1">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                            Uploaded
+                          </span>
+                        ) : (
+                          <span className="text-text-muted text-xs italic">No file selected</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Aadhaar Details Section */}
+                  <div className="border border-border-gray/80 rounded-2xl p-5 space-y-4">
+                    <h3 className="font-bold text-sm text-primary uppercase tracking-wider">Aadhaar Details</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Aadhaar Number</label>
+                        <input
+                          type="text"
+                          placeholder="12-digit Aadhaar"
+                          maxLength={12}
+                          className="block w-full py-2.5 px-4 bg-white border border-outline-variant focus:border-primary focus:ring-primary/20 rounded-xl focus:outline-none focus:ring-2 text-body-md font-mono"
+                          value={aadhaarNumber}
+                          onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, ""))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Name on Aadhaar</label>
+                        <input
+                          type="text"
+                          placeholder="As on Aadhaar"
+                          className="block w-full py-2.5 px-4 bg-white border border-outline-variant focus:border-primary focus:ring-primary/20 rounded-xl focus:outline-none focus:ring-2 text-body-md"
+                          value={aadhaarName}
+                          onChange={(e) => setAadhaarName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Aadhaar Front Image</label>
+                        <div className="flex items-center gap-2">
+                          <label className="px-3 py-2 border border-border-gray hover:bg-slate-50 text-text-muted hover:text-on-surface text-xs font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>{uploadingDoc === "aadhaarFront" ? "Uploading..." : "Front Image"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleDocumentUpload(e, "aadhaarFront")}
+                              disabled={!!uploadingDoc}
+                            />
+                          </label>
+                          {aadhaarFrontUrl ? (
+                            <span className="text-success-green text-xs font-bold flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" /> Uploaded
+                            </span>
+                          ) : (
+                            <span className="text-text-muted text-xs italic">No file</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">Aadhaar Back Image</label>
+                        <div className="flex items-center gap-2">
+                          <label className="px-3 py-2 border border-border-gray hover:bg-slate-50 text-text-muted hover:text-on-surface text-xs font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>{uploadingDoc === "aadhaarBack" ? "Uploading..." : "Back Image"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleDocumentUpload(e, "aadhaarBack")}
+                              disabled={!!uploadingDoc}
+                            />
+                          </label>
+                          {aadhaarBackUrl ? (
+                            <span className="text-success-green text-xs font-bold flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" /> Uploaded
+                            </span>
+                          ) : (
+                            <span className="text-text-muted text-xs italic">No file</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <button
-                    onClick={handleStartKyc}
-                    disabled={isSubmitting}
+                    onClick={handleSaveKycDocuments}
+                    disabled={isSubmitting || !!uploadingDoc}
                     className="w-full py-3.5 px-4 bg-primary hover:opacity-90 disabled:opacity-50 text-on-primary font-bold rounded-xl text-label-bold shadow-md transition-all duration-200 cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Starting Verification...</span>
+                        <span>Saving & Redirecting...</span>
                       </>
                     ) : (
                       <>
-                        <span>Verify with Aadhaar e-KYC</span>
+                        <span>Save Documents & Start e-KYC</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -542,6 +806,33 @@ export default function OnboardingForm({
                   )}
                 </div>
 
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-on-surface uppercase tracking-wider">
+                    Upload Cancelled Cheque / Bank Statement <span className="text-error-red">*</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="px-4 py-2.5 border border-border-gray hover:bg-slate-50 text-text-muted hover:text-on-surface text-xs font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4" />
+                      <span>{uploadingDoc === "cheque" ? "Uploading..." : "Select Cheque File"}</span>
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={(e) => handleDocumentUpload(e, "cheque")}
+                        disabled={!!uploadingDoc}
+                      />
+                    </label>
+                    {cancelledChequeUrl ? (
+                      <span className="text-success-green text-xs font-bold flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        Cheque Uploaded
+                      </span>
+                    ) : (
+                      <span className="text-text-muted text-xs italic">No file selected</span>
+                    )}
+                  </div>
+                </div>
+
                 <div className="p-4 bg-surface-container-low border border-border-gray rounded-xl text-on-surface-variant text-xs flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-success-green shrink-0 mt-0.5" />
                   <span>
@@ -581,7 +872,7 @@ export default function OnboardingForm({
               <h2 className="text-2xl font-black text-primary font-headline-md mb-3">
                 Your Store is Being Set Up!
               </h2>
-              <p className="text-on-surface-variant text-body-md max-w-md mx-auto mb-10 leading-relaxed">
+              <p className="text-on-surface-variant text-body-md max-w-[480px] mx-auto mb-10 leading-relaxed">
                 Congratulations! You have completed identity and bank account verification. Your merchant trust score is now updated to 50.
               </p>
 

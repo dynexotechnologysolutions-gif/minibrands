@@ -30,11 +30,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     where: {
       isDeleted: false,
       isPublished: true,
+      status: "PUBLISHED",
       seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
+        status: "APPROVED",
       },
       OR: q
         ? [

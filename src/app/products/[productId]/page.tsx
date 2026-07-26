@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -6,6 +7,31 @@ import { headers } from "next/headers";
 import { trackEvent } from "@/lib/posthog";
 import { redis, getUserReservations } from "@/lib/redis";
 import ProductDetailClient from "./ProductDetailClient";
+
+// Cached product query to deduplicate requests between generateMetadata and ProductDetailPage
+const getProduct = cache((productId: string) => {
+  return prisma.product.findUnique({
+    where: { id: productId },
+    include: {
+      images: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+      },
+      variants: true,
+      seller: {
+        include: {
+          userProfile: {
+            include: {
+              user: true,
+            },
+          },
+          verification: true,
+        },
+      },
+    },
+  });
+});
 
 interface PageProps {
   params: Promise<{
@@ -17,17 +43,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { productId } = await params;
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: {
-      images: true,
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-    },
-  });
+  const product = await getProduct(productId);
 
   if (!product || product.isDeleted || !product.isPublished) {
     return {
@@ -61,28 +77,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductDetailPage({ params }: PageProps) {
   const { productId } = await params;
 
-  // 2. Query product with images, variants, and seller verification + userProfile for seller logo
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: {
-      images: {
-        orderBy: {
-          sortOrder: "asc",
-        },
-      },
-      variants: true,
-      seller: {
-        include: {
-          userProfile: {
-            include: {
-              user: true,
-            },
-          },
-          verification: true,
-        },
-      },
-    },
-  });
+  // 2. Query product using cached function (deduplicated)
+  const product = await getProduct(productId);
 
   // Verify product eligibility for public listing
   if (!product || product.isDeleted || !product.isPublished) {
@@ -112,87 +108,130 @@ export default async function ProductDetailPage({ params }: PageProps) {
     sellerId: product.sellerId,
   });
 
-  // Load userProfile & cartCount if authenticated
-  let userProfile = null;
-  let cartCount = 0;
-  let initialIsWishlisted = false;
+  // Fetch all secondary data in parallel
+  const [
+    userData,
+    similarProducts,
+    recentlyViewedFallback,
+    reviewGroups,
+    initialReviews
+  ] = await Promise.all([
+    (async () => {
+      if (!session?.user) return { userProfile: null, cartCount: 0, initialIsWishlisted: false };
+      const userProfile = await prisma.userProfile.findUnique({
+        where: { userId: session.user.id },
+        include: {
+          user: true,
+          seller: {
+            include: {
+              verification: true,
+            },
+          },
+        },
+      });
+      if (!userProfile) return { userProfile: null, cartCount: 0, initialIsWishlisted: false };
 
-  if (session?.user) {
-    userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        user: true,
+      const [reservations, isMember] = await Promise.all([
+        getUserReservations(userProfile.id),
+        redis.sismember(`wishlist:${userProfile.id}`, product.id),
+      ]);
+      const cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
+      const initialIsWishlisted = isMember === 1;
+
+      return { userProfile, cartCount, initialIsWishlisted };
+    })(),
+    prisma.product.findMany({
+      where: {
+        category: product.category,
+        id: { not: product.id },
+        isDeleted: false,
+        isPublished: true,
         seller: {
-          include: {
-            verification: true,
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
           },
         },
       },
-    });
-
-    if (userProfile) {
-      const reservations = await getUserReservations(userProfile.id);
-      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-      // Check if product is in wishlist
-      const wishlistKey = `wishlist:${userProfile.id}`;
-      const isMember = await redis.sismember(wishlistKey, product.id);
-      initialIsWishlisted = isMember === 1;
-    }
-  }
-
-  // Query similar products (same category)
-  const similarProducts = await prisma.product.findMany({
-    where: {
-      category: product.category,
-      id: { not: product.id },
-      isDeleted: false,
-      isPublished: true,
-      seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
+      include: {
+        images: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+        },
+        seller: true,
+      },
+      take: 8,
+    }),
+    prisma.product.findMany({
+      where: {
+        id: { not: product.id },
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
         },
       },
-    },
-    include: {
-      images: {
-        orderBy: {
-          sortOrder: "asc",
+      include: {
+        images: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+        },
+        seller: true,
+      },
+      take: 14, // Fetch extra so we can filter duplicates in JS
+    }),
+    prisma.review.groupBy({
+      by: ["rating"],
+      where: { productId: product.id, isVisible: true },
+      _count: { rating: true },
+    }),
+    prisma.review.findMany({
+      where: { productId: product.id, isVisible: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      include: {
+        buyer: {
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
         },
       },
-      seller: true,
+    }),
+  ]);
+
+  const { userProfile, cartCount, initialIsWishlisted } = userData || { userProfile: null, cartCount: 0, initialIsWishlisted: false };
+
+  const formattedInitialReviews = initialReviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    photoUrls: r.photoUrls,
+    createdAt: r.createdAt.toISOString(),
+    buyer: {
+      user: {
+        name: r.buyer.user.name,
+      },
     },
-    take: 8,
+  }));
+
+  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  reviewGroups.forEach((g) => {
+    distribution[g.rating] = g._count.rating;
   });
 
-  // Query fallback products for recently viewed
-  const recentlyViewedFallback = await prisma.product.findMany({
-    where: {
-      id: {
-        notIn: [product.id, ...similarProducts.map((p) => p.id)],
-      },
-      isDeleted: false,
-      isPublished: true,
-      seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
-      },
-    },
-    include: {
-      images: {
-        orderBy: {
-          sortOrder: "asc",
-        },
-      },
-      seller: true,
-    },
-    take: 6,
-  });
+  const reviewSummary = {
+    averageRating: product.averageRating,
+    reviewCount: product.reviewCount,
+    distribution,
+  };
 
-  // 3. Construct Product JSON-LD Schema
   const hasInStock = product.variants.some((v) => v.stockCount > 0);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -220,7 +259,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   };
 
-  // Convert schema object to raw props matching the form expectation
   const formattedProduct = {
     id: product.id,
     name: product.name,
@@ -267,63 +305,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   }));
 
-  const formattedRecentlyViewed = recentlyViewedFallback.map((p) => ({
-    id: p.id,
-    name: p.name,
-    category: p.category,
-    price: p.price,
-    images: p.images.map((img) => ({ url: img.url })),
-    seller: {
-      businessName: p.seller.businessName,
-    },
-  }));
-
-  // Fetch reviews distribution
-  const reviewGroups = await prisma.review.groupBy({
-    by: ["rating"],
-    where: { productId: product.id, isVisible: true },
-    _count: { rating: true },
-  });
-
-  const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-  reviewGroups.forEach((g) => {
-    distribution[g.rating] = g._count.rating;
-  });
-
-  // Fetch initial reviews
-  const initialReviews = await prisma.review.findMany({
-    where: { productId: product.id, isVisible: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-    include: {
-      buyer: {
-        include: {
-          user: {
-            select: { name: true },
-          },
-        },
+  const formattedRecentlyViewed = recentlyViewedFallback
+    .filter((p) => p.id !== product.id && !similarProducts.some((sp) => sp.id === p.id))
+    .slice(0, 6)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: p.price,
+      images: p.images.map((img) => ({ url: img.url })),
+      seller: {
+        businessName: p.seller.businessName,
       },
-    },
-  });
-
-  const formattedInitialReviews = initialReviews.map((r) => ({
-    id: r.id,
-    rating: r.rating,
-    comment: r.comment,
-    photoUrls: r.photoUrls,
-    createdAt: r.createdAt.toISOString(),
-    buyer: {
-      user: {
-        name: r.buyer.user.name,
-      },
-    },
-  }));
-
-  const reviewSummary = {
-    averageRating: product.averageRating,
-    reviewCount: product.reviewCount,
-    distribution,
-  };
+    }));
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
@@ -346,5 +340,3 @@ export default async function ProductDetailPage({ params }: PageProps) {
     </div>
   );
 }
-
-

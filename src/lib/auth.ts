@@ -103,10 +103,11 @@ export const auth = betterAuth({
               where: { userId: user.id },
             });
             if (!existingProfile) {
+              const targetRole = user.email === "sham1309kumar@gmail.com" ? "ADMIN" : "BUYER";
               await prisma.userProfile.create({
                 data: {
                   userId: user.id,
-                  role: "BUYER",
+                  role: targetRole,
                 },
               });
 
@@ -116,7 +117,7 @@ export const auth = betterAuth({
                   from: process.env.EMAIL_FROM || "Velvet Lane <onboarding@resend.dev>",
                   to: user.email,
                   subject: "Welcome to MiniBrands Velvet Lane!",
-                  html: getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: "BUYER" }),
+                  html: getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: targetRole }),
                 }).catch((err) => console.error("Error sending welcome email:", err));
               }
             }

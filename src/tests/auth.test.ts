@@ -61,7 +61,6 @@ describe("Production Authentication Architecture Tests", () => {
       const html = getWelcomeEmailHtml({
         name: "Velvet Couture Store",
         role: "SELLER",
-        dashboardUrl: "http://localhost:3000/seller/dashboard",
       });
       expect(html).toContain("MINIBRANDS");
       expect(html).toContain("Velvet Couture Store");

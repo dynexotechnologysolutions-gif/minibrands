@@ -76,20 +76,12 @@ export async function publishProduct(
     }
 
     // Verification check
-    const verification = product.seller.verification;
-    const isVerified =
-      verification &&
-      (verification.kycStatus === "auto_approved" ||
-        verification.kycStatus === "approved" ||
-        verification.kycStatus === "manual_review") &&
-      verification.bankVerified;
-
-    if (!isVerified) {
+    if (product.seller.status !== "APPROVED") {
       return {
         success: false,
         error: {
           code: "SELLER_NOT_VERIFIED",
-          message: "Complete seller verification before publishing products.",
+          message: "Only fully verified and approved sellers can publish products to the public marketplace.",
         },
       };
     }
@@ -112,6 +104,7 @@ export async function publishProduct(
       data: {
         isPublished: true,
         publishedAt: new Date(),
+        status: "PUBLISHED",
       },
     });
 

@@ -69,33 +69,7 @@ export async function middleware(request: NextRequest) {
 
   const isAuthenticated = !!sessionToken;
 
-  // 3. Guest-only Auth Pages (login, signup) - redirect authenticated users
-  if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
-    const roleIntent = request.nextUrl.searchParams.get("role");
-    if (roleIntent === "seller") {
-      return NextResponse.redirect(new URL("/seller/dashboard", request.url));
-    }
-    const redirectTo = request.nextUrl.searchParams.get("redirectTo") || "/";
-    return NextResponse.redirect(new URL(redirectTo, request.url));
-  }
-
-  // Allow /admin/login page without auth redirect
-  if (pathname === "/admin/login") {
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL("/admin", request.url));
-    }
-    return response;
-  }
-
-  // Allow /seller/login and /seller/forgot-password without auth redirect
-  if (pathname === "/seller/login" || pathname === "/seller/forgot-password") {
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL("/seller/dashboard", request.url));
-    }
-    return response;
-  }
-
-  // 4. Protected Route Checking
+  // 3. Protected Route Checking
   const isBuyerRoute = BUYER_PROTECTED_PATHS.some((path) =>
     pathname.startsWith(path)
   );

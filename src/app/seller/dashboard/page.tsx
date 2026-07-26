@@ -2,7 +2,9 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
+import { RedirectService } from "@/lib/auth-services/redirect.service";
 import { prisma } from "@/lib/prisma";
 import SellerLayout from "@/components/seller/SellerLayout";
 import SellerKpiGrid from "@/components/seller/SellerKpiGrid";
@@ -24,40 +26,60 @@ export const metadata = {
 };
 
 export default async function SellerDashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.SELLER);
 
-  if (!session || !session.user) {
+  // Handle State Machine Redirection Rules
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
     redirect("/seller/login");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: {
-        include: {
-          verification: true,
-          products: {
-            where: { isDeleted: false },
-            include: { variants: true },
-          },
-        },
-      },
-    },
-  });
-
-  if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
-    redirect("/seller/login");
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect("/session-expired?redirectTo=%2Fseller%2Fdashboard");
   }
 
-  const seller = userProfile.seller;
+  if (authResult.state === "ROLE_MISMATCH") {
+    const userRole = authResult.userProfile?.role;
+    const safeUrl = RedirectService.getFallbackForRole(userRole);
+    redirect(safeUrl);
+  }
+
+  if (authResult.state === "UNAVAILABLE") {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-4 bg-slate-800 p-8 rounded-3xl border border-slate-700">
+          <h2 className="text-xl font-bold text-red-400">Authentication Service Offline</h2>
+          <p className="text-sm text-slate-300">We are unable to verify your session at this moment. Please refresh the page or try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const userProfile = authResult.userProfile;
+  const seller = userProfile?.seller;
+
+  if (!seller) {
+    redirect("/seller/onboarding");
+  }
+
+  // Redirect DRAFT status to onboarding
+  if (seller.status === "DRAFT") {
+    redirect("/seller/onboarding");
+  }
+
   const verification = seller.verification;
-  const products = seller.products || [];
 
-  // Parallel database queries for real counts
-  const [totalOrdersCount, newOrdersCount, returnsCount, recentOrders] = await Promise.all([
+  // Parallel database queries for counts and stats
+  const [
+    totalOrdersCount,
+    newOrdersCount,
+    returnsCount,
+    recentOrders,
+    productsCount,
+    totalVariantItems,
+    outOfStockCount,
+    lowStockCount,
+  ] = await Promise.all([
     prisma.order.count({ where: { sellerId: seller.id } }),
     prisma.order.count({ where: { sellerId: seller.id, status: "paid" } }),
     prisma.returnRequest.count({ where: { order: { sellerId: seller.id } } }),
@@ -70,22 +92,27 @@ export default async function SellerDashboardPage() {
         items: { include: { product: true } },
       },
     }),
+    prisma.product.count({ where: { sellerId: seller.id, isDeleted: false } }),
+    prisma.productVariant.count({
+      where: {
+        product: { sellerId: seller.id, isDeleted: false }
+      }
+    }),
+    prisma.productVariant.count({
+      where: {
+        product: { sellerId: seller.id, isDeleted: false },
+        stockCount: 0
+      }
+    }),
+    prisma.productVariant.count({
+      where: {
+        product: { sellerId: seller.id, isDeleted: false },
+        stockCount: { gt: 0, lte: 10 }
+      }
+    }),
   ]);
 
-  // Inventory stats calculation
-  let totalVariantItems = 0;
-  let healthyStockCount = 0;
-  let lowStockCount = 0;
-  let outOfStockCount = 0;
-
-  products.forEach((product) => {
-    product.variants.forEach((v) => {
-      totalVariantItems++;
-      if (v.stockCount === 0) outOfStockCount++;
-      else if (v.stockCount <= 10) lowStockCount++;
-      else healthyStockCount++;
-    });
-  });
+  const healthyStockCount = totalVariantItems - outOfStockCount - lowStockCount;
 
   const kpiData = {
     totalItems: totalVariantItems,
@@ -98,7 +125,7 @@ export default async function SellerDashboardPage() {
     id: seller.id,
     businessName: seller.businessName,
     storeName: seller.storeName,
-    isKycVerified: verification?.kycStatus === "approved" || verification?.kycStatus === "auto_approved",
+    isKycVerified: seller.status === "APPROVED",
     userEmail: userProfile.user.email,
   };
 
@@ -127,43 +154,64 @@ export default async function SellerDashboardPage() {
       </div>
 
       {/* Verification Status Banners */}
-      {(!sellerInfo.isKycVerified || verification?.kycStatus === "rejected") && (
+      {seller.status !== "APPROVED" && (
         <div className="my-base">
-          {verification?.kycStatus === "rejected" ? (
+          {seller.status === "PENDING_VERIFICATION" && (
+            <div className="p-base bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-sm text-amber-900 shadow-sm">
+              <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-body-md text-amber-950 flex items-center gap-2">
+                  <span>Verification Pending</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 border border-amber-300 text-amber-800 uppercase">
+                    Under Review
+                  </span>
+                </h3>
+                <p className="text-body-sm text-amber-800 mt-1">
+                  Your verification has been submitted successfully. You can continue adding products while our team reviews your documents. Products will become visible after approval.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {seller.status === "REJECTED" && (
             <div className="p-base bg-red-50 border border-red-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-base text-red-900 shadow-sm">
               <div className="flex items-start gap-sm">
                 <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-bold text-body-md text-red-950">Verification Rejected</h3>
-                  <p className="text-body-sm text-red-700 mt-0.5">
-                    {verification.rejectionReason || "Identity document verification failed. Please review your details and resubmit."}
+                  <h3 className="font-bold text-body-md text-red-950 flex items-center gap-2">
+                    <span>Verification Rejected</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 border border-red-300 text-red-800 uppercase">
+                      Rejected
+                    </span>
+                  </h3>
+                  <p className="text-body-sm text-red-700 mt-1">
+                    {seller.adminNotes || "Identity document verification failed. Please review your details and resubmit."}
                   </p>
                 </div>
               </div>
               <Link
                 href="/seller/onboarding"
-                className="px-md py-sm bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition-all shrink-0"
+                className="px-md py-sm bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition-all shrink-0 cursor-pointer"
               >
-                Resubmit Documents →
+                Resubmit Verification
               </Link>
             </div>
-          ) : (
-            <div className="p-base bg-amber-50 border border-amber-200 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-base text-amber-900 shadow-sm">
-              <div className="flex items-start gap-sm">
-                <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-bold text-body-md text-amber-950">Your verification is under review</h3>
-                  <p className="text-body-sm text-amber-800 mt-0.5">
-                    Our compliance team is verifying your Aadhaar KYC and bank details. Complete pending steps to activate payouts.
-                  </p>
-                </div>
+          )}
+
+          {seller.status === "SUSPENDED" && (
+            <div className="p-base bg-red-950 border border-red-800 rounded-xl flex items-start gap-sm text-red-100 shadow-sm">
+              <AlertTriangle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-body-md text-white flex items-center gap-2">
+                  <span>Account Suspended</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-900 border border-red-700 text-red-100 uppercase">
+                    Suspended
+                  </span>
+                </h3>
+                <p className="text-body-sm text-red-200 mt-1">
+                  Your seller account has been suspended by the administrator. Reason: {userProfile.suspendedReason || "Violation of platform policies."}
+                </p>
               </div>
-              <Link
-                href="/seller/onboarding"
-                className="px-md py-sm bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition-all shrink-0"
-              >
-                Check Onboarding Status →
-              </Link>
             </div>
           )}
         </div>
@@ -184,7 +232,7 @@ export default async function SellerDashboardPage() {
             </div>
             <div>
               <h3 className="font-bold text-body-md text-on-surface group-hover:text-primary transition-colors">
-                Product Catalog ({products.length})
+                Product Catalog ({productsCount})
               </h3>
               <p className="text-body-sm text-text-muted mt-0.5">
                 Manage size variants, stock counts & publish status.

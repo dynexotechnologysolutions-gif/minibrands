@@ -71,11 +71,12 @@ export async function unpublishProduct(
       };
     }
 
-    // 4. Update status to unpublished (does not clear publishedAt per specs)
+    // 4. Update status to unpublished and set Product status to DRAFT
     await prisma.product.update({
       where: { id: productId },
       data: {
         isPublished: false,
+        status: "DRAFT",
       },
     });
 

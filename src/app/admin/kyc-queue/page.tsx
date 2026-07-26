@@ -302,30 +302,53 @@ export default function KycQueuePage() {
                             <span>Uploaded Documents</span>
                           </h5>
                           <div className="space-y-1.5">
-                            <a
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                              className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              <span>Aadhaar Card (Front/Back PDF)</span>
-                            </a>
-                            <a
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                              className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              <span>PAN Card Document</span>
-                            </a>
-                            <a
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                              className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              <span>Bank Cancelled Cheque</span>
-                            </a>
+                            {!s.aadhaarFrontUrl && !s.aadhaarBackUrl && !s.panCardUrl && !s.cancelledChequeUrl && (
+                              <span className="text-xs text-text-muted italic">No documents uploaded</span>
+                            )}
+                            {s.aadhaarFrontUrl && (
+                              <a
+                                href={s.aadhaarFrontUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Aadhaar Card (Front)</span>
+                              </a>
+                            )}
+                            {s.aadhaarBackUrl && (
+                              <a
+                                href={s.aadhaarBackUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Aadhaar Card (Back)</span>
+                              </a>
+                            )}
+                            {s.panCardUrl && (
+                              <a
+                                href={s.panCardUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>PAN Card Document</span>
+                              </a>
+                            )}
+                            {s.cancelledChequeUrl && (
+                              <a
+                                href={s.cancelledChequeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Bank Cancelled Cheque</span>
+                              </a>
+                            )}
                           </div>
                         </div>
                       </div>

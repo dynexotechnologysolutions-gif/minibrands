@@ -38,11 +38,15 @@ export async function createProduct(
       },
     });
 
+    const isSellerOrAdmin =
+      userProfile?.role === "SELLER" ||
+      userProfile?.role === "ADMIN" ||
+      userProfile?.role === "SUPER_ADMIN";
+
     if (
       !userProfile ||
-      userProfile.role !== "SELLER" ||
-      !userProfile.seller ||
-      !userProfile.seller.verification
+      !isSellerOrAdmin ||
+      !userProfile.seller
     ) {
       return {
         success: false,
@@ -51,23 +55,28 @@ export async function createProduct(
     }
 
     const seller = userProfile.seller;
-    const verification = seller.verification;
-    const isVerified =
-      verification &&
-      (verification.kycStatus === "auto_approved" ||
-        verification.kycStatus === "approved" ||
-        verification.kycStatus === "manual_review") &&
-      verification.bankVerified;
 
-    if (!isVerified) {
+    if (seller.status === "DRAFT") {
       return {
         success: false,
         error: {
-          code: "SELLER_NOT_VERIFIED",
-          message: "Complete seller identity and bank verification before listing products.",
+          code: "SELLER_NOT_ONBOARDED",
+          message: "Please complete onboarding before listing products.",
         },
       };
     }
+
+    if (seller.status === "SUSPENDED") {
+      return {
+        success: false,
+        error: {
+          code: "SELLER_SUSPENDED",
+          message: "Your seller account is suspended. You cannot list new products.",
+        },
+      };
+    }
+
+
 
     // 3. Input validation
     const validation = ProductCreateSchema.safeParse(input);
@@ -94,7 +103,6 @@ export async function createProduct(
       aiGenerated,
     } = validation.data;
 
-    // 4. Create product with variants and images in transaction
     const product = await prisma.$transaction(async (tx) => {
       return await tx.product.create({
         data: {
@@ -107,6 +115,8 @@ export async function createProduct(
           tags,
           price,
           aiGenerated,
+          status: "DRAFT",
+          isPublished: false,
           images: {
             create: images.map((img, idx) => ({
               url: img.url,

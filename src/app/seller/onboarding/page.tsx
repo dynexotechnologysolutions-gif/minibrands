@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
 import { prisma } from "@/lib/prisma";
 import Providers from "@/app/providers";
 import OnboardingForm from "./OnboardingForm";
@@ -8,27 +9,30 @@ import OnboardingForm from "./OnboardingForm";
 export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
-  // 1. Check Better Auth session
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.BUYER);
 
-  if (!session || !session.user) {
+  // Handle State Machine Redirection Rules
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
     redirect("/seller/login");
   }
 
-  // 2. Fetch current profile and verification status
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-    },
-  });
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect("/session-expired?redirectTo=%2Fseller%2Fonboarding");
+  }
 
+  if (authResult.state === "UNAVAILABLE") {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-4 bg-slate-800 p-8 rounded-3xl border border-slate-700">
+          <h2 className="text-xl font-bold text-red-400">Authentication Service Offline</h2>
+          <p className="text-sm text-slate-300">We are unable to verify your session at this moment. Please refresh the page or try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const userProfile = authResult.userProfile;
   const seller = userProfile?.seller || null;
   const verification = seller?.verification || null;
 
@@ -62,7 +66,15 @@ export default async function OnboardingPage() {
           initialKycStatus={verification?.kycStatus || null}
           initialBankVerified={verification?.bankVerified || false}
           initialHasInitiatedKyc={!!verification?.signzyReferenceId}
-          userEmail={session.user.email}
+          userEmail={authResult.session?.user.email || ""}
+          initialPanNumber={seller?.panNumber || ""}
+          initialPanName={seller?.panName || ""}
+          initialPanCardUrl={seller?.panCardUrl || ""}
+          initialAadhaarNumber={seller?.aadhaarNumber || ""}
+          initialAadhaarName={seller?.aadhaarName || ""}
+          initialAadhaarFrontUrl={seller?.aadhaarFrontUrl || ""}
+          initialAadhaarBackUrl={seller?.aadhaarBackUrl || ""}
+          initialCancelledChequeUrl={seller?.cancelledChequeUrl || ""}
         />
       </div>
     </Providers>

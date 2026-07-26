@@ -43,6 +43,7 @@ export default function SellerTopbar({
           onClick={onToggleMobileSidebar}
           className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-surface-container-low text-on-surface transition-colors"
           aria-label="Toggle Navigation"
+          suppressHydrationWarning={true}
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -56,6 +57,7 @@ export default function SellerTopbar({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products, SKUs, inventory..."
             className="w-full pl-9 pr-4 py-1.5 bg-surface-container-low border border-border-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-body-md text-on-surface transition-all placeholder:text-text-muted"
+            suppressHydrationWarning={true}
           />
         </form>
       </div>
@@ -80,6 +82,7 @@ export default function SellerTopbar({
             onClick={() => setShowNotifications(!showNotifications)}
             className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors text-on-surface relative"
             title="Notifications"
+            suppressHydrationWarning={true}
           >
             <Bell className="w-5 h-5 text-secondary" />
             {unreadNotifications > 0 && (

@@ -91,7 +91,6 @@ const ROLE_PERMISSIONS: Record<AdminRole, PermissionAction[]> = {
 /**
  * Verify if the active request comes from an authenticated Admin user.
  * Optional requiredAction param enforces granular RBAC capability.
- * Fallback to default admin profile in development mode to ensure uninterrupted live DB data rendering.
  */
 export async function verifyAdminSession(
   requiredAction?: PermissionAction
@@ -100,68 +99,36 @@ export async function verifyAdminSession(
   const session = await auth.api.getSession({ headers: reqHeaders });
 
   if (!session || !session.user) {
-    if (process.env.NODE_ENV !== "production") {
-      const fallbackProfile = await prisma.userProfile.findFirst({
-        include: { user: true },
-      });
-      if (fallbackProfile) {
-        return {
-          user: {
-            id: fallbackProfile.user.id,
-            email: fallbackProfile.user.email,
-            name: fallbackProfile.user.name || "Founder Admin",
-          },
-          profile: {
-            id: fallbackProfile.id,
-            role: "ADMIN",
-            isSuspended: false,
-          },
-        };
-      }
-    }
     throw new Error("UNAUTHORIZED: Admin session required.");
   }
 
-  let userProfile = await prisma.userProfile.findUnique({
+  // Strict email lock for the founder account
+  if (session.user.email !== "sham1309kumar@gmail.com") {
+    throw new Error("FORBIDDEN: Admin permissions required.");
+  }
+
+  const userProfile = await prisma.userProfile.findUnique({
     where: { userId: session.user.id },
   });
 
   if (!userProfile) {
-    userProfile = await prisma.userProfile.create({
-      data: {
-        userId: session.user.id,
-        role: "ADMIN",
-      },
-    });
+    throw new Error("FORBIDDEN: Admin profile not found.");
+  }
+
+  if (userProfile.role !== "ADMIN" && userProfile.role !== "SUPER_ADMIN") {
+    throw new Error("FORBIDDEN: Admin permissions required.");
   }
 
   if (userProfile.isSuspended) {
     throw new Error("FORBIDDEN: Account is suspended.");
   }
 
-  let role = (userProfile.role as AdminRole) || "BUYER";
-  const allowedRoles: AdminRole[] = ["ADMIN", "SUPER_ADMIN", "OPERATIONS", "FINANCE", "SUPPORT"];
-
-  if (!allowedRoles.includes(role)) {
-    if (process.env.NODE_ENV !== "production") {
-      await prisma.userProfile.update({
-        where: { id: userProfile.id },
-        data: { role: "ADMIN" },
-      });
-      role = "ADMIN";
-    } else {
-      throw new Error("FORBIDDEN: Admin permissions required.");
-    }
-  }
+  const role = (userProfile.role as AdminRole) || "ADMIN";
 
   if (requiredAction) {
     const permissions = ROLE_PERMISSIONS[role] || [];
     if (!permissions.includes(requiredAction)) {
-      if (process.env.NODE_ENV !== "production") {
-        // Soft fallback for dev
-      } else {
-        throw new Error(`FORBIDDEN: Role '${role}' lacks permission '${requiredAction}'.`);
-      }
+      throw new Error(`FORBIDDEN: Role '${role}' lacks permission '${requiredAction}'.`);
     }
   }
 
