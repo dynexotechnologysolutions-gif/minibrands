@@ -512,32 +512,6 @@ export default function LoginForm() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="w-full py-xl px-base lg:px-xl flex flex-col md:flex-row justify-between items-center gap-base bg-surface-container-highest border-t border-outline-variant">
-        <div className="flex flex-col items-center md:items-start gap-xs">
-          <span className="font-headline-sm text-headline-sm font-bold text-primary">
-            MINIBRANDS
-          </span>
-          <span className="font-body-sm text-body-sm text-on-surface">
-            © 2026 MINIBRANDS India. All rights reserved. Secure Marketplace.
-          </span>
-        </div>
-        <div className="flex flex-wrap justify-center gap-base">
-          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
-            Privacy Policy
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
-            Terms of Service
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
-            Buyer Protection
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary hover:text-primary transition-all" href="/products">
-            Contact Us
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }

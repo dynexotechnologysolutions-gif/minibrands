@@ -2,16 +2,11 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { prisma } from "./prisma";
-import { Resend } from "resend";
 import * as Sentry from "@sentry/nextjs";
 import {
-  getVerificationEmailHtml,
-  getPasswordResetEmailHtml,
   getWelcomeEmailHtml,
-  getAccountLockoutEmailHtml,
 } from "./email-templates";
-
-const resend = new Resend(process.env.RESEND_API_KEY || "re_mock_key");
+import { EmailService } from "./email.service";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -29,26 +24,20 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
     requireEmailVerification: false, // Handled via OTP / token verification flow
     async sendResetPassword({ user, token, url }) {
-      try {
-        if (!process.env.RESEND_API_KEY) {
-          console.log(`[MOCK EMAIL] Password Reset Token for ${user.email}: ${token} (URL: ${url})`);
-          return;
-        }
-        await resend.emails.send({
-          from: process.env.EMAIL_FROM || "Velvet Lane Security <onboarding@resend.dev>",
-          to: user.email,
-          subject: "Reset Your MiniBrands Password",
-          html: getPasswordResetEmailHtml({
-            name: user.name,
-            resetUrl: url || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`,
-            code: token,
-            expiresInMinutes: 15,
-          }),
-        });
-      } catch (error) {
-        Sentry.captureException(error);
-        console.error("Failed to send reset password email:", error);
-      }
+      const resetUrl = url || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`;
+      const { renderPasswordResetEmail } = await import("../emails/password-reset/template");
+      const html = renderPasswordResetEmail({
+        name: user.name,
+        resetUrl,
+        code: token,
+      });
+
+      await EmailService.send({
+        to: user.email,
+        subject: "Reset Your MiniBrands Password",
+        html,
+        category: "AUTH",
+      });
     },
   },
   socialProviders: {
@@ -66,30 +55,7 @@ export const auth = betterAuth({
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        try {
-          if (!process.env.RESEND_API_KEY) {
-            console.log(`[MOCK EMAIL] OTP for ${email} (${type}): ${otp}`);
-            return;
-          }
-          const subject = type === "forget-password"
-            ? "Your MiniBrands Password Reset Code"
-            : "Your MiniBrands Verification Code";
-
-          const html = type === "forget-password"
-            ? getPasswordResetEmailHtml({ code: otp, expiresInMinutes: 5 })
-            : getVerificationEmailHtml({ code: otp, expiresInMinutes: 5 });
-
-          await resend.emails.send({
-            from: process.env.EMAIL_FROM || "Velvet Lane Auth <onboarding@resend.dev>",
-            to: email,
-            subject,
-            html,
-          });
-        } catch (error) {
-          Sentry.captureException(error);
-          console.error("Failed to send verification email:", error);
-          throw error;
-        }
+        await EmailService.sendOTP(email, otp, type);
       },
     }),
   ],
@@ -111,15 +77,13 @@ export const auth = betterAuth({
                 },
               });
 
-              // Send welcome email if Resend is configured
-              if (process.env.RESEND_API_KEY) {
-                resend.emails.send({
-                  from: process.env.EMAIL_FROM || "Velvet Lane <onboarding@resend.dev>",
-                  to: user.email,
-                  subject: "Welcome to MiniBrands Velvet Lane!",
-                  html: getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: targetRole }),
-                }).catch((err) => console.error("Error sending welcome email:", err));
-              }
+              const welcomeHtml = getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: targetRole });
+              EmailService.send({
+                to: user.email,
+                subject: "Welcome to MiniBrands Velvet Lane!",
+                html: welcomeHtml,
+                category: "TRANSACTIONAL",
+              }).catch((err) => console.error("Error sending welcome email:", err));
             }
           } catch (error) {
             Sentry.captureException(error);

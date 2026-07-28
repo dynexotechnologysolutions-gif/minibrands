@@ -275,35 +275,6 @@ export default function WishlistClient({
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="w-full py-xl px-base lg:px-xl flex flex-col md:flex-row justify-between items-center gap-base bg-surface-container-highest dark:bg-surface-container-low border-t border-outline-variant dark:border-outline">
-        <div className="flex flex-col items-center md:items-start gap-sm">
-          <span className="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">
-            MINIBRANDS
-          </span>
-          <p className="font-body-sm text-body-sm text-on-surface dark:text-on-surface-variant">
-            © 2024 MINIBRANDS India. All rights reserved. Secure Marketplace.
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-center gap-lg">
-          <Link className="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">
-            Privacy Policy
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">
-            Terms of Service
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">
-            Buyer Protection
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">
-            Contact Us
-          </Link>
-          <Link className="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-on-surface transition-all cursor-pointer" href="#">
-            Track Order
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }

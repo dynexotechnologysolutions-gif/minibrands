@@ -13,7 +13,7 @@
 import { prisma } from "@/lib/prisma";
 import { createPayout } from "@/lib/razorpay-payouts";
 import { captureAndLogError } from "@/lib/sentry";
-import { sendFounderAlert } from "@/lib/resend";
+import { EmailService } from "@/lib/email.service";
 import { sendMessage, TEMPLATES } from "@/lib/whatsapp";
 
 export interface EscrowReleaseResult {
@@ -78,7 +78,7 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
         { orderId: order.id, sellerId: order.seller.id }
       );
 
-      await sendFounderAlert(
+      await EmailService.sendAlert(
         `Escrow blocked — seller fund account missing`,
         `<p><strong>Order ID:</strong> ${order.id}</p>
          <p><strong>Seller ID:</strong> ${order.seller.id}</p>
@@ -125,7 +125,7 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
         sellerAmount,
       });
 
-      await sendFounderAlert(
+      await EmailService.sendAlert(
         `Razorpay Payout FAILED for Order ${order.id.slice(0, 8)}`,
         `<p><strong>Order ID:</strong> ${order.id}</p>
          <p><strong>Seller:</strong> ${order.seller.businessName}</p>
@@ -174,7 +174,7 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
         note: "CRITICAL: Payout succeeded but DB not updated. Manual intervention required.",
       });
 
-      await sendFounderAlert(
+      await EmailService.sendAlert(
         `CRITICAL: Payout succeeded but DB update FAILED for Order ${order.id.slice(0, 8)}`,
         `<p><strong>Order ID:</strong> ${order.id}</p>
          <p><strong>Payout ID:</strong> ${payoutId}</p>

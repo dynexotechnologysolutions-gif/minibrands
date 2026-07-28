@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { captureAndLogError } from "@/lib/sentry";
-import { sendFounderAlert } from "@/lib/resend";
+import { EmailService } from "@/lib/email.service";
 import crypto from "crypto";
 
 export const maxDuration = 30;
@@ -160,7 +160,7 @@ async function handleNDR(orderReference: string, awbNumber: string, payload: any
     { orderReference, awbNumber, reason }
   );
 
-  await sendFounderAlert(
+  await EmailService.sendAlert(
     `Non-Delivery Report — AWB ${awbNumber}`,
     `<p><strong>Order Reference:</strong> ${orderReference || "N/A"}</p>
      <p><strong>AWB Number:</strong> ${awbNumber}</p>
@@ -186,7 +186,7 @@ async function handleWeightDispute(
     { orderReference, awbNumber, disputeWeight, chargedWeight }
   );
 
-  await sendFounderAlert(
+  await EmailService.sendAlert(
     `Weight Dispute — AWB ${awbNumber}`,
     `<p><strong>Order Reference:</strong> ${orderReference || "N/A"}</p>
      <p><strong>AWB Number:</strong> ${awbNumber}</p>

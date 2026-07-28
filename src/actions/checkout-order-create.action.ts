@@ -129,7 +129,7 @@ export async function createCheckoutOrder(input: {
       });
 
       for (const p of checkoutSession.products) {
-        const dbProduct = await prisma.product.findUnique({
+        const dbProduct = await tx.product.findUnique({
           where: { id: p.productId },
         });
         await tx.orderItem.create({
@@ -144,6 +144,9 @@ export async function createCheckoutOrder(input: {
       }
 
       return dbOrder;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     // 6. Fire initial checkout started events

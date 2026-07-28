@@ -93,6 +93,9 @@ export async function POST(req: Request) {
       });
 
       return dbOrder;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     // 4. Remove purchased items from cart if checkout originated from Cart

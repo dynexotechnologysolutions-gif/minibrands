@@ -138,21 +138,6 @@ function SessionExpiredContent() {
           </div>
         </div>
       </main>
-
-      {/* Global Footer */}
-      <footer className="bg-surface border-t border-outline-variant w-full">
-        <div className="flex flex-col md:flex-row justify-between items-center px-lg py-xl w-full max-w-container-max mx-auto gap-base">
-          <div className="font-label-bold text-on-surface">MINIBRANDS</div>
-          <div className="flex gap-lg">
-            <a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a>
-            <a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Terms of Service</a>
-            <a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Help Center</a>
-          </div>
-          <div className="font-body-sm text-body-sm text-secondary">
-            © 2024 MINIBRANDS Marketplace. Security First.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Velvet Lane | Chennai's Fashion-Forward Local Marketplace",
@@ -21,6 +22,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <Providers>{children}</Providers>
+        <Footer />
       </body>
     </html>
   );

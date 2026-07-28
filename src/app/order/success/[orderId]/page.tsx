@@ -447,49 +447,6 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="w-full mt-xxl bg-surface-container-high border-t border-border-gray">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
-          <div>
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">MINIBRANDS</span>
-            <p className="mt-base text-on-surface-variant font-body-sm">
-              The ultimate destination for premium brands in India. Quality curated, delivered to your doorstep.
-            </p>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-primary mb-base">Quick Links</h5>
-            <ul className="space-y-sm text-on-surface-variant font-body-sm">
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">About Us</Link></li>
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">Contact Us</Link></li>
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">Return Policy</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-primary mb-base">Support</h5>
-            <ul className="space-y-sm text-on-surface-variant font-body-sm">
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</Link></li>
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</Link></li>
-              <li><Link className="hover:underline hover:text-primary transition-all duration-200" href="#">FAQs</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-primary mb-base">Newsletter</h5>
-            <p className="font-body-sm text-on-surface-variant mb-base">Get updates on latest drops and exclusive offers.</p>
-            <div className="flex">
-              <input
-                className="bg-surface-container-lowest border border-border-gray p-2 text-sm rounded-l outline-none w-full"
-                placeholder="Email address"
-                type="email"
-              />
-              <button className="bg-primary text-white px-base rounded-r hover:opacity-90">Join</button>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-border-gray py-base px-base text-center text-on-surface-variant font-body-sm">
-          © 2024 MINIBRANDS India. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }

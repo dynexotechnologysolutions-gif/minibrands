@@ -829,42 +829,6 @@ export default function OrderDetailClient({
             </div>
           </div>
         </div>
-      )}
-
-      {/* Footer */}
-      <footer className="bg-surface-container border-t border-border-gray w-full mt-xxl py-xl px-4 md:px-lg">
-        <div className="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-lg">
-          <div>
-            <h4 className="font-headline-sm text-headline-sm font-bold text-primary mb-base">MINIBRANDS</h4>
-            <p className="font-body-sm text-body-sm text-on-surface">Experience the joy of high-density shopping with the most trusted brands in India.</p>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-label-bold text-primary mb-md">About</h5>
-            <ul className="space-y-sm">
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">About Us</a></li>
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Contact Us</a></li>
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Seller Policies</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-label-bold text-primary mb-md">Support</h5>
-            <ul className="space-y-sm">
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Help Center</a></li>
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Terms of Service</a></li>
-              <li><a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-label-bold text-label-bold text-primary mb-md">Connect</h5>
-            <div className="flex gap-base">
-              <span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">face_nod</span>
-              <span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">hub</span>
-              <span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer">alternate_email</span>
-            </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-lg">© 2024 MINIBRANDS. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      )}    </div>
   );
 }

@@ -40,9 +40,13 @@ vi.mock("../lib/sentry", () => ({
   captureAndLogError: vi.fn(),
 }));
 
-// Mock resend
-vi.mock("../lib/resend", () => ({
-  sendFounderAlert: vi.fn(),
+// Mock email service
+vi.mock("../lib/email.service", () => ({
+  EmailService: {
+    send: vi.fn().mockResolvedValue(true),
+    sendOTP: vi.fn().mockResolvedValue(true),
+    sendAlert: vi.fn().mockResolvedValue(true),
+  },
 }));
 
 // Mock whatsapp
