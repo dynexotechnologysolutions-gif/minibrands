@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import WishlistIconButton from "./WishlistIconButton";
 
 export interface ProductCardProps {
   product: {
@@ -18,9 +19,11 @@ export interface ProductCardProps {
       } | null;
     };
   };
+  isLoggedIn?: boolean;
+  isWishlisted?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, isLoggedIn, isWishlisted }: ProductCardProps) {
   const primaryImage = product.images?.[0]?.url || "/placeholder.jpg";
 
   const priceInINR = Math.round(product.price / 100);
@@ -54,13 +57,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     product.variants.every((v) => v.stockCount === 0);
 
   return (
-    <Link
-      href={`/products/${product.id}`}
-      aria-label={`${product.name} — ${formattedPrice}`}
-      className="group relative flex flex-col bg-surface-container-lowest border border-border-gray rounded-sm overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:-translate-y-[2px] hover:border-on-surface/20"
-    >
+    <div className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden cursor-pointer transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1">
       {/* ── Image Container ─────────────────────────────── */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low flex-shrink-0">
+      <Link href={`/products/${product.id}`} className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
         <Image
           src={primaryImage}
           alt={product.name}
@@ -72,32 +71,37 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Stock badge — top-left */}
         {(isOutOfStock || lowStockVariant) && (
-          <div className="absolute top-xs left-xs">
+          <div className="absolute top-sm left-sm z-10">
             {isOutOfStock ? (
-              <span className="inline-flex items-center px-[6px] py-[3px] rounded-[2px] text-[10px] font-bold bg-error text-on-error uppercase tracking-wider leading-tight select-none">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-vl-danger text-white uppercase tracking-wider leading-tight select-none">
                 Sold Out
               </span>
             ) : (
-              <span className="inline-flex items-center gap-[3px] px-[6px] py-[3px] rounded-[2px] text-[10px] font-bold bg-accent-yellow text-on-surface uppercase tracking-wider leading-tight select-none">
+              <span className="inline-flex items-center gap-[3px] px-2 py-1 rounded-md text-[10px] font-bold bg-vl-accent text-vl-ink uppercase tracking-wider leading-tight select-none">
                 Only {lowStockVariant!.stockCount} left
               </span>
             )}
           </div>
         )}
-      </div>
+      </Link>
+
+      <WishlistIconButton
+        productId={product.id}
+        isLoggedIn={!!isLoggedIn}
+        initialIsWishlisted={!!isWishlisted}
+      />
 
       {/* ── Info Section ────────────────────────────────── */}
-      <div className="flex flex-col flex-1 px-[10px] pt-[10px] pb-[12px] gap-[3px]">
-
+      <Link href={`/products/${product.id}`} className="flex flex-col flex-1 p-4 gap-1 select-none">
         {/* Brand + Verified */}
-        <div className="flex items-center gap-[4px] min-w-0">
-          <span className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.04em] truncate leading-tight">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[11px] font-bold text-vl-muted uppercase tracking-[0.06em] truncate leading-tight">
             {product.seller.businessName}
           </span>
           {isSellerVerified && (
             <span
-              className="material-symbols-outlined text-success-green flex-shrink-0"
-              style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
+              className="material-symbols-outlined text-vl-success flex-shrink-0"
+              style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}
               title="Verified Seller"
             >
               verified
@@ -106,28 +110,23 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Product Name — 2-line clamp */}
-        <h3 className="text-[13px] font-semibold text-on-surface leading-[1.35] line-clamp-2 min-h-[35px] group-hover:text-primary transition-colors duration-200">
+        <h3 className="text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
           {product.name}
         </h3>
 
-        {/* Category pill */}
-        <span className="self-start text-[10px] font-medium text-text-muted uppercase tracking-[0.05em] mt-[1px]">
-          {product.category}
-        </span>
-
         {/* Price row */}
-        <div className="flex items-baseline gap-[6px] mt-[6px] flex-wrap">
-          <span className="text-[15px] font-bold text-on-surface leading-tight tracking-tight">
+        <div className="flex items-baseline gap-2 mt-2 flex-wrap">
+          <span className="text-base font-extrabold text-vl-ink">
             {formattedPrice}
           </span>
-          <span className="text-[12px] text-text-muted line-through leading-tight">
+          <span className="text-xs text-vl-muted line-through">
             {formattedMrp}
           </span>
-          <span className="text-[11px] font-bold text-success-green leading-tight">
+          <span className="text-[11px] font-bold text-vl-primary">
             -{discountPct}%
           </span>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

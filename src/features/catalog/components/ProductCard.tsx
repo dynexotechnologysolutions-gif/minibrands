@@ -76,10 +76,10 @@ export default function ProductCard({
     <Link
       href={`/products/${product.id}`}
       aria-label={`${product.name} by ${brandName} — ${formattedPrice}`}
-      className="group relative flex flex-col bg-surface-container-lowest border border-border-gray rounded-sm overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:-translate-y-[2px] hover:border-on-surface/20"
+      className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden cursor-pointer transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1"
     >
       {/* ── Image Container ───────────────────────────────── */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low flex-shrink-0">
+      <div className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0">
         <img
           src={primaryImage}
           alt={product.name}
@@ -95,7 +95,7 @@ export default function ProductCard({
         {/* Badge — top-left */}
         {badge && (
           <span
-            className={`absolute top-xs left-xs px-[6px] py-[3px] text-[10px] font-bold uppercase tracking-wider rounded-[2px] leading-tight ${badge.bg} ${badge.text} select-none`}
+            className={`absolute top-sm left-sm px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md leading-tight ${badge.bg === 'bg-primary' ? 'bg-vl-primary text-white' : badge.bg === 'bg-accent-yellow' ? 'bg-vl-accent text-vl-ink' : 'bg-vl-success text-white'} select-none`}
           >
             {badge.label}
           </span>
@@ -106,18 +106,18 @@ export default function ProductCard({
           onClick={handleWishlistClick}
           disabled={isToggling}
           aria-label={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className={`absolute top-xs right-xs w-8 h-8 flex items-center justify-center rounded-full bg-white/85 backdrop-blur-[4px] shadow-sm transition-all duration-200 cursor-pointer z-10 ${
-            isToggling ? "opacity-60" : "hover:scale-110 hover:bg-white active:scale-95"
+          className={`absolute top-sm right-sm w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-[4px] shadow-vl-soft transition-all duration-200 cursor-pointer z-10 ${
+            isToggling ? "opacity-60" : "hover:scale-110 active:scale-95"
           }`}
         >
           <span
             className={`material-symbols-outlined text-[18px] transition-colors duration-150 ${
-              product.isWishlisted ? "text-error-red" : "text-on-surface/50 group-hover:text-on-surface/80"
+              product.isWishlisted ? "text-vl-primary" : "text-vl-muted hover:text-vl-primary"
             }`}
             style={{
               fontVariationSettings: product.isWishlisted
-                ? "'FILL' 1, 'wght' 400"
-                : "'FILL' 0, 'wght' 300",
+                ? "'FILL' 1, 'wght' 500"
+                : "'FILL' 0, 'wght' 400",
             }}
           >
             favorite
@@ -126,17 +126,16 @@ export default function ProductCard({
       </div>
 
       {/* ── Info Section ──────────────────────────────────── */}
-      <div className="flex flex-col flex-1 px-[10px] pt-[10px] pb-[12px] gap-[3px]">
-
+      <div className="flex flex-col flex-1 p-4 gap-1 select-none">
         {/* Brand + Verified */}
-        <div className="flex items-center gap-[4px] min-w-0">
-          <span className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.04em] truncate leading-tight">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[11px] font-bold text-vl-muted uppercase tracking-[0.06em] truncate leading-tight">
             {brandName}
           </span>
           {isSellerVerified && (
             <span
-              className="material-symbols-outlined text-success-green flex-shrink-0"
-              style={{ fontSize: "13px", fontVariationSettings: "'FILL' 1" }}
+              className="material-symbols-outlined text-vl-success flex-shrink-0"
+              style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}
               title="Verified Seller"
             >
               verified
@@ -145,13 +144,13 @@ export default function ProductCard({
         </div>
 
         {/* Product Name — 2-line clamp */}
-        <h3 className="text-[13px] font-semibold text-on-surface leading-[1.35] line-clamp-2 min-h-[35px]">
+        <h3 className="text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
           {product.name}
         </h3>
 
         {/* Rating */}
         <div className="flex items-center gap-[5px] mt-[1px]">
-          <div className="inline-flex items-center gap-[2px] bg-success-green text-white text-[10px] font-bold px-[5px] py-[2px] rounded-[2px] leading-none">
+          <div className="inline-flex items-center gap-[2px] bg-vl-success text-white text-[10px] font-bold px-[6px] py-[2px] rounded-md leading-none">
             {product.rating.toFixed(1)}
             <span
               className="material-symbols-outlined"
@@ -160,22 +159,22 @@ export default function ProductCard({
               star
             </span>
           </div>
-          <span className="text-[11px] text-text-muted leading-none">
+          <span className="text-[11px] text-vl-muted leading-none">
             ({product.formattedReviews})
           </span>
         </div>
 
         {/* Price row */}
-        <div className="flex items-baseline gap-[6px] mt-[5px] flex-wrap">
-          <span className="text-[15px] font-bold text-on-surface leading-tight tracking-tight">
+        <div className="flex items-baseline gap-2 mt-2 flex-wrap">
+          <span className="text-base font-extrabold text-vl-ink">
             {formattedPrice}
           </span>
           {mrpInINR > priceInINR && (
             <>
-              <span className="text-[12px] text-text-muted line-through leading-tight">
+              <span className="text-xs text-vl-muted line-through">
                 {formattedMrp}
               </span>
-              <span className="text-[11px] font-bold text-success-green leading-tight">
+              <span className="text-[11px] font-bold text-vl-primary">
                 -{product.discountPercent}%
               </span>
             </>

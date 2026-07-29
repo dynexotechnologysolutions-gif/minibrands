@@ -1,154 +1,44 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { ArrowUpRight, BadgeCheck, Camera, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const pathname = usePathname();
-  
-  // Exclude dashboard layout groups from showing global footer
   const isDashboard = pathname?.startsWith("/admin") || pathname?.startsWith("/seller");
   if (isDashboard) return null;
 
   const isCheckout = pathname === "/checkout";
+  if (isCheckout) {
+    return (
+      <footer className="w-full border-t border-vl-border bg-vl-card" role="contentinfo">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-center sm:flex-row sm:text-left sm:px-6 lg:px-8">
+          <div><Link href="/" className="font-vl-heading text-base font-extrabold tracking-[-0.03em] text-vl-ink">MiniBrands</Link><p className="mt-1 text-xs text-vl-muted">Secure, escrow-protected checkout</p></div>
+          <div className="flex items-center gap-4 text-xs text-vl-muted"><Link href="/privacy" className="transition hover:text-vl-primary">Privacy</Link><Link href="/terms" className="transition hover:text-vl-primary">Terms</Link><Link href="/returns-policy" className="transition hover:text-vl-primary">Returns</Link></div>
+          <p className="text-xs text-vl-muted">© {new Date().getFullYear()} MiniBrands</p>
+        </div>
+      </footer>
+    );
+  }
 
   return (
-    <footer className="w-full bg-slate-900 border-t border-slate-800 text-slate-300" role="contentinfo">
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        
-        {/* If checkout flow, display minimal trust-centric footer only */}
-        {isCheckout ? (
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex flex-col items-center md:items-start">
-              <span className="text-lg font-extrabold tracking-wider text-white">MINIBRANDS</span>
-              <p className="text-xs text-slate-500 mt-1">Escrow-Protected Checkout</p>
-            </div>
-            
-            <div className="flex items-center gap-4 text-xs text-slate-400">
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <span className="text-slate-700">|</span>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-              <span className="text-slate-700">|</span>
-              <Link href="/returns-policy" className="hover:text-white transition-colors">Refund Policy</Link>
-            </div>
-            
-            <div className="text-xs text-slate-500">
-              © {new Date().getFullYear()} MiniBrands. All rights reserved.
-            </div>
+    <footer className="mt-20 w-full border-t border-vl-border bg-vl-card" role="contentinfo">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2 font-vl-heading text-2xl font-extrabold tracking-[-0.05em] text-vl-ink"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-vl-primary text-base text-white">M</span>MiniBrands</Link>
+            <p className="mt-4 max-w-xs text-sm leading-6 text-vl-muted">A fashion marketplace for independent labels, expressive wardrobes, and pieces with a point of view.</p>
+            <div className="mt-5 flex items-center gap-2 text-xs font-semibold text-vl-muted"><BadgeCheck aria-hidden="true" className="h-4 w-4 text-vl-success" />Verified labels, thoughtfully shipped</div>
           </div>
-        ) : (
-          /* Main full-scale footer */
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-              
-              {/* Brand and Description */}
-              <div className="col-span-2 md:col-span-1">
-                <span className="text-xl font-extrabold tracking-wider text-white">MINIBRANDS</span>
-                <p className="mt-3 text-sm text-slate-400 leading-relaxed">
-                  Chennai's forward-looking fashion marketplace. Shop curated premium styles from verified independent designers.
-                </p>
-              </div>
-
-              {/* Shop Links */}
-              <div>
-                <h3 className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-4">Shop</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link href="/catalog" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Browse Catalog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog?category=ethnic" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Ethnic Wear
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/catalog?category=streetwear" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Streetwear
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Company Info */}
-              <div>
-                <h3 className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-4">Company</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link href="/about" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Our Story
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/about#careers" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Careers
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/about#blog" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Blog
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Support & Legal */}
-              <div>
-                <h3 className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-4">Support & Legal</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link href="/contact" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Contact Us
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/faqs" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Help Center & FAQs
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Privacy Policy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/terms" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Terms of Service
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/returns-policy" className="text-slate-400 hover:text-white transition-colors focus:ring-2 focus:ring-indigo-500 rounded p-1">
-                      Returns & Refunds
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-            </div>
-
-            {/* Bottom Section */}
-            <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-              
-              {/* Copyright */}
-              <p className="text-xs text-slate-500 order-2 sm:order-1">
-                © {new Date().getFullYear()} MiniBrands Velvet Lane India. All rights reserved.
-              </p>
-              
-              {/* Security & Verification Badges */}
-              <div className="flex items-center gap-3 order-1 sm:order-2">
-                <span className="text-slate-600 text-xs uppercase tracking-wide">Secured By</span>
-                <div className="flex gap-2">
-                  <span className="px-2 py-1 bg-slate-800 border border-slate-700 text-slate-400 font-extrabold text-[10px] rounded tracking-widest uppercase">Razorpay</span>
-                  <span className="px-2 py-1 bg-slate-800 border border-slate-700 text-slate-400 font-extrabold text-[10px] rounded tracking-widest uppercase">UPI</span>
-                  <span className="px-2 py-1 bg-slate-800 border border-slate-700 text-emerald-500 font-bold text-[10px] rounded tracking-wide uppercase">Escrow Secure</span>
-                </div>
-              </div>
-
-            </div>
-          </>
-        )}
-
+          <div><h2 className="text-xs font-bold uppercase tracking-[0.16em] text-vl-ink">Shop</h2><ul className="mt-4 space-y-3 text-sm text-vl-muted"><li><Link href="/products" className="transition hover:text-vl-primary">Browse everything</Link></li><li><Link href="/products?category=western" className="transition hover:text-vl-primary">Western edit</Link></li><li><Link href="/products?category=ethnic" className="transition hover:text-vl-primary">Ethnic edit</Link></li><li><Link href="/products?category=accessories" className="transition hover:text-vl-primary">Accessories</Link></li></ul></div>
+          <div><h2 className="text-xs font-bold uppercase tracking-[0.16em] text-vl-ink">MiniBrands</h2><ul className="mt-4 space-y-3 text-sm text-vl-muted"><li><Link href="/about" className="transition hover:text-vl-primary">Our story</Link></li><li><Link href="/about#careers" className="transition hover:text-vl-primary">Careers</Link></li><li><Link href="/about#blog" className="transition hover:text-vl-primary">Journal</Link></li><li><Link href="/login?role=seller" className="transition hover:text-vl-primary">Become a seller</Link></li></ul></div>
+          <div><h2 className="text-xs font-bold uppercase tracking-[0.16em] text-vl-ink">Support</h2><ul className="mt-4 space-y-3 text-sm text-vl-muted"><li><Link href="/contact" className="transition hover:text-vl-primary">Contact us</Link></li><li><Link href="/faqs" className="transition hover:text-vl-primary">Help & FAQs</Link></li><li><Link href="/returns-policy" className="transition hover:text-vl-primary">Returns & refunds</Link></li><li><Link href="/privacy" className="transition hover:text-vl-primary">Privacy policy</Link></li></ul></div>
+        </div>
+        <div className="mt-12 flex flex-col gap-5 border-t border-vl-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-vl-muted">© {new Date().getFullYear()} MiniBrands India. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-vl-muted"><span className="inline-flex items-center gap-1.5"><ShieldCheck aria-hidden="true" className="h-4 w-4 text-vl-success" /> Secure checkout</span><span className="inline-flex items-center gap-1.5"><Sparkles aria-hidden="true" className="h-4 w-4 text-vl-accent" /> Curated independent labels</span><Link href="https://instagram.com" aria-label="MiniBrands on Instagram" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-vl-border transition hover:border-vl-primary hover:text-vl-primary"><Camera aria-hidden="true" className="h-4 w-4" /></Link><ArrowUpRight aria-hidden="true" className="hidden h-4 w-4 sm:block" /></div>
+        </div>
       </div>
     </footer>
   );

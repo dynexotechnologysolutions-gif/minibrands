@@ -63,16 +63,16 @@ export default function WishlistIconButton({
     <button
       onClick={handleWishlistClick}
       disabled={isToggling}
-      className="absolute top-sm right-sm w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-text-muted hover:text-error-red transition-colors z-10 cursor-pointer disabled:opacity-50 animate-fade-in"
+      className="absolute top-sm right-sm w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-vl-muted hover:text-vl-primary transition-all duration-vl-fast hover:scale-105 z-10 cursor-pointer disabled:opacity-50 shadow-vl-soft"
       suppressHydrationWarning={true}
     >
       <span
-        className={`material-symbols-outlined text-[20px] transition-colors ${
-          isWishlisted ? "text-error-red" : ""
+        className={`material-symbols-outlined text-[18px] transition-colors ${
+          isWishlisted ? "text-vl-primary" : ""
         }`}
         style={{
           fontVariationSettings: isWishlisted
-            ? "'FILL' 1, 'wght' 400"
+            ? "'FILL' 1, 'wght' 500"
             : "'FILL' 0, 'wght' 400",
         }}
       >

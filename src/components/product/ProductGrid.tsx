@@ -3,9 +3,11 @@ import ProductCard, { ProductCardProps } from "./ProductCard";
 
 interface ProductGridProps {
   products: ProductCardProps["product"][];
+  isLoggedIn?: boolean;
+  wishlistIds?: string[];
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+export default function ProductGrid({ products, isLoggedIn, wishlistIds }: ProductGridProps) {
   if (!products || products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -17,7 +19,12 @@ export default function ProductGrid({ products }: ProductGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          isLoggedIn={isLoggedIn}
+          isWishlisted={wishlistIds?.includes(product.id)}
+        />
       ))}
     </div>
   );
