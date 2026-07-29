@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     if (uploadType === "profile") {
       const timestamp = Math.round(new Date().getTime() / 1000);
-      const folder = `velvetlane/profiles/${session.user.id}`;
+      const folder = `MiniBrands/profiles/${session.user.id}`;
 
       const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
       const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     if (uploadType === "review") {
       const timestamp = Math.round(new Date().getTime() / 1000);
-      const folder = `velvetlane/reviews/${session.user.id}`;
+      const folder = `MiniBrands/reviews/${session.user.id}`;
 
       const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
       const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
 
     if (uploadType === "verification") {
       const timestamp = Math.round(new Date().getTime() / 1000);
-      const folder = `velvetlane/verifications/${session.user.id}`;
+      const folder = `MiniBrands/verifications/${session.user.id}`;
 
       const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
       const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
 
     // 3. Generate signed token parameters
     const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = `velvetlane/products/${userProfile.seller.id}`;
+    const folder = `MiniBrands/products/${userProfile.seller.id}`;
 
     const apiSecret = process.env.CLOUDINARY_API_SECRET || "mock_cloudinary_secret";
     const apiKey = process.env.CLOUDINARY_API_KEY || "mock_cloudinary_key";

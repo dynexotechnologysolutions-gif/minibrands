@@ -4,13 +4,21 @@ import { SMTPProvider } from "../providers/email/smtp.provider";
 import { MockEmailProvider } from "../providers/email/mock.provider";
 import { validateEmailConfig } from "../providers/email/config";
 import * as Sentry from "@sentry/nextjs";
+import crypto from "crypto";
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export class EmailService {
   private static providerInstance: EmailProvider | null = null;
 
   private static getProvider(): EmailProvider {
     if (!this.providerInstance) {
-      // Validate configuration at startup
       validateEmailConfig();
 
       if (process.env.USE_SMTP_TRANSPORT === "true") {
@@ -26,17 +34,32 @@ export class EmailService {
 
   static async send(options: EmailSendOptions): Promise<boolean> {
     const provider = this.getProvider();
-    
-    // 1. Create audit log in PENDING state
+    const requestId = crypto.randomUUID();
+    const correlationId = options.correlationId || crypto.randomUUID();
+    options.correlationId = correlationId;
+
+    if (!options.text) {
+      options.text = stripHtml(options.html);
+    }
+    if (!options.replyTo) {
+      options.replyTo = "support@minibrands.in";
+    }
+
+    const providerName = process.env.USE_SMTP_TRANSPORT === "true" ? "SMTP" : "Mock";
+    const transportType = process.env.USE_SMTP_TRANSPORT === "true" ? "smtp" : "console";
+
     let auditLog;
     try {
       auditLog = await prisma.emailAuditLog.create({
         data: {
+          id: requestId,
           recipient: options.to,
           subject: options.subject,
           category: options.category,
           status: "PENDING",
           attempts: 1,
+          provider: providerName,
+          transport: transportType,
         },
       });
     } catch (dbError) {
@@ -44,26 +67,33 @@ export class EmailService {
       Sentry.captureException(dbError);
     }
 
+    const startTime = performance.now();
     try {
-      // 2. Perform the async send via Provider
       const result = await provider.send(options);
+      const latency = Math.round(performance.now() - startTime);
 
-      // 3. Update Audit Log to SENT
+      const isDelivered = result.accepted.includes(options.to) && !result.rejected.includes(options.to);
+
       if (auditLog) {
         await prisma.emailAuditLog.update({
           where: { id: auditLog.id },
           data: {
-            status: "SENT",
-            errorLog: `MessageId: ${result.messageId}`,
+            status: isDelivered ? "SENT" : "FAILED",
+            accepted: result.accepted,
+            rejected: result.rejected,
+            smtpResponse: result.response,
+            latency,
+            messageId: result.messageId,
+            providerResponse: JSON.stringify(result),
           },
         });
       }
-      return true;
+      return isDelivered;
     } catch (error: any) {
+      const latency = Math.round(performance.now() - startTime);
       console.error(`[EmailService] Failed to send email to ${options.to}:`, error);
       Sentry.captureException(error);
 
-      // 4. Update Audit Log to FAILED
       if (auditLog) {
         try {
           await prisma.emailAuditLog.update({
@@ -71,6 +101,7 @@ export class EmailService {
             data: {
               status: "FAILED",
               errorLog: error.message || String(error),
+              latency,
             },
           });
         } catch (updateError) {
@@ -104,7 +135,7 @@ export class EmailService {
 
   static async sendAlert(subject: string, body: string): Promise<boolean> {
     const { renderAdminAlertEmail } = await import("../emails/admin-alert/template");
-    const founderEmail = process.env.FOUNDER_EMAIL || "hello@velvetlane.in";
+    const founderEmail = process.env.FOUNDER_EMAIL || "hello@MiniBrands.in";
     const html = renderAdminAlertEmail({ subject, body });
 
     return this.send({

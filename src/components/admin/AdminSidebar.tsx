@@ -35,7 +35,7 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({
   userName = "Founder Admin",
-  userEmail = "founder@velvetlane.in",
+  userEmail = "founder@MiniBrands.in",
   role = "ADMIN",
   isOpenMobile = false,
   onCloseMobile,

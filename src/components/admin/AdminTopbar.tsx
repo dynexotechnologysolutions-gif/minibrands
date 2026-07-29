@@ -26,7 +26,7 @@ interface AdminTopbarProps {
 
 export default function AdminTopbar({
   userName = "Founder Admin",
-  userEmail = "founder@velvetlane.in",
+  userEmail = "founder@MiniBrands.in",
   role = "ADMIN",
   onOpenMobileSidebar,
 }: AdminTopbarProps) {

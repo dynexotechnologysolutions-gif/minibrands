@@ -28,7 +28,7 @@ interface SellerSidebarProps {
 
 export default function SellerSidebar({
   storeName = "Merchant Store",
-  storeEmail = "seller@velvetlane.in",
+  storeEmail = "seller@MiniBrands.in",
   isKycVerified = true,
   isOpenMobile = false,
   onCloseMobile,

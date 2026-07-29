@@ -25,7 +25,7 @@ vi.mock("../lib/auth", () => ({
 // Mock admin auth
 vi.mock("../lib/admin-auth", () => ({
   verifyAdminSession: vi.fn().mockResolvedValue({
-    user: { id: "admin-1", email: "admin@velvetlane.in" },
+    user: { id: "admin-1", email: "admin@MiniBrands.in" },
     profile: { role: "ADMIN" },
   }),
 }));

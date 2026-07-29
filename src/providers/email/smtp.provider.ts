@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { EmailProvider, EmailSendOptions } from "./email.provider";
+import { EmailProvider, EmailSendOptions, EmailSendResult } from "./email.provider";
 
 export class SMTPProvider implements EmailProvider {
   private transporter: nodemailer.Transporter;
@@ -19,16 +19,39 @@ export class SMTPProvider implements EmailProvider {
     });
   }
 
-  async send(options: EmailSendOptions): Promise<{ messageId: string }> {
+  async send(options: EmailSendOptions): Promise<EmailSendResult> {
+    const headers: Record<string, string> = {};
+    if (options.correlationId) {
+      headers["X-Correlation-ID"] = options.correlationId;
+    }
+
+    const startTime = performance.now();
     const info = await this.transporter.sendMail({
-      from: process.env.SMTP_FROM || "Velvet Lane <onboarding@resend.dev>",
+      from: process.env.SMTP_FROM || "MiniBrands <onboarding@resend.dev>",
       to: options.to,
       subject: options.subject,
       html: options.html,
+      text: options.text,
+      replyTo: options.replyTo,
+      headers,
       attachments: options.attachments,
     });
+    const messageTime = Math.round(performance.now() - startTime);
+    const messageSize = Buffer.byteLength(options.html + (options.text || "") + options.subject);
 
-    return { messageId: info.messageId };
+    return {
+      messageId: info.messageId,
+      accepted: info.accepted as string[],
+      rejected: info.rejected as string[],
+      pending: info.pending as string[],
+      response: info.response,
+      envelope: {
+        from: info.envelope.from,
+        to: info.envelope.to as string[],
+      },
+      messageTime,
+      messageSize,
+    };
   }
 
   async verify(): Promise<boolean> {

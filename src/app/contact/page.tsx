@@ -42,7 +42,7 @@ export default function ContactPage() {
           <div className="space-y-6">
             <div>
               <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Support Email</h3>
-              <p className="text-lg font-medium text-slate-900 mt-1">support@velvetlane.in</p>
+              <p className="text-lg font-medium text-slate-900 mt-1">support@MiniBrands.in</p>
             </div>
 
             <div>

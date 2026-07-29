@@ -23,7 +23,7 @@ describe("Production Authentication Architecture Tests", () => {
     });
 
     it("accepts valid strong passwords satisfying all 5 security criteria", () => {
-      const result = validatePassword("VelvetLane#2026");
+      const result = validatePassword("MiniBrands#2026");
       expect(result.isValid).toBe(true);
       expect(result.checks.minLength).toBe(true);
       expect(result.checks.hasUppercase).toBe(true);

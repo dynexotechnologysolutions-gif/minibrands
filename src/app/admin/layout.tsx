@@ -42,7 +42,7 @@ export default async function AdminRootLayout({
 
   const role = authResult.userProfile?.role || Role.BUYER;
   const userName = authResult.session?.user.name || "Founder Admin";
-  const userEmail = authResult.session?.user.email || "admin@velvetlane.in";
+  const userEmail = authResult.session?.user.email || "admin@MiniBrands.in";
 
   return (
     <AdminLayout userName={userName} userEmail={userEmail} role={role}>

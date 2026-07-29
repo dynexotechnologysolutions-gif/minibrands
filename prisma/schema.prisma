@@ -557,15 +557,23 @@ model PlatformSetting {
 }
 
 model EmailAuditLog {
-  id          String   @id @default(uuid())
-  recipient   String
-  subject     String
-  category    String
-  status      String
-  attempts    Int      @default(0)
-  errorLog    String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String    @id @default(uuid())
+  recipient        String
+  subject          String
+  category         String
+  status           String
+  attempts         Int       @default(0)
+  errorLog         String?   @db.Text
+  provider         String?
+  transport        String?
+  accepted         String[]
+  rejected         String[]
+  smtpResponse     String?
+  latency          Int?
+  messageId        String?
+  providerResponse String?   @db.Text
+  createdAt        DateTime  @db.Timestamp(3) @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([recipient])
   @@index([status])

@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">4. Your Privacy Rights</h2>
             <p>
-              You may request access to, edit, or delete your personal account data by logging into your account settings page or contacting our support team at <a href="mailto:privacy@velvetlane.in" className="text-indigo-600 hover:underline">privacy@velvetlane.in</a>.
+              You may request access to, edit, or delete your personal account data by logging into your account settings page or contacting our support team at <a href="mailto:privacy@MiniBrands.in" className="text-indigo-600 hover:underline">privacy@MiniBrands.in</a>.
             </p>
           </div>
         </section>

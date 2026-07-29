@@ -9,7 +9,7 @@ interface QuickInfoBentoProps {
   storeName?: string;
 }
 
-export default function QuickInfoBento({ sellerId, userEmail = "care@velvetlane.in", storeName = "Boutique" }: QuickInfoBentoProps) {
+export default function QuickInfoBento({ sellerId, userEmail = "care@MiniBrands.in", storeName = "Boutique" }: QuickInfoBentoProps) {
   const [copied, setCopied] = useState(false);
   const storeUrl = `minibrands.com/sellers/${sellerId}`;
 

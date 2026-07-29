@@ -42,7 +42,7 @@ export default function AboutPage() {
         <section id="careers" className="mb-12 border-t border-slate-200 pt-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Careers</h2>
           <p className="text-slate-600 leading-relaxed">
-            Interested in building Chennai's next-generation fashion marketplace? Drop us a note with your resume at <a href="mailto:careers@velvetlane.in" className="text-indigo-600 hover:underline">careers@velvetlane.in</a>. We are always looking for software developers, product designers, and creative merchant relations specialists.
+            Interested in building Chennai's next-generation fashion marketplace? Drop us a note with your resume at <a href="mailto:careers@MiniBrands.in" className="text-indigo-600 hover:underline">careers@MiniBrands.in</a>. We are always looking for software developers, product designers, and creative merchant relations specialists.
           </p>
         </section>
 

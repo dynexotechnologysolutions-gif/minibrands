@@ -12,7 +12,7 @@ export default function NotificationsLogPage() {
     setLogs([
       { id: "1", to: "buyer@example.com", template: "ORDER_CONFIRMED", status: "sent", createdAt: new Date().toISOString() },
       { id: "2", to: "+919876543210", template: "WHATSAPP_OTP", status: "sent", createdAt: new Date().toISOString() },
-      { id: "3", to: "seller@velvetlane.in", template: "KYC_APPROVED", status: "sent", createdAt: new Date().toISOString() },
+      { id: "3", to: "seller@MiniBrands.in", template: "KYC_APPROVED", status: "sent", createdAt: new Date().toISOString() },
     ]);
     setIsLoading(false);
   }, []);

@@ -6,7 +6,7 @@ const emailEnvSchema = z.object({
   SMTP_PORT: z.coerce.number().default(587),
   SMTP_USER: z.string().min(1),
   SMTP_PASSWORD: z.string().min(1),
-  SMTP_FROM: z.string().email(),
+  SMTP_FROM: z.string().min(5),
 });
 
 export function validateEmailConfig() {

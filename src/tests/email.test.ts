@@ -62,18 +62,26 @@ describe("SMTP/Email Infrastructure Tests", () => {
       expect(success).toBe(true);
       expect(prisma.emailAuditLog.create).toHaveBeenCalledWith({
         data: {
+          id: expect.any(String),
           recipient: "recipient@domain.com",
           subject: "Hello!",
           category: "TRANSACTIONAL",
           status: "PENDING",
           attempts: 1,
+          provider: "Mock",
+          transport: "console",
         },
       });
       expect(prisma.emailAuditLog.update).toHaveBeenCalledWith({
         where: { id: "log-123" },
         data: {
           status: "SENT",
-          errorLog: expect.stringContaining("MessageId: mock-msg-"),
+          accepted: ["recipient@domain.com"],
+          rejected: [],
+          smtpResponse: "250 2.0.0 OK (mock sandbox)",
+          latency: expect.any(Number),
+          messageId: expect.stringContaining("mock-msg-"),
+          providerResponse: expect.any(String),
         },
       });
     });

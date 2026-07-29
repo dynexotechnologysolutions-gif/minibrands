@@ -23,7 +23,7 @@ export default function SellerLayout({ children, sellerInfo }: SellerLayoutProps
       {/* Sidebar Shell */}
       <SellerSidebar
         storeName={sellerInfo?.businessName || sellerInfo?.storeName || "Seller Store"}
-        storeEmail={sellerInfo?.userEmail || "seller@velvetlane.in"}
+        storeEmail={sellerInfo?.userEmail || "seller@MiniBrands.in"}
         isKycVerified={sellerInfo?.isKycVerified ?? true}
         isOpenMobile={isOpenMobile}
         onCloseMobile={() => setIsOpenMobile(false)}

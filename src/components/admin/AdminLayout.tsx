@@ -15,7 +15,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({
   children,
   userName = "Founder Admin",
-  userEmail = "founder@velvetlane.in",
+  userEmail = "founder@MiniBrands.in",
   role = "ADMIN",
 }: AdminLayoutProps) {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
