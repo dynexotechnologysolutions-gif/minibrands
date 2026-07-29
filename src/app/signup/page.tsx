@@ -87,6 +87,16 @@ function SignupForm() {
       if (response.error) {
         setError(response.error.message || "Signup failed. Email may already be in use.");
       } else {
+        if (role !== "SELLER") {
+          try {
+            await authClient.emailOtp.sendVerificationOtp({
+              email: email,
+              type: "email-verification",
+            });
+          } catch (otpErr) {
+            console.error("Failed to auto-send verification OTP on registration:", otpErr);
+          }
+        }
         setSuccessMessage("Account created successfully! Redirecting...");
         setTimeout(() => {
           if (role === "SELLER") {
