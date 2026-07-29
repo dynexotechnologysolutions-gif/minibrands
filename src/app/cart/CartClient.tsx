@@ -259,42 +259,6 @@ export default function CartClient({
             </Link>
           </div>
         </main>
-        {/* Footer Component */}
-        <footer className="bg-surface-container-high text-on-surface w-full mt-xxl border-t border-border-gray">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
-            <div className="space-y-base">
-              <span className="font-headline-sm text-headline-sm font-bold text-primary">MINIBRANDS</span>
-              <p className="font-body-sm text-on-surface-variant max-w-xs">
-                Elevating the shopping experience across India with curated selections and artisanal excellence.
-              </p>
-              <p className="font-body-sm text-body-sm">© 2024 MINIBRANDS India. All rights reserved.</p>
-            </div>
-            <div className="space-y-base">
-              <h4 className="font-label-bold text-primary">Company</h4>
-              <ul className="space-y-sm">
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">About Us</a></li>
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Terms of Service</a></li>
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Privacy Policy</a></li>
-              </ul>
-            </div>
-            <div className="space-y-base">
-              <h4 className="font-label-bold text-primary">Customer Care</h4>
-              <ul className="space-y-sm">
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Return Policy</a></li>
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Contact Us</a></li>
-                <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">FAQ</a></li>
-              </ul>
-            </div>
-            <div className="space-y-base">
-              <h4 className="font-label-bold text-primary">Connect</h4>
-              <div className="flex gap-base">
-                <span className="material-symbols-outlined cursor-pointer hover:text-primary">language</span>
-                <span className="material-symbols-outlined cursor-pointer hover:text-primary">share</span>
-                <span className="material-symbols-outlined cursor-pointer hover:text-primary">mail</span>
-              </div>
-            </div>
-          </div>
-        </footer>
       </div>
     );
   }
@@ -526,43 +490,6 @@ export default function CartClient({
           </div>
         </div>
       </main>
-
-      {/* Footer Component */}
-      <footer className="bg-surface-container-high text-on-surface w-full mt-xxl border-t border-border-gray">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
-          <div className="space-y-base">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">MINIBRANDS</span>
-            <p className="font-body-sm text-on-surface-variant max-w-xs">
-              Elevating the shopping experience across India with curated selections and artisanal excellence.
-            </p>
-            <p className="font-body-sm text-body-sm">© 2024 MINIBRANDS India. All rights reserved.</p>
-          </div>
-          <div className="space-y-base">
-            <h4 className="font-label-bold text-primary">Company</h4>
-            <ul className="space-y-sm">
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">About Us</a></li>
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Terms of Service</a></li>
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-          <div className="space-y-base">
-            <h4 className="font-label-bold text-primary">Customer Care</h4>
-            <ul className="space-y-sm">
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Return Policy</a></li>
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">Contact Us</a></li>
-              <li><a className="text-on-surface-variant hover:underline hover:text-primary transition-all duration-200 font-body-sm" href="#">FAQ</a></li>
-            </ul>
-          </div>
-          <div className="space-y-base">
-            <h4 className="font-label-bold text-primary">Connect</h4>
-            <div className="flex gap-base">
-              <span className="material-symbols-outlined cursor-pointer hover:text-primary">language</span>
-              <span className="material-symbols-outlined cursor-pointer hover:text-primary">share</span>
-              <span className="material-symbols-outlined cursor-pointer hover:text-primary">mail</span>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

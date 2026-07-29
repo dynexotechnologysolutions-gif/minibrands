@@ -699,55 +699,6 @@ export default function AddressClient({
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full mt-xxl bg-surface-container-high dark:bg-surface-container-high border-t border-border-gray dark:border-outline-variant">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
-          <div className="space-y-md">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary">MINIBRANDS</span>
-            <p className="font-body-sm text-on-surface-variant leading-relaxed">
-              India's leading destination for curated brands and exclusive collections. Experience the future of commerce.
-            </p>
-            <div className="flex gap-base">
-              <a className="text-secondary hover:text-primary transition-all" href="#"><span className="material-symbols-outlined">public</span></a>
-              <a className="text-secondary hover:text-primary transition-all" href="#"><span className="material-symbols-outlined">alternate_email</span></a>
-            </div>
-          </div>
-          <div className="space-y-md">
-            <h4 className="font-label-bold text-label-bold text-primary">Company</h4>
-            <ul className="space-y-sm">
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">About Us</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Careers</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</a></li>
-            </ul>
-          </div>
-          <div className="space-y-md">
-            <h4 className="font-label-bold text-label-bold text-primary">Policies</h4>
-            <ul className="space-y-sm">
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Return Policy</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Refund Policy</a></li>
-            </ul>
-          </div>
-          <div className="space-y-md">
-            <h4 className="font-label-bold text-label-bold text-primary">Help & Support</h4>
-            <ul className="space-y-sm">
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Contact Us</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">FAQs</a></li>
-              <li><a className="font-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Track Order</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-border-gray px-base py-base">
-          <div className="max-w-container-max mx-auto flex flex-col md:row justify-between items-center gap-sm">
-            <p className="font-body-sm text-on-surface-variant">© 2024 MINIBRANDS India. All rights reserved.</p>
-            <div className="flex gap-base grayscale opacity-60">
-              <span className="material-symbols-outlined">credit_card</span>
-              <span className="material-symbols-outlined">account_balance</span>
-              <span className="material-symbols-outlined">payments</span>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

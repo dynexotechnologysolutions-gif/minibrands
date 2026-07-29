@@ -676,43 +676,6 @@ export default function CheckoutClient({
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full mt-xxl bg-surface-container-high border-t border-border-gray">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-base px-base py-xl max-w-container-max mx-auto">
-          <div>
-            <h4 className="font-headline-sm text-headline-sm font-bold text-primary mb-base">MINIBRANDS</h4>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              India's leading marketplace for direct-to-consumer and boutique brands. Quality products, secure payments, and fast delivery.
-            </p>
-          </div>
-          <div className="space-y-sm">
-            <h5 className="font-label-bold text-primary">About</h5>
-            <ul className="space-y-xs">
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">About Us</a></li>
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Contact Us</a></li>
-            </ul>
-          </div>
-          <div className="space-y-sm">
-            <h5 className="font-label-bold text-primary">Policy</h5>
-            <ul className="space-y-xs">
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</a></li>
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</a></li>
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Return Policy</a></li>
-            </ul>
-          </div>
-          <div className="space-y-sm">
-            <h5 className="font-label-bold text-primary">Help</h5>
-            <ul className="space-y-xs">
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Payments</a></li>
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Shipping</a></li>
-              <li><a className="text-body-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Cancellation &amp; Returns</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-border-gray py-base px-base text-center">
-          <p className="font-body-sm text-body-sm text-on-surface-variant">© 2024 MINIBRANDS India. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

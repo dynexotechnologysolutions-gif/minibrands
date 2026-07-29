@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HomeHeader from "@/components/home/HomeHeader";
-import Footer from "@/components/Footer";
 import SearchToolbar from "../components/SearchToolbar";
 import CategoryChips from "../components/CategoryChips";
 import FiltersSidebar from "../components/FiltersSidebar";
@@ -232,9 +231,6 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
           </div>
         </div>
       </main>
-
-      {/* Shared Platform Footer */}
-      <Footer />
 
       {/* Toast alert */}
       {alertMsg && (
