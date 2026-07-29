@@ -67,10 +67,10 @@ export default function SearchToolbar({
         <div className="flex items-center gap-base">
           {/* View Toggles (Mock/UI only to match the HTML) */}
           <div className="flex items-center bg-surface-container rounded-lg p-1">
-            <button className="p-1.5 bg-surface shadow-sm rounded-md flex items-center justify-center">
+            <button className="p-1.5 bg-surface shadow-sm rounded-md flex items-center justify-center" suppressHydrationWarning>
               <span className="material-symbols-outlined text-[20px]">grid_view</span>
             </button>
-            <button className="p-1.5 text-on-surface-variant flex items-center justify-center">
+            <button className="p-1.5 text-on-surface-variant flex items-center justify-center" suppressHydrationWarning>
               <span className="material-symbols-outlined text-[20px]">view_list</span>
             </button>
           </div>
@@ -81,6 +81,7 @@ export default function SearchToolbar({
               value={sort}
               onChange={handleSortSelect}
               className="appearance-none bg-surface border border-outline-variant rounded-lg px-base py-2 pr-10 text-body-md focus:ring-primary focus:border-primary outline-none cursor-pointer text-on-surface"
+              suppressHydrationWarning
             >
               <option value="popularity">Sort by: Popularity</option>
               <option value="price_asc">Price: Low to High</option>

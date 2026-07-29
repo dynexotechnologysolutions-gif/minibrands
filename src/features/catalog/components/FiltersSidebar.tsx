@@ -37,6 +37,7 @@ export default function FiltersSidebar({
           <button
             onClick={onClearAll}
             className="text-accent-yellow font-label-bold text-body-sm hover:underline cursor-pointer"
+            suppressHydrationWarning
           >
             CLEAR ALL
           </button>

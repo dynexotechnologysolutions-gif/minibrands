@@ -26,6 +26,7 @@ export default function CategoryChips({
           <button
             key={cat}
             onClick={() => onCategoryChange(cat)}
+            suppressHydrationWarning
             className={`whitespace-nowrap px-lg py-2 rounded-full font-label-bold text-label-bold transition-all cursor-pointer ${
               isActive
                 ? "bg-primary text-on-primary"
