@@ -6,8 +6,8 @@ import { ArrowUpRight, Mail } from "lucide-react";
 export default function HomeNewsletter() {
   return (
     <section className="vl-section-shell mt-16 sm:mt-24">
-      <div className="flex flex-col justify-between gap-8 rounded-vl-section bg-vl-ink p-8 sm:p-12 lg:flex-row lg:items-center lg:p-20 text-white shadow-vl-medium">
-        <div className="flex-1 min-w-0 max-w-[520px]">
+      <div className="grid grid-cols-1 gap-8 rounded-vl-section bg-vl-ink p-8 sm:p-12 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16 lg:p-20 text-white shadow-vl-medium">
+        <div className="max-w-[520px]">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-vl-accent">The weekly edit</p>
           <h2 className="font-vl-heading text-4xl sm:text-5xl lg:text-[56px] font-extrabold leading-[1.05] tracking-[-0.04em]">
             A little inspiration, delivered.
@@ -16,7 +16,7 @@ export default function HomeNewsletter() {
             Fresh drops, boutique stories, and styling ideas worth opening.
           </p>
         </div>
-        <form onSubmit={(e) => e.preventDefault()} className="flex w-full max-w-md items-center gap-3 lg:w-[400px] lg:shrink-0">
+        <form onSubmit={(e) => e.preventDefault()} className="flex w-full max-w-md items-center gap-3 lg:w-[380px]">
           <div className="relative flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-vl-control border border-white/15 bg-white/10 px-4 text-sm text-white focus-within:border-white/40 focus-within:bg-white/15">
             <Mail aria-hidden="true" className="h-4 w-4 shrink-0 text-white/60" />
             <input
