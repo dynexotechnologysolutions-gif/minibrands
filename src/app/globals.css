@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
@@ -244,6 +244,30 @@
     scrollbar-width: none;
   }
 
+  .animate-blob-slow {
+    animation: blobFloatSlow 18s ease-in-out infinite;
+  }
+
+  .animate-blob-medium {
+    animation: blobFloatMedium 14s ease-in-out infinite;
+  }
+
+  .animate-blob-fast {
+    animation: blobFloatFast 10s ease-in-out infinite;
+  }
+
+  .animate-float-1 {
+    animation: heroCardFloat 4s ease-in-out infinite;
+  }
+
+  .animate-float-2 {
+    animation: heroCardFloat 5s ease-in-out infinite 0.8s;
+  }
+
+  .animate-float-3 {
+    animation: heroCardFloat 6s ease-in-out infinite 1.6s;
+  }
+
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -303,4 +327,28 @@
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ── Hero section keyframes ────────────────────────────────────── */
+
+@keyframes blobFloatSlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(28px, -18px) scale(1.04); }
+  66%       { transform: translate(-18px, 14px) scale(0.97); }
+}
+
+@keyframes blobFloatMedium {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-22px, 16px) scale(1.03); }
+  70%       { transform: translate(18px, -12px) scale(0.98); }
+}
+
+@keyframes blobFloatFast {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(14px, -14px) scale(1.05); }
+}
+
+@keyframes heroCardFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
 }
