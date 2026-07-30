@@ -27,8 +27,8 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
           <h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Featured stores</h2>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => scroll(-260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores left"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
-          <button type="button" onClick={() => scroll(260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores right"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
+          <button suppressHydrationWarning type="button" onClick={() => scroll(-260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores left"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
+          <button suppressHydrationWarning type="button" onClick={() => scroll(260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores right"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
         </div>
       </div>
       <div ref={rowRef} className="hide-scrollbar mt-6 flex snap-x gap-4 overflow-x-auto pb-4">
