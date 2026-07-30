@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -40,18 +41,18 @@ export default function Pagination({
   };
 
   return (
-    <div className="mt-xxl flex justify-center items-center gap-sm">
+    <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Product pages">
       {/* Previous Button */}
       <button
         onClick={handlePrev}
         disabled={currentPage === 1}
-        className={`flex items-center gap-xs px-base py-2 font-label-bold text-body-md border rounded-lg transition-all ${
+        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-3 text-sm font-semibold transition ${
           currentPage === 1
-            ? "text-text-muted border-outline-variant opacity-50 cursor-not-allowed"
-            : "text-on-surface hover:text-primary border-outline-variant cursor-pointer"
+            ? "cursor-not-allowed border-vl-border text-vl-muted/50"
+            : "border-vl-border text-vl-ink hover:border-vl-primary hover:text-vl-primary"
         }`}
       >
-        <span className="material-symbols-outlined select-none">chevron_left</span> Previous
+        <ChevronLeft aria-hidden="true" className="h-4 w-4" /> Previous
       </button>
 
       {/* Pages list */}
@@ -61,7 +62,7 @@ export default function Pagination({
             return (
               <span
                 key={`dots-${idx}`}
-                className="w-10 h-10 flex items-center justify-center text-text-muted font-bold select-none"
+                className="flex h-10 w-10 select-none items-center justify-center font-semibold text-vl-muted"
               >
                 ...
               </span>
@@ -75,10 +76,10 @@ export default function Pagination({
             <button
               key={pageNum}
               onClick={() => onPageChange(pageNum)}
-              className={`w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all cursor-pointer ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition ${
                 isActive
-                  ? "bg-primary text-on-primary"
-                  : "hover:bg-surface-container text-on-surface"
+                  ? "bg-vl-ink text-white"
+                  : "text-vl-ink hover:bg-vl-surface"
               }`}
             >
               {pageNum}
@@ -91,14 +92,14 @@ export default function Pagination({
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className={`flex items-center gap-xs px-base py-2 font-label-bold text-body-md border rounded-lg transition-all ${
+        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-3 text-sm font-semibold transition ${
           currentPage === totalPages
-            ? "text-text-muted border-outline-variant opacity-50 cursor-not-allowed"
-            : "text-on-surface hover:text-primary border-outline-variant cursor-pointer"
+            ? "cursor-not-allowed border-vl-border text-vl-muted/50"
+            : "border-vl-border text-vl-ink hover:border-vl-primary hover:text-vl-primary"
         }`}
       >
-        Next <span className="material-symbols-outlined select-none">chevron_right</span>
+        Next <ChevronRight aria-hidden="true" className="h-4 w-4" />
       </button>
-    </div>
+    </nav>
   );
 }
