@@ -123,12 +123,12 @@ export default function HomeHero() {
             );
           })}
         </div>
-
         {/* Previous arrow */}
         <button
           type="button"
           onClick={goPrev}
           aria-label="Previous slide"
+          suppressHydrationWarning
           className="group absolute left-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
         >
           <ChevronLeft
@@ -142,6 +142,7 @@ export default function HomeHero() {
           type="button"
           onClick={goNext}
           aria-label="Next slide"
+          suppressHydrationWarning
           className="group absolute right-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
         >
           <ChevronRight
