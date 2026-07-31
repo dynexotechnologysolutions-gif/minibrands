@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { BadgeCheck } from "lucide-react";
 import WishlistIconButton from "./WishlistIconButton";
 
 export interface ProductCardProps {
@@ -99,13 +100,11 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
             {product.seller.businessName}
           </span>
           {isSellerVerified && (
-            <span
-              className="material-symbols-outlined text-vl-success flex-shrink-0"
-              style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}
-              title="Verified Seller"
-            >
-              verified
-            </span>
+            <BadgeCheck
+              aria-label="Verified seller"
+              className="h-3.5 w-3.5 shrink-0 text-vl-success"
+              strokeWidth={2.2}
+            />
           )}
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HomeHeader from "@/components/home/HomeHeader";
 import SearchToolbar from "../components/SearchToolbar";
@@ -20,14 +21,14 @@ interface CatalogPageProps {
 }
 
 const ProductCardSkeleton = () => (
-  <div className="flex flex-col bg-surface-container-lowest border border-border-gray rounded-sm overflow-hidden animate-pulse">
-    <div className="aspect-[3/4] bg-surface-container" />
-    <div className="px-[10px] pt-[10px] pb-[12px] flex flex-col gap-[6px]">
-      <div className="h-[10px] bg-surface-container rounded-full w-1/3" />
-      <div className="h-[13px] bg-surface-container rounded w-3/4" />
-      <div className="h-[13px] bg-surface-container rounded w-1/2" />
-      <div className="h-[10px] bg-surface-container rounded-full w-1/4 mt-[2px]" />
-      <div className="h-[15px] bg-surface-container rounded w-2/5 mt-[2px]" />
+  <div className="flex animate-pulse flex-col overflow-hidden rounded-vl-card border border-vl-border bg-vl-card">
+    <div className="aspect-[3/4] bg-vl-border/60" />
+    <div className="flex flex-col gap-2 p-4">
+      <div className="h-2.5 w-1/3 rounded-full bg-vl-border" />
+      <div className="h-3.5 w-3/4 rounded bg-vl-border" />
+      <div className="h-3.5 w-1/2 rounded bg-vl-border" />
+      <div className="mt-1 h-2.5 w-1/4 rounded-full bg-vl-border" />
+      <div className="mt-1 h-4 w-2/5 rounded bg-vl-border" />
     </div>
   </div>
 );
@@ -63,11 +64,11 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
 
   // 2. Dynamic SEO browser titles
   useEffect(() => {
-    let title = "Products | MINIBRANDS";
+    let title = "Products | Velvet Lane";
     if (q) {
-      title = `Search Results for "${q}" | MINIBRANDS`;
+      title = `Search Results for "${q}" | Velvet Lane`;
     } else if (category && category !== "All") {
-      title = `${category} Products | MINIBRANDS`;
+      title = `${category} Products | Velvet Lane`;
     }
     document.title = title;
   }, [q, category]);
@@ -157,7 +158,7 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
   const isLoggedIn = !!userProfile;
 
   return (
-    <div className="bg-background text-on-surface font-body-md selection:bg-accent-yellow/30 min-h-screen flex flex-col w-full">
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20">
       {/* Shared Platform Header */}
       <HomeHeader
         userProfile={userProfile}
@@ -166,7 +167,7 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
       />
 
       {/* Main content block */}
-      <main className="max-w-[1440px] mx-auto px-base lg:px-xl py-base flex-1 flex flex-col w-full">
+      <main className="vl-section-shell flex w-full flex-1 flex-col py-8 sm:py-10 lg:py-12">
         {/* Results Toolbar */}
         <SearchToolbar
           query={filters.q}
@@ -190,7 +191,7 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         />
 
         {/* Layout Row */}
-        <div className="flex gap-xl items-start flex-1">
+        <div className="flex flex-1 items-start gap-8">
           {/* Sidebar */}
           <FiltersSidebar
             priceRange={filters.priceRange}
@@ -207,7 +208,7 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
           {/* Grid View */}
           <div className="flex-1 flex flex-col h-full justify-between">
             {isLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-base lg:gap-lg">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:gap-5 xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, idx) => (
                   <ProductCardSkeleton key={idx} />
                 ))}
@@ -234,17 +235,16 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
 
       {/* Toast alert */}
       {alertMsg && (
-        <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
+        <div className="fixed inset-x-4 bottom-24 z-50 animate-fade-in-up sm:inset-x-auto sm:bottom-6 sm:right-6">
           <div
-            className={`p-base border rounded shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
+            role="status"
+            className={`flex items-center gap-3 rounded-vl-control border px-4 py-3 text-sm font-semibold shadow-vl-floating ${
               alertMsg.type === "success"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                : "bg-red-50 border-red-200 text-red-800"
+                ? "border-vl-success/25 bg-vl-success/10 text-emerald-900"
+                : "border-vl-danger/25 bg-vl-danger/10 text-red-900"
             }`}
           >
-            <span className="material-symbols-outlined select-none">
-              {alertMsg.type === "success" ? "check_circle" : "error"}
-            </span>
+            {alertMsg.type === "success" ? <CheckCircle2 aria-hidden="true" className="h-5 w-5 shrink-0" /> : <AlertCircle aria-hidden="true" className="h-5 w-5 shrink-0" />}
             <span>{alertMsg.text}</span>
           </div>
         </div>

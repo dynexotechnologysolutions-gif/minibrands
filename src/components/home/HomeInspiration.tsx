@@ -5,10 +5,10 @@ import { ArrowUpRight, Quote } from "lucide-react";
 export default function HomeInspiration() {
   return (
     <section className="vl-section-shell mt-16 sm:mt-24">
-      <div className="grid items-center gap-8 overflow-hidden rounded-vl-section bg-vl-secondary p-6 sm:p-10 lg:grid-cols-2 lg:p-16 text-white shadow-vl-medium">
-        <div className="flex flex-col justify-center py-4">
+      <div className="grid items-center gap-8 overflow-hidden rounded-vl-section bg-vl-secondary p-8 sm:p-12 lg:grid-cols-2 lg:p-16 text-white shadow-vl-medium">
+        <div className="flex flex-col justify-center py-4 max-w-[520px]">
           <Quote aria-hidden="true" className="h-14 w-14 text-vl-accent" fill="currentColor" />
-          <p className="mt-8 max-w-xl font-vl-heading text-3xl font-extrabold leading-tight tracking-[-0.04em] sm:text-4xl lg:text-5xl">
+          <p className="mt-8 font-vl-heading text-3xl sm:text-4xl lg:text-[48px] font-semibold leading-[1.15] tracking-[-0.03em]">
             Style is not a category. It is the way you make a room, a street, or a Tuesday feel like yours.
           </p>
           <Link
@@ -19,7 +19,7 @@ export default function HomeInspiration() {
             <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform duration-vl-fast group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         </div>
-        <div className="relative w-full h-[320px] sm:h-[420px] lg:h-[480px] overflow-hidden rounded-vl-card bg-vl-ink shadow-vl-large">
+        <div className="relative w-full h-[320px] sm:h-[420px] lg:h-[500px] overflow-hidden rounded-[24px] bg-vl-ink shadow-vl-large">
           <Image
             src="https://images.unsplash.com/photo-1610702422639-102e738549fd?auto=format&fit=crop&w=1200&q=85"
             alt="Woman wearing statement jewelry by Alvaro O'Donnell on Unsplash"

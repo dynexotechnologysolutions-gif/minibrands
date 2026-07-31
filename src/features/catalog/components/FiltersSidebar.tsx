@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ChevronUp, Star } from "lucide-react";
 
 interface FiltersSidebarProps {
   priceRange: [number, number] | undefined;
@@ -29,28 +30,30 @@ export default function FiltersSidebar({
   };
 
   return (
-    <aside className="hidden lg:block w-[280px] shrink-0">
-      <div className="bg-surface border border-outline-variant rounded-lg divide-y divide-outline-variant">
+    <aside className="hidden w-[280px] shrink-0 lg:block">
+      <div className="divide-y divide-vl-border overflow-hidden rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft">
         {/* Header */}
-        <div className="p-base flex justify-between items-center">
-          <span className="font-headline-sm text-headline-sm">Filters</span>
+        <div className="flex items-center justify-between p-4">
+          <span className="font-vl-heading text-lg font-bold text-vl-ink">Filters</span>
           <button
+            type="button"
             onClick={onClearAll}
-            className="text-accent-yellow font-label-bold text-body-sm hover:underline cursor-pointer"
+            className="min-h-10 rounded-full px-3 text-xs font-bold uppercase tracking-[0.12em] text-vl-primary transition hover:bg-vl-primary/5"
             suppressHydrationWarning
           >
-            CLEAR ALL
+            Clear all
           </button>
         </div>
 
         {/* Price Filter */}
-        <div className="p-base">
-          <div className="flex justify-between items-center mb-md">
-            <span className="font-label-bold">PRICE</span>
-            <span className="material-symbols-outlined text-on-surface-variant">expand_less</span>
+        <div className="p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-[0.12em] text-vl-ink">Price</span>
+            <ChevronUp aria-hidden="true" className="h-4 w-4 text-vl-muted" />
           </div>
           <input
-            className="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary"
+            aria-label="Maximum price"
+            className="h-1 w-full cursor-pointer appearance-none rounded-full bg-vl-border accent-vl-primary"
             type="range"
             min="499"
             max="10000"
@@ -58,32 +61,25 @@ export default function FiltersSidebar({
             value={currentPriceMax}
             onChange={handlePriceChange}
           />
-          <div className="flex justify-between mt-sm text-body-sm text-on-surface-variant font-medium">
+          <div className="mt-2 flex justify-between text-sm font-medium text-vl-muted">
             <span>₹499</span>
             <span>{currentPriceMax >= 10000 ? "₹10,000+" : `₹${currentPriceMax.toLocaleString()}`}</span>
           </div>
         </div>
 
         {/* Rating Filter */}
-        <div className="p-base">
-          <span className="font-label-bold block mb-md">CUSTOMER RATINGS</span>
-          <div className="space-y-sm">
+        <div className="p-4">
+          <span className="mb-3 block text-xs font-bold uppercase tracking-[0.12em] text-vl-ink">Customer ratings</span>
+          <div className="space-y-2">
             <label className="flex items-center gap-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={rating === 4}
                 onChange={() => onRatingChange(rating === 4 ? undefined : 4)}
-                className="rounded-sm border-outline-variant text-primary focus:ring-0 cursor-pointer"
+                className="h-4 w-4 rounded border-vl-border text-vl-primary focus:ring-vl-primary"
               />
-              <span className="text-body-md flex items-center gap-xs text-on-surface">
-                4{" "}
-                <span
-                  className="material-symbols-outlined text-accent-yellow scale-75"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  star
-                </span>{" "}
-                &amp; above
+              <span className="flex items-center gap-1 text-sm text-vl-ink">
+                4 <Star aria-hidden="true" className="h-3.5 w-3.5 fill-vl-accent text-vl-accent" /> &amp; above
               </span>
             </label>
             <label className="flex items-center gap-sm cursor-pointer">
@@ -91,26 +87,19 @@ export default function FiltersSidebar({
                 type="checkbox"
                 checked={rating === 3}
                 onChange={() => onRatingChange(rating === 3 ? undefined : 3)}
-                className="rounded-sm border-outline-variant text-primary focus:ring-0 cursor-pointer"
+                className="h-4 w-4 rounded border-vl-border text-vl-primary focus:ring-vl-primary"
               />
-              <span className="text-body-md flex items-center gap-xs text-on-surface">
-                3{" "}
-                <span
-                  className="material-symbols-outlined text-accent-yellow scale-75"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  star
-                </span>{" "}
-                &amp; above
+              <span className="flex items-center gap-1 text-sm text-vl-ink">
+                3 <Star aria-hidden="true" className="h-3.5 w-3.5 fill-vl-accent text-vl-accent" /> &amp; above
               </span>
             </label>
           </div>
         </div>
 
         {/* Discount Filter */}
-        <div className="p-base">
-          <span className="font-label-bold block mb-md">DISCOUNT</span>
-          <div className="space-y-sm">
+        <div className="p-4">
+          <span className="mb-3 block text-xs font-bold uppercase tracking-[0.12em] text-vl-ink">Discount</span>
+          <div className="space-y-2">
             <label className="flex items-center gap-sm cursor-pointer">
               <input
                 type="radio"

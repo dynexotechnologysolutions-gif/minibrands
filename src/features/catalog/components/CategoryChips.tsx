@@ -19,7 +19,7 @@ export default function CategoryChips({
     : ["All", ...categories];
 
   return (
-    <div className="flex items-center gap-sm overflow-x-auto hide-scrollbar mb-xl pb-1">
+    <div className="hide-scrollbar mb-xl flex items-center gap-2 overflow-x-auto pb-1" aria-label="Product categories">
       {displayCategories.map((cat) => {
         const isActive = activeCategory === cat;
         return (
@@ -27,10 +27,11 @@ export default function CategoryChips({
             key={cat}
             onClick={() => onCategoryChange(cat)}
             suppressHydrationWarning
-            className={`whitespace-nowrap px-lg py-2 rounded-full font-label-bold text-label-bold transition-all cursor-pointer ${
+            aria-pressed={isActive}
+            className={`min-h-11 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition duration-vl-fast ${
               isActive
-                ? "bg-primary text-on-primary"
-                : "bg-surface border border-outline-variant hover:border-primary text-on-surface"
+                ? "bg-vl-ink text-white shadow-vl-soft"
+                : "border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary"
             }`}
           >
             {cat}

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { BadgeCheck, Heart, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Product } from "../types/Product";
 
@@ -106,22 +107,15 @@ export default function ProductCard({
           onClick={handleWishlistClick}
           disabled={isToggling}
           aria-label={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className={`absolute top-sm right-sm w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-[4px] shadow-vl-soft transition-all duration-200 cursor-pointer z-10 ${
-            isToggling ? "opacity-60" : "hover:scale-110 active:scale-95"
+          className={`absolute right-sm top-sm z-10 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 shadow-vl-soft backdrop-blur-sm transition duration-vl-fast ${
+            isToggling ? "opacity-60" : "hover:scale-105 active:scale-95"
           }`}
         >
-          <span
-            className={`material-symbols-outlined text-[18px] transition-colors duration-150 ${
-              product.isWishlisted ? "text-vl-primary" : "text-vl-muted hover:text-vl-primary"
-            }`}
-            style={{
-              fontVariationSettings: product.isWishlisted
-                ? "'FILL' 1, 'wght' 500"
-                : "'FILL' 0, 'wght' 400",
-            }}
-          >
-            favorite
-          </span>
+          <Heart
+            aria-hidden="true"
+            className={`h-[18px] w-[18px] ${product.isWishlisted ? "fill-vl-primary text-vl-primary" : "text-vl-muted"}`}
+            strokeWidth={2}
+          />
         </button>
       </div>
 
@@ -133,13 +127,11 @@ export default function ProductCard({
             {brandName}
           </span>
           {isSellerVerified && (
-            <span
-              className="material-symbols-outlined text-vl-success flex-shrink-0"
-              style={{ fontSize: "14px", fontVariationSettings: "'FILL' 1" }}
-              title="Verified Seller"
-            >
-              verified
-            </span>
+            <BadgeCheck
+              aria-label="Verified seller"
+              className="h-3.5 w-3.5 shrink-0 text-vl-success"
+              strokeWidth={2.2}
+            />
           )}
         </div>
 
@@ -150,14 +142,9 @@ export default function ProductCard({
 
         {/* Rating */}
         <div className="flex items-center gap-[5px] mt-[1px]">
-          <div className="inline-flex items-center gap-[2px] bg-vl-success text-white text-[10px] font-bold px-[6px] py-[2px] rounded-md leading-none">
+          <div className="inline-flex items-center gap-1 rounded-md bg-vl-success px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
             {product.rating.toFixed(1)}
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "9px", fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
+            <Star aria-hidden="true" className="h-2.5 w-2.5 fill-current" strokeWidth={1.5} />
           </div>
           <span className="text-[11px] text-vl-muted leading-none">
             ({product.formattedReviews})

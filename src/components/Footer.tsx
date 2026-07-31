@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 font-vl-heading text-2xl font-extrabold tracking-[-0.05em] text-vl-ink"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-vl-primary text-base text-white">M</span>MiniBrands</Link>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-vl-muted">A fashion marketplace for independent labels, expressive wardrobes, and pieces with a point of view.</p>
+            <p className="mt-4 max-w-[420px] text-[16px] leading-[1.7] text-slate-400">A fashion marketplace for independent labels, expressive wardrobes, and pieces with a point of view.</p>
             <div className="mt-5 flex items-center gap-2 text-xs font-semibold text-vl-muted"><BadgeCheck aria-hidden="true" className="h-4 w-4 text-vl-success" />Verified labels, thoughtfully shipped</div>
           </div>
           <div><h2 className="text-xs font-bold uppercase tracking-[0.16em] text-vl-ink">Shop</h2><ul className="mt-4 space-y-3 text-sm text-vl-muted"><li><Link href="/products" className="transition hover:text-vl-primary">Browse everything</Link></li><li><Link href="/products?category=western" className="transition hover:text-vl-primary">Western edit</Link></li><li><Link href="/products?category=ethnic" className="transition hover:text-vl-primary">Ethnic edit</Link></li><li><Link href="/products?category=accessories" className="transition hover:text-vl-primary">Accessories</Link></li></ul></div>

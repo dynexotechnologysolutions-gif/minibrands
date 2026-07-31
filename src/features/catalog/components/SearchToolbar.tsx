@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ChevronDown, Grid2X2, List } from "lucide-react";
 
 interface SearchToolbarProps {
   query?: string;
@@ -33,16 +34,16 @@ export default function SearchToolbar({
   }
 
   return (
-    <div className="mb-lg">
+    <div className="mb-8">
       {/* Breadcrumb */}
-      <nav className="flex text-body-sm text-text-muted mb-xs flex-wrap items-center">
+      <nav className="mb-2 flex flex-wrap items-center text-sm text-vl-muted" aria-label="Breadcrumb">
         {breadcrumbs.map((crumb, idx) => (
           <React.Fragment key={idx}>
-            {idx > 0 && <span className="mx-xs">/</span>}
+            {idx > 0 && <span className="mx-2 text-vl-border">/</span>}
             <span
               className={
                 idx === breadcrumbs.length - 1
-                  ? "text-on-surface font-semibold"
+                  ? "font-semibold text-vl-ink"
                   : ""
               }
             >
@@ -55,10 +56,10 @@ export default function SearchToolbar({
       {/* Heading & Toolbar */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-base">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-primary tracking-tight">
+          <h1 className="font-vl-heading text-3xl font-extrabold tracking-[-0.04em] text-vl-ink sm:text-4xl">
             {headingText}
           </h1>
-          <p className="text-body-md text-text-muted mt-xs">
+          <p className="mt-2 text-sm text-vl-muted">
             Showing {totalProducts.toLocaleString()} products found in {searchTime} seconds
           </p>
         </div>
@@ -66,21 +67,23 @@ export default function SearchToolbar({
         {/* Toolbar: Sort & View Toggle */}
         <div className="flex items-center gap-base">
           {/* View Toggles (Mock/UI only to match the HTML) */}
-          <div className="flex items-center bg-surface-container rounded-lg p-1">
-            <button className="p-1.5 bg-surface shadow-sm rounded-md flex items-center justify-center" suppressHydrationWarning>
-              <span className="material-symbols-outlined text-[20px]">grid_view</span>
+          <div className="hidden items-center gap-1 rounded-full border border-vl-border bg-vl-card p-1 shadow-vl-soft sm:flex">
+            <button type="button" aria-label="Grid view" aria-pressed="true" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-vl-ink text-white" suppressHydrationWarning>
+              <Grid2X2 aria-hidden="true" className="h-4 w-4" />
             </button>
-            <button className="p-1.5 text-on-surface-variant flex items-center justify-center" suppressHydrationWarning>
-              <span className="material-symbols-outlined text-[20px]">view_list</span>
+            <button type="button" aria-label="List view" aria-pressed="false" className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full text-vl-muted transition hover:bg-vl-surface" suppressHydrationWarning>
+              <List aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
 
           {/* Sort Dropdown */}
           <div className="relative flex items-center">
+            <label htmlFor="catalog-sort" className="sr-only">Sort products</label>
             <select
+              id="catalog-sort"
               value={sort}
               onChange={handleSortSelect}
-              className="appearance-none bg-surface border border-outline-variant rounded-lg px-base py-2 pr-10 text-body-md focus:ring-primary focus:border-primary outline-none cursor-pointer text-on-surface"
+              className="min-h-11 appearance-none rounded-vl-control border border-vl-border bg-vl-card px-4 pr-10 text-sm font-semibold text-vl-ink outline-none transition focus:border-vl-primary focus:ring-2 focus:ring-vl-primary/20"
               suppressHydrationWarning
             >
               <option value="popularity">Sort by: Popularity</option>
@@ -89,9 +92,7 @@ export default function SearchToolbar({
               <option value="newest">Newest First</option>
               <option value="rating">Customer Rating</option>
             </select>
-            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant select-none">
-              expand_more
-            </span>
+            <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vl-muted" />
           </div>
         </div>
       </div>

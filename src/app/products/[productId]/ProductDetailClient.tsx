@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { BadgeCheck, Bolt, ChevronDown, ChevronLeft, ChevronRight, Heart, MapPin, ShoppingCart, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 import { createCheckoutSession } from "@/actions/checkout-session.action";
@@ -447,9 +448,9 @@ export default function ProductDetailClient({
       />
 
       {/* Main Container */}
-      <main className="max-w-container-max mx-auto px-base lg:px-xl py-md sm:py-lg w-full max-w-full overflow-x-hidden">
+        <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-6 sm:py-8 lg:py-10">
         {/* Breadcrumbs */}
-        <nav className="flex items-center text-body-xs sm:text-body-sm font-body-sm text-text-muted mb-md gap-xs flex-wrap">
+        <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-vl-muted" aria-label="Breadcrumb">
           <Link className="hover:text-primary" href="/">
             Home
           </Link>
@@ -480,20 +481,20 @@ export default function ProductDetailClient({
         </nav>
 
         {/* Product View Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-lg md:gap-xl">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] lg:gap-12">
           {/* Left Column: Gallery (40%) */}
-          <div className="md:col-span-5 flex flex-col lg:flex-row gap-md">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row">
             {/* Vertical Thumbnails (Desktop) */}
             {images.length > 1 && (
-              <div className="hidden lg:flex flex-col gap-sm w-16 shrink-0">
+              <div className="hidden w-20 shrink-0 flex-col gap-3 lg:flex">
                 {images.map((img, idx) => (
                   <div
                     key={idx}
                     onClick={() => handleThumbnailClick(idx, false)}
-                    className={`border-2 p-xs cursor-pointer transition-all rounded-sm ${
+                    className={`cursor-pointer overflow-hidden rounded-vl-control border-2 p-1 transition duration-vl-fast ${
                       selectedImageIdx === idx
-                        ? "border-primary scale-[1.03] shadow-sm"
-                        : "border-border-gray hover:border-primary"
+                        ? "scale-[1.03] border-vl-primary shadow-vl-soft"
+                        : "border-vl-border hover:border-vl-primary"
                     }`}
                   >
                     <img
@@ -507,10 +508,10 @@ export default function ProductDetailClient({
             )}
 
             {/* Main Image */}
-            <div ref={mainImageRef} className="flex-grow relative border border-border-gray bg-white h-fit w-full overflow-hidden rounded-sm">
+            <div ref={mainImageRef} className="relative aspect-[3/4] h-fit w-full flex-grow overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
               <img
                 alt={product.name}
-                className={`w-full h-auto object-cover max-h-[520px] mx-auto transition-opacity duration-[140ms] ease-in-out ${
+                className={`h-full w-full object-cover object-center transition-opacity duration-[140ms] ease-in-out ${
                   imgVisible ? "opacity-100" : "opacity-0"
                 }`}
                 src={currentImage}
@@ -526,31 +527,28 @@ export default function ProductDetailClient({
                 </span>
               </div>
               <button
+                type="button"
                 onClick={handleToggleWishlist}
                 disabled={isTogglingWishlist}
-                className="absolute top-md right-md bg-white p-sm rounded-full shadow-sm hover:scale-110 transition-transform cursor-pointer disabled:opacity-50"
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                className="absolute right-4 top-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 text-vl-primary shadow-vl-soft backdrop-blur-sm transition duration-vl-fast hover:scale-105 disabled:opacity-50"
               >
-                <span
-                  className="material-symbols-outlined text-error"
-                  style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
-                >
-                  favorite
-                </span>
+                <Heart aria-hidden="true" className={isWishlisted ? "h-5 w-5 fill-vl-primary" : "h-5 w-5"} />
               </button>
             </div>
 
             {/* Horizontal Thumbnails (Mobile & Tablet) */}
             {images.length > 1 && (
-              <div className="flex lg:hidden overflow-x-auto gap-sm pb-xs no-scrollbar pt-xs">
+            <div className="hide-scrollbar flex gap-3 overflow-x-auto pb-1 pt-1 lg:hidden">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleThumbnailClick(idx, true)}
-                    className={`w-16 h-16 shrink-0 border-2 cursor-pointer rounded-sm overflow-hidden transition-all ${
+                    className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-vl-control border-2 transition duration-vl-fast ${
                       selectedImageIdx === idx
-                        ? "border-primary scale-[1.05] shadow-md ring-1 ring-primary/30"
-                        : "border-border-gray hover:border-primary opacity-70 hover:opacity-100"
+                        ? "scale-[1.05] border-vl-primary shadow-vl-soft ring-1 ring-vl-primary/30"
+                        : "border-vl-border opacity-70 hover:border-vl-primary hover:opacity-100"
                     }`}
                   >
                     <img
@@ -574,12 +572,7 @@ export default function ProductDetailClient({
                 </span>
                 {isSellerVerified && (
                   <>
-                    <span
-                      className="material-symbols-outlined text-success-green text-base"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      verified
-                    </span>
+                    <BadgeCheck aria-hidden="true" className="h-4 w-4 text-vl-success" strokeWidth={2.2} />
                     <span className="text-body-sm font-body-sm text-success-green font-bold">
                       Verified Store
                     </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { addToWishlistAction, removeFromWishlistAction } from "@/actions/wishlist.action";
 
@@ -63,21 +64,15 @@ export default function WishlistIconButton({
     <button
       onClick={handleWishlistClick}
       disabled={isToggling}
-      className="absolute top-sm right-sm w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-vl-muted hover:text-vl-primary transition-all duration-vl-fast hover:scale-105 z-10 cursor-pointer disabled:opacity-50 shadow-vl-soft"
+      aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+      className="absolute right-sm top-sm z-10 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 text-vl-muted shadow-vl-soft backdrop-blur-sm transition duration-vl-fast hover:scale-105 hover:text-vl-primary disabled:opacity-50"
       suppressHydrationWarning={true}
     >
-      <span
-        className={`material-symbols-outlined text-[18px] transition-colors ${
-          isWishlisted ? "text-vl-primary" : ""
-        }`}
-        style={{
-          fontVariationSettings: isWishlisted
-            ? "'FILL' 1, 'wght' 500"
-            : "'FILL' 0, 'wght' 400",
-        }}
-      >
-        favorite
-      </span>
+      <Heart
+        aria-hidden="true"
+        className={`h-[18px] w-[18px] ${isWishlisted ? "fill-vl-primary text-vl-primary" : ""}`}
+        strokeWidth={2}
+      />
     </button>
   );
 }
