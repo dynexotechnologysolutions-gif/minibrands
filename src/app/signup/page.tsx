@@ -3,11 +3,23 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
-import HomeHeader from "@/components/home/HomeHeader";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
 import { validatePassword } from "@/lib/password-policy";
 import * as z from "zod";
+import {
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Store,
+  User,
+} from "lucide-react";
 
 const emailSchema = z.string().email("Please enter a valid email address.");
 
@@ -76,7 +88,6 @@ function SignupForm() {
 
     setIsLoading(true);
     try {
-      // 1. Sign up via email & password in Better-Auth
       const response = await authClient.signUp.email({
         email: email,
         password: password,
@@ -132,223 +143,317 @@ function SignupForm() {
   };
 
   return (
-    <div className="bg-surface-container-low min-h-screen flex flex-col w-full text-on-surface">
-      <HomeHeader
-        userProfile={null}
-        cartCount={0}
-        sellerHref={role === "SELLER" ? "/seller/onboarding" : "/login?role=seller"}
-      />
-
-      <main className="flex-grow flex flex-col items-center justify-center px-base py-xxl">
-        <div className="w-full max-w-[480px] bg-white rounded-lg p-xl border border-border-gray shadow-sm">
-          {/* Header */}
-          <div className="mb-xl text-center">
-            <h1 className="font-headline-md text-headline-md text-primary mb-xs font-bold">
-              {role === "SELLER" ? "Create Boutique Seller Account" : "Create Your Account"}
-            </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              {role === "SELLER"
-                ? "Join MiniBrands to launch your fashion store and reach thousands of buyers."
-                : "Discover curated artisanal fashion and track your orders seamlessly."}
-            </p>
-          </div>
-
-          {/* Role Switcher Pills */}
-          <div className="flex bg-surface-container-low p-1 rounded-lg mb-lg border border-outline-variant">
-            <button
-              type="button"
-              onClick={() => setRole("BUYER")}
-              className={`flex-1 py-2 text-label-bold font-bold text-xs sm:text-sm rounded-md transition-all cursor-pointer ${
-                role === "BUYER"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
+    <div className="bg-[#FAFAFC] min-h-screen flex flex-col w-full text-[#111827] font-sans">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-[#ECECEC]/80 bg-white/92 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
+              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
             >
-              Buyer Account
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("SELLER")}
-              className={`flex-1 py-2 text-label-bold font-bold text-xs sm:text-sm rounded-md transition-all cursor-pointer ${
-                role === "SELLER"
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-            >
-              Seller Account
-            </button>
-          </div>
-
-          {/* Error & Success Banners */}
-          {error && (
-            <div className="mb-4 p-md bg-error-container text-error text-body-md rounded font-bold border border-error/20 flex gap-2 items-center">
-              <span className="material-symbols-outlined text-[20px]">warning</span>
-              <span>{error}</span>
-            </div>
-          )}
-          {successMessage && (
-            <div className="mb-4 p-md bg-surface-container-low text-success-green text-body-md rounded font-bold border border-success-green/20 flex gap-2 items-center">
-              <span className="material-symbols-outlined text-[20px]">check_circle</span>
-              <span>{successMessage}</span>
-            </div>
-          )}
-
-          {/* Google Quick Signup */}
-          <button
-            onClick={handleGoogleSignup}
-            disabled={isLoading}
-            type="button"
-            className="w-full py-md bg-white border border-outline-variant rounded-lg flex items-center justify-center gap-md hover:bg-surface-container transition-colors cursor-pointer mb-lg disabled:opacity-50"
+              M
+            </span>
+            <span className="font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827]">MiniBrands</span>
+          </Link>
+          <Link
+            href="/faqs"
+            className="text-sm font-semibold text-[#6B7280] hover:text-[#FF3E6C] transition-colors"
           >
-            <img
-              alt="Google"
-              className="w-5 h-5"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-Lrs6fi30Roms51aPNqibpTJxhGIi-LcfaT89wBFttUbPyRfrRNE2MSZgpCQ31AkZ2CTh8WDhHATyL8nzrJvRSfxcUtuD9rrHY3ArHo03R3HrqX8oShu__qHNOOoCnTPJJCH_8fQkRs4upR4I5bs_EidjsmLr2f-xzSWlYOfSnzYVSYheCg0IdWgQoWcMYZVn-noWeZNz3RfVclzYsGIFrnl9pTgmPwe2LiGieG6lQXkS563oTSRBzFwCuxKrxLJ6bEXIrSqM8kxm"
-            />
-            <span className="font-label-bold text-label-bold text-on-surface select-none">
-              Sign up with Google
-            </span>
-          </button>
+            Need Help?
+          </Link>
+        </div>
+      </header>
 
-          <div className="relative my-lg flex items-center">
-            <div className="flex-grow border-t border-outline-variant"></div>
-            <span className="px-md font-body-sm text-body-sm text-on-surface-variant bg-white select-none">
-              OR SIGN UP WITH EMAIL
-            </span>
-            <div className="flex-grow border-t border-outline-variant"></div>
+      {/* Main split layout container */}
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-[45fr_55fr] min-h-[calc(100vh-80px)]">
+        {/* LEFT SIDE: Editorial brand section */}
+        <div className="relative hidden lg:block overflow-hidden bg-slate-900">
+          <Image
+            src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1200&q=90"
+            alt="MiniBrands boutique owner campaign"
+            fill
+            priority
+            sizes="45vw"
+            className="object-cover object-top opacity-85 transition-transform duration-10000 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111827]/90 via-[#111827]/40 to-transparent" />
+          
+          {/* Overlay Content */}
+          <div className="absolute inset-0 flex flex-col justify-end p-16 text-white z-10">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#FF4D8D] mb-3">Join Marketplace</span>
+            <h2 className="font-vl-heading text-4xl xl:text-5xl font-extrabold leading-[1.1] tracking-[-0.03em] max-w-[480px]">
+              Start your fashion journey with MiniBrands.
+            </h2>
+            <p className="mt-4 text-white/70 max-w-[420px] text-base leading-relaxed">
+              Discover unique creators, support small local labels, or scale your own boutique brand across the country.
+            </p>
+            
+            {/* Trust Badges */}
+            <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-3">
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
+                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Creative Designers
+              </span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
+                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Fast Onboarding
+              </span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
+                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Complete Control
+              </span>
+            </div>
           </div>
+        </div>
 
-          {/* Form */}
-          <form className="flex flex-col gap-md" onSubmit={handleSignup}>
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-bold text-label-bold text-on-surface">
-                Full Name
-              </label>
-              <input
-                className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md bg-white"
-                placeholder="e.g. Ananya Sharma"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-                required
-              />
+        {/* RIGHT SIDE: Authentication form */}
+        <main className="flex items-center justify-center p-6 sm:p-12 lg:p-16">
+          <div className="w-full max-w-[480px] bg-white rounded-[28px] border border-[#ECECEC] p-6 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] transition-all duration-300">
+            {/* Headline */}
+            <div className="mb-8 text-center sm:text-left">
+              <h1 className="font-vl-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111827] mb-2">
+                {role === "SELLER" ? "Create Boutique Seller Account" : "Create Your Account"}
+              </h1>
+              <p className="text-sm text-[#6B7280] leading-relaxed">
+                {role === "SELLER"
+                  ? "Join MiniBrands to launch your fashion store and reach thousands of buyers."
+                  : "Discover curated independent fashion and track your orders seamlessly."}
+              </p>
             </div>
 
-            {role === "SELLER" && (
-              <div className="flex flex-col gap-xs animate-fade-in-up">
-                <label className="font-label-bold text-label-bold text-on-surface">
-                  Business / Store Name
-                </label>
-                <input
-                  className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md bg-white"
-                  placeholder="e.g. Velvet Couture Studio"
-                  type="text"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  disabled={isLoading}
-                  required
-                />
+            {/* Role Switcher Pills */}
+            <div className="flex bg-[#F5F5F8] p-1 rounded-2xl mb-6 border border-[#ECECEC]">
+              <button
+                type="button"
+                onClick={() => setRole("BUYER")}
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
+                  role === "BUYER"
+                    ? "bg-white text-[#FF3E6C] shadow-sm"
+                    : "text-[#6B7280] hover:text-[#111827]"
+                }`}
+              >
+                Buyer Account
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("SELLER")}
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
+                  role === "SELLER"
+                    ? "bg-white text-[#FF3E6C] shadow-sm"
+                    : "text-[#6B7280] hover:text-[#111827]"
+                }`}
+              >
+                Seller Account
+              </button>
+            </div>
+
+            {/* Error & Success Banners */}
+            {error && (
+              <div className="mb-5 p-4 bg-red-50 text-[#EF4444] text-sm rounded-2xl border border-red-100 flex gap-2.5 items-start">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <span className="font-semibold">{error}</span>
+              </div>
+            )}
+            {successMessage && (
+              <div className="mb-5 p-4 bg-emerald-50 text-[#16A34A] text-sm rounded-2xl border border-emerald-100 flex gap-2.5 items-start">
+                <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <span className="font-semibold">{successMessage}</span>
               </div>
             )}
 
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-bold text-label-bold text-on-surface">
-                Email Address
-              </label>
-              <input
-                className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md bg-white"
-                placeholder="name@example.com"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-bold text-label-bold text-on-surface">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md bg-white"
-                  placeholder="Create a strong password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute right-md top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] hover:text-primary cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "visibility_off" : "visibility"}
-                </button>
-              </div>
-              <PasswordStrengthMeter password={password} />
-            </div>
-
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-bold text-label-bold text-on-surface">
-                Confirm Password
-              </label>
-              <input
-                className="w-full p-md border border-outline-variant rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md bg-white"
-                placeholder="Retype password"
-                type={showPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-
-            <label className="flex items-start gap-sm cursor-pointer mt-xs">
-              <input
-                className="w-4 h-4 mt-1 rounded-sm border-outline-variant text-primary focus:ring-primary cursor-pointer"
-                type="checkbox"
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
-                disabled={isLoading}
-              />
-              <span className="font-body-sm text-body-sm text-on-surface-variant leading-tight select-none">
-                I agree to MiniBrands&apos;s <Link href="/products" className="text-primary font-bold hover:underline">Terms of Service</Link> and <Link href="/products" className="text-primary font-bold hover:underline">Privacy Policy</Link>.
-              </span>
-            </label>
-
+            {/* Google Quick Signup */}
             <button
-              type="submit"
+              onClick={handleGoogleSignup}
               disabled={isLoading}
-              className="w-full py-md bg-primary text-on-primary font-label-bold text-label-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-sm mt-sm disabled:opacity-50"
+              type="button"
+              className="w-full h-[52px] bg-white border border-[#ECECEC] rounded-2xl flex items-center justify-center gap-3 hover:bg-[#FAFAFC] active:scale-[0.98] transition-all cursor-pointer mb-6 group disabled:opacity-50"
             >
-              {isLoading ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
-                  Creating Account...
-                </>
-              ) : (
-                "Create Account"
-              )}
+              <img
+                alt="Google"
+                className="w-5 h-5 shrink-0"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-Lrs6fi30Roms51aPNqibpTJxhGIi-LcfaT89wBFttUbPyRfrRNE2MSZgpCQ31AkZ2CTh8WDhHATyL8nzrJvRSfxcUtuD9rrHY3ArHo03R3HrqX8oShu__qHNOOoCnTPJJCH_8fQkRs4upR4I5bs_EidjsmLr2f-xzSWlYOfSnzYVSYheCg0IdWgQoWcMYZVn-noWeZNz3RfVclzYsGIFrnl9pTgmPwe2LiGieG6lQXkS563oTSRBzFwCuxKrxLJ6bEXIrSqM8kxm"
+              />
+              <span className="text-sm font-bold text-[#111827] select-none">
+                Sign up with Google
+              </span>
             </button>
-          </form>
 
-          <div className="mt-xl text-center">
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Already have an account?{" "}
-              <Link
-                href={role === "SELLER" ? "/login?role=seller" : "/login"}
-                className="text-primary font-bold hover:underline"
+            <div className="relative my-6 flex items-center">
+              <div className="flex-grow border-t border-[#ECECEC]"></div>
+              <span className="px-4 text-[10px] font-bold text-[#9CA3AF] tracking-wider uppercase bg-white select-none">
+                OR SIGN UP WITH EMAIL
+              </span>
+              <div className="flex-grow border-t border-[#ECECEC]"></div>
+            </div>
+
+            {/* Form */}
+            <form className="flex flex-col gap-4" onSubmit={handleSignup}>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
+                  <input
+                    className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                    placeholder="e.g. Ananya Sharma"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+              </div>
+
+              {role === "SELLER" && (
+                <div className="flex flex-col gap-1.5 animate-fade-in-up">
+                  <label className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                    Business / Store Name
+                  </label>
+                  <div className="relative">
+                    <Store className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
+                    <input
+                      className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                      placeholder="e.g. Velvet Couture Studio"
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
+                  <input
+                    className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                    placeholder="name@example.com"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
+                  <input
+                    className="w-full h-[52px] pl-12 pr-12 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                    placeholder="Create a strong password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#FF3E6C] transition-colors cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                <PasswordStrengthMeter password={password} />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#111827] uppercase tracking-wider">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
+                  <input
+                    className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                    placeholder="Retype password"
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-start gap-2.5 cursor-pointer mt-2 leading-tight">
+                <input
+                  className="w-4 h-4 mt-0.5 rounded border-[#ECECEC] text-[#FF3E6C] focus:ring-[#FF3E6C] cursor-pointer shrink-0"
+                  type="checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span className="text-xs font-semibold text-[#6B7280] select-none">
+                  I agree to MiniBrands&apos;s{" "}
+                  <Link href="/terms" className="text-[#FF3E6C] font-bold hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-[#FF3E6C] font-bold hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-[52px] mt-4 bg-[#FF3E6C] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_16px_rgba(255,62,108,0.25)]"
               >
-                Log In
-              </Link>
-            </p>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+            </form>
+
+            {/* Log In redirect */}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-[#6B7280]">
+                Already have an account?{" "}
+                <Link
+                  href={role === "SELLER" ? "/login?role=seller" : "/login"}
+                  className="text-[#FF3E6C] font-bold hover:underline"
+                >
+                  Log In
+                </Link>
+              </p>
+            </div>
           </div>
+        </main>
+      </div>
+
+      {/* Trust & Security UX Strip */}
+      <footer className="w-full bg-[#FAFAFC] border-t border-[#ECECEC] py-6 select-none mt-auto">
+        <div className="max-w-[1440px] mx-auto px-4 flex flex-wrap justify-center gap-x-8 gap-y-3">
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Secure SSL Connection
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Data Encrypted
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Privacy Protected
+          </span>
         </div>
-      </main>
+      </footer>
     </div>
   );
 }
@@ -357,8 +462,8 @@ export default function SignupPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex-grow flex items-center justify-center min-h-screen bg-surface-container-low">
-          <span className="material-symbols-outlined animate-spin text-[36px] text-primary">sync</span>
+        <div className="flex-grow flex items-center justify-center min-h-screen bg-[#FAFAFC]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#FF3E6C]" />
         </div>
       }
     >

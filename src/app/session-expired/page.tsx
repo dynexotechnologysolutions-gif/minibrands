@@ -2,7 +2,17 @@
 
 import React, { useState, useTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import {
+  Clock,
+  HelpCircle,
+  Home,
+  KeyRound,
+  Loader2,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
 
 function SessionExpiredContent() {
   const router = useRouter();
@@ -16,13 +26,11 @@ function SessionExpiredContent() {
     if (isRedirecting) return;
     setIsRedirecting(true);
     try {
-      // Clear Better Auth session on client-side
       await authClient.signOut();
     } catch (error) {
       console.error("Error signing out:", error);
     }
     
-    // Redirect to login page preserving callback URL
     startTransition(() => {
       router.push(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
     });
@@ -33,118 +41,117 @@ function SessionExpiredContent() {
   };
 
   return (
-    <div className="bg-background text-on-surface flex flex-col min-h-screen w-full relative">
-      {/* Animation Styles */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in {
-          opacity: 0;
-          animation: fadeIn 0.6s ease-out forwards;
-        }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
-      ` }} />
-
-      {/* Top Navigation */}
-      <header className="bg-surface border-b border-outline-variant fixed top-0 w-full z-50">
-        <div className="flex justify-between items-center px-lg py-md w-full max-w-container-max mx-auto">
-          <div className="text-headline-md font-headline-lg tracking-tight text-primary">MINIBRANDS</div>
-          <div className="flex gap-base">
-            <button 
-              aria-label="Help Center"
-              className="text-secondary hover:opacity-85 transition-opacity active:scale-95 transition-transform flex items-center gap-xs cursor-pointer"
+    <div className="bg-[#FAFAFC] min-h-screen flex flex-col w-full text-[#111827] font-sans">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-[#ECECEC]/80 bg-white/92 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
+              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
             >
-              <span className="material-symbols-outlined text-[20px]">help</span>
-            </button>
-            <button 
-              aria-label="Change Language"
-              className="text-secondary hover:opacity-85 transition-opacity active:scale-95 transition-transform flex items-center gap-xs cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[20px]">language</span>
-            </button>
-          </div>
+              M
+            </span>
+            <span className="font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827]">MiniBrands</span>
+          </Link>
+          <Link
+            href="/faqs"
+            className="text-sm font-semibold text-[#6B7280] hover:text-[#FF3E6C] transition-colors"
+          >
+            Need Help?
+          </Link>
         </div>
       </header>
 
-      {/* Main Content Canvas */}
-      <main className="flex-grow flex items-center justify-center px-base pt-xxl pb-xxl mt-xl">
-        <div className="max-w-[576px] w-full text-center space-y-xl">
-          {/* Illustration Section */}
-          <div className="fade-in flex justify-center">
-            <div className="w-64 h-64 md:w-80 md:h-80 overflow-hidden">
-              <img 
-                alt="Session timeout security illustration" 
-                className="w-full h-full object-contain" 
-                src="https://cdn.prod.website-files.com/67a7409c10857ea8dcbc42d5/67a7409c10857ea8dcbc4c3c_everything%20you%20need%20to%20know%20about%20Session-timeout%20in%20GA%201.png"
-              />
-            </div>
+      {/* Main content area */}
+      <main className="flex-grow flex items-center justify-center p-6 sm:p-12 lg:p-16">
+        <div className="w-full max-w-[480px] bg-white rounded-[28px] border border-[#ECECEC] p-6 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] text-center transition-all duration-300">
+          
+          {/* Timeout illustration */}
+          <div className="w-20 h-20 bg-rose-50 border border-rose-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-[#FF3E6C]">
+            <Clock className="h-10 w-10 animate-pulse" />
           </div>
 
-          {/* Typography & Message */}
-          <div className="space-y-base">
-            <h1 className="fade-in delay-1 font-headline-lg text-headline-lg text-on-surface">
-              Your Session Has Expired
+          {/* Messages */}
+          <div className="space-y-3 mb-8">
+            <h1 className="font-vl-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111827]">
+              Session Expired
             </h1>
-            <p className="fade-in delay-2 font-body-lg text-body-lg text-secondary max-w-[448px] mx-auto">
-              For your security, your session has ended due to inactivity or authentication timeout. Don&apos;t worry—your account and data remain secure. Please sign in again to continue where you left off.
+            <p className="text-sm text-[#6B7280] leading-relaxed max-w-[380px] mx-auto">
+              For your security, your session has ended due to inactivity. Don&apos;t worry—your cart items and data remain secure. Please sign in again.
             </p>
           </div>
 
-          {/* Actions */}
-          <div className="fade-in delay-3 flex flex-col sm:flex-row gap-base justify-center pt-md">
-            <button 
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
               onClick={handleSignInAgain}
               disabled={isRedirecting || isPending}
-              className="bg-primary text-on-primary px-xl py-md rounded-lg font-label-bold hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto min-w-[180px] cursor-pointer disabled:opacity-70"
+              className="h-[52px] bg-[#FF3E6C] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 px-6 sm:flex-1 shadow-[0_4px_16px_rgba(255,62,108,0.25)]"
             >
-              {isRedirecting ? "Redirecting..." : "Sign In Again"}
+              {isRedirecting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Redirecting...
+                </>
+              ) : (
+                <>
+                  <KeyRound className="h-5 w-5" />
+                  Sign In Again
+                </>
+              )}
             </button>
-            <button 
+            <button
               onClick={handleBackToHome}
-              className="bg-transparent border border-primary text-primary px-xl py-md rounded-lg font-label-bold hover:bg-surface-container-low active:scale-95 transition-all w-full sm:w-auto min-w-[180px] cursor-pointer"
+              className="h-[52px] border-[1.5px] border-[#ECECEC] hover:bg-[#FAFAFC] active:scale-[0.98] transition-all font-semibold rounded-2xl text-[#111827] px-6 sm:flex-1 flex items-center justify-center gap-2 cursor-pointer"
             >
+              <Home className="h-5 w-5 text-[#9CA3AF]" />
               Back to Home
             </button>
           </div>
 
-          {/* Security Info Card */}
-          <div className="fade-in delay-4 pt-xxl">
-            <div className="bg-surface-container-low border border-outline-variant p-lg rounded-xl text-left flex items-start gap-md max-w-[512px] mx-auto">
-              <div className="bg-surface-container-highest p-sm rounded-full flex-shrink-0">
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  shield
-                </span>
-              </div>
-              <div>
-                <h3 className="font-label-bold text-on-surface mb-xs">Security First</h3>
-                <p className="font-body-sm text-body-sm text-secondary">
-                  For your protection, we automatically end inactive sessions to keep your account secure.
-                </p>
-              </div>
+          {/* Safety info card */}
+          <div className="mt-8 p-4 bg-[#F5F5F8] border border-[#ECECEC] rounded-2xl text-left flex gap-3.5 items-start">
+            <div className="bg-white p-2 border border-[#ECECEC] rounded-xl shrink-0 text-[#FF3E6C]">
+              <ShieldCheck className="h-5 w-5" />
             </div>
-          </div>
-
-
-          {/* Footer Help Link */}
-          <div className="fade-in delay-4 pt-lg">
-            <a className="font-body-sm text-body-sm text-secondary hover:text-primary transition-colors inline-flex items-center gap-xs" href="#">
-              Need help? Contact Support
-            </a>
+            <div>
+              <h3 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-0.5">Security First</h3>
+              <p className="text-xs text-[#6B7280] leading-relaxed">
+                To protect your financial and personal credentials, active sessions automatically expire after a period of inactivity.
+              </p>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Trust & Security UX Strip */}
+      <footer className="w-full bg-[#FAFAFC] border-t border-[#ECECEC] py-6 select-none mt-auto">
+        <div className="max-w-[1440px] mx-auto px-4 flex flex-wrap justify-center gap-x-8 gap-y-3">
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Secure SSL Connection
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Data Encrypted
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
+            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Privacy Protected
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
 
 export default function SessionExpiredPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex-grow flex items-center justify-center min-h-screen bg-[#FAFAFC]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#FF3E6C]" />
+        </div>
+      }
+    >
       <SessionExpiredContent />
     </Suspense>
   );
