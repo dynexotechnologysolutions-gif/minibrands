@@ -72,17 +72,17 @@ export default function HomeHero() {
 
   return (
     <section
-      className="w-full px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5"
+      className="w-full px-0 sm:px-6 lg:px-8 pt-0 sm:pt-5"
       aria-label="Hero promotional carousel"
     >
-      {/* Container uses natural aspect ratio of the pamphlet (roughly 8:3 wide banner). */}
-      {/* object-contain ensures the full image is always visible — nothing is hidden. */}
+      {/* Container matches the exact 16:9 aspect ratio of the pamphlets (1672 x 941). */}
+      {/* Edge-to-edge on mobile (px-0, rounded-none) for maximum visibility, cards on desktop. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white"
+        className="relative mx-auto w-full overflow-hidden rounded-none sm:rounded-[28px] bg-white"
         style={{
-          aspectRatio: "8 / 3",
-          maxWidth: "1600px",
+          aspectRatio: "1672 / 941",
+          maxWidth: "1400px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
         }}
         onMouseEnter={() => setIsPaused(true)}
