@@ -207,7 +207,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
           <div ref={accountRef} className="relative">
             <button suppressHydrationWarning type="button" onClick={() => setIsAccountOpen((open) => !open)} className="inline-flex min-h-11 items-center gap-2 rounded-vl-control px-2 text-sm font-semibold text-vl-ink transition hover:bg-vl-surface sm:px-3" aria-expanded={isAccountOpen} aria-haspopup="menu">
               {userProfile?.user?.image && activeMode === "BUYER" ? <img src={userProfile.user.image} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="flex h-7 w-7 items-center justify-center rounded-full bg-vl-secondary/10 font-vl-heading text-xs font-bold text-vl-secondary">{getInitials(displayName || "Account")}</span>}
-              <span className="hidden max-w-20 truncate sm:inline">{displayName?.split(" ")[0] || "Account"}</span>
+              <span className="hidden max-w-36 truncate sm:inline">{displayName || "Account"}</span>
               <ChevronDown aria-hidden="true" className={`hidden h-4 w-4 text-vl-muted transition sm:block ${isAccountOpen ? "rotate-180" : ""}`} />
             </button>
             {isAccountOpen ? (
