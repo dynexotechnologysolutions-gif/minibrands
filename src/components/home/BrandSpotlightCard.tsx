@@ -38,9 +38,10 @@ interface BrandSpotlightCardProps {
       products: number;
     };
   };
+  userCity?: string | null;
 }
 
-export default function BrandSpotlightCard({ brand }: BrandSpotlightCardProps) {
+export default function BrandSpotlightCard({ brand, userCity }: BrandSpotlightCardProps) {
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Deterministic follower seed based on brand ID to avoid empty state
@@ -63,6 +64,7 @@ export default function BrandSpotlightCard({ brand }: BrandSpotlightCardProps) {
     : "ST";
 
   // Dynamic fashion badges
+  const isNearYou = userCity && brand.city.toLowerCase() === userCity.toLowerCase();
   const isSustainable = brand.category.toLowerCase().includes("ethnic") || brand.businessName.toLowerCase().includes("eco") || brand.businessName.toLowerCase().includes("organic");
   const [isNew] = useState(() => {
     return Date.now() - new Date(brand.createdAt).getTime() < 180 * 24 * 60 * 60 * 1000;
@@ -100,6 +102,11 @@ export default function BrandSpotlightCard({ brand }: BrandSpotlightCardProps) {
 
           {/* Badges Overlays */}
           <div className="absolute left-4 top-4 flex flex-wrap gap-2 pointer-events-none">
+            {isNearYou && (
+              <span className="rounded-full bg-vl-success px-3 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
+                Near You
+              </span>
+            )}
             {isNew && (
               <span className="rounded-full bg-vl-primary px-3 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
                 New Label
