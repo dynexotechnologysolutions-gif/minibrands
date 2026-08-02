@@ -6,7 +6,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import OrderFilters from "@/components/orders/OrderFilters";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyOrders from "@/components/orders/EmptyOrders";
-import { cancelOrderAction, returnOrderAction } from "@/actions/order-user-actions";
+import { cancelOrderAction } from "@/actions/order-user-actions";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 
 interface OrderItemInfo {
@@ -32,7 +32,7 @@ interface OrderInfo {
 
 interface OrdersClientProps {
   initialOrders: OrderInfo[];
-  userProfile: any;
+  userProfile: React.ComponentProps<typeof HomeHeader>["userProfile"];
   cartCount: number;
   sellerHref: string;
 }
@@ -48,7 +48,7 @@ export default function OrdersClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [activeStatus, setActiveStatus] = useState("all");
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Dialog / Toast states
   const [alertMessage, setAlertMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -61,7 +61,6 @@ export default function OrdersClient({
 
   // Track Modal States
   const [showTrackModal, setShowTrackModal] = useState(false);
-  const [trackOrderId, setTrackOrderId] = useState("");
 
   // Toast helper
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
@@ -76,22 +75,20 @@ export default function OrdersClient({
     try {
       const res = await cancelOrderAction(orderId);
       if (res.success) {
-        // Update local status
         setOrders((prev) =>
           prev.map((o) =>
-            o.id === orderId ? { ...o, status: "cancelled", orderStatus: "cancelled" } : o
+            o.id === orderId
+              ? { ...o, orderStatus: "CANCELLED", status: "CANCELLED" }
+              : o
           )
         );
-        triggerToast("Order cancelled successfully.", "success");
-        startTransition(() => {
-          router.refresh();
-        });
+        triggerToast("Order cancelled successfully.");
       } else {
         triggerToast(res.error?.message || "Failed to cancel order.", "error");
       }
     } catch (err) {
-      console.error(err);
-      triggerToast("An error occurred. Please try again.", "error");
+      const errMsg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      triggerToast(errMsg, "error");
     }
   };
 
@@ -103,18 +100,21 @@ export default function OrdersClient({
     try {
       const res = await reserveCartItem({ productId, variantId, quantity: 1 });
       if (res.success) {
-        triggerToast("Product added to cart. Redirecting...", "success");
-        router.push("/cart");
+        triggerToast("Item added to cart! Redirecting...", "success");
+        startTransition(() => {
+          router.push("/cart");
+        });
       } else {
-        triggerToast(res.error?.message || "Product is out of stock.", "error");
+        triggerToast(res.error?.message || "Failed to reserve item.", "error");
       }
     } catch (err) {
-      console.error(err);
-      triggerToast("Failed to reorder. Please try again.", "error");
+      const errMsg = err instanceof Error ? err.message : "Failed to add item to cart.";
+      triggerToast(errMsg, "error");
     }
   };
 
   const handleRateProduct = (productId: string, productName: string) => {
+    console.debug("Rating product", productId);
     setRateProductName(productName);
     setRatingValue(5);
     setReviewText("");
@@ -128,7 +128,7 @@ export default function OrdersClient({
   };
 
   const handleTrackOrder = (orderId: string) => {
-    setTrackOrderId(orderId);
+    console.debug("Tracking order", orderId);
     setShowTrackModal(true);
   };
 
@@ -137,6 +137,7 @@ export default function OrdersClient({
   };
 
   const handleChangeAddress = (orderId: string) => {
+    console.debug("Changing address for order", orderId);
     triggerToast("Change address request submitted to the boutique seller.", "success");
   };
 

@@ -8,7 +8,7 @@ import OrderStatusBadge from "@/components/orders/OrderStatusBadge";
 import OrderTimeline from "@/components/orders/OrderTimeline";
 import OrderItem from "@/components/orders/OrderItem";
 import { getOrderStatus } from "@/actions/order-status.action";
-import { cancelOrderAction, returnOrderAction } from "@/actions/order-user-actions";
+import { cancelOrderAction } from "@/actions/order-user-actions";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 import { confirmDeliveryAction } from "@/actions/order-deliver-confirm.action";
 import EscrowCountdown from "@/components/order/EscrowCountdown";
@@ -58,7 +58,7 @@ interface OrderInfo {
 
 interface OrderDetailClientProps {
   order: OrderInfo;
-  userProfile: any;
+  userProfile: React.ComponentProps<typeof HomeHeader>["userProfile"];
   cartCount: number;
   sellerHref: string;
 }
@@ -75,7 +75,7 @@ export default function OrderDetailClient({
   const [pollCount, setPollCount] = useState<number>(0);
   const [isTimeout, setIsTimeout] = useState<boolean>(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Dialog / Toast states
   const [alertMessage, setAlertMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -119,9 +119,10 @@ export default function OrderDetailClient({
       a.remove();
       window.URL.revokeObjectURL(url);
       triggerToast("Tax invoice downloaded successfully.", "success");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      triggerToast(err.message || "Failed to generate tax invoice.", "error");
+      const errMsg = err instanceof Error ? err.message : "Failed to generate tax invoice.";
+      triggerToast(errMsg, "error");
     } finally {
       setIsDownloadingInvoice(false);
     }
@@ -200,26 +201,6 @@ export default function OrderDetailClient({
     }
   };
 
-  const handleReturnOrder = async () => {
-    if (!confirm("Are you sure you want to request a return for this order?")) return;
-
-    try {
-      const res = await returnOrderAction(order.id);
-      if (res.success) {
-        setStatus("disputed");
-        setOrderStatus("returned");
-        triggerToast("Return request submitted successfully. Processing refund.", "success");
-        startTransition(() => {
-          router.refresh();
-        });
-      } else {
-        triggerToast(res.error?.message || "Failed to return order.", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      triggerToast("An error occurred. Please try again.", "error");
-    }
-  };
 
   const handleConfirmDelivery = async () => {
     if (!confirm("Have you received your order? This will start the 7-day payment release countdown.")) return;
@@ -309,9 +290,10 @@ export default function OrderDetailClient({
   const isReturned = s === "returned" || os === "returned" || s === "refunded" || os === "refunded" || s === "disputed" || os === "disputed";
   const isProcessing = !isDelivered && !isShipped && !isCancelled && !isReturned;
 
+  const [mountTime] = useState(() => Date.now());
   const canReturn = (() => {
     if (!isDelivered) return false;
-    const elapsedMs = Date.now() - new Date(order.createdAt).getTime();
+    const elapsedMs = mountTime - new Date(order.createdAt).getTime();
     const limitMs = 7 * 24 * 60 * 60 * 1000;
     return elapsedMs <= limitMs;
   })();
@@ -358,7 +340,7 @@ export default function OrderDetailClient({
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20 pb-16">
+    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
       {/* Navigation Header */}
       <HomeHeader
         userProfile={userProfile}
@@ -368,15 +350,15 @@ export default function OrderDetailClient({
 
       {/* Toast Alert */}
       {alertMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
+        <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
           <div
-            className={`px-4 py-3 border rounded-xl shadow-vl-floating flex items-center gap-2 font-bold text-xs ${
+            className={`p-base border rounded-lg shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
               alertMessage.type === "success"
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                 : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
-            <span className="material-symbols-outlined text-lg">
+            <span className="material-symbols-outlined">
               {alertMessage.type === "success" ? "check_circle" : "error"}
             </span>
             <span>{alertMessage.text}</span>
@@ -385,71 +367,58 @@ export default function OrderDetailClient({
       )}
 
       {/* Main Container */}
-      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10 space-y-6">
-
-        {/* Back + Page Title */}
+      <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full space-y-lg">
+        {/* Navigation & Title */}
         <div>
           <Link
             href="/orders"
-            className="inline-flex items-center gap-1.5 text-vl-muted hover:text-vl-primary transition-colors font-bold text-xs mb-4 cursor-pointer select-none group"
+            className="text-secondary font-label-bold text-label-bold hover:text-primary transition-colors flex items-center gap-xs mb-sm cursor-pointer select-none"
           >
-            <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Back to Orders
           </Link>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-            <div>
-              <h1 className="font-vl-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-vl-ink">Order Details</h1>
-              <p className="text-xs sm:text-sm text-vl-muted mt-1">
-                Placed on {new Date(order.createdAt).toLocaleString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-            <OrderStatusBadge
-              status={order.status}
-              orderStatus={order.orderStatus}
-              date={order.createdAt}
-            />
-          </div>
+          <h1 className="font-headline-lg text-headline-lg text-primary">Order Details</h1>
+          <p className="font-body-md text-secondary">
+            Placed on {new Date(order.createdAt).toLocaleString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
         </div>
 
         {/* Outer Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-
-          {/* ── LEFT PANEL ─────────────────────────────────────── */}
-          <div className="lg:col-span-8 space-y-5">
-
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+          
+          {/* Left Panel: Items & Address */}
+          <div className="lg:col-span-8 space-y-lg">
+            
             {/* Status Banner */}
-            <div className={`rounded-vl-card border p-4 flex items-start gap-4 shadow-vl-soft ${
+            <div className={`p-base border rounded shadow-sm flex items-start gap-base ${
               isDelivered
-                ? "bg-emerald-50/60 border-emerald-200"
+                ? "bg-emerald-50/20 border-emerald-100"
                 : isCancelled
-                ? "bg-red-50/60 border-red-200"
-                : "bg-vl-card border-vl-border"
+                ? "bg-red-50/20 border-red-100"
+                : "bg-white border-border-gray"
             }`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                isDelivered ? "bg-emerald-100 text-emerald-600"
-                : isCancelled ? "bg-red-100 text-red-500"
-                : isShipped ? "bg-sky-100 text-sky-600"
-                : "bg-pink-100 text-vl-primary"
-              }`}>
-                <span className="material-symbols-outlined text-xl">
-                  {isDelivered ? "check_circle" : isCancelled ? "cancel" : isShipped ? "local_shipping" : "inventory_2"}
-                </span>
+              <div className="mt-xs">
+                <OrderStatusBadge
+                  status={order.status}
+                  orderStatus={order.orderStatus}
+                  date={order.createdAt}
+                />
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-vl-heading font-bold text-sm text-vl-ink">
+              <div className="flex-1">
+                <h4 className="font-label-bold text-label-bold text-primary">
                   {isDelivered && "Order Delivered Successfully"}
                   {isShipped && "Items are in Transit"}
                   {isProcessing && "Your order is being processed by the boutique"}
                   {isCancelled && "Transaction Cancelled"}
                   {isReturned && "Return Completed"}
                 </h4>
-                <p className="text-xs text-vl-muted mt-1 leading-relaxed">
+                <p className="font-body-sm text-secondary mt-xs">
                   {isDelivered && "Thank you for shopping on Velvet. Payout released to the boutique seller."}
                   {isShipped && "The shipping partner is delivering your package to Chennai."}
                   {isProcessing && "The seller is packaging your items and generating shipping labels."}
@@ -460,14 +429,14 @@ export default function OrderDetailClient({
             </div>
 
             {/* Order Items Card */}
-            <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-              <h3 className="font-vl-heading font-bold text-base text-vl-ink flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-vl-muted text-lg">shopping_bag</span>
+            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
+              <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+                <span className="material-symbols-outlined text-secondary">shopping_bag</span>
                 Order Items
               </h3>
-              <div className="space-y-5">
+              <div className="space-y-base pt-xs">
                 {order.items.map((item) => (
-                  <div key={item.id} className="border-b border-vl-border/40 last:border-0 pb-5 last:pb-0">
+                  <div key={item.id} className="space-y-base border-b border-border-gray/30 last:border-0 pb-base last:pb-0">
                     <OrderItem
                       name={item.name}
                       price={item.unitPrice}
@@ -476,40 +445,42 @@ export default function OrderDetailClient({
                       variantSize={item.size}
                       sellerName={order.sellerName}
                     />
-                    {isDelivered && (
-                      <div className="flex gap-2 mt-3 flex-wrap">
-                        <button
-                          onClick={() => handleBuyAgain(item.productId, item.variantId)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-vl-accent text-vl-ink font-bold text-xs rounded-xl hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[15px]">refresh</span>
-                          Buy It Again
-                        </button>
-                        <button
-                          onClick={() => handleRateProduct(item.productId, item.name)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 border border-vl-border text-vl-ink font-bold text-xs rounded-xl hover:bg-vl-surface active:scale-95 transition-all cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[15px]">grade</span>
-                          Write Review
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex gap-base">
+                      {isDelivered && (
+                        <>
+                          <button
+                            onClick={() => handleBuyAgain(item.productId, item.variantId)}
+                            className="flex items-center gap-xs px-base py-1.5 bg-accent-yellow text-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer text-xs"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">refresh</span>
+                            Buy It Again
+                          </button>
+                          <button
+                            onClick={() => handleRateProduct(item.productId, item.name)}
+                            className="flex items-center gap-xs px-base py-1.5 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-xs"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">grade</span>
+                            Write Review
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Review Form / Already Reviewed */}
+            {/* Review Form / Already Reviewed card — shown when delivered */}
             {isDelivered && (
-              <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-                <h3 className="font-vl-heading font-bold text-base text-vl-ink flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-vl-muted text-lg">grade</span>
+              <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
+                <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+                  <span className="material-symbols-outlined text-secondary">grade</span>
                   {hasReview ? "Your Review" : "Rate Your Purchase"}
                 </h3>
                 {hasReview ? (
-                  <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <div className="flex items-center gap-sm p-sm bg-emerald-50 border border-emerald-100 rounded">
                     <span className="material-symbols-outlined text-emerald-500">check_circle</span>
-                    <p className="text-xs font-semibold text-emerald-800">You have already reviewed this order. Thank you!</p>
+                    <p className="font-body-sm text-emerald-800">You have already reviewed this order. Thank you!</p>
                   </div>
                 ) : order.firstProductId && order.userProfileId ? (
                   <ReviewForm
@@ -517,74 +488,74 @@ export default function OrderDetailClient({
                     productId={order.firstProductId}
                     productName={order.items[0]?.name ?? "Product"}
                     buyerId={order.userProfileId}
-                    onSuccess={(_newRating, _newCount) => {
-                      setHasReview(true);
-                      triggerToast("Review submitted! Thank you for your feedback.", "success");
-                    }}
+                     onSuccess={() => {
+                       setHasReview(true);
+                       triggerToast("Review submitted! Thank you for your feedback.", "success");
+                     }}
                   />
                 ) : (
-                  <p className="text-xs text-vl-muted">Review submission is not available for this order.</p>
+                  <p className="font-body-sm text-secondary text-xs">Review submission is not available for this order.</p>
                 )}
               </div>
             )}
 
             {/* Shipping Address Card */}
-            <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-              <h3 className="font-vl-heading font-bold text-base text-vl-ink flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-vl-muted text-lg">location_on</span>
+            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
+              <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+                <span className="material-symbols-outlined text-secondary">local_shipping</span>
                 Delivery Address
               </h3>
-              <div className="text-sm text-vl-ink leading-relaxed space-y-0.5">
-                <p className="font-vl-heading font-extrabold text-sm text-vl-ink">{order.address.fullName}</p>
-                <p className="text-vl-muted">{order.address.line1}</p>
-                {order.address.line2 && <p className="text-vl-muted">{order.address.line2}</p>}
-                <p className="text-vl-muted">{order.address.city} — {order.address.pincode}</p>
-                <p className="text-[11px] text-vl-muted mt-1">📞 {order.address.phone}</p>
+              <div className="pt-xs text-body-md text-on-surface leading-relaxed">
+                <p className="font-label-bold text-label-bold text-primary mb-xs">{order.address.fullName}</p>
+                <p>{order.address.line1}</p>
+                {order.address.line2 && <p>{order.address.line2}</p>}
+                <p>{order.address.city} - {order.address.pincode}</p>
+                <p className="mt-sm text-secondary font-body-sm text-xs">Mobile Number: {order.address.phone}</p>
               </div>
             </div>
           </div>
 
-          {/* ── RIGHT PANEL ─────────────────────────────────────── */}
-          <div className="lg:col-span-4 space-y-5">
-
+          {/* Right Panel: Payments & Actions */}
+          <div className="lg:col-span-4 space-y-lg">
+            
             {/* Payment Summary */}
-            <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-              <h3 className="font-vl-heading font-bold text-base text-vl-ink border-b border-vl-border/60 pb-3 mb-4">
+            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
+              <h3 className="font-headline-sm text-headline-sm text-primary border-b border-border-gray pb-sm">
                 Payment Details
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-md text-body-sm text-secondary font-medium">
                 <div>
-                  <span className="block text-[10px] font-bold text-vl-muted uppercase tracking-widest mb-0.5">Order ID</span>
-                  <span className="font-mono text-xs text-vl-ink select-all break-all">{order.id}</span>
+                  <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Order ID</span>
+                  <span className="text-primary font-mono select-all break-all">{order.id}</span>
                 </div>
                 {order.razorpayOrderId && (
                   <div>
-                    <span className="block text-[10px] font-bold text-vl-muted uppercase tracking-widest mb-0.5">Payment Order ID</span>
-                    <span className="font-mono text-xs text-vl-ink select-all break-all">{order.razorpayOrderId}</span>
+                    <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Payment Order ID</span>
+                    <span className="text-primary font-mono select-all break-all">{order.razorpayOrderId}</span>
                   </div>
                 )}
                 {order.razorpayPaymentId && (
                   <div>
-                    <span className="block text-[10px] font-bold text-vl-muted uppercase tracking-widest mb-0.5">Razorpay Transaction</span>
-                    <span className="font-mono text-xs text-vl-ink select-all break-all">{order.razorpayPaymentId}</span>
+                    <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Razorpay Transaction ID</span>
+                    <span className="text-primary font-mono select-all break-all">{order.razorpayPaymentId}</span>
                   </div>
                 )}
-                <div className="pt-3 border-t border-vl-border/40 flex justify-between items-baseline">
-                  <span className="font-bold text-xs text-vl-ink">Total Paid</span>
-                  <span className="font-vl-heading font-extrabold text-lg text-vl-ink">{formatPrice(order.totalAmount)}</span>
+                <div className="pt-sm border-t border-border-gray/30 flex justify-between items-baseline">
+                  <span className="text-primary font-label-bold">Total Amount Paid</span>
+                  <span className="font-price-lg text-price-lg text-primary">{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Order Status Timeline */}
+            {/* Dynamic Interactive Order Timeline */}
             {!isCancelled && !isReturned && (
-              <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-                <div className="flex items-center justify-between border-b border-vl-border/60 pb-3 mb-4">
-                  <h3 className="font-vl-heading font-bold text-base text-vl-ink flex items-center gap-2">
-                    <span className="material-symbols-outlined text-vl-primary text-lg">route</span>
-                    Status Timeline
+              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md space-y-md shadow-sm">
+                <div className="flex items-center justify-between border-b border-border-gray/40 pb-sm">
+                  <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-primary text-xl">route</span>
+                    Order Status Timeline
                   </h3>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="text-xs font-bold text-success-green bg-success-green/10 px-sm py-0.5 rounded-full uppercase tracking-wider">
                     {order.status === "DELIVERED" ? "Delivered" : "On Schedule"}
                   </span>
                 </div>
@@ -592,23 +563,27 @@ export default function OrderDetailClient({
               </div>
             )}
 
-            {/* Tax Invoice Download */}
+            {/* Tax Invoice Download Section — Only shown for delivered/completed orders */}
             {isDelivered && (
-              <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-vl-primary/10 text-vl-primary flex items-center justify-center shrink-0">
+              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-base">
+                <div className="flex items-start gap-md">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
                     <span className="material-symbols-outlined text-xl">description</span>
                   </div>
                   <div>
-                    <h4 className="font-vl-heading font-bold text-sm text-vl-ink">Tax Invoice</h4>
-                    <p className="text-[11px] text-vl-muted leading-relaxed">Your official GST invoice is ready for download.</p>
+                    <h4 className="font-label-bold text-on-surface font-bold text-sm sm:text-base">
+                      Tax Invoice
+                    </h4>
+                    <p className="text-body-sm text-text-muted text-xs sm:text-sm">
+                      Your official GST tax invoice is now available for download.
+                    </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleDownloadInvoice}
                   disabled={isDownloadingInvoice}
-                  className="w-full py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer disabled:opacity-60 shadow-sm"
+                  className="px-lg py-sm bg-primary text-on-primary font-bold rounded-sm text-xs sm:text-body-sm flex items-center justify-center gap-xs hover:opacity-90 transition-all cursor-pointer disabled:opacity-60 shrink-0 shadow-sm"
                 >
                   {isDownloadingInvoice ? (
                     <>
@@ -625,14 +600,13 @@ export default function OrderDetailClient({
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
+            {/* Main Action Side buttons */}
+            <div className="space-y-base">
               {isShipped && (
                 <button
                   onClick={handleTrackOrder}
-                  className="w-full py-3 bg-vl-primary text-white font-bold text-sm rounded-xl hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-primary text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center"
                 >
-                  <span className="material-symbols-outlined text-[18px]">location_searching</span>
                   Track Package
                 </button>
               )}
@@ -640,7 +614,7 @@ export default function OrderDetailClient({
                 <button
                   onClick={handleConfirmDelivery}
                   disabled={isConfirmingDelivery}
-                  className="w-full py-3 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 active:scale-95 transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full py-3 bg-emerald-600 text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center disabled:opacity-60 flex items-center justify-center gap-xs"
                 >
                   {isConfirmingDelivery ? (
                     <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Confirming...</>
@@ -649,17 +623,18 @@ export default function OrderDetailClient({
                   )}
                 </button>
               )}
+
               {isProcessing && (
                 <>
                   <button
                     onClick={handleCancelOrder}
-                    className="w-full py-3 border border-red-300 text-red-600 font-bold text-sm rounded-xl hover:bg-red-50 active:scale-95 transition-all cursor-pointer"
+                    className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center"
                   >
                     Cancel Order
                   </button>
                   <button
                     onClick={handleChangeAddress}
-                    className="w-full py-3 border border-vl-border bg-vl-card text-vl-ink font-bold text-sm rounded-xl hover:bg-vl-surface active:scale-95 transition-all cursor-pointer"
+                    className="w-full py-3 border border-border-gray bg-white text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
                   >
                     Change Shipping Address
                   </button>
@@ -668,7 +643,7 @@ export default function OrderDetailClient({
               {canReturn && (
                 <Link
                   href={`/orders/${order.id}/return`}
-                  className="w-full py-3 border border-red-300 text-red-600 font-bold text-sm rounded-xl hover:bg-red-50 active:scale-95 transition-all cursor-pointer block text-center"
+                  className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center block"
                 >
                   Request Return / Exchange
                 </Link>
@@ -676,48 +651,48 @@ export default function OrderDetailClient({
               {isReturned && (
                 <Link
                   href={`/orders/${order.id}/return/track`}
-                  className="w-full py-3 border border-vl-border text-vl-ink font-bold text-sm rounded-xl hover:bg-vl-surface active:scale-95 transition-all cursor-pointer block text-center"
+                  className="w-full py-3 border border-primary text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center block"
                 >
                   Track Return Progress →
                 </Link>
               )}
               <button
                 onClick={handleSupport}
-                className="w-full py-3 border border-vl-border bg-vl-card text-vl-muted font-bold text-sm rounded-xl hover:bg-vl-surface active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 border border-border-gray bg-white text-secondary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
               >
-                <span className="material-symbols-outlined text-[18px]">support_agent</span>
                 Contact Support Desk
               </button>
             </div>
 
-            {/* Escrow countdown */}
+            {/* Escrow countdown — shown when delivered */}
             {isDelivered && escrowReleaseAt && (
               <EscrowCountdown escrowReleaseAt={escrowReleaseAt} />
             )}
 
-            {/* Completed Banner */}
+            {/* Completed banner */}
             {isCompleted && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-vl-card flex items-start gap-3">
-                <span className="material-symbols-outlined text-emerald-500 mt-0.5">task_alt</span>
+              <div className="p-base bg-emerald-50 border border-emerald-100 rounded flex items-start gap-sm">
+                <span className="material-symbols-outlined text-emerald-500 mt-xs">task_alt</span>
                 <div>
-                  <p className="font-bold text-xs text-emerald-800">Payment Released</p>
-                  <p className="text-[11px] text-emerald-700 leading-relaxed mt-1">
+                  <p className="font-label-bold text-label-bold text-emerald-800 text-xs">Payment Released</p>
+                  <p className="font-body-sm text-[11px] text-emerald-700 leading-normal mt-xs">
                     Funds have been released to the boutique seller. Thank you for shopping on Velvet!
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Escrow Security Gate */}
-            <div className="p-4 bg-vl-surface border border-vl-border rounded-vl-card flex items-start gap-3">
-              <span className="material-symbols-outlined text-vl-muted mt-0.5 text-lg">verified_user</span>
-              <div>
-                <p className="font-bold text-xs text-vl-ink">Escrow Security Gate</p>
-                <p className="text-[11px] text-vl-muted leading-relaxed mt-1">
+            {/* Escrow Security Gate banner */}
+            <div className="p-base bg-surface border border-border-gray rounded flex items-start gap-sm">
+              <span className="material-symbols-outlined text-secondary mt-xs">verified_user</span>
+              <div className="space-y-xs">
+                <p className="font-label-bold text-label-bold text-primary text-xs">Escrow Security Gate</p>
+                <p className="font-body-sm text-[11px] text-secondary leading-normal">
                   Your funds are protected. Velvet holds payments in escrow, releasing them to sellers only after package delivery confirmation.
                 </p>
               </div>
             </div>
+
 
           </div>
         </div>
@@ -725,25 +700,25 @@ export default function OrderDetailClient({
 
       {/* Star Rating Modal */}
       {showRateModal && (
-        <div className="fixed inset-0 z-50 bg-vl-ink/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-vl-card border border-vl-border rounded-vl-card max-w-md w-full p-6 space-y-6 shadow-vl-floating animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-vl-border/60 pb-3">
-              <h3 className="font-vl-heading text-lg font-extrabold text-vl-ink">Rate & Review</h3>
+        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
+            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
+              <h3 className="font-headline-sm text-headline-sm text-primary">Rate & Review</h3>
               <button
                 onClick={() => setShowRateModal(false)}
-                className="text-vl-muted hover:text-vl-ink cursor-pointer"
+                className="text-secondary hover:text-primary cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={submitReview} className="space-y-5">
+            <form onSubmit={submitReview} className="space-y-base">
               <div>
-                <p className="text-xs font-semibold text-vl-muted">Reviewing:</p>
-                <p className="font-vl-heading font-bold text-sm text-vl-ink truncate">{rateProductName}</p>
+                <p className="font-body-sm text-secondary">Reviewing:</p>
+                <p className="font-label-bold text-label-bold text-primary truncate">{rateProductName}</p>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-vl-ink">Star Rating</label>
-                <div className="flex gap-1 text-[28px] text-vl-accent">
+              <div className="space-y-xs">
+                <label className="font-label-bold text-label-bold text-on-surface">Star Rating</label>
+                <div className="flex gap-xs text-[28px] text-accent-yellow">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
@@ -758,10 +733,10 @@ export default function OrderDetailClient({
                   ))}
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-vl-ink">Comments</label>
+              <div className="space-y-xs">
+                <label className="font-label-bold text-label-bold text-on-surface">Comments</label>
                 <textarea
-                  className="w-full border border-vl-border rounded-xl text-sm outline-none focus:border-vl-primary p-3 font-vl-body text-vl-ink bg-vl-surface"
+                  className="w-full border-border-gray rounded text-body-sm outline-none focus:border-primary p-sm"
                   rows={4}
                   placeholder="Share your experience buying from this boutique..."
                   value={reviewText}
@@ -769,17 +744,17 @@ export default function OrderDetailClient({
                   required
                 />
               </div>
-              <div className="flex gap-3 justify-end border-t border-vl-border/60 pt-4">
+              <div className="flex gap-base justify-end border-t border-border-gray pt-base">
                 <button
                   type="button"
                   onClick={() => setShowRateModal(false)}
-                  className="px-5 py-2.5 border border-vl-border text-vl-muted rounded-xl font-bold text-xs hover:bg-vl-surface cursor-pointer"
+                  className="px-base py-2 border border-border-gray text-secondary rounded font-label-bold text-label-bold hover:bg-surface-container cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-vl-primary text-white rounded-xl font-bold text-xs hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer"
+                  className="px-base py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
                 >
                   Submit Review
                 </button>
@@ -791,59 +766,51 @@ export default function OrderDetailClient({
 
       {/* Track Package Modal */}
       {showTrackModal && (
-        <div className="fixed inset-0 z-50 bg-vl-ink/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-vl-card border border-vl-border rounded-vl-card max-w-md w-full p-6 space-y-6 shadow-vl-floating animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-vl-border/60 pb-3">
-              <h3 className="font-vl-heading text-lg font-extrabold text-vl-ink">Package Tracking</h3>
+        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
+          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
+            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
+              <h3 className="font-headline-sm text-headline-sm text-primary">Package Tracking</h3>
               <button
                 onClick={() => setShowTrackModal(false)}
-                className="text-vl-muted hover:text-vl-ink cursor-pointer"
+                className="text-secondary hover:text-primary cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="space-y-4 py-2">
-              <div className="bg-vl-surface border border-vl-border rounded-xl p-3">
-                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Logistics Carrier</p>
-                <p className="font-vl-heading font-extrabold text-sm text-vl-ink">BlueDart Express Cargo</p>
-                <p className="font-mono text-[11px] text-vl-muted mt-0.5">Waybill: BD984713912IN</p>
+            <div className="space-y-lg py-sm">
+              <div>
+                <p className="font-body-sm text-secondary">Logistics Carrier:</p>
+                <p className="font-label-bold text-label-bold text-primary">BlueDart Express Cargo</p>
+                <p className="font-body-sm text-[11px] text-secondary">Waybill No: BD984713912IN</p>
               </div>
-              <div className="space-y-4 relative pl-4 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                <div className="relative z-10 flex gap-3 items-start">
-                  <div className="w-2.5 h-2.5 bg-vl-success rounded-full ring-4 ring-vl-success/20 mt-1.5 shrink-0"></div>
-                  <div>
-                    <p className="font-bold text-xs text-vl-ink">In Transit - Out For Delivery</p>
-                    <p className="text-[10px] text-vl-muted">Chennai Distribution Center • 08:30 AM</p>
-                  </div>
+              <div className="space-y-base relative pl-base border-l border-border-gray">
+                <div className="relative">
+                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-success-green rounded-full border-2 border-white"></div>
+                  <p className="font-label-bold text-label-bold text-primary">In Transit - Out For Delivery</p>
+                  <p className="font-body-sm text-secondary text-[11px]">Chennai Distribution Center • 08:30 AM</p>
                 </div>
-                <div className="relative z-10 flex gap-3 items-start">
-                  <div className="w-2.5 h-2.5 bg-vl-primary rounded-full ring-4 ring-vl-primary/20 mt-1.5 shrink-0"></div>
-                  <div>
-                    <p className="font-bold text-xs text-vl-ink">Package Departed Hub</p>
-                    <p className="text-[10px] text-vl-muted">Guindy Sorting Center • Yesterday, 04:15 PM</p>
-                  </div>
+                <div className="relative">
+                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
+                  <p className="font-label-bold text-label-bold text-primary">Package Departed Hub</p>
+                  <p className="font-body-sm text-secondary text-[11px]">Guindy Sorting Center • Yesterday, 04:15 PM</p>
                 </div>
-                <div className="relative z-10 flex gap-3 items-start">
-                  <div className="w-2.5 h-2.5 bg-vl-primary rounded-full ring-4 ring-vl-primary/20 mt-1.5 shrink-0"></div>
-                  <div>
-                    <p className="font-bold text-xs text-vl-ink">Dispatched from Boutique</p>
-                    <p className="text-[10px] text-vl-muted">Boutique Hub • 2 days ago, 11:00 AM</p>
-                  </div>
+                <div className="relative">
+                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
+                  <p className="font-label-bold text-label-bold text-primary">Dispatched from Boutique</p>
+                  <p className="font-body-sm text-secondary text-[11px]">Boutique Hub • 2 days ago, 11:00 AM</p>
                 </div>
               </div>
             </div>
-            <div className="border-t border-vl-border/60 pt-4 flex justify-end">
+            <div className="border-t border-border-gray pt-base flex justify-end">
               <button
                 onClick={() => setShowTrackModal(false)}
-                className="px-6 py-2.5 bg-vl-primary text-white rounded-xl font-bold text-xs hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer"
+                className="px-xl py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
               >
                 Done
               </button>
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )}    </div>
   );
 }
-
