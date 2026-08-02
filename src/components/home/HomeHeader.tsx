@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   LogOut,
   MapPin,
-  Menu,
   MoreHorizontal,
   Package,
   RefreshCcw,
@@ -18,7 +17,6 @@ import {
   ShoppingBag,
   Store,
   UserRound,
-  X,
 } from "lucide-react";
 import { switchActiveRole } from "@/actions/switch-role.action";
 import { getDefaultAddress } from "@/actions/address-get-default.action";
@@ -51,15 +49,17 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
   const [searchQuery, setSearchQuery] = useState("");
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
   const [locationText, setLocationText] = useState("Select location");
   const accountRef = useRef<HTMLDivElement>(null);
+  const accountRefMobile = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (accountRef.current && !accountRef.current.contains(event.target as Node)) setIsAccountOpen(false);
+      const clickedAccount = (accountRef.current && accountRef.current.contains(event.target as Node)) ||
+                             (accountRefMobile.current && accountRefMobile.current.contains(event.target as Node));
+      if (!clickedAccount) setIsAccountOpen(false);
       if (moreRef.current && !moreRef.current.contains(event.target as Node)) setIsMoreOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -76,7 +76,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
       if (cached) {
         const { text, timestamp } = JSON.parse(cached);
         if (Date.now() - timestamp < 5 * 60 * 1000) {
-          setLocationText(text);
+          setTimeout(() => setLocationText(text), 0);
           return;
         }
       }
@@ -98,7 +98,8 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|; )active_role_mode=([^;]*)/);
-    setActiveMode(match?.[1] === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER");
+    const mode = match?.[1] === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER";
+    setTimeout(() => setActiveMode(mode), 0);
   }, [userProfile]);
 
   const handleHeaderLocationClick = async () => {
@@ -120,10 +121,11 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
       } else {
         setLocationText("Select location");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("GPS detection failed:", error);
-      setLocationText(error.message?.toLowerCase().includes("permission") ? "Select location" : "Unable to detect location");
-      alert(error.message || "Failed to detect location.");
+      const errMsg = error instanceof Error ? error.message : "";
+      setLocationText(errMsg.toLowerCase().includes("permission") ? "Select location" : "Unable to detect location");
+      alert(errMsg || "Failed to detect location.");
     }
   };
 
@@ -165,7 +167,8 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)] backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      {/* ── Desktop Header ──────────────────────────────────────── */}
+      <div className="mx-auto hidden h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 md:flex">
         <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
           <span
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
@@ -176,7 +179,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
           <span className="hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827] sm:inline">MiniBrands</span>
         </Link>
 
-        <form onSubmit={handleSearchSubmit} className="order-3 flex w-full basis-full md:order-none md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
+        <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
           <label htmlFor="global-search" className="sr-only">Search products, brands and categories</label>
           <div className="relative w-full">
             <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF] transition-colors duration-200" />
@@ -233,11 +236,88 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
             <button suppressHydrationWarning type="button" onClick={() => setIsMoreOpen((open) => !open)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-vl-muted transition hover:bg-vl-surface hover:text-vl-ink" aria-label="More options" aria-expanded={isMoreOpen}><MoreHorizontal aria-hidden="true" className="h-5 w-5" /></button>
             {isMoreOpen ? <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating"><Link href={becomeSellerHref} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium text-vl-muted hover:bg-vl-surface hover:text-vl-primary"><Store aria-hidden="true" className="h-4 w-4" />Become a seller</Link></div> : null}
           </div>
-          <button suppressHydrationWarning type="button" onClick={() => setIsMobileMenuOpen((open) => !open)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary md:hidden" aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMobileMenuOpen}>{isMobileMenuOpen ? <X aria-hidden="true" className="h-5 w-5" /> : <Menu aria-hidden="true" className="h-5 w-5" />}</button>
         </div>
       </div>
 
-      {isMobileMenuOpen ? <div className="border-t border-vl-border bg-white px-4 py-3 shadow-vl-soft md:hidden"><button suppressHydrationWarning type="button" onClick={handleHeaderLocationClick} className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-sm font-semibold text-vl-muted hover:bg-vl-surface"><MapPin aria-hidden="true" className="h-4 w-4 text-vl-primary" />{locationText}</button><Link href={becomeSellerHref} onClick={() => setIsMobileMenuOpen(false)} className="mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-vl-muted hover:bg-vl-surface"><Store aria-hidden="true" className="h-4 w-4 text-vl-secondary" />Become a seller</Link></div> : null}
+      {/* ── Mobile Header (Refined, Compact Single Row) ────────────────── */}
+      <div className="flex md:hidden h-16 items-center justify-between gap-3 px-4 bg-white border-b border-[#ECECEC]/80">
+        <Link href="/" className="group flex shrink-0 items-center gap-1.5" aria-label="MiniBrands home">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl font-vl-heading text-sm font-extrabold text-white shadow-md"
+            style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
+          >
+            M
+          </span>
+          <span className="font-vl-heading text-sm font-extrabold tracking-[-0.04em] text-[#111827] xs:inline hidden">MiniBrands</span>
+        </Link>
+
+        {/* Compact Search bar */}
+        <form onSubmit={handleSearchSubmit} className="flex-grow max-w-[170px] xs:max-w-xs min-w-[90px]" role="search">
+          <label htmlFor="mobile-search" className="sr-only">Search products</label>
+          <div className="relative w-full">
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9CA3AF]" />
+            <input
+              id="mobile-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search…"
+              className="h-9 w-full rounded-2xl border border-[#ECECEC] bg-[#F5F5F8] pl-8 pr-3 text-xs text-[#111827] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-[#6C3BFF] focus:bg-white"
+            />
+          </div>
+        </form>
+
+        {/* Compact Right Icons */}
+        <div className="flex items-center gap-1">
+          <Link href={wishlistHref} className="flex h-9 w-9 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#FF4D8D]/8 hover:text-[#FF4D8D]" aria-label="Wishlist">
+            <Heart aria-hidden="true" className="h-4.5 w-4.5" />
+          </Link>
+          <Link href="/cart" className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#6C3BFF]/8 hover:text-[#6C3BFF]" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
+            <ShoppingBag aria-hidden="true" className="h-4.5 w-4.5" />
+            {cartCount > 0 ? (
+              <span className="absolute right-0.5 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#FF4D8D] px-0.5 text-[8px] font-bold text-white">
+                {cartCount}
+              </span>
+            ) : null}
+          </Link>
+
+          {/* Account/Profile Trigger */}
+          <div ref={accountRefMobile} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsAccountOpen((open) => !open)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-vl-ink hover:bg-vl-surface"
+              aria-label="Account options"
+              aria-expanded={isAccountOpen}
+              aria-haspopup="menu"
+            >
+              {userProfile?.user?.image && activeMode === "BUYER" ? (
+                <img src={userProfile.user.image} alt="" className="h-6 w-6 rounded-full object-cover" />
+              ) : (
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vl-secondary/10 font-vl-heading text-[10px] font-bold text-vl-secondary">
+                  {getInitials(displayName || "Account")}
+                </span>
+              )}
+            </button>
+            {isAccountOpen ? (
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating" role="menu">
+                <div className="border-b border-vl-border px-3 pb-2 pt-1.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-vl-muted">{activeMode === "BUYER" ? "Account" : "Store"}</p>
+                  <p className="mt-0.5 truncate font-vl-heading text-xs font-bold text-vl-ink">{displayName || "Welcome"}</p>
+                </div>
+                <div className="py-1">
+                  {(activeMode === "BUYER" ? [[UserRound, "Profile", "/account/profile"], [Package, "Orders", "/account/orders"], [Heart, "Wishlist", "/account/wishlist"], [MapPin, "Addresses", "/account/addresses"]] : [[LayoutDashboard, "Seller dashboard", "/seller/dashboard"], [Store, "Store profile", "/seller/profile"], [Package, "Orders", "/seller/orders"], [RefreshCcw, "Returns & RMA", "/seller/returns"]]).map(([Icon, label, href]) => {
+                    const MenuIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+                    return <Link key={href as string} href={href as string} onClick={() => setIsAccountOpen(false)} className="flex min-h-9 items-center gap-3 rounded-lg px-2 text-xs font-medium text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary" role="menuitem"><MenuIcon aria-hidden={true} className="h-3.5 w-3.5" /><span>{label as string}</span></Link>;
+                  })}
+                </div>
+                {userProfile?.seller ? <button suppressHydrationWarning type="button" onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")} className="flex min-h-9 w-full items-center gap-2 rounded-lg border border-vl-secondary/15 bg-vl-secondary/5 px-2 text-[10px] font-semibold text-vl-secondary transition hover:bg-vl-secondary/10"><ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />Switch to {activeMode === "BUYER" ? "seller" : "buyer"}</button> : null}
+                {userProfile ? <button suppressHydrationWarning type="button" onClick={handleSignOut} className="mt-1 flex min-h-9 w-full items-center gap-3 rounded-lg px-2 text-xs font-medium text-vl-muted transition hover:bg-red-50 hover:text-vl-danger"><LogOut aria-hidden="true" className="h-3.5 w-3.5" />Sign out</button> : <Link href="/login?role=buyer" onClick={() => setIsAccountOpen(false)} className="mt-1 flex min-h-9 items-center gap-3 rounded-lg px-2 text-xs font-semibold text-vl-primary hover:bg-vl-primary/5"><UserRound aria-hidden="true" className="h-3.5 w-3.5" />Sign in</Link>}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
 
       <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-4 rounded-vl-card border border-vl-border bg-white/95 p-1.5 shadow-vl-floating backdrop-blur-xl md:hidden" aria-label="Mobile navigation">
         {[["/", "Home", Store], ["/products", "Shop", ShoppingBag], [wishlistHref, "Wishlist", Heart], [accountHref, "Account", UserRound]].map(([href, label, Icon]) => { const NavIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>; return <Link key={label as string} href={href as string} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary"><NavIcon aria-hidden={true} className="h-4 w-4" /><span>{label as string}</span></Link>; })}

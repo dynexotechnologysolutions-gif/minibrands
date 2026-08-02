@@ -11,24 +11,24 @@ const categories = [
 
 export default function HomeCategoryGrid() {
   return (
-    <section className="vl-section-shell mt-14 sm:mt-20">
+    <section className="vl-section-shell mt-8 sm:mt-20">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Start here</p>
-          <h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Shop your mood</h2>
+          <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Start here</p>
+          <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">Shop your mood</h2>
         </div>
         <Link href="/products" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">View all</Link>
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5">
         {categories.map((category, index) => (
           <Link
             key={category.label}
             href={category.href}
-            className={`group relative isolate aspect-[4/5] overflow-hidden rounded-[20px] bg-vl-border shadow-vl-soft transition-all duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium ${index === 0 ? "col-span-2 sm:col-span-1" : ""}`}
+            className={`group relative isolate aspect-[16/10] sm:aspect-[4/5] overflow-hidden rounded-xl sm:rounded-[20px] bg-vl-border shadow-vl-soft transition-all duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium ${index === 0 ? "col-span-2 sm:col-span-1" : ""}`}
           >
             <Image src={category.image} alt={category.alt} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="object-cover transition duration-500 ease-vl-out group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-vl-ink/80 via-vl-ink/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
-            <span className="absolute bottom-5 left-5 right-5 font-vl-heading text-lg font-bold text-white sm:text-xl tracking-tight">{category.label}</span>
+            <span className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 font-vl-heading text-sm sm:text-xl font-bold text-white tracking-tight">{category.label}</span>
           </Link>
         ))}
       </div>
