@@ -160,7 +160,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2">
               {spotlightProducts.map((product) => (
                 <article key={product.id} className="group grid overflow-hidden rounded-vl-card bg-vl-ink text-white grid-cols-1 sm:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative h-52 sm:h-auto sm:min-h-[280px] bg-vl-border">
+                  <div className="relative min-h-[280px] sm:min-h-[320px] bg-vl-border">
                     <Image src={product.images?.[0]?.url || "/placeholder.jpg"} alt={product.name} fill sizes="(max-width: 640px) 100vw, 30vw" className="object-cover transition duration-500 group-hover:scale-105" />
                     <WishlistIconButton productId={product.id} isLoggedIn={!!session?.user} initialIsWishlisted={wishlistIds.includes(product.id)} />
                   </div>
