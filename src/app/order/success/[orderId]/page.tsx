@@ -3,11 +3,18 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import HomeHeader from "@/components/home/HomeHeader";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getUserReservations, redis } from "@/lib/redis";
-import WishlistIconButton from "@/components/product/WishlistIconButton";
+import Recommendations from "./Recommendations";
+import {
+  CheckCircle2,
+  ShieldCheck,
+  Truck,
+  Download,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +25,6 @@ export const metadata: Metadata = {
     follow: false,
   },
 };
-
-interface SuccessPageProps {
-  params: Promise<{
-    orderId: string;
-  }>;
-}
 
 // Fallback high-fidelity mock products matching the original HTML design
 const mockProducts = [
@@ -68,6 +69,12 @@ const mockProducts = [
     tag: "Sale"
   }
 ];
+
+interface SuccessPageProps {
+  params: Promise<{
+    orderId: string;
+  }>;
+}
 
 export default async function OrderSuccessPage({ params }: SuccessPageProps) {
   const { orderId } = await params;
@@ -156,6 +163,7 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
   if (finalRecommended.length < 4) {
     const needed = 4 - finalRecommended.length;
     for (let i = 0; i < needed; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       finalRecommended.push(mockProducts[i] as any);
     }
   }
@@ -188,42 +196,47 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
   }
 
   const totalItemsCount = order.items.reduce((acc, curr) => acc + curr.quantity, 0);
+  const isLoggedIn = !!session.user;
+  const isFallbackId = (id: string) => id.startsWith("mock-");
 
   return (
-    <div className="bg-surface-bg text-on-surface min-h-screen flex flex-col w-full font-sans">
-      {/* Reused Home Header */}
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20">
       <HomeHeader
         userProfile={userProfile}
         cartCount={cartCount}
         sellerHref={sellerHref}
       />
 
-      {/* Main Success Content */}
-      <main className="max-w-container-max mx-auto px-base pb-xxl pt-lg w-full flex-grow">
-        {/* Success Hero */}
-        <section className="bg-surface-container-lowest p-xl rounded-lg border border-border-gray text-center mb-xl shadow-sm">
-          <div className="w-20 h-20 bg-success-green/10 rounded-full flex items-center justify-center mx-auto mb-base">
-            <span
-              className="material-symbols-outlined text-success-green text-5xl"
-              style={{ fontVariationSettings: "'wght' 700" }}
-            >
-              check_circle
-            </span>
+      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
+        
+        {/* Celebration Header Section */}
+        <section className="w-full max-w-2xl mx-auto px-6 py-10 sm:py-12 bg-gradient-to-br from-vl-primary/5 via-vl-card to-vl-card rounded-vl-card border border-vl-border text-center mb-8 shadow-vl-soft flex flex-col items-center">
+          {/* Animated success icon */}
+          <div className="w-20 h-20 bg-vl-success/10 rounded-full flex items-center justify-center mb-6 animate-bounce shrink-0">
+            <CheckCircle2 className="text-vl-success h-10 w-10" strokeWidth={2} />
           </div>
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-xs">Order Confirmed!</h1>
-          <p className="font-body-lg text-body-lg text-secondary">
-            Thank you for your purchase. We've sent a confirmation email to you.
+
+          {/* Heading */}
+          <h1 className="font-vl-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-vl-ink mb-3 text-center">
+            Order Confirmed!
+          </h1>
+
+          {/* Description */}
+          <p className="text-sm sm:text-base text-vl-muted max-w-[520px] mx-auto leading-[1.6] text-center mb-8">
+            Thank you for shopping with us. A confirmation email has been sent. Great style is already on its way!
           </p>
-          <div className="mt-lg flex flex-col md:flex-row gap-base justify-center items-center">
+          
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[480px] mx-auto">
             <Link
               href={`/orders/${order.id}`}
-              className="bg-primary text-on-primary px-xl py-3 rounded font-label-bold hover:opacity-90 transition-all active:scale-95 text-center inline-block min-w-[180px] cursor-pointer"
+              className="w-full sm:w-auto inline-flex min-h-12 items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-95"
             >
               Track Order
             </Link>
             <Link
               href="/"
-              className="bg-surface-container-lowest border border-primary text-primary px-xl py-3 rounded font-label-bold hover:bg-surface-container-low transition-all active:scale-95 text-center inline-block min-w-[180px] cursor-pointer"
+              className="w-full sm:w-auto inline-flex min-h-12 items-center justify-center rounded-vl-control border border-vl-border bg-vl-card px-8 text-sm font-semibold text-vl-ink transition-all duration-vl-fast hover:border-vl-primary hover:text-vl-primary active:scale-95"
             >
               Continue Shopping
             </Link>
@@ -231,18 +244,19 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
         </section>
 
         {/* Bento Grid Details */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-base mb-xxl">
-          {/* Order ID & Status */}
-          <div className="md:col-span-4 bg-surface-container-lowest p-lg rounded border border-border-gray flex flex-col justify-between">
-            <div className="flex flex-col gap-md">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-stretch">
+          
+          {/* Order Metadata (Order ID, Payment status, Timeline) */}
+          <div className="lg:col-span-4 bg-vl-card p-6 rounded-vl-card border border-vl-border shadow-vl-soft flex flex-col justify-between">
+            <div className="space-y-4">
               <div>
-                <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Order ID</p>
-                <p className="font-headline-sm text-headline-sm text-primary break-all">{order.id}</p>
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] mb-1">Order ID</p>
+                <p className="font-vl-heading text-base font-extrabold text-vl-ink break-all">{order.id}</p>
               </div>
 
-              <div className="pt-base border-t border-border-gray">
-                <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Order Date</p>
-                <p className="font-body-md text-primary font-semibold">
+              <div className="pt-3 border-t border-vl-border">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] mb-1">Order Date</p>
+                <p className="text-sm font-bold text-vl-ink">
                   {new Date(order.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
@@ -251,39 +265,32 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
                 </p>
               </div>
 
-              <div className="pt-base border-t border-border-gray">
-                <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Payment ID</p>
-                <p className="font-body-md text-primary font-semibold break-all">
-                  {order.razorpayPaymentId || "N/A"}
+              <div className="pt-3 border-t border-vl-border">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] mb-1">Payment ID</p>
+                <p className="text-sm font-semibold text-vl-ink break-all">
+                  {order.razorpayPaymentId || "Mock Sandbox Payment"}
                 </p>
               </div>
 
-              <div className="pt-base border-t border-border-gray">
-                <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Order Status</p>
-                <p className="font-body-md text-primary font-semibold capitalize">
-                  {order.orderStatus}
-                </p>
-              </div>
-
-              <div className="pt-base border-t border-border-gray">
-                <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Payment Status</p>
-                <div className="flex items-center gap-xs">
+              <div className="pt-3 border-t border-vl-border">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] mb-1">Payment Status</p>
+                <div className="flex items-center gap-1.5 mt-1">
                   <span
                     className={`w-2 h-2 rounded-full ${
                       order.paymentStatus.toLowerCase() === "paid" || order.paymentStatus.toLowerCase() === "success"
-                        ? "bg-success-green"
+                        ? "bg-vl-success"
                         : order.paymentStatus.toLowerCase() === "pending"
-                        ? "bg-accent-yellow"
-                        : "bg-error-red"
+                        ? "bg-vl-warning"
+                        : "bg-vl-danger"
                     }`}
-                  ></span>
+                  />
                   <p
-                    className={`font-label-bold capitalize ${
+                    className={`text-xs font-bold uppercase tracking-wider ${
                       order.paymentStatus.toLowerCase() === "paid" || order.paymentStatus.toLowerCase() === "success"
-                        ? "text-success-green"
+                        ? "text-vl-success"
                         : order.paymentStatus.toLowerCase() === "pending"
-                        ? "text-accent-yellow"
-                        : "text-error-red"
+                        ? "text-vl-warning"
+                        : "text-vl-danger"
                     }`}
                   >
                     {order.paymentStatus}
@@ -291,160 +298,170 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
                 </div>
               </div>
             </div>
+
+            <div className="pt-4 mt-4 border-t border-vl-border flex justify-between items-center">
+              <span className="text-xs text-vl-muted">Download Invoice</span>
+              <button
+                type="button"
+                className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-ink hover:text-vl-primary hover:border-vl-primary transition-all active:scale-95 cursor-pointer"
+                title="Download invoice receipt"
+              >
+                <Download aria-hidden="true" className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Delivery Details */}
-          <div className="md:col-span-8 bg-surface-container-lowest p-lg rounded border border-border-gray flex flex-col md:flex-row gap-lg">
-            <div className="flex-1">
-              <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Delivery Address</p>
-              <p className="font-label-bold text-primary mb-xs">{order.address.fullName}</p>
-              <p className="font-body-md text-secondary leading-relaxed">
-                {order.address.line1}
-                {order.address.line2 && <><br />{order.address.line2}</>}
-                <br />
-                {order.address.city} - {order.address.pincode}
-                <br />
-                Phone: {order.address.phone}
-              </p>
-            </div>
-            <div className="md:w-px md:bg-border-gray"></div>
-            <div className="flex-1">
-              <p className="font-body-sm text-secondary uppercase tracking-wider mb-xs">Expected Delivery</p>
-              <div className="flex items-center gap-sm text-primary mb-sm">
-                <span className="material-symbols-outlined text-accent-yellow">local_shipping</span>
-                <p className="font-headline-sm text-headline-sm">{deliveryDayStr}</p>
+          {/* Delivery & Shipping Info Card */}
+          <div className="lg:col-span-8 bg-vl-card p-6 rounded-vl-card border border-vl-border shadow-vl-soft flex flex-col sm:flex-row gap-6">
+            <div className="flex-1 space-y-2">
+              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em]">Delivery Address</p>
+              <p className="font-bold text-vl-ink text-base">{order.address.fullName}</p>
+              <div className="text-sm text-vl-muted leading-relaxed">
+                <p>{order.address.line1}</p>
+                {order.address.line2 && <p>{order.address.line2}</p>}
+                <p>{order.address.city} - {order.address.pincode}</p>
+                <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {order.address.phone}</p>
               </div>
-              <p className="font-body-md text-secondary">
-                A shipping update will be shared once the package leaves our warehouse.
-              </p>
+            </div>
+
+            <div className="hidden sm:block w-px bg-vl-border shrink-0 self-stretch" />
+
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em]">Expected Delivery</p>
+                <div className="flex items-center gap-2 text-vl-ink">
+                  <Truck aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                  <p className="font-vl-heading text-lg font-extrabold">{deliveryDayStr}</p>
+                </div>
+                <p className="text-xs text-vl-muted leading-relaxed mt-1">
+                  Your package will be delivered securely by tomorrow. Track updates on your dashboard.
+                </p>
+              </div>
+
+              {/* Secure strip protection details */}
+              <div className="pt-4 border-t border-vl-border mt-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-vl-success">
+                <ShieldCheck aria-hidden="true" className="h-4.5 w-4.5" />
+                <span>MiniBrands Escrow Covered</span>
+              </div>
             </div>
           </div>
 
-          {/* Product Summary */}
-          <div className="md:col-span-12 bg-surface-container-lowest p-lg rounded border border-border-gray">
-            <h3 className="font-headline-sm text-headline-sm mb-lg">
-              Order Summary ({totalItemsCount} {totalItemsCount === 1 ? "Item" : "Items"})
+          {/* Product Items Breakdown summary */}
+          <div className="lg:col-span-12 bg-vl-card p-6 rounded-vl-card border border-vl-border shadow-vl-soft">
+            <h3 className="font-vl-heading text-lg font-bold text-vl-ink mb-4">
+              Items Purchased ({totalItemsCount})
             </h3>
-            <div className="space-y-base">
-              {order.items.map((item, index) => (
-                <div
-                  key={item.id}
-                  className={`flex items-center gap-base ${
-                    index < order.items.length - 1 ? "pb-base border-b border-border-gray" : ""
-                  }`}
-                >
-                  <div className="w-20 h-20 bg-surface-container-low rounded overflow-hidden flex-shrink-0">
-                    <img
-                      className="w-full h-full object-cover"
+            
+            <div className="divide-y divide-vl-border">
+              {order.items.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                  <div className="w-16 h-20 bg-vl-surface border border-vl-border rounded-vl-control overflow-hidden relative shrink-0">
+                    <Image
+                      fill
+                      className="object-cover"
                       src={item.product.images[0]?.url || "/placeholder.jpg"}
                       alt={item.product.name}
+                      sizes="64px"
                     />
                   </div>
-                  <div className="flex-grow min-w-0">
-                    <p className="font-body-sm text-secondary mb-xs">
-                      {item.product.seller?.businessName?.toUpperCase() || "MINIBRANDS"}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] mb-0.5">
+                      {item.product.seller?.businessName || "MINIBRANDS"}
                     </p>
-                    <p className="font-label-bold text-primary truncate">{item.product.name}</p>
-                    <p className="font-body-sm text-secondary">
+                    <h4 className="font-bold text-vl-ink text-sm truncate">{item.product.name}</h4>
+                    <p className="text-xs text-vl-muted">
                       Size: {item.variant.size} | Qty: {item.quantity}
                     </p>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-price-lg text-price-lg text-primary">
+                  <div className="text-right shrink-0">
+                    <p className="font-vl-heading font-extrabold text-vl-ink text-base">
                       {formatPrice(item.unitPrice * item.quantity)}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-lg pt-lg border-t border-border-gray flex justify-end">
-              <div className="w-full md:w-64 space-y-sm">
-                <div className="flex justify-between text-body-md text-secondary">
+
+            {/* Calculations Breakdown */}
+            <div className="mt-5 pt-5 border-t border-vl-border flex justify-end">
+              <div className="w-full sm:w-72 space-y-3 text-sm">
+                <div className="flex justify-between text-vl-muted">
                   <span>Subtotal</span>
-                  <span>{formatPrice(order.subtotal)}</span>
+                  <span className="font-semibold text-vl-ink">{formatPrice(order.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-body-md text-secondary">
-                  <span>Shipping</span>
+                <div className="flex justify-between text-vl-muted">
+                  <span>Shipping Charges</span>
                   {order.shipping === 0 ? (
-                    <span className="text-success-green">FREE</span>
+                    <span className="text-vl-success font-bold uppercase text-xs">FREE</span>
                   ) : (
-                    <span>{formatPrice(order.shipping)}</span>
+                    <span className="font-semibold text-vl-ink">{formatPrice(order.shipping)}</span>
                   )}
                 </div>
-                <div className="flex justify-between text-headline-sm text-primary pt-sm border-t border-border-gray">
-                  <span>Total</span>
-                  <span>{formatPrice(order.totalAmount)}</span>
+                <div className="flex justify-between text-base font-bold text-vl-ink pt-3 border-t border-vl-border">
+                  <span className="font-vl-heading text-sm uppercase tracking-wider">Total Amount</span>
+                  <span className="font-vl-heading text-lg font-extrabold text-vl-primary">{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Recommendations Section */}
-        <section>
-          <div className="flex items-center justify-between mb-lg">
-            <h2 className="font-headline-sm text-headline-sm text-primary">Recommended for You</h2>
-            <Link className="text-primary font-label-bold hover:underline" href="/products">
+        {/* Recommended Products Carousel section */}
+        <section className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink">
+              Recommended for You
+            </h2>
+            <Link className="text-vl-primary font-bold text-sm hover:underline" href="/products">
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-base">
-            {finalRecommended.map((prod: any) => {
-              const isMock = prod.id.startsWith("mock-");
-              const priceVal = prod.price;
-              const formattedPrice = formatPrice(priceVal);
-              const originalPriceVal = isMock ? prod.originalPrice : null;
-              const formattedOriginalPrice = originalPriceVal ? formatPrice(originalPriceVal) : null;
-              
-              const imageUrl = prod.images[0]?.url || "/placeholder.jpg";
-              const sellerName = prod.seller?.businessName?.toUpperCase() || "MINIBRANDS";
-              const isVerified = prod.verified || (prod.seller?.verification?.kycStatus === "approved" || prod.seller?.verification?.kycStatus === "auto_approved");
 
-              return (
-                <Link
-                  key={prod.id}
-                  href={isMock ? "#" : `/products/${prod.id}`}
-                  className="bg-surface-container-lowest border border-border-gray rounded-lg group cursor-pointer hover:shadow-md transition-shadow block overflow-hidden"
-                >
-                  <div className="aspect-square bg-surface-container-low relative overflow-hidden">
-                    <img
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src={imageUrl}
-                      alt={prod.name}
-                    />
-                    <WishlistIconButton
-                      productId={prod.id}
-                      isLoggedIn={!!session?.user}
-                      initialIsWishlisted={wishlistIds.includes(prod.id)}
-                    />
-                  </div>
-                  <div className="p-md">
-                    <p className="font-body-sm text-secondary mb-1">{sellerName}</p>
-                    <h4 className="font-label-bold text-primary line-clamp-1 mb-2">{prod.name}</h4>
-                    <div className="flex items-center gap-sm">
-                      <span className="font-price-lg text-price-lg text-primary">{formattedPrice}</span>
-                      {formattedOriginalPrice && (
-                        <span className="text-body-sm text-secondary line-through">{formattedOriginalPrice}</span>
-                      )}
-                      {isMock && prod.tag === "Verified" && (
-                        <span className="bg-accent-yellow/10 text-accent-yellow px-xs py-[1px] text-[10px] rounded font-bold uppercase tracking-tighter">
-                          Verified
-                        </span>
-                      )}
-                      {isMock && prod.tag === "Sale" && (
-                        <span className="text-success-green font-label-bold text-[12px]">Sale</span>
-                      )}
-                      {!isMock && isVerified && (
-                        <span className="bg-accent-yellow/10 text-accent-yellow px-xs py-[1px] text-[10px] rounded font-bold uppercase tracking-tighter">
-                          Verified
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
+          <Recommendations
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            products={finalRecommended.map((prod: any) => {
+              const isMock = isFallbackId(prod.id);
+              const sellerName = prod.seller?.businessName || "MINIBRANDS";
+              
+              return {
+                id: prod.id,
+                sellerId: isMock ? "" : prod.id,
+                name: prod.name,
+                shortDescription: "",
+                fullDescription: "",
+                category: prod.category || "Decor",
+                subcategory: null,
+                tags: [],
+                price: prod.price,
+                isPublished: true,
+                isDeleted: false,
+                createdAt: "",
+                updatedAt: "",
+                isWishlisted: wishlistIds.includes(prod.id),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                images: prod.images?.map((img: any, i: number) => ({
+                  id: String(i),
+                  productId: prod.id,
+                  url: img.url,
+                  sortOrder: i,
+                })) || [],
+                variants: [],
+                seller: {
+                  id: "",
+                  businessName: sellerName,
+                  storeName: sellerName,
+                  storeLogo: null,
+                },
+                mrp: prod.price * 1.4,
+                discountPercent: 28,
+                rating: 4.5,
+                reviewCount: 12,
+                formattedReviews: "12",
+                badge: null,
+              };
             })}
-          </div>
+            isLoggedIn={isLoggedIn}
+          />
         </section>
       </main>
     </div>

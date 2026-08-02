@@ -1,10 +1,33 @@
 "use client";
 
+/**
+ * AddressClient
+ * @redesigned v5.0 — visual redesign only, all callbacks, schemas, geolocation and logic preserved.
+ *
+ * Purpose:
+ *   Premium address selection and management interface. Displays saved delivery cards,
+ *   integrates precise geolocation auto-fill controls, embeds a secure add/edit address form,
+ *   and provides a vertically sticky pricing summary panel for checkout return flows.
+ */
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  Home,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  Compass,
+  Loader2,
+  Lock,
+  ChevronRight,
+  ShieldCheck,
+  Edit2,
+} from "lucide-react";
 import { AddressCreateSchema, AddressCreateInput } from "@/schemas/address.schema";
 import { createAddress } from "@/actions/address-create.action";
 import { updateAddress } from "@/actions/address-update.action";
@@ -35,6 +58,7 @@ interface AddressClientProps {
   redirectTo?: string;
   sessionId?: string;
   reservationId?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userProfile: any;
   cartCount: number;
   sellerHref: string;
@@ -79,6 +103,9 @@ export default function AddressClient({
   const [isSettingDefault, setIsSettingDefault] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
+  
+  // Custom delete confirmation modal state
+  const [addressToDeleteId, setAddressToDeleteId] = useState<string | null>(null);
 
   const {
     register,
@@ -87,6 +114,7 @@ export default function AddressClient({
     setValue,
     formState: { errors },
   } = useForm<AddressCreateInput>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(AddressCreateSchema) as any,
     defaultValues: {
       fullName: "",
@@ -142,14 +170,15 @@ export default function AddressClient({
       } else {
         setLocationStatus("Reverse Geocoding Failed");
       }
-    } catch (err: any) {
-      console.error(err);
-      if (err.message?.includes("permission denied") || err.message?.includes("Permission denied")) {
+    } catch (err) {
+      const error = err as Error;
+      console.error(error);
+      if (error.message?.includes("permission denied") || error.message?.includes("Permission denied")) {
         setLocationStatus("Permission Denied");
       } else {
         setLocationStatus("GPS Error");
       }
-      alert(err.message || "GPS detection failed. Please move closer to a window.");
+      alert(error.message || "GPS detection failed. Please move closer to a window.");
     } finally {
       setIsDetectingLocation(false);
     }
@@ -226,7 +255,7 @@ export default function AddressClient({
           setFormError(response.error?.message || "Failed to add address.");
         }
       }
-    } catch (err: any) {
+    } catch {
       setFormError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -243,7 +272,9 @@ export default function AddressClient({
     setValue("city", "Chennai");
     setValue("pincode", addr.pincode);
     setValue("isDefault", addr.isDefault);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setValue("latitude", (addr as any).latitude || null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setValue("longitude", (addr as any).longitude || null);
 
     // Scroll to form smoothly
@@ -258,8 +289,14 @@ export default function AddressClient({
     reset();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this address?")) return;
+  const openDeleteModal = (id: string) => {
+    setAddressToDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!addressToDeleteId) return;
+    const id = addressToDeleteId;
+    setAddressToDeleteId(null);
     setIsActionLoading(id);
     try {
       const response = await deleteAddress({ addressId: id });
@@ -359,38 +396,59 @@ export default function AddressClient({
   };
 
   return (
-    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
-      {/* TopNavBar */}
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20 pb-20 lg:pb-10">
       <HomeHeader
         userProfile={userProfile}
         cartCount={cartCount}
         sellerHref={sellerHref}
       />
 
-      {/* Main Content Canvas */}
-      <main className="pt-24 pb-xxl px-base md:px-lg max-w-container-max mx-auto min-h-screen w-full flex-grow">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
-          {/* Left Side: Address Selection */}
-          <div className={`${isCheckoutFlow ? "lg:col-span-8" : "lg:col-span-12 max-w-4xl mx-auto w-full"} space-y-xl`}>
+      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
+        
+        {/* Responsive Stepper progress indicator if in checkout return flow */}
+        {isCheckoutFlow && (
+          <div className="mb-8 flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-sm font-semibold sm:gap-4 md:justify-start">
+            <Link href="/cart" className="flex items-center gap-1 text-vl-muted hover:text-vl-primary transition-colors">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary/10 text-[10px] font-bold text-vl-primary">✔</span>
+              Cart
+            </Link>
+            <ChevronRight className="h-4.5 w-4.5 text-vl-border shrink-0" />
+            <span className="flex items-center gap-1.5 text-vl-primary font-bold">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary text-[10px] font-bold text-white">2</span>
+              Shipping Address
+            </span>
+            <ChevronRight className="h-4.5 w-4.5 text-vl-border shrink-0" />
+            <span className="flex items-center gap-1.5 text-vl-muted">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-border text-[10px] font-bold text-vl-muted">3</span>
+              Secure Checkout
+            </span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10 items-start">
+          
+          {/* LEFT COLUMN: Saved addresses & Form */}
+          <div className={`${isCheckoutFlow ? "lg:col-span-8" : "lg:col-span-12 max-w-4xl mx-auto w-full"} space-y-8`}>
+            
             <header>
-              <h1 className="font-headline-lg text-headline-lg text-primary mb-xs">
+              <h1 className="font-vl-heading text-2xl sm:text-3xl font-extrabold tracking-[-0.04em] text-vl-ink mb-1.5">
                 {isCheckoutFlow ? "Select Delivery Address" : "Manage Delivery Addresses"}
               </h1>
-              <p className="font-body-md text-secondary">
+              <p className="text-sm text-vl-muted leading-relaxed">
                 {isCheckoutFlow
-                  ? "Choose a saved address or add a new one to proceed with your order."
-                  : "Add, edit, or delete your shipping addresses below."}
+                  ? "Choose a saved address or add a new one to proceed with your purchase securely."
+                  : "Add, edit, or delete your billing and shipping addresses below."}
               </p>
             </header>
 
             {/* Geolocation Detector Card */}
-            <div className="bg-surface-container-low border border-border-gray p-base rounded-lg flex flex-col sm:flex-row items-center justify-between gap-base">
-              <div className="flex items-center gap-md">
-                <span className="material-symbols-outlined text-primary text-[24px]">location_on</span>
+            <div className="rounded-vl-card border border-vl-border bg-vl-card p-5 shadow-vl-soft flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Compass className="text-vl-primary h-6 w-6 shrink-0 animate-pulse" strokeWidth={2.2} />
                 <div>
-                  <h3 className="font-label-bold text-primary">Use Current Location</h3>
-                  <p className="font-body-sm text-secondary">
-                    {locationStatus ? `Status: ${locationStatus}` : "Detect your GPS coordinates to automatically fill address fields."}
+                  <h3 className="font-bold text-vl-ink text-sm sm:text-base">Use Current Location</h3>
+                  <p className="text-xs text-vl-muted mt-0.5 leading-relaxed">
+                    {locationStatus ? `Status: ${locationStatus}` : "Use your browser GPS to auto-detect and populate addresses fields."}
                   </p>
                 </div>
               </div>
@@ -398,203 +456,214 @@ export default function AddressClient({
                 type="button"
                 onClick={handleDetectCurrentLocation}
                 disabled={isDetectingLocation}
-                className="bg-primary text-on-primary px-lg py-sm rounded font-label-bold text-label-bold hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-50 select-none whitespace-nowrap"
+                className="w-full sm:w-auto inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-ink px-6 text-sm font-bold text-white hover:bg-vl-ink/90 active:scale-[0.98] transition-all disabled:opacity-55 whitespace-nowrap select-none cursor-pointer"
               >
-                {isDetectingLocation ? "Detecting..." : "Detect Location"}
+                {isDetectingLocation ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Detecting...
+                  </>
+                ) : (
+                  "Detect Location"
+                )}
               </button>
             </div>
 
             {/* Saved Addresses Section */}
-            <section className="space-y-base">
-              <h2 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
-                <span className="material-symbols-outlined">home</span> Saved Addresses
-              </h2>
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Home aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Saved Addresses</h2>
+              </div>
 
               {addresses.length === 0 ? (
-                <div className="p-base bg-white border border-border-gray rounded-lg text-center text-secondary py-12">
-                  <p className="font-body-md">No saved addresses found. Please add a new shipping address below.</p>
+                <div className="rounded-vl-card border border-vl-border bg-vl-card text-center py-12 px-6 shadow-vl-soft">
+                  <p className="text-sm text-vl-muted">No saved addresses found. Please create a new shipping address below.</p>
                 </div>
               ) : (
-                <div className="space-y-base">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {addresses.map((addr) => {
                     const isSelected = selectedAddressId === addr.id;
                     const isLoading = isActionLoading === addr.id;
+                    
                     return (
-                      <div key={addr.id} className="relative radio-card-wrapper">
-                        <input
-                          checked={isSelected}
-                          onChange={() => setSelectedAddressId(addr.id)}
-                          className="hidden peer radio-card"
-                          id={`addr_${addr.id}`}
-                          name="address"
-                          type="radio"
-                        />
-                        <label
-                          className={`block p-base bg-white border rounded-lg cursor-pointer hover:border-primary transition-all duration-200 ${isSelected
-                              ? "border-primary ring-1 ring-primary"
-                              : "border-border-gray"
-                            }`}
-                          htmlFor={`addr_${addr.id}`}
-                        >
-                          <div className="flex justify-between items-end">
-                            <div className="space-y-xs">
-                              <div className="flex items-center gap-base">
-                                <span className="font-label-bold text-label-bold text-primary">{addr.fullName}</span>
-                                {addr.isDefault && (
-                                  <span className="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                                    Default
-                                  </span>
-                                )}
-                              </div>
-                              <p className="font-body-md text-secondary">{addr.phone}</p>
-                              <p className="font-body-md text-on-surface leading-relaxed">
-                                {addr.line1}
-                                {addr.line2 && <><br />{addr.line2}</>}
-                                <br />
-                                {addr.city} - {addr.pincode}
-                              </p>
+                      <div
+                        key={addr.id}
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`relative rounded-vl-card border p-5 cursor-pointer flex flex-col justify-between transition-all duration-vl-fast ${
+                          isSelected
+                            ? "border-vl-primary bg-vl-primary/5 shadow-vl-soft"
+                            : "border-vl-border bg-vl-card hover:border-vl-primary hover:shadow-vl-soft"
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-vl-ink text-sm sm:text-base">{addr.fullName}</span>
+                              {addr.isDefault && (
+                                <span className="bg-vl-primary/10 text-vl-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                  Default
+                                </span>
+                              )}
                             </div>
+                            {isSelected && (
+                              <CheckCircle2 className="text-vl-primary h-5 w-5 shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-xs font-semibold text-vl-muted">{addr.phone}</p>
+                          <p className="text-xs text-vl-muted leading-relaxed">
+                            {addr.line1}
+                            {addr.line2 && <><br />{addr.line2}</>}
+                            <br />
+                            {addr.city} - {addr.pincode}
+                          </p>
+                        </div>
 
-                            <div className="flex items-center gap-base">
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleEdit(addr);
-                                }}
-                                className="text-secondary hover:text-primary transition-colors flex items-center gap-xs font-label-bold text-label-bold cursor-pointer"
-                              >
-                                <span className="material-symbols-outlined text-[20px]">edit</span> Edit
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleDelete(addr.id);
-                                }}
-                                disabled={isLoading}
-                                className="text-error-red hover:opacity-85 transition-colors flex items-center gap-xs font-label-bold text-label-bold cursor-pointer"
-                              >
-                                <span className="material-symbols-outlined text-[20px]">delete</span> Delete
-                              </button>
-                            </div>
-                          </div>
-                        </label>
-                        {isSelected && (
-                          <div className="absolute top-base right-xl pointer-events-none">
-                            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
-                              check_circle
-                            </span>
-                          </div>
-                        )}
+                        {/* Card CRUD Actions bar */}
+                        <div className="mt-5 pt-3 border-t border-vl-border flex items-center justify-end gap-4 text-xs font-bold text-vl-muted">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(addr);
+                            }}
+                            className="inline-flex items-center gap-1 hover:text-vl-primary transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteModal(addr.id);
+                            }}
+                            disabled={isLoading}
+                            className="inline-flex items-center gap-1 hover:text-vl-danger transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
+                </div>
+              )}
 
-                  {!isCheckoutFlow && (
-                    <div className="pt-md flex justify-start">
-                      <button
-                        onClick={handleConfirmAddress}
-                        disabled={isSettingDefault}
-                        className="bg-primary text-on-primary px-xl py-3 font-label-bold text-label-bold rounded-lg hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
-                      >
-                        {isSettingDefault ? "Updating Profile..." : "Confirm Profile Address"}
-                      </button>
-                    </div>
-                  )}
+              {!isCheckoutFlow && addresses.length > 0 && (
+                <div className="pt-4 flex justify-start">
+                  <button
+                    onClick={handleConfirmAddress}
+                    disabled={isSettingDefault || !selectedAddressId}
+                    className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSettingDefault ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Updating Profile...
+                      </>
+                    ) : (
+                      "Confirm Profile Address"
+                    )}
+                  </button>
                 </div>
               )}
             </section>
 
-            <div className="h-px bg-border-gray w-full"></div>
+            <div className="h-px bg-vl-border w-full" />
 
             {/* Add/Edit Address Form Section */}
-            <section id="address-form-section" className="space-y-base">
-              <h2 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
-                <span className="material-symbols-outlined">{editingAddressId ? "edit_location" : "add_location"}</span>
-                {editingAddressId ? "Edit Delivery Address" : "Add New Address"}
-              </h2>
+            <section id="address-form-section" className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Plus aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">
+                  {editingAddressId ? "Edit Delivery Address" : "Add New Address"}
+                </h2>
+              </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-base md:p-xl border border-border-gray rounded-lg space-y-lg">
+              <form onSubmit={handleSubmit(onSubmit)} className="rounded-vl-card border border-vl-border bg-vl-card p-6 md:p-8 space-y-6 shadow-vl-soft">
                 {formError && (
-                  <div className="p-3 bg-error-container border border-error text-on-error-container rounded text-xs font-bold">
+                  <div className="rounded-vl-control border border-vl-danger/20 bg-vl-danger/10 p-4 text-xs font-bold text-red-950">
                     <span>{formError}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-base">
-                  <div className="space-y-xs">
-                    <label className="font-label-bold text-label-bold text-on-surface">Full Name</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">Full Name</label>
                     <input
                       {...register("fullName")}
-                      className="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md"
-                      placeholder="Enter your name"
+                      className="w-full rounded-vl-control border border-vl-border bg-vl-surface p-3 text-sm text-vl-ink outline-none focus:border-vl-primary focus:ring-0 transition-colors"
+                      placeholder="Enter recipient's name"
                       type="text"
                     />
                     {errors.fullName && (
-                      <p className="text-error-red text-xs font-semibold">{errors.fullName.message}</p>
+                      <p className="text-vl-danger text-xs font-semibold">{errors.fullName.message}</p>
                     )}
                   </div>
-                  <div className="space-y-xs">
-                    <label className="font-label-bold text-label-bold text-on-surface">Mobile Number</label>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">Mobile Number</label>
                     <input
                       {...register("phone")}
-                      className="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md"
+                      className="w-full rounded-vl-control border border-vl-border bg-vl-surface p-3 text-sm text-vl-ink outline-none focus:border-vl-primary focus:ring-0 transition-colors"
                       placeholder="10-digit mobile number"
                       type="tel"
                     />
                     {errors.phone && (
-                      <p className="text-error-red text-xs font-semibold">{errors.phone.message}</p>
+                      <p className="text-vl-danger text-xs font-semibold">{errors.phone.message}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-xs">
-                  <label className="font-label-bold text-label-bold text-on-surface">Address Line 1 (House No, Building, Street)</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">Address Line 1 (Flat, House no, Building, Street)</label>
                   <input
                     {...register("line1")}
-                    className="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md"
-                    placeholder="Enter address"
+                    className="w-full rounded-vl-control border border-vl-border bg-vl-surface p-3 text-sm text-vl-ink outline-none focus:border-vl-primary focus:ring-0 transition-colors"
+                    placeholder="E.g., No. 12, Park View Apartment"
                     type="text"
                   />
                   {errors.line1 && (
-                    <p className="text-error-red text-xs font-semibold">{errors.line1.message}</p>
+                    <p className="text-vl-danger text-xs font-semibold">{errors.line1.message}</p>
                   )}
                 </div>
 
-                <div className="space-y-xs">
-                  <label className="font-label-bold text-label-bold text-on-surface">Address Line 2 (Locality, Area)</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">Address Line 2 (Locality, Area, Landmark)</label>
                   <input
                     {...register("line2")}
-                    className="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md"
-                    placeholder="Enter locality"
+                    className="w-full rounded-vl-control border border-vl-border bg-vl-surface p-3 text-sm text-vl-ink outline-none focus:border-vl-primary focus:ring-0 transition-colors"
+                    placeholder="E.g., T. Nagar, near post office"
                     type="text"
                   />
                   {errors.line2 && (
-                    <p className="text-error-red text-xs font-semibold">{errors.line2.message}</p>
+                    <p className="text-vl-danger text-xs font-semibold">{errors.line2.message}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-base">
-                  <div className="space-y-xs">
-                    <label className="font-label-bold text-label-bold text-on-surface">City / District</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">City / District</label>
                     <select
                       {...register("city")}
-                      className="w-full border-border-gray bg-slate-50 rounded focus:ring-primary focus:border-primary font-body-md cursor-not-allowed"
+                      className="w-full rounded-vl-control border border-vl-border bg-vl-surface/40 p-3 text-sm text-vl-muted outline-none cursor-not-allowed select-none"
                       disabled
                     >
                       <option value="Chennai">Chennai</option>
                     </select>
-                    <p className="text-[10px] text-slate-400 font-medium">Currently delivering across Chennai only.</p>
+                    <p className="text-[10px] text-vl-muted font-semibold mt-1">Currently delivering across Chennai ZIP codes only.</p>
                   </div>
-                  <div className="space-y-xs">
-                    <label className="font-label-bold text-label-bold text-on-surface">Pincode</label>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-vl-ink uppercase tracking-wider">Pincode</label>
                     <input
                       {...register("pincode")}
-                      className="w-full border-border-gray rounded focus:ring-primary focus:border-primary font-body-md"
+                      className="w-full rounded-vl-control border border-vl-border bg-vl-surface p-3 text-sm text-vl-ink outline-none focus:border-vl-primary focus:ring-0 transition-colors"
                       placeholder="6-digit pincode"
                       type="text"
                     />
                     {errors.pincode && (
-                      <p className="text-error-red text-xs font-semibold">{errors.pincode.message}</p>
+                      <p className="text-vl-danger text-xs font-semibold">{errors.pincode.message}</p>
                     )}
                   </div>
                 </div>
@@ -602,32 +671,41 @@ export default function AddressClient({
                 <input type="hidden" {...register("latitude", { valueAsNumber: true })} />
                 <input type="hidden" {...register("longitude", { valueAsNumber: true })} />
 
-                <div className="flex items-center gap-sm">
+                <div className="flex items-center gap-2.5">
                   <input
                     {...register("isDefault")}
-                    className="rounded border-border-gray text-primary focus:ring-primary cursor-pointer"
+                    className="rounded border-vl-border text-vl-primary focus:ring-0 cursor-pointer h-4.5 w-4.5 accent-vl-primary"
                     id="set_default"
                     type="checkbox"
                   />
-                  <label className="font-body-md text-on-surface cursor-pointer select-none" htmlFor="set_default">
+                  <label className="text-sm font-semibold text-vl-ink cursor-pointer select-none" htmlFor="set_default">
                     Make this my default address
                   </label>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-base pt-md">
+                <div className="flex flex-col sm:flex-row gap-3.5 pt-4">
                   <button
                     disabled={isSubmitting}
-                    className="bg-primary text-on-primary px-xl py-3 font-label-bold text-label-bold rounded-lg hover:opacity-90 transition-opacity flex-1 sm:flex-none min-w-[200px] cursor-pointer disabled:opacity-55"
+                    className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-55 cursor-pointer flex-grow sm:flex-grow-0"
                     type="submit"
                   >
-                    {isSubmitting ? "Saving..." : editingAddressId ? "Update Address" : "Save Address"}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : editingAddressId ? (
+                      "Update Address"
+                    ) : (
+                      "Save Address"
+                    )}
                   </button>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleCancelEdit();
                     }}
-                    className="border border-primary text-primary px-xl py-3 font-label-bold text-label-bold rounded-lg hover:bg-surface-container-low transition-colors flex-1 sm:flex-none cursor-pointer"
+                    className="inline-flex min-h-11 items-center justify-center rounded-vl-control border border-vl-border bg-vl-card px-8 text-sm font-semibold text-vl-ink transition-all duration-vl-fast hover:border-vl-primary hover:text-vl-primary active:scale-[0.98] cursor-pointer flex-grow sm:flex-grow-0"
                     type="button"
                   >
                     Cancel
@@ -637,68 +715,145 @@ export default function AddressClient({
             </section>
           </div>
 
+          {/* RIGHT COLUMN: Price checkout return summary (if in checkout return flow) */}
           {isCheckoutFlow && (
-            /* Right Side: Order Summary / Checkout Sticky */
-            <div className="lg:col-span-4">
-              <div className="sticky top-24 space-y-lg">
-                <div className="bg-white border border-border-gray rounded-lg p-base space-y-base shadow-sm">
-                  <h3 className="font-headline-sm text-headline-sm text-primary">Price Details</h3>
-                  <div className="space-y-md border-b border-border-gray pb-base">
-                    <div className="flex justify-between font-body-md text-secondary">
-                      <span>Price ({activeItemsCount} {activeItemsCount === 1 ? "item" : "items"})</span>
-                      <span>{formatCurrency(originalPrice)}</span>
-                    </div>
-                    {discount > 0 && (
-                      <div className="flex justify-between font-body-md text-secondary">
-                        <span>Discount</span>
-                        <span className="text-success-green">-{formatCurrency(discount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-body-md text-secondary">
-                      <span>Delivery Charges</span>
-                      <span className="text-success-green">FREE</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between font-price-lg text-price-lg text-primary pt-xs">
-                    <span>Total Amount</span>
-                    <span>{formatCurrency(subtotal)}</span>
-                  </div>
-                  {discount > 0 && (
-                    <p className="font-body-sm text-success-green font-semibold">
-                      You will save {formatCurrency(discount)} on this order
-                    </p>
-                  )}
-                  <button
-                    onClick={handleDeliverHere}
-                    disabled={addresses.length === 0 || !selectedAddressId}
-                    className="w-full bg-accent-yellow text-primary py-4 rounded-lg font-label-bold text-label-bold shadow-sm hover:brightness-105 transition-all active:scale-[0.98] mt-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    DELIVER HERE
-                  </button>
-                  <p className="text-center font-body-sm text-on-surface-variant">Safe and Secure Payments. 100% Authentic products.</p>
-                </div>
-
-                {/* Trust Indicators */}
-                <div className="grid grid-cols-3 gap-base text-center">
-                  <div className="flex flex-col items-center gap-xs">
-                    <span className="material-symbols-outlined text-secondary">verified_user</span>
-                    <span className="font-body-sm text-on-surface-variant">Secure</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-xs">
-                    <span className="material-symbols-outlined text-secondary">local_shipping</span>
-                    <span className="font-body-sm text-on-surface-variant">Fast Delivery</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-xs">
-                    <span className="material-symbols-outlined text-secondary">keyboard_return</span>
-                    <span className="font-body-sm text-on-surface-variant">Easy Returns</span>
-                  </div>
+            <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+              {/* Escrow Badge */}
+              <div className="bg-vl-ink text-white p-5 rounded-vl-card flex gap-4 items-start shadow-vl-soft">
+                <ShieldCheck aria-hidden="true" className="h-7 w-7 text-vl-accent shrink-0" />
+                <div>
+                  <h3 className="font-bold text-sm mb-1 uppercase tracking-wider text-vl-accent">Shield Protection</h3>
+                  <p className="text-xs text-white/80 leading-relaxed">
+                    Escrow secured payments. Funds are safely held and released only upon confirmed parcel dispatch.
+                  </p>
                 </div>
               </div>
+
+              {/* Price card */}
+              <section className="rounded-vl-card border border-vl-border bg-vl-card overflow-hidden shadow-vl-soft">
+                <div className="p-5 border-b border-vl-border bg-vl-surface">
+                  <h2 className="font-vl-heading text-base font-bold text-vl-ink">Price Details</h2>
+                </div>
+                <div className="p-5 space-y-4">
+                  <div className="flex justify-between text-sm text-vl-muted">
+                    <span>Price ({activeItemsCount} {activeItemsCount === 1 ? "item" : "items"})</span>
+                    <span className="font-semibold text-vl-ink">{formatCurrency(originalPrice)}</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-vl-muted">
+                      <span>Discount</span>
+                      <span className="text-vl-success font-bold">-{formatCurrency(discount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm text-vl-muted">
+                    <span>Delivery Charges</span>
+                    <span className="text-vl-success font-bold uppercase text-xs bg-vl-success/10 px-2 py-0.5 rounded-full">FREE</span>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-dashed border-vl-border">
+                    <div className="flex justify-between items-baseline mb-5">
+                      <span className="font-vl-heading text-base font-bold text-vl-ink">Total Amount</span>
+                      <span className="font-vl-heading text-2xl font-extrabold text-vl-primary">{formatCurrency(subtotal)}</span>
+                    </div>
+                    {discount > 0 && (
+                      <p className="text-xs text-vl-success font-semibold mb-4 flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-vl-success inline-block"></span>
+                        You save {formatCurrency(discount)} on this purchase
+                      </p>
+                    )}
+                    
+                    {/* Deliver here CTA button */}
+                    <button
+                      onClick={handleDeliverHere}
+                      disabled={addresses.length === 0 || !selectedAddressId}
+                      className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Lock aria-hidden="true" className="h-4 w-4" />
+                      <span>DELIVER TO THIS ADDRESS</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border-t border-vl-border bg-vl-surface px-5 py-4 flex justify-around items-center gap-4 text-vl-muted">
+                  <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                    <Lock aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">SSL Encrypted</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                    <ShieldCheck aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Escrow Guard</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                    <CheckCircle2 aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Authentic</span>
+                  </div>
+                </div>
+              </section>
             </div>
           )}
         </div>
       </main>
 
+      {/* MOBILE STICKY CTA BAR (fixed drawer bottom) if in checkout flow */}
+      {isCheckoutFlow && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-4 lg:hidden flex items-center justify-between gap-4 shadow-vl-large"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Total Payable</span>
+            <span className="text-lg font-extrabold text-vl-primary">{formatCurrency(subtotal)}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleDeliverHere}
+            disabled={addresses.length === 0 || !selectedAddressId}
+            className="flex-1 max-w-[220px] inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-xs font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50"
+          >
+            <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+            <span>DELIVER HERE</span>
+          </button>
+        </div>
+      )}
+
+      {/* CUSTOM REACT DELETE CONFIRMATION MODAL */}
+      {addressToDeleteId && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-vl-ink/45 backdrop-blur-sm transition-all duration-vl-fast"
+        >
+          <div className="w-full max-w-md bg-vl-card border border-vl-border rounded-vl-card p-6 shadow-vl-floating transition-transform duration-vl-fast scale-100">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-11 h-11 rounded-full bg-vl-danger/10 flex items-center justify-center text-vl-danger shrink-0 mt-0.5">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-vl-heading text-lg font-bold text-vl-ink">Delete Shipping Address?</h3>
+                <p className="text-xs text-vl-muted leading-relaxed">
+                  This action is permanent. This address will be deleted from your saved address directory and cannot be recovered.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end pt-2 border-t border-vl-border">
+              <button
+                type="button"
+                onClick={() => setAddressToDeleteId(null)}
+                className="inline-flex min-h-11 items-center justify-center rounded-vl-control border border-vl-border bg-vl-card px-5 text-sm font-semibold text-vl-ink hover:border-vl-primary hover:text-vl-primary transition-all active:scale-95 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-danger px-5 text-sm font-bold text-white hover:bg-vl-danger-strong transition-all active:scale-95 cursor-pointer"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

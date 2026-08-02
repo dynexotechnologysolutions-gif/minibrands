@@ -70,17 +70,18 @@ export default function OrderCard({
   })();
 
   return (
-    <div className="bg-surface border border-border-gray rounded overflow-hidden hover:shadow-md transition-shadow" suppressHydrationWarning>
-      <div className="p-base md:flex items-start gap-lg">
+    <div className="bg-vl-card border border-vl-border rounded-vl-card hover:shadow-vl-medium hover:-translate-y-0.5 transition-all duration-vl-standard overflow-hidden" suppressHydrationWarning>
+      <div className="p-5 sm:p-6 md:flex items-start gap-6">
         {/* Order Items & Info */}
-        <div className="flex-1 space-y-md">
+        <div className="flex-1 space-y-6">
           {/* Header row with Order ID / Date */}
-          <div className="flex justify-between items-center text-xs font-semibold text-secondary pb-xs border-b border-border-gray/30">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-vl-muted pb-4 border-b border-vl-border/60">
+            <div className="flex items-center gap-1.5">
+              <span>Order ID:</span>
+              <span className="font-mono text-vl-ink font-bold text-[11px] select-all bg-vl-surface px-2 py-0.5 rounded border border-vl-border/50">{order.id}</span>
+            </div>
             <span>
-              Order ID: <span className="font-mono text-primary font-bold text-[11px] select-all">{order.id}</span>
-            </span>
-            <span>
-              Placed on: {new Date(order.createdAt).toLocaleDateString("en-US", {
+              Placed: {new Date(order.createdAt).toLocaleDateString("en-IN", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
@@ -88,7 +89,7 @@ export default function OrderCard({
             </span>
           </div>
 
-          <div className="space-y-base">
+          <div className="space-y-4">
             {order.items.map((item) => (
               <OrderItem
                 key={item.id}
@@ -104,18 +105,20 @@ export default function OrderCard({
 
           {/* Timeline for active orders */}
           {!isCancelled && !isReturned && (
-            <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
+            <div className="pt-2 border-t border-vl-border/40">
+              <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
+            </div>
           )}
 
           {/* Footer Action Buttons */}
-          <div className="mt-lg flex flex-wrap items-center gap-base pt-md" suppressHydrationWarning>
+          <div className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-4 border-t border-vl-border/40" suppressHydrationWarning>
             {/* Delivered Actions */}
             {isDelivered && (
               <>
                 <a
                   href={`/api/orders/${order.id}/invoice`}
                   download={`minibrands_Invoice_${order.id.substring(0, 8).toUpperCase()}.pdf`}
-                  className="flex items-center gap-sm px-base py-2 bg-primary text-on-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   <span className="material-symbols-outlined text-base">download</span>
                   Invoice PDF
@@ -125,9 +128,9 @@ export default function OrderCard({
                     const firstItem = order.items[0];
                     if (firstItem) onBuyAgain(firstItem.productId, firstItem.variantId);
                   }}
-                  className="flex items-center gap-sm px-base py-2 bg-accent-yellow text-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined">refresh</span>
+                  <span className="material-symbols-outlined text-base">refresh</span>
                   Buy It Again
                 </button>
                 <button
@@ -135,17 +138,17 @@ export default function OrderCard({
                     const firstItem = order.items[0];
                     if (firstItem) onRate(firstItem.productId, firstItem.name);
                   }}
-                  className="flex items-center gap-sm px-base py-2 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined">grade</span>
+                  <span className="material-symbols-outlined text-base">grade</span>
                   Rate Product
                 </button>
                 {canReturn && (
                   <button
                     onClick={() => onReturn(order.id)}
-                    className="flex items-center gap-sm px-base py-2 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-red-100 text-vl-danger font-bold text-xs rounded-xl hover:border-vl-danger hover:bg-red-50/50 active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                   >
-                    <span className="material-symbols-outlined">keyboard_return</span>
+                    <span className="material-symbols-outlined text-base">keyboard_return</span>
                     Return Order
                   </button>
                 )}
@@ -157,13 +160,13 @@ export default function OrderCard({
               <>
                 <button
                   onClick={() => onTrack(order.id)}
-                  className="px-base py-2 bg-primary text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   Track Package
                 </button>
                 <button
                   onClick={() => onSupport(order.id)}
-                  className="px-base py-2 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   Support
                 </button>
@@ -175,13 +178,13 @@ export default function OrderCard({
               <>
                 <button
                   onClick={() => onCancel(order.id)}
-                  className="px-base py-2 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-red-100 text-vl-danger font-bold text-xs rounded-xl hover:border-vl-danger hover:bg-red-50/50 active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   Cancel Order
                 </button>
                 <button
                   onClick={() => onChangeAddress(order.id)}
-                  className="px-base py-2 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   Change Address
                 </button>
@@ -196,14 +199,14 @@ export default function OrderCard({
                     const firstItem = order.items[0];
                     if (firstItem) onBuyAgain(firstItem.productId, firstItem.variantId);
                   }}
-                  className="flex items-center gap-sm px-base py-2 bg-accent-yellow text-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined">refresh</span>
+                  <span className="material-symbols-outlined text-base">refresh</span>
                   Reorder Items
                 </button>
                 <button
                   onClick={() => onSupport(order.id)}
-                  className="px-base py-2 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
                 >
                   Support
                 </button>
@@ -213,22 +216,22 @@ export default function OrderCard({
             {/* View Details Link */}
             <Link
               href={`/orders/${order.id}`}
-              className="ml-auto text-secondary font-label-bold text-label-bold hover:text-primary transition-colors flex items-center gap-xs cursor-pointer select-none"
+              className="inline-flex items-center justify-center gap-1 text-xs font-bold text-vl-primary hover:text-vl-primary-strong transition-colors cursor-pointer select-none group w-full sm:w-auto sm:ml-auto pt-2 sm:pt-0"
             >
-              Order Details
-              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+              <span>View Details</span>
+              <span className="material-symbols-outlined text-base transition-transform group-hover:translate-x-0.5">chevron_right</span>
             </Link>
           </div>
         </div>
 
         {/* Right Side Order Status Info Badge (desktop alignment) */}
-        <div className="w-full md:w-auto md:text-right mt-base md:mt-0 flex-shrink-0 md:pl-base">
+        <div className="w-full md:w-auto md:text-right mt-6 md:mt-0 flex flex-col items-start md:items-end justify-start flex-shrink-0 md:pl-6 border-t md:border-t-0 md:border-l border-vl-border/60 pt-4 md:pt-0 self-stretch">
           <OrderStatusBadge
             status={order.status}
             orderStatus={order.orderStatus}
             date={order.createdAt}
           />
-          <p className="font-body-sm text-body-sm text-secondary mt-xs">
+          <p className="text-xs text-vl-muted mt-2 font-vl-body leading-normal">
             {isDelivered && "Your item has been delivered"}
             {isShipped && "Shipped via Logistics Partner"}
             {isProcessing && "Preparing for dispatch"}

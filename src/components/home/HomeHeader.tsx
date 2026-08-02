@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ChevronDown,
   Heart,
@@ -19,6 +19,8 @@ import {
   Store,
   UserRound,
   X,
+  Bell,
+  LayoutGrid,
 } from "lucide-react";
 import { switchActiveRole } from "@/actions/switch-role.action";
 import { getDefaultAddress } from "@/actions/address-get-default.action";
@@ -48,14 +50,34 @@ interface HomeHeaderProps {
 
 export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
   const [locationText, setLocationText] = useState("Select location");
+  const [wishlistCount, setWishlistCount] = useState(0);
   const accountRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (userProfile) {
+      fetch("/api/wishlist")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.products)) {
+            setWishlistCount(data.products.length);
+          }
+        })
+        .catch((err) => console.error("Error loading wishlist count:", err));
+    }
+  }, [userProfile]);
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname?.startsWith(href + "/");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {

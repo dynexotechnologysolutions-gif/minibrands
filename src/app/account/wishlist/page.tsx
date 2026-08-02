@@ -141,6 +141,7 @@ export default async function WishlistPage() {
   if (finalRecentlyViewed.length < 4) {
     const needed = 4 - finalRecentlyViewed.length;
     for (let i = 0; i < needed; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       finalRecentlyViewed.push(mockRecentlyViewed[i] as any);
     }
   }

@@ -1,13 +1,37 @@
 "use client";
 
+/**
+ * CheckoutClient
+ * @redesigned v4.0 — visual redesign only, all hooks, server actions, and states preserved exactly.
+ *
+ * Purpose:
+ *   Premium checkout screen featuring checkout steppers, a two-column desktop grid,
+ *   active address selection indicators, shipping speed options, order items list,
+ *   secure payment selections, and a vertically sticky order summary details card.
+ */
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createOrder } from "@/actions/order-create.action";
-import { createCheckoutOrder } from "@/actions/checkout-order-create.action";
-import { mockConfirmPayment } from "@/actions/payment-mock-confirm.action";
-import { trackClientEvent } from "@/actions/track-event.action";
+import {
+  Timer,
+  X,
+  MapPin,
+  ShoppingBag,
+  BadgeCheck,
+  QrCode,
+  CreditCard,
+  Landmark,
+  ShieldCheck,
+  Lock,
+  CheckCircle2,
+  ChevronRight,
+  Loader2,
+  Truck,
+} from "lucide-react";
 import HomeHeader from "@/components/home/HomeHeader";
+import { trackClientEvent } from "@/actions/track-event.action";
 
 interface Address {
   id: string;
@@ -41,17 +65,84 @@ interface CheckoutClientProps {
   addresses: Address[];
   buyerEmail: string;
   buyerName: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userProfile: any;
   cartCount: number;
   sellerHref: string;
   initialAddressId?: string;
 }
 
+// Local sub-component: Checkout progress stepper
+function CheckoutStepper() {
+  return (
+    <div className="mb-8 flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-sm font-semibold sm:gap-4 md:justify-start">
+      <Link href="/cart" className="flex items-center gap-1 text-vl-muted hover:text-vl-primary transition-colors">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary/10 text-[10px] font-bold text-vl-primary">✔</span>
+        Cart
+      </Link>
+      <ChevronRight className="h-4.5 w-4.5 text-vl-border shrink-0" />
+      <span className="flex items-center gap-1.5 text-vl-primary font-bold">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary text-[10px] font-bold text-white">2</span>
+        Secure Checkout
+      </span>
+      <ChevronRight className="h-4.5 w-4.5 text-vl-border shrink-0" />
+      <span className="flex items-center gap-1.5 text-vl-muted">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-border text-[10px] font-bold text-vl-muted">3</span>
+        Order Confirmed
+      </span>
+    </div>
+  );
+}
+
+// Local sub-component: Single address card render
+function AddressCard({
+  address,
+  isSelected,
+  onSelect,
+}: {
+  address: Address;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <label
+      onClick={onSelect}
+      className={`flex items-start gap-4 p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
+        isSelected
+          ? "border-vl-primary bg-vl-primary/5 shadow-vl-soft"
+          : "border-vl-border bg-vl-card hover:border-vl-primary hover:shadow-vl-soft"
+      }`}
+    >
+      <input
+        type="radio"
+        name="checkout-address"
+        checked={isSelected}
+        onChange={onSelect}
+        className="mt-1 h-4 w-4 cursor-pointer text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
+      />
+      <div className="text-sm text-vl-muted flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+          <span className="font-bold text-vl-ink text-base">{address.fullName}</span>
+          {address.isDefault && (
+            <span className="text-[10px] font-bold text-vl-success bg-vl-success/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              Default
+            </span>
+          )}
+        </div>
+        <p className="leading-relaxed">{address.line1}</p>
+        {address.line2 && <p className="leading-relaxed">{address.line2}</p>}
+        <p className="leading-relaxed">{address.city} - {address.pincode}</p>
+        <p className="mt-2 font-medium text-vl-ink">Phone: {address.phone}</p>
+      </div>
+    </label>
+  );
+}
+
 export default function CheckoutClient({
   reservationId,
   createdAt,
   products,
-  mode,
+  mode: _mode,
   checkoutSessionId,
   addresses,
   buyerEmail,
@@ -106,6 +197,7 @@ export default function CheckoutClient({
   // Load Razorpay Script dynamically
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((window as any).Razorpay) {
         resolve(true);
         return;
@@ -200,7 +292,11 @@ export default function CheckoutClient({
         description: `Order checkout for ${products.map(p => p.name).join(", ")}`,
         image: "https://cdn.prod.website-files.com/67a7409c10857ea8dcbc42d5/67a7409c10857ea8dcbc4c3c_everything%20you%20need%20to%20know%20about%20Session-timeout%20in%20GA%201.png",
         order_id: razorpayOrderId,
-        handler: async function (paymentResponse: any) {
+        handler: async function (paymentResponse: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) {
           try {
             const verifyRes = await fetch("/api/payments/verify", {
               method: "POST",
@@ -223,8 +319,9 @@ export default function CheckoutClient({
 
             const verifyData = await verifyRes.json();
             router.push(`/order/success/${verifyData.orderId}`);
-          } catch (verifyErr: any) {
-            setErrorMessage(verifyErr.message || "An unexpected error occurred during payment verification.");
+          } catch (verifyErr) {
+            const error = verifyErr as Error;
+            setErrorMessage(error.message || "An unexpected error occurred during payment verification.");
             setIsPaying(false);
           }
         },
@@ -234,7 +331,7 @@ export default function CheckoutClient({
           contact: selectedAddress?.phone || "",
         },
         theme: {
-          color: "#000000",
+          color: "#FF3E6C",
         },
         retry: {
           enabled: true,
@@ -252,16 +349,18 @@ export default function CheckoutClient({
         }
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rzp = new (window as any).Razorpay(options);
       
-      rzp.on("payment.failed", function (response: any) {
+      rzp.on("payment.failed", function (response: { error: { description: string } }) {
         setErrorMessage(response.error.description || "Payment failed. Please try again.");
         setIsPaying(false);
       });
 
       rzp.open();
-    } catch (err: any) {
-      setErrorMessage(err.message || "An unexpected error occurred during payment setup.");
+    } catch (err) {
+      const error = err as Error;
+      setErrorMessage(error.message || "An unexpected error occurred during payment setup.");
       setIsPaying(false);
     }
   };
@@ -298,36 +397,30 @@ export default function CheckoutClient({
     : `reservationId=${reservationId}`;
 
   return (
-    <div className="text-on-surface bg-background font-sans min-h-screen flex flex-col w-full">
-      {/* Reused Header */}
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20">
       <HomeHeader
         userProfile={userProfile}
         cartCount={cartCount}
         sellerHref={sellerHref}
       />
 
-      <main className="mt-xxl pt-lg max-w-container-max mx-auto px-base md:px-lg pb-xxl w-full flex-grow">
-        {/* Checkout Progress (Subtle) */}
-        <div className="flex items-center gap-base mb-lg text-body-sm text-secondary">
-          <Link href="/cart" className="hover:text-primary transition-colors">Cart</Link>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-          <span className="font-label-bold text-primary">Secure Checkout</span>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-          <span className="text-secondary/50">Order Success</span>
-        </div>
+      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10 pb-28 lg:pb-10">
+        {/* Stepper progress indicator */}
+        <CheckoutStepper />
 
         {/* Hold Reservation status banner */}
         <div
-          className={`mb-base p-4 rounded border flex items-center justify-between transition-colors shadow-sm ${
+          role="alert"
+          className={`mb-6 flex items-center justify-between rounded-vl-card border p-4 shadow-vl-soft transition-all duration-vl-fast ${
             isExpired
-              ? "bg-error-container border-error text-on-error-container"
+              ? "border-vl-danger/25 bg-vl-danger/10 text-red-950"
               : isNearExpiration
-              ? "bg-accent-yellow/10 border-accent-yellow text-accent-yellow animate-pulse"
-              : "bg-surface-container-lowest border-border-gray text-primary"
+              ? "border-vl-warning bg-vl-warning/10 text-amber-950 animate-pulse"
+              : "border-vl-border bg-vl-card text-vl-ink"
           }`}
         >
-          <div className="flex items-center gap-2 text-xs font-bold">
-            <span className="material-symbols-outlined text-base">timer</span>
+          <div className="flex items-center gap-2.5 text-xs font-bold sm:text-sm">
+            <Timer aria-hidden="true" className={`h-4.5 w-4.5 shrink-0 ${isExpired ? "text-vl-danger" : isNearExpiration ? "text-vl-warning" : "text-vl-primary"}`} />
             <span>
               {isExpired
                 ? "Your cart hold has expired."
@@ -337,140 +430,127 @@ export default function CheckoutClient({
           {isExpired && (
             <Link
               href="/cart"
-              className="text-xs font-extrabold underline uppercase tracking-wider hover:opacity-80"
+              className="text-xs font-bold text-vl-primary hover:underline uppercase tracking-wider"
             >
               Return to Cart
             </Link>
           )}
         </div>
 
-        {/* Error Notification */}
+        {/* Error Notification Alert */}
         {errorMessage && (
-          <div className="mb-base p-4 bg-error-container border border-error text-on-error-container rounded text-xs font-bold shadow-sm flex items-center justify-between">
-            <span>{errorMessage}</span>
-            <button onClick={() => setErrorMessage(null)} className="cursor-pointer hover:opacity-80">
-              <span className="material-symbols-outlined text-sm">close</span>
+          <div
+            role="status"
+            className="mb-6 flex items-center justify-between rounded-vl-card border border-vl-danger/25 bg-vl-danger/10 p-4 text-xs font-bold text-red-950 shadow-vl-soft sm:text-sm"
+          >
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-2 w-2 rounded-full bg-vl-danger shrink-0 animate-ping" />
+              <span>{errorMessage}</span>
+            </div>
+            <button
+              onClick={() => setErrorMessage(null)}
+              aria-label="Dismiss error"
+              className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full text-vl-muted hover:bg-vl-surface hover:text-vl-ink transition-colors"
+            >
+              <X aria-hidden="true" className="h-4.5 w-4.5" />
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
-          {/* Left Column: Content Review */}
-          <div className="lg:col-span-8 space-y-base">
-            {/* Address Card */}
+        {/* Main 2-Column split desktop grid */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10 items-start">
+          
+          {/* LEFT COLUMN: Steps contents (~65%) */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* 1. Address Section Card */}
             {!isChangingAddress ? (
-              <section className="bg-surface-container-lowest p-lg border border-border-gray rounded shadow-sm">
-                <div className="flex justify-between items-start mb-md">
-                  <div className="flex items-center gap-sm">
-                    <span className="material-symbols-outlined text-primary">location_on</span>
-                    <h2 className="font-headline-sm text-headline-sm">Shipping Address</h2>
+              <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                    <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Delivery Address</h2>
                   </div>
                   <button
                     onClick={() => setIsChangingAddress(true)}
-                    className="text-primary font-label-bold text-body-sm hover:underline cursor-pointer"
+                    className="text-vl-primary font-bold text-sm hover:underline cursor-pointer"
                   >
                     Change
                   </button>
                 </div>
                 {selectedAddress ? (
-                  <div className="text-body-md text-on-surface-variant">
-                    <p className="font-bold text-on-surface">{selectedAddress.fullName}</p>
-                    <p className="">{selectedAddress.line1}</p>
-                    {selectedAddress.line2 && <p className="">{selectedAddress.line2}</p>}
-                    <p className="">{selectedAddress.city} - {selectedAddress.pincode}</p>
-                    <p className="mt-sm">
-                      <span className="font-semibold text-on-surface">Phone:</span>{" "}
+                  <div className="text-sm text-vl-muted leading-relaxed">
+                    <p className="font-bold text-vl-ink text-base mb-1">{selectedAddress.fullName}</p>
+                    <p>{selectedAddress.line1}</p>
+                    {selectedAddress.line2 && <p>{selectedAddress.line2}</p>}
+                    <p>{selectedAddress.city} - {selectedAddress.pincode}</p>
+                    <p className="mt-2.5">
+                      <span className="font-bold text-vl-ink">Phone:</span>{" "}
                       {selectedAddress.phone}
                     </p>
                   </div>
                 ) : (
-                  <div className="text-body-md text-on-surface-variant text-center py-sm">
-                    <p className="text-error-red mb-sm font-bold">No shipping address selected.</p>
+                  <div className="text-center py-6">
+                    <p className="text-vl-danger mb-4 font-bold text-sm">No delivery address selected.</p>
                     <Link
                       href={`/account/addresses?redirectTo=${encodeURIComponent(`/checkout?${redirectUrlParam}`)}&${redirectUrlParam}`}
-                      className="inline-block px-4 py-2 bg-primary text-on-primary text-xs font-bold uppercase tracking-wider rounded"
+                      className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-ink px-6 text-sm font-bold text-white hover:bg-vl-ink/90 active:scale-[0.98] transition-all"
                     >
-                      Add Address
+                      Add Shipping Address
                     </Link>
                   </div>
                 )}
               </section>
             ) : (
-              <section className="bg-surface-container-lowest p-lg border border-border-gray rounded shadow-sm">
-                <div className="flex justify-between items-start mb-md">
-                  <div className="flex items-center gap-sm">
-                    <span className="material-symbols-outlined text-primary">location_on</span>
-                    <h2 className="font-headline-sm text-headline-sm">Select Shipping Address</h2>
+              <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                    <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Select Shipping Address</h2>
                   </div>
                   <button
                     onClick={() => setIsChangingAddress(false)}
-                    className="text-primary font-label-bold text-body-sm hover:underline cursor-pointer"
+                    className="text-vl-primary font-bold text-sm hover:underline cursor-pointer"
                   >
                     Cancel
                   </button>
                 </div>
 
                 {addresses.length === 0 ? (
-                  <div className="text-center py-4">
-                    <p className="text-secondary font-body-sm mb-4">No shipping addresses found.</p>
+                  <div className="text-center py-6">
+                    <p className="text-vl-muted text-sm mb-4">No shipping addresses found.</p>
                     <Link
                       href={`/account/addresses?redirectTo=${encodeURIComponent(`/checkout?${redirectUrlParam}`)}&${redirectUrlParam}`}
-                      className="inline-block px-4 py-2 bg-primary text-on-primary text-xs font-bold uppercase tracking-wider rounded"
+                      className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-6 text-sm font-bold text-white hover:bg-vl-primary-strong active:scale-[0.98] transition-all"
                     >
-                      Create Address
+                      Create Shipping Address
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-sm">
-                    {addresses.map((addr) => {
-                      const isSelected = selectedAddressId === addr.id;
-                      return (
-                        <label
+                  <div className="space-y-3.5">
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                      {addresses.map((addr) => (
+                        <AddressCard
                           key={addr.id}
-                          className={`flex items-start gap-3 p-3 border rounded cursor-pointer transition-all ${
-                            isSelected
-                              ? "border-primary bg-surface-container-low"
-                              : "border-border-gray hover:bg-surface-container-low"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="checkout-address"
-                            value={addr.id}
-                            checked={isSelected}
-                            onChange={() => setSelectedAddressId(addr.id)}
-                            className="mt-1 w-4 h-4 text-primary focus:ring-primary border-slate-300 transition-all cursor-pointer"
-                          />
-                          <div className="text-body-sm text-secondary">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-bold text-primary">{addr.fullName}</span>
-                              {addr.isDefault && (
-                                <span className="text-[10px] font-bold text-success-green bg-surface-container px-1 rounded uppercase tracking-wider">
-                                  Default
-                                </span>
-                              )}
-                            </div>
-                            <p>{addr.line1}</p>
-                            {addr.line2 && <p>{addr.line2}</p>}
-                            <p>{addr.city} - {addr.pincode}</p>
-                            <p className="mt-1">Phone: {addr.phone}</p>
-                          </div>
-                        </label>
-                      );
-                    })}
+                          address={addr}
+                          isSelected={selectedAddressId === addr.id}
+                          onSelect={() => setSelectedAddressId(addr.id)}
+                        />
+                      ))}
+                    </div>
 
-                    <div className="flex items-center justify-between pt-sm">
+                    <div className="flex items-center justify-between pt-4 border-t border-vl-border">
                       <Link
                         href={`/account/addresses?redirectTo=${encodeURIComponent(`/checkout?${redirectUrlParam}`)}&${redirectUrlParam}`}
-                        className="text-primary font-bold text-body-sm hover:underline"
+                        className="text-vl-primary font-bold text-sm hover:underline"
                       >
-                        Manage Addresses
+                        Manage Saved Addresses
                       </Link>
                       <button
                         onClick={() => setIsChangingAddress(false)}
-                        className="bg-primary text-on-primary px-4 py-2 rounded text-body-sm font-label-bold hover:opacity-90 cursor-pointer"
+                        className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-ink px-6 text-sm font-bold text-white hover:bg-vl-ink/90 active:scale-[0.98] transition-all cursor-pointer"
                       >
-                        Done
+                        Apply Address
                       </button>
                     </div>
                   </div>
@@ -478,204 +558,280 @@ export default function CheckoutClient({
               </section>
             )}
 
-            {/* Order Review Card */}
-            <section className="bg-surface-container-lowest p-lg border border-border-gray rounded shadow-sm">
-              <div className="flex items-center gap-sm mb-lg">
-                <span className="material-symbols-outlined text-primary">shopping_bag</span>
-                <h2 className="font-headline-sm text-headline-sm">Order Summary ({totalQuantityCount} {totalQuantityCount === 1 ? "Item" : "Items"})</h2>
+            {/* 2. Delivery Method Section */}
+            <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
+              <div className="flex items-center gap-2 mb-4">
+                <Truck aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Delivery Method</h2>
               </div>
-
-              {/* Item Card list */}
-              {products.map((item) => (
-                <div key={item.id + "-" + item.variantId} className="flex gap-base py-base border-b border-border-gray last:border-0">
-                  <div className="w-24 h-24 flex-shrink-0 bg-surface-container border border-border-gray rounded overflow-hidden">
-                    <img className="w-full h-full object-cover" alt={item.name} src={item.image} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="p-4 border-2 border-vl-primary bg-vl-primary/5 rounded-vl-card flex items-start gap-3">
+                  <div className="h-5 w-5 rounded-full bg-vl-primary flex items-center justify-center text-white shrink-0 mt-0.5">
+                    <span className="text-[10px]">✔</span>
                   </div>
-                  <div className="flex-1">
-                     <div className="flex justify-between items-start">
-                       <h3 className="font-label-bold text-body-lg text-primary">{item.name}</h3>
-                       <p className="font-price-lg text-price-lg text-primary">{formatPrice(item.price * item.quantity)}</p>
-                     </div>
-                     <div className="mt-xs inline-flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[10px] font-bold text-secondary uppercase tracking-tight">
-                       <span
-                         className="material-symbols-outlined text-[12px]"
-                         style={{ fontVariationSettings: "'FILL' 1" }}
-                       >
-                         verified
-                       </span>
-                       {item.isSellerVerified ? "Verified Seller" : "Boutique Seller"}
-                     </div>
-                     <p className="text-body-sm text-on-surface-variant mt-xs">Variant: {item.size} | Qty: {item.quantity}</p>
-                     <p className="text-body-sm text-success-green font-semibold mt-xs">Estimated Delivery: Tomorrow, 10 AM - 2 PM</p>
+                  <div>
+                    <h3 className="font-bold text-vl-ink text-sm">Standard Delivery</h3>
+                    <p className="text-xs text-vl-muted mt-1 leading-relaxed">Estimated Delivery by Tomorrow. Secured package shipping via air dispatch.</p>
+                    <span className="inline-block mt-2.5 text-xs font-bold text-vl-success bg-vl-success/10 px-2 py-0.5 rounded-full">FREE</span>
                   </div>
                 </div>
-              ))}
+                <div className="p-4 border border-vl-border bg-vl-surface opacity-60 rounded-vl-card flex items-start gap-3 select-none">
+                  <div className="h-5 w-5 rounded-full border border-vl-border shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-vl-ink text-sm">Express Delivery</h3>
+                    <p className="text-xs text-vl-muted mt-1 leading-relaxed">Same-day delivery (Unavailable for this zipcode area).</p>
+                  </div>
+                </div>
+              </div>
             </section>
 
-            {/* Payment Method Card */}
-            <section className="bg-surface-container-lowest p-lg border border-border-gray rounded shadow-sm">
-              <div className="flex items-center gap-sm mb-lg">
-                <span className="material-symbols-outlined text-primary">payments</span>
-                <h2 className="font-headline-sm text-headline-sm">Select Payment Method</h2>
+            {/* 3. Order Items Review Section */}
+            <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
+              <div className="flex items-center gap-2 mb-4">
+                <ShoppingBag aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Review Items ({totalQuantityCount})</h2>
               </div>
-              <div className="space-y-md">
+
+              <div className="divide-y divide-vl-border">
+                {products.map((item) => (
+                  <div key={item.id + "-" + item.variantId} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                    <div className="w-20 h-24 flex-shrink-0 bg-vl-surface border border-vl-border rounded-vl-control overflow-hidden relative shadow-sm">
+                      <Image
+                        fill
+                        className="object-cover"
+                        alt={item.name}
+                        src={item.image}
+                        sizes="80px"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2 flex-wrap sm:flex-nowrap">
+                        <h3 className="font-bold text-vl-ink text-sm sm:text-base truncate">{item.name}</h3>
+                        <p className="font-vl-heading font-extrabold text-vl-ink text-base shrink-0">{formatPrice(item.price * item.quantity)}</p>
+                      </div>
+                      
+                      <div className="mt-1 flex items-center gap-1">
+                        <BadgeCheck aria-hidden="true" className="text-vl-success h-4 w-4 shrink-0" />
+                        <span className="text-[10px] font-bold text-vl-success uppercase tracking-wider">
+                          {item.isSellerVerified ? "Verified Seller" : "Boutique Seller"}
+                        </span>
+                      </div>
+                      
+                      <p className="text-xs text-vl-muted mt-1">Size: {item.size} | Qty: {item.quantity}</p>
+                      <p className="text-xs text-vl-success font-semibold mt-2.5 flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-vl-success inline-block"></span>
+                        Delivery tomorrow by 2:00 PM
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 4. Payment Method Card */}
+            <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
+              <div className="flex items-center gap-2 mb-5">
+                <Lock aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Payment Method</h2>
+              </div>
+              
+              <div className="space-y-3.5" role="radiogroup" aria-label="Payment method">
                 {/* UPI Option */}
-                <div className="relative">
-                  <input
-                    checked={selectedPayment === "upi"}
-                    onChange={() => setSelectedPayment("upi")}
-                    className="peer hidden payment-radio"
-                    id="upi"
-                    name="payment"
-                    type="radio"
-                  />
-                  <label
-                    className="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low"
-                    htmlFor="upi"
-                  >
-                    <div className="flex items-center gap-base">
-                      <span className="material-symbols-outlined text-primary">qr_code_2</span>
+                <label
+                  onClick={() => setSelectedPayment("upi")}
+                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
+                    selectedPayment === "upi"
+                      ? "border-vl-primary bg-vl-primary/5"
+                      : "border-vl-border bg-vl-card hover:border-vl-primary"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment-option"
+                      checked={selectedPayment === "upi"}
+                      onChange={() => setSelectedPayment("upi")}
+                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
+                    />
+                    <div className="flex items-center gap-3">
+                      <QrCode aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
                       <div>
-                        <p className="font-label-bold text-body-lg text-primary">UPI (GPay, PhonePe, Paytm)</p>
-                        <p className="text-body-sm text-on-surface-variant">Pay directly from your bank account</p>
+                        <p className="font-bold text-vl-ink text-sm">UPI (GPay / PhonePe / Paytm)</p>
+                        <p className="text-xs text-vl-muted mt-0.5">Pay directly via instant UPI gateway</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-sm">
-                      <div className="w-8 h-5 bg-surface-container rounded-sm"></div>
-                      <div className="w-8 h-5 bg-surface-container rounded-sm"></div>
-                    </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
+
                 {/* Card Option */}
-                <div className="relative">
-                  <input
-                    checked={selectedPayment === "card"}
-                    onChange={() => setSelectedPayment("card")}
-                    className="peer hidden payment-radio"
-                    id="card"
-                    name="payment"
-                    type="radio"
-                  />
-                  <label
-                    className="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low"
-                    htmlFor="card"
-                  >
-                    <div className="flex items-center gap-base">
-                      <span className="material-symbols-outlined text-primary">credit_card</span>
+                <label
+                  onClick={() => setSelectedPayment("card")}
+                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
+                    selectedPayment === "card"
+                      ? "border-vl-primary bg-vl-primary/5"
+                      : "border-vl-border bg-vl-card hover:border-vl-primary"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment-option"
+                      checked={selectedPayment === "card"}
+                      onChange={() => setSelectedPayment("card")}
+                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
+                    />
+                    <div className="flex items-center gap-3">
+                      <CreditCard aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
                       <div>
-                        <p className="font-label-bold text-body-lg text-primary">Credit / Debit Card</p>
-                        <p className="text-body-sm text-on-surface-variant">All major cards accepted. Secure 128-bit encryption.</p>
+                        <p className="font-bold text-vl-ink text-sm">Credit / Debit Card</p>
+                        <p className="text-xs text-vl-muted mt-0.5">Secure credit card gateway processed by Razorpay</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-sm">
-                      <span className="material-symbols-outlined text-secondary opacity-50">contactless</span>
-                    </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
+
                 {/* Net Banking */}
-                <div className="relative">
-                  <input
-                    checked={selectedPayment === "netbanking"}
-                    onChange={() => setSelectedPayment("netbanking")}
-                    className="peer hidden payment-radio"
-                    id="netbanking"
-                    name="payment"
-                    type="radio"
-                  />
-                  <label
-                    className="flex items-center justify-between p-base border border-border-gray rounded cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-surface-container-low"
-                    htmlFor="netbanking"
-                  >
-                    <div className="flex items-center gap-base">
-                      <span className="material-symbols-outlined text-primary">account_balance</span>
+                <label
+                  onClick={() => setSelectedPayment("netbanking")}
+                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
+                    selectedPayment === "netbanking"
+                      ? "border-vl-primary bg-vl-primary/5"
+                      : "border-vl-border bg-vl-card hover:border-vl-primary"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment-option"
+                      checked={selectedPayment === "netbanking"}
+                      onChange={() => setSelectedPayment("netbanking")}
+                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
+                    />
+                    <div className="flex items-center gap-3">
+                      <Landmark aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
                       <div>
-                        <p className="font-label-bold text-body-lg text-primary">Net Banking</p>
-                        <p className="text-body-sm text-on-surface-variant">Select from 50+ Indian banks</p>
+                        <p className="font-bold text-vl-ink text-sm">Net Banking</p>
+                        <p className="text-xs text-vl-muted mt-0.5">Select from 50+ major Indian banks</p>
                       </div>
                     </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
               </div>
             </section>
           </div>
 
-          {/* Right Column: Summary & Escrow */}
-          <div className="lg:col-span-4 space-y-base sticky top-24">
-            {/* Escrow Explainer */}
-            <section className="bg-primary text-on-primary p-lg rounded flex gap-base items-start shadow-sm">
-              <span
-                className="material-symbols-outlined text-accent-yellow text-headline-md"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                verified_user
-              </span>
+          {/* RIGHT COLUMN: Sticky summary (~35%) */}
+          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            {/* Shield Protection Banner */}
+            <div className="bg-vl-ink text-white p-5 rounded-vl-card flex gap-4 items-start shadow-vl-soft">
+              <ShieldCheck aria-hidden="true" className="h-7 w-7 text-vl-accent shrink-0" />
               <div>
-                <h3 className="font-label-bold text-body-lg mb-xs">MINIBRANDS Shield Protection</h3>
-                <p className="text-body-sm text-on-primary-container leading-relaxed">
-                  Your payment is protected. Funds are held securely and released to the seller only after successful delivery confirmation.
+                <h3 className="font-bold text-sm mb-1 uppercase tracking-wider text-vl-accent">Shield Protection</h3>
+                <p className="text-xs text-white/80 leading-relaxed">
+                  Your transaction is fully secure. Funds are safely held escrowed and released to sellers only upon confirmation of delivery.
                 </p>
               </div>
-            </section>
+            </div>
 
-            {/* Payment Summary */}
-            <section className="bg-surface-container-lowest border border-border-gray rounded overflow-hidden shadow-sm">
-              <div className="p-lg bg-surface-container-low border-b border-border-gray">
-                <h2 className="font-headline-sm text-headline-sm text-primary">Order Summary</h2>
+            {/* Price details breakdown summary */}
+            <section className="rounded-vl-card border border-vl-border bg-vl-card overflow-hidden shadow-vl-soft">
+              <div className="p-5 border-b border-vl-border bg-vl-surface">
+                <h2 className="font-vl-heading text-base font-bold text-vl-ink">Price Details</h2>
               </div>
-              <div className="p-lg space-y-md">
-                <div className="flex justify-between text-body-md text-on-surface-variant">
+              <div className="p-5 space-y-4">
+                <div className="flex justify-between text-sm text-vl-muted">
                   <span>Price ({totalQuantityCount} {totalQuantityCount === 1 ? "item" : "items"})</span>
-                  <span>{formatPrice(displayPrice)}</span>
+                  <span className="font-semibold text-vl-ink">{formatPrice(displayPrice)}</span>
                 </div>
-                <div className="flex justify-between text-body-md text-on-surface-variant">
+                <div className="flex justify-between text-sm text-vl-muted">
                   <span>Delivery Charges</span>
-                  <span className="text-success-green font-semibold">FREE</span>
+                  <span className="text-vl-success font-bold uppercase text-xs bg-vl-success/10 px-2 py-0.5 rounded-full">FREE</span>
                 </div>
                 {packagingFee > 0 && (
-                  <div className="flex justify-between text-body-md text-on-surface-variant">
+                  <div className="flex justify-between text-sm text-vl-muted">
                     <span>Secured Packaging Fee</span>
-                    <span>{formatPrice(packagingFee)}</span>
+                    <span className="font-semibold text-vl-ink">{formatPrice(packagingFee)}</span>
                   </div>
                 )}
                 {platformFee > 0 && (
-                  <div className="flex justify-between text-body-md text-on-surface-variant">
+                  <div className="flex justify-between text-sm text-vl-muted">
                     <span>Platform Fee</span>
-                    <span>{formatPrice(platformFee)}</span>
+                    <span className="font-semibold text-vl-ink">{formatPrice(platformFee)}</span>
                   </div>
                 )}
-                <div className="pt-base border-t border-dashed border-border-gray">
-                  <div className="flex justify-between items-baseline mb-base">
-                    <span className="font-headline-sm text-headline-sm text-primary">Total Payable</span>
-                    <span className="font-headline-md text-headline-md text-primary">{formatPrice(subtotal)}</span>
+                
+                <div className="pt-4 border-t border-dashed border-vl-border">
+                  <div className="flex justify-between items-baseline mb-5">
+                    <span className="font-vl-heading text-base font-bold text-vl-ink">Total Payable</span>
+                    <span className="font-vl-heading text-2xl font-extrabold text-vl-primary">{formatPrice(subtotal)}</span>
                   </div>
-                  {/* CTA */}
+                  
+                  {/* Checkout CTA */}
                   <button
                     onClick={handlePayment}
                     disabled={isExpired || !selectedAddressId || isPaying}
-                    className="w-full bg-primary text-on-primary py-lg rounded-lg font-headline-sm flex items-center justify-center gap-base active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    <span className="material-symbols-outlined">lock</span>
+                    {isPaying ? (
+                      <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                    ) : (
+                      <Lock aria-hidden="true" className="h-4 w-4" />
+                    )}
                     <span>
-                      {isPaying ? "Processing..." : `Pay Securely ${formatPrice(subtotal)}`}
+                      {isPaying ? "Processing Securely..." : `Pay Securely ${formatPrice(subtotal)}`}
                     </span>
                   </button>
                 </div>
-                <p className="text-[10px] text-center text-on-surface-variant mt-sm">
-                  By clicking Pay Securely, you agree to our{" "}
-                  <a className="underline" href="#">Terms of Service</a>. Your data is encrypted and secure.
+                
+                <p className="text-[10px] text-center text-vl-muted leading-relaxed">
+                  By completing the checkout, you agree to our{" "}
+                  <a className="underline hover:text-vl-primary" href="/terms">Terms of Service</a>. Transactions are secured by standard 256-bit SSL encryption.
                 </p>
               </div>
-              {/* Trust Badges */}
-              <div className="px-lg pb-lg flex justify-center items-center gap-lg grayscale opacity-50">
-                <span className="material-symbols-outlined" title="Secure SSL">lock</span>
-                <span className="material-symbols-outlined" title="Verified Payments">verified</span>
-                <span className="material-symbols-outlined" title="24/7 Support">support_agent</span>
+
+              {/* Trust badges footer */}
+              <div className="border-t border-vl-border bg-vl-surface px-5 py-4 flex justify-around items-center gap-4 text-vl-muted">
+                <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                  <Lock aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">SSL Encrypted</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                  <ShieldCheck aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Secure Gate</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center shrink-0">
+                  <CheckCircle2 aria-hidden="true" className="h-4.5 w-4.5 text-vl-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">100% Assurance</span>
+                </div>
               </div>
             </section>
-          </div>
+          </aside>
         </div>
       </main>
 
+      {/* MOBILE STICKY CTA BAR (Mobile viewport bottom-fixed drawer) */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-4 lg:hidden flex items-center justify-between gap-4 shadow-vl-large"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Total Payable</span>
+          <span className="text-lg font-extrabold text-vl-primary">{formatPrice(subtotal)}</span>
+        </div>
+        <button
+          type="button"
+          onClick={handlePayment}
+          disabled={isExpired || !selectedAddressId || isPaying}
+          className="flex-1 max-w-[220px] inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-xs font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50"
+        >
+          {isPaying ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+          )}
+          <span>{isPaying ? "PAYING..." : "PAY SECURELY"}</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -46,23 +46,23 @@ export default function Pagination({
       <button
         onClick={handlePrev}
         disabled={currentPage === 1}
-        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-3 text-sm font-semibold transition ${
+        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-4 text-sm font-semibold transition-all duration-vl-fast ${
           currentPage === 1
-            ? "cursor-not-allowed border-vl-border text-vl-muted/50"
-            : "border-vl-border text-vl-ink hover:border-vl-primary hover:text-vl-primary"
+            ? "cursor-not-allowed border-vl-border text-vl-muted/40"
+            : "border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary active:scale-[0.98]"
         }`}
       >
         <ChevronLeft aria-hidden="true" className="h-4 w-4" /> Previous
       </button>
 
       {/* Pages list */}
-      <div className="flex items-center gap-xs">
+      <div className="flex items-center gap-1">
         {getPages().map((page, idx) => {
           if (page === "...") {
             return (
               <span
                 key={`dots-${idx}`}
-                className="flex h-10 w-10 select-none items-center justify-center font-semibold text-vl-muted"
+                className="flex h-10 w-10 select-none items-center justify-center text-sm font-semibold text-vl-muted"
               >
                 ...
               </span>
@@ -76,10 +76,11 @@ export default function Pagination({
             <button
               key={pageNum}
               onClick={() => onPageChange(pageNum)}
-              className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition ${
+              aria-current={isActive ? "page" : undefined}
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-vl-fast ${
                 isActive
-                  ? "bg-vl-ink text-white"
-                  : "text-vl-ink hover:bg-vl-surface"
+                  ? "bg-vl-primary text-white shadow-vl-soft"
+                  : "text-vl-ink hover:bg-vl-surface active:scale-95"
               }`}
             >
               {pageNum}
@@ -92,10 +93,10 @@ export default function Pagination({
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-3 text-sm font-semibold transition ${
+        className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control border px-4 text-sm font-semibold transition-all duration-vl-fast ${
           currentPage === totalPages
-            ? "cursor-not-allowed border-vl-border text-vl-muted/50"
-            : "border-vl-border text-vl-ink hover:border-vl-primary hover:text-vl-primary"
+            ? "cursor-not-allowed border-vl-border text-vl-muted/40"
+            : "border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary active:scale-[0.98]"
         }`}
       >
         Next <ChevronRight aria-hidden="true" className="h-4 w-4" />

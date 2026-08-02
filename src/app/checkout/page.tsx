@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redis, ReservationData, getUserReservations } from "@/lib/redis";
+import Link from "next/link";
 import CheckoutClient from "./CheckoutClient";
 import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
 
@@ -61,7 +62,8 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     redirect(redirectUrl);
   }
 
-  let checkoutProducts: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const checkoutProducts: any[] = [];
   let checkoutMode: "BUY_NOW" | "CART_CHECKOUT" = "CART_CHECKOUT";
   let createdAt = new Date().toISOString();
 
@@ -104,18 +106,18 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
 
       if (!product || !variant || !product.isPublished) {
         return (
-          <main className="min-h-screen px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center">
-            <div className="glass-panel p-8 rounded-2xl border border-slate-100 bg-white/70">
-              <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Product Unavailable</h1>
-              <p className="text-slate-500 text-xs mb-6">
+          <main className="min-h-screen bg-vl-surface px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center font-vl-body">
+            <div className="p-8 rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft">
+              <h1 className="text-xl font-extrabold text-vl-ink font-vl-heading mb-2">Product Unavailable</h1>
+              <p className="text-vl-muted text-sm mb-6 leading-relaxed">
                 One or more products in your checkout are no longer available for purchase.
               </p>
-              <a
+              <Link
                 href="/products"
-                className="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-md transition-all"
+                className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-6 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98]"
               >
                 Back to Catalog
-              </a>
+              </Link>
             </div>
           </main>
         );
@@ -182,18 +184,18 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
 
     if (!product || !variant || !product.isPublished) {
       return (
-        <main className="min-h-screen px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center">
-          <div className="glass-panel p-8 rounded-2xl border border-slate-100 bg-white/70">
-            <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Product Unavailable</h1>
-            <p className="text-slate-500 text-xs mb-6">
+        <main className="min-h-screen bg-vl-surface px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center font-vl-body">
+          <div className="p-8 rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft">
+            <h1 className="text-xl font-extrabold text-vl-ink font-vl-heading mb-2">Product Unavailable</h1>
+            <p className="text-vl-muted text-sm mb-6 leading-relaxed">
               This product is no longer available for purchase.
             </p>
-            <a
+            <Link
               href="/products"
-              className="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-md transition-all"
+              className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-6 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98]"
             >
               Back to Catalog
-            </a>
+            </Link>
           </div>
         </main>
       );

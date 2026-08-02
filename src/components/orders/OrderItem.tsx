@@ -26,25 +26,46 @@ export default function OrderItem({
   };
 
   return (
-    <div className="flex gap-base items-start py-sm first:pt-0 last:pb-0 border-b border-border-gray/30 last:border-b-0">
-      <div className="w-24 h-24 flex-shrink-0">
+    <div className="flex gap-4 items-start py-4 first:pt-0 last:pb-0 border-b border-vl-border/60 last:border-b-0">
+      {/* 3:4 Aspect Ratio Image Crop */}
+      <div className="w-20 sm:w-24 aspect-[3/4] flex-shrink-0 bg-vl-surface border border-vl-border rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
         <img
-          className="w-full h-full object-cover border border-border-gray rounded"
+          className="w-full h-full object-cover transition-transform duration-vl-slow hover:scale-105"
           src={image || "/placeholder.jpg"}
           alt={name}
         />
       </div>
+      
+      {/* Product Details */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-label-bold text-label-bold text-primary truncate">{name}</h3>
-        <p className="font-body-sm text-body-sm text-secondary mt-xs">
-          {variantSize ? `Size: ${variantSize}` : ""}
-          {sellerName ? ` • Seller: ${sellerName}` : ""}
-          {quantity > 1 ? ` • Qty: ${quantity}` : ""}
-        </p>
-        <p className="font-price-lg text-price-lg mt-sm">
-          {formatPrice(price)}
+        <h3 className="font-vl-heading font-bold text-vl-ink text-sm sm:text-base tracking-tight truncate hover:text-vl-primary transition-colors cursor-default">
+          {name}
+        </h3>
+        
+        {/* Modern Pill Chips */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          {variantSize && (
+            <span className="px-2 py-0.5 bg-vl-surface border border-vl-border text-[11px] font-bold text-vl-muted rounded">
+              Size: {variantSize}
+            </span>
+          )}
+          {sellerName && (
+            <span className="px-2 py-0.5 bg-vl-surface border border-vl-border text-[11px] font-bold text-vl-muted rounded">
+              Boutique: {sellerName}
+            </span>
+          )}
+          {quantity > 0 && (
+            <span className="px-2 py-0.5 bg-vl-surface border border-vl-border text-[11px] font-bold text-vl-muted rounded">
+              Qty: {quantity}
+            </span>
+          )}
+        </div>
+
+        {/* Pricing */}
+        <p className="font-vl-heading font-extrabold text-vl-ink text-sm sm:text-base mt-3">
+          {formatPrice(price * quantity)}
           {quantity > 1 && (
-            <span className="text-secondary font-body-sm font-normal text-xs ml-base">
+            <span className="text-vl-muted font-vl-body font-medium text-xs ml-2">
               ({formatPrice(price)} x {quantity})
             </span>
           )}

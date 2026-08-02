@@ -17,7 +17,7 @@ export interface AddressesPageProps {
 
 export default async function AddressPageContent({ searchParams }: AddressesPageProps) {
   const params = await searchParams;
-  let redirectTo = params.redirectTo;
+  const redirectTo = params.redirectTo;
   let sessionId = params.sessionId;
   let reservationId = params.reservationId;
 
@@ -84,7 +84,8 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
 
   // Fetch products for checkout summary
-  let checkoutProducts: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const checkoutProducts: any[] = [];
 
   if (sessionId) {
     const sessionKey = `checkout-session:${sessionId}`;

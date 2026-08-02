@@ -179,8 +179,14 @@ export default function OrdersClient({
       return sortBy === "newest" ? dateB - dateA : dateA - dateB;
     });
 
+  // Dynamically calculate statistics
+  const deliveredCount = orders.filter((o) => ["delivered", "completed"].includes((o.orderStatus || o.status || "").toLowerCase())).length;
+  const processingCount = orders.filter((o) => ["created", "paid", "confirmed", "processing", "packed"].includes((o.orderStatus || o.status || "").toLowerCase())).length;
+  const shippedCount = orders.filter((o) => ["shipped", "out_for_delivery", "out for delivery"].includes((o.orderStatus || o.status || "").toLowerCase())).length;
+  const returnedCount = orders.filter((o) => ["returned", "refunded", "disputed"].includes((o.orderStatus || o.status || "").toLowerCase())).length;
+
   return (
-    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-vl-body text-vl-ink selection:bg-vl-primary/20 pb-12">
       {/* Navigation Header */}
       <HomeHeader
         userProfile={userProfile}
@@ -190,15 +196,15 @@ export default function OrdersClient({
 
       {/* Toast Alert */}
       {alertMessage && (
-        <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
+        <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
           <div
-            className={`p-base border rounded-lg shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
+            className={`px-4 py-3 border rounded-xl shadow-vl-floating flex items-center gap-2 font-bold text-xs ${
               alertMessage.type === "success"
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                 : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
-            <span className="material-symbols-outlined">
+            <span className="material-symbols-outlined text-lg">
               {alertMessage.type === "success" ? "check_circle" : "error"}
             </span>
             <span>{alertMessage.text}</span>
@@ -207,14 +213,63 @@ export default function OrdersClient({
       )}
 
       {/* Main Order List Section */}
-      <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full">
+      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
         {/* Header Section */}
-        <div className="mb-xl">
-          <h1 className="font-headline-lg text-headline-lg text-primary">My Orders</h1>
-          <p className="font-body-lg text-body-lg text-secondary">Track, manage and review your purchases</p>
+        <div className="mb-8">
+          <h1 className="font-vl-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-vl-ink mb-2">My Orders</h1>
+          <p className="text-sm sm:text-base text-vl-muted max-w-[640px] leading-relaxed">
+            Track every purchase, manage deliveries, download invoices, and reorder your favorites.
+          </p>
         </div>
 
-        <div className="space-y-lg">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {/* Delivered Stats Card */}
+          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-lg font-bold">check_circle</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Delivered</p>
+              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{deliveredCount}</p>
+            </div>
+          </div>
+
+          {/* Processing Stats Card */}
+          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-pink-50 text-vl-primary flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-lg font-bold">published_with_changes</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Processing</p>
+              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{processingCount}</p>
+            </div>
+          </div>
+
+          {/* Shipped Stats Card */}
+          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-lg font-bold">local_shipping</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Shipped</p>
+              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{shippedCount}</p>
+            </div>
+          </div>
+
+          {/* Returns Stats Card */}
+          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-lg font-bold">keyboard_return</span>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Returns</p>
+              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{returnedCount}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
           {/* Search, Sort and Filter Tabs */}
           <OrderFilters
             searchQuery={searchQuery}
@@ -231,7 +286,7 @@ export default function OrdersClient({
           {filteredOrders.length === 0 ? (
             <EmptyOrders />
           ) : (
-            <div className="space-y-base">
+            <div className="space-y-4">
               {filteredOrders.map((order) => (
                 <OrderCard
                   key={order.id}
@@ -252,25 +307,25 @@ export default function OrdersClient({
 
       {/* Rate Product Modal */}
       {showRateModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary">Rate & Review</h3>
+        <div className="fixed inset-0 z-50 bg-vl-ink/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-vl-card border border-vl-border rounded-vl-card max-w-md w-full p-6 space-y-6 shadow-vl-floating animate-fade-in-up">
+            <div className="flex justify-between items-center border-b border-vl-border/60 pb-3">
+              <h3 className="font-vl-heading text-lg font-extrabold text-vl-ink">Rate & Review</h3>
               <button
                 onClick={() => setShowRateModal(false)}
-                className="text-secondary hover:text-primary cursor-pointer"
+                className="text-vl-muted hover:text-vl-ink cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={submitReview} className="space-y-base">
+            <form onSubmit={submitReview} className="space-y-5">
               <div>
-                <p className="font-body-sm text-secondary">Reviewing:</p>
-                <p className="font-label-bold text-label-bold text-primary truncate">{rateProductName}</p>
+                <p className="text-xs font-semibold text-vl-muted">Reviewing:</p>
+                <p className="font-vl-heading font-bold text-sm text-vl-ink truncate">{rateProductName}</p>
               </div>
-              <div className="space-y-xs">
-                <label className="font-label-bold text-label-bold text-on-surface">Star Rating</label>
-                <div className="flex gap-xs text-[28px] text-accent-yellow">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-vl-ink">Star Rating</label>
+                <div className="flex gap-1 text-[28px] text-vl-accent">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
@@ -285,10 +340,10 @@ export default function OrdersClient({
                   ))}
                 </div>
               </div>
-              <div className="space-y-xs">
-                <label className="font-label-bold text-label-bold text-on-surface">Comments</label>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-vl-ink">Comments</label>
                 <textarea
-                  className="w-full border-border-gray rounded text-body-sm outline-none focus:border-primary p-sm"
+                  className="w-full border border-vl-border rounded-xl text-sm outline-none focus:border-vl-primary p-3 font-vl-body text-vl-ink bg-vl-surface"
                   rows={4}
                   placeholder="Share your experience buying from this boutique..."
                   value={reviewText}
@@ -296,17 +351,17 @@ export default function OrdersClient({
                   required
                 />
               </div>
-              <div className="flex gap-base justify-end border-t border-border-gray pt-base">
+              <div className="flex gap-3 justify-end border-t border-vl-border/60 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowRateModal(false)}
-                  className="px-base py-2 border border-border-gray text-secondary rounded font-label-bold text-label-bold hover:bg-surface-container cursor-pointer"
+                  className="px-5 py-2.5 border border-vl-border text-vl-muted rounded-xl font-bold text-xs hover:bg-vl-surface cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-base py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
+                  className="px-5 py-2.5 bg-vl-primary text-white rounded-xl font-bold text-xs hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer"
                 >
                   Submit Review
                 </button>
@@ -318,51 +373,58 @@ export default function OrdersClient({
 
       {/* Track Package Modal */}
       {showTrackModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary">Package Tracking</h3>
+        <div className="fixed inset-0 z-50 bg-vl-ink/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-vl-card border border-vl-border rounded-vl-card max-w-md w-full p-6 space-y-6 shadow-vl-floating animate-fade-in-up">
+            <div className="flex justify-between items-center border-b border-vl-border/60 pb-3">
+              <h3 className="font-vl-heading text-lg font-extrabold text-vl-ink">Package Tracking</h3>
               <button
                 onClick={() => setShowTrackModal(false)}
-                className="text-secondary hover:text-primary cursor-pointer"
+                className="text-vl-muted hover:text-vl-ink cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="space-y-lg py-sm">
-              <div>
-                <p className="font-body-sm text-secondary">Logistics Carrier:</p>
-                <p className="font-label-bold text-label-bold text-primary">BlueDart Express Cargo</p>
-                <p className="font-body-sm text-[11px] text-secondary">Waybill No: BD984713912IN</p>
+            <div className="space-y-4 py-2">
+              <div className="bg-vl-surface border border-vl-border rounded-xl p-3">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Logistics Carrier</p>
+                <p className="font-vl-heading font-extrabold text-sm text-vl-ink">BlueDart Express Cargo</p>
+                <p className="font-mono text-[11px] text-vl-muted mt-0.5">Waybill: BD984713912IN</p>
               </div>
-              <div className="space-y-base relative pl-base border-l border-border-gray">
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-success-green rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">In Transit - Out For Delivery</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Chennai Distribution Center • 08:30 AM</p>
+              <div className="space-y-4 relative pl-4 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                <div className="relative z-10 flex gap-3 items-start">
+                  <div className="w-2.5 h-2.5 bg-vl-success rounded-full ring-4 ring-vl-success/20 mt-1.5 shrink-0"></div>
+                  <div>
+                    <p className="font-bold text-xs text-vl-ink">In Transit - Out For Delivery</p>
+                    <p className="text-[10px] text-vl-muted">Chennai Distribution Center • 08:30 AM</p>
+                  </div>
                 </div>
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">Package Departed Hub</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Guindy Sorting Center • Yesterday, 04:15 PM</p>
+                <div className="relative z-10 flex gap-3 items-start">
+                  <div className="w-2.5 h-2.5 bg-vl-primary rounded-full ring-4 ring-vl-primary/20 mt-1.5 shrink-0"></div>
+                  <div>
+                    <p className="font-bold text-xs text-vl-ink">Package Departed Hub</p>
+                    <p className="text-[10px] text-vl-muted">Guindy Sorting Center • Yesterday, 04:15 PM</p>
+                  </div>
                 </div>
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">Dispatched from Boutique</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Boutique Hub • 2 days ago, 11:00 AM</p>
+                <div className="relative z-10 flex gap-3 items-start">
+                  <div className="w-2.5 h-2.5 bg-vl-primary rounded-full ring-4 ring-vl-primary/20 mt-1.5 shrink-0"></div>
+                  <div>
+                    <p className="font-bold text-xs text-vl-ink">Dispatched from Boutique</p>
+                    <p className="text-[10px] text-vl-muted">Boutique Hub • 2 days ago, 11:00 AM</p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="border-t border-border-gray pt-base flex justify-end">
+            <div className="border-t border-vl-border/60 pt-4 flex justify-end">
               <button
                 onClick={() => setShowTrackModal(false)}
-                className="px-xl py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
+                className="px-6 py-2.5 bg-vl-primary text-white rounded-xl font-bold text-xs hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer"
               >
                 Done
               </button>
             </div>
           </div>
         </div>
-      )}    </div>
+      )}
+    </div>
   );
 }
