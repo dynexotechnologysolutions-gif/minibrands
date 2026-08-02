@@ -11,6 +11,7 @@ import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
 import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
 import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
+import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
@@ -90,7 +91,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrands] = await Promise.all([
+  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand, nearbyStores] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -117,7 +118,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, skip: (currentPage - 1) * itemsPerPage, take: itemsPerPage,
     }),
-    prisma.seller.findMany({
+    prisma.seller.findFirst({
       where: {
         verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
         products: { some: { isPublished: true, isDeleted: false } },
@@ -141,7 +142,27 @@ export default async function HomePage({ searchParams }: PageProps) {
         { verification: { trustScore: "desc" } },
         { createdAt: "desc" },
       ],
-      take: 8,
+    }),
+    prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: true,
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } } },
+          take: 1,
+        },
+      },
+      orderBy: [
+        { verification: { trustScore: "desc" } },
+        { createdAt: "desc" },
+      ],
+      take: 10,
     }),
   ]);
 
@@ -215,7 +236,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         {allSellers.length > 0 ? <HomeStoreRow sellers={allSellers} /> : null}
         {(() => {
           const userCity = userProfile?.addresses?.find((a) => a.isDefault)?.city || null;
-          const sortedSpotlightBrands = [...spotlightBrands].sort((a, b) => {
+          const sortedNearbyStores = [...nearbyStores].sort((a, b) => {
             if (userCity) {
               const aMatch = a.city.toLowerCase() === userCity.toLowerCase();
               const bMatch = b.city.toLowerCase() === userCity.toLowerCase();
@@ -224,7 +245,12 @@ export default async function HomePage({ searchParams }: PageProps) {
             }
             return 0;
           });
-          return <HomeBrandSpotlight brands={sortedSpotlightBrands} userCity={userCity} />;
+          return (
+            <>
+              <HomeBrandSpotlight brand={spotlightBrand} userCity={userCity} />
+              <HomeNearbyStores stores={sortedNearbyStores} userCity={userCity} />
+            </>
+          );
         })()}
         {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
         {sellerSpotlights.length > 0 ? <HomeSellerSpotlight sellers={sellerSpotlights} /> : null}
