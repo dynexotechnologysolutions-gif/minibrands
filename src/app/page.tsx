@@ -10,6 +10,7 @@ import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
 import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
+import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
@@ -83,7 +84,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts] = await Promise.all([
+  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -109,6 +110,31 @@ export default async function HomePage({ searchParams }: PageProps) {
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, skip: (currentPage - 1) * itemsPerPage, take: itemsPerPage,
+    }),
+    prisma.seller.findFirst({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: true,
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+          take: 3,
+        },
+        _count: {
+          select: {
+            products: true,
+          },
+        },
+      },
+      orderBy: [
+        { verification: { trustScore: "desc" } },
+        { createdAt: "desc" },
+      ],
     }),
   ]);
 
@@ -180,6 +206,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         ) : null}
         <HomeEditorialCollections />
         {allSellers.length > 0 ? <HomeStoreRow sellers={allSellers} /> : null}
+        <HomeBrandSpotlight brand={spotlightBrand} />
         {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
         {sellerSpotlights.length > 0 ? <HomeSellerSpotlight sellers={sellerSpotlights} /> : null}
         {trendingProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Best sellers</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Your next wardrobe staple</h2></div><span className="hidden text-sm text-vl-muted sm:inline">{trendingCount.toLocaleString("en-IN")} pieces to discover</span></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{trendingProducts.map(productCard)}</div>{currentPage < totalPages ? <div className="mt-8 flex justify-center"><Link href={`/?page=${currentPage + 1}`} className="inline-flex min-h-11 items-center rounded-vl-control border border-vl-border bg-vl-card px-5 text-sm font-semibold text-vl-ink transition hover:border-vl-primary hover:text-vl-primary">Load more</Link></div> : null}</section> : null}
