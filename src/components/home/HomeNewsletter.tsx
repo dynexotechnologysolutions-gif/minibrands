@@ -20,7 +20,6 @@ export default function HomeNewsletter() {
           <div className="relative flex min-h-12 min-w-[300px] flex-1 items-center gap-2 rounded-vl-control border border-white/15 bg-white/10 px-4 text-sm text-white focus-within:border-white/40 focus-within:bg-white/15">
             <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-white/60" />
             <input
-              suppressHydrationWarning
               type="email"
               placeholder="Your email address"
               className="w-full bg-transparent text-sm text-white placeholder:text-white/50 outline-none focus:ring-0"

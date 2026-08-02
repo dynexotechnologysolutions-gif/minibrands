@@ -72,17 +72,17 @@ export default function HomeHero() {
 
   return (
     <section
-      className="w-full px-0 sm:px-6 lg:px-8 pt-0 sm:pt-5"
+      className="w-full px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5"
       aria-label="Hero promotional carousel"
     >
-      {/* Container matches the exact 16:9 aspect ratio of the pamphlets (1672 x 941). */}
-      {/* Edge-to-edge on mobile (px-0, rounded-none) for maximum visibility, cards on desktop. */}
+      {/* Container uses natural aspect ratio of the pamphlet (roughly 8:3 wide banner). */}
+      {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-none sm:rounded-[28px] bg-white"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white"
         style={{
-          aspectRatio: "1672 / 941",
-          maxWidth: "1400px",
+          aspectRatio: "8 / 3",
+          maxWidth: "1600px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
         }}
         onMouseEnter={() => setIsPaused(true)}
@@ -123,12 +123,12 @@ export default function HomeHero() {
             );
           })}
         </div>
+
         {/* Previous arrow */}
         <button
           type="button"
           onClick={goPrev}
           aria-label="Previous slide"
-          suppressHydrationWarning
           className="group absolute left-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
         >
           <ChevronLeft
@@ -142,7 +142,6 @@ export default function HomeHero() {
           type="button"
           onClick={goNext}
           aria-label="Next slide"
-          suppressHydrationWarning
           className="group absolute right-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
         >
           <ChevronRight
