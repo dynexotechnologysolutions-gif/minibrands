@@ -10,6 +10,22 @@ import { reserveCartItem } from "@/actions/cart-reserve.action";
 import EditProfileModal from "./EditProfileModal";
 import { createAddress } from "@/actions/address-create.action";
 import { updateAddress } from "@/actions/address-update.action";
+import {
+  User,
+  Package,
+  MapPin,
+  Heart,
+  ShieldAlert,
+  Store,
+  Calendar,
+  Award,
+  CheckCircle2,
+  AlertCircle,
+  ShoppingBag,
+  Edit3,
+  ArrowRight,
+  X
+} from "lucide-react";
 
 interface OrderInfo {
   id: string;
@@ -26,6 +42,7 @@ interface WishlistProduct {
   name: string;
   price: number;
   image: string;
+  variantId?: string;
 }
 
 interface AddressInfo {
@@ -39,7 +56,7 @@ interface AddressInfo {
 }
 
 interface ProfileClientProps {
-  userProfile: any;
+  userProfile: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   ordersCount: number;
   wishlistCount: number;
   wishlistProducts: WishlistProduct[];
@@ -60,7 +77,8 @@ export default function ProfileClient({
   sellerHref,
 }: ProfileClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState<"overview" | "orders" | "wishlist" | "addresses" | "security">("overview");
 
   // Local Wishlist State
   const [wishlist, setWishlist] = useState<WishlistProduct[]>(initialWishlistProducts);
@@ -83,8 +101,10 @@ export default function ProfileClient({
   const hasName = !!userProfile.user.name;
   const isEmailVerified = !!userProfile.user.emailVerified;
   const hasAddress = userProfile.addresses && userProfile.addresses.length > 0;
-  const hasPhone = defaultAddress ? !!defaultAddress.phone : (userProfile.addresses && userProfile.addresses.some((a: any) => !!a.phone));
+  const hasPhone = defaultAddress ? !!defaultAddress.phone : (userProfile.addresses && userProfile.addresses.some((a: { phone?: string | null }) => !!a.phone));
   const hasRole = !!userProfile.role;
+
+  const charSum = (userProfile?.user?.email || "").split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
 
   const photoWeight = hasPhoto ? 20 : 0;
   const nameWeight = hasName ? 15 : 0;
@@ -135,7 +155,7 @@ export default function ProfileClient({
             phone: data.phone,
             line1: defaultAddress.line1,
             line2: defaultAddress.line2 || "",
-            city: defaultAddress.city as any, // "Chennai"
+            city: defaultAddress.city as "Chennai", // "Chennai"
             pincode: defaultAddress.pincode,
             isDefault: true,
           });
@@ -163,10 +183,11 @@ export default function ProfileClient({
       startTransition(() => {
         router.refresh();
       });
-    } catch (err: any) {
-      console.error(err);
-      triggerToast(err.message || "An unexpected error occurred while updating profile.", "error");
-      throw err;
+    } catch (err) {
+      const error = err as Error;
+      console.error(error);
+      triggerToast(error.message || "An unexpected error occurred while updating profile.", "error");
+      throw error;
     } finally {
       setIsSavingProfile(false);
     }
@@ -207,7 +228,7 @@ export default function ProfileClient({
       // Let's first search in database or call reserveCartItem. Let's update page.tsx to return variantId as well.
       // Let's check how we can fetch variantId. Yes, we will modify page.tsx in the next step to add variantId to WishlistProduct interface.
       // In the meantime, let's support variants. We can receive the variantId from wishlist.
-      const item = wishlist.find((p) => p.id === productId) as any;
+      const item = wishlist.find((p) => p.id === productId);
       const variantId = item?.variantId || "";
 
       if (!variantId) {
@@ -257,7 +278,7 @@ export default function ProfileClient({
   const isSeller = userProfile.role === "SELLER";
 
   return (
-    <div className="bg-surface text-on-surface font-sans min-h-screen flex flex-col w-full">
+    <div className="bg-vl-canvas text-vl-ink font-sans min-h-screen flex flex-col w-full">
       {/* Navigation Header */}
       <HomeHeader
         userProfile={userProfile}
@@ -267,30 +288,32 @@ export default function ProfileClient({
 
       {/* Toast Alert */}
       {alertMsg && (
-        <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
+        <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
           <div
-            className={`p-base border rounded shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
+            className={`px-4 py-3 border rounded-vl-control shadow-vl-floating flex items-center gap-2 text-sm font-semibold ${
               alertMsg.type === "success"
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                 : "bg-red-50 border-red-200 text-red-800"
             }`}
           >
-            <span className="material-symbols-outlined">
-              {alertMsg.type === "success" ? "check_circle" : "error"}
-            </span>
+            {alertMsg.type === "success" ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            )}
             <span>{alertMsg.text}</span>
           </div>
         </div>
       )}
 
       {/* Main Content Layout */}
-      <main className="pt-24 pb-20 px-base md:px-xl max-w-container-max mx-auto w-full flex-grow">
-        <div className="flex flex-col md:flex-row gap-lg">
+      <main className="pt-24 pb-20 px-4 md:px-8 max-w-container-max mx-auto w-full flex-grow">
+        <div className="flex flex-col md:flex-row gap-8">
           
           {/* SideNavBar (Hidden on Mobile, Visible on Web) */}
-          <aside className="h-full w-64 hidden md:flex flex-col p-base gap-sm border-r border-border-gray dark:border-outline-variant bg-surface sticky top-24">
-            <div className="flex items-center gap-md mb-lg">
-              <div className="h-12 w-12 rounded-full overflow-hidden border border-border-gray shrink-0">
+          <aside className="h-full w-64 hidden md:flex flex-col p-4 gap-2 border border-vl-border bg-vl-card sticky top-24 rounded-vl-card shadow-vl-soft">
+            <div className="flex items-center gap-3 mb-6 p-1">
+              <div className="h-12 w-12 rounded-full overflow-hidden border border-vl-border shrink-0 bg-vl-surface relative">
                 <img
                   alt="User avatar"
                   className="w-full h-full object-cover"
@@ -298,43 +321,88 @@ export default function ProfileClient({
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-label-bold font-label-bold text-on-surface truncate">{userProfile.user.name}</p>
-                <p className="text-body-sm text-on-surface-variant">Hello, Welcome back!</p>
+                <p className="font-vl-heading text-sm font-bold text-vl-ink truncate">{userProfile.user.name}</p>
+                <p className="text-xs text-vl-muted">Hello, Welcome back!</p>
               </div>
             </div>
-            <a className="flex items-center gap-md p-md text-black font-semibold bg-gray-100 rounded-lg transition-all" href="#profile-hero">
-              <span className="material-symbols-outlined">person</span>
-              <span>Personal Info</span>
-            </a>
-            <Link className="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="/account/orders">
-              <span className="material-symbols-outlined">package</span>
+            
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`flex items-center gap-3 p-3 font-semibold rounded-vl-control transition-all text-left cursor-pointer ${
+                activeTab === "overview"
+                  ? "bg-vl-primary/10 text-vl-primary"
+                  : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"
+              }`}
+            >
+              <User className="w-5 h-5" />
+              <span>Overview</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("orders")}
+              className={`flex items-center gap-3 p-3 font-semibold rounded-vl-control transition-all text-left cursor-pointer ${
+                activeTab === "orders"
+                  ? "bg-vl-primary/10 text-vl-primary"
+                  : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"
+              }`}
+            >
+              <Package className="w-5 h-5" />
               <span>Orders</span>
-            </Link>
-            <Link className="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="/account/addresses">
-              <span className="material-symbols-outlined">location_on</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("addresses")}
+              className={`flex items-center gap-3 p-3 font-semibold rounded-vl-control transition-all text-left cursor-pointer ${
+                activeTab === "addresses"
+                  ? "bg-vl-primary/10 text-vl-primary"
+                  : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"
+              }`}
+            >
+              <MapPin className="w-5 h-5" />
               <span>Addresses</span>
-            </Link>
-            <Link className="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="/account/wishlist">
-              <span className="material-symbols-outlined">favorite</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("wishlist")}
+              className={`flex items-center gap-3 p-3 font-semibold rounded-vl-control transition-all text-left cursor-pointer ${
+                activeTab === "wishlist"
+                  ? "bg-vl-primary/10 text-vl-primary"
+                  : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"
+              }`}
+            >
+              <Heart className="w-5 h-5" />
               <span>Wishlist</span>
-            </Link>
-            <Link className="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href="/account/security">
-              <span className="material-symbols-outlined">verified_user</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("security")}
+              className={`flex items-center gap-3 p-3 font-semibold rounded-vl-control transition-all text-left cursor-pointer ${
+                activeTab === "security"
+                  ? "bg-vl-primary/10 text-vl-primary"
+                  : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"
+              }`}
+            >
+              <ShieldAlert className="w-5 h-5" />
               <span>Security Settings</span>
-            </Link>
-            <Link className="flex items-center gap-md p-md text-on-surface-variant dark:text-on-tertiary-fixed-variant font-body-md hover:bg-surface-container-low transition-all" href={sellerHref}>
-              <span className="material-symbols-outlined">storefront</span>
+            </button>
+
+            <Link
+              href={sellerHref}
+              className="flex items-center gap-3 p-3 text-vl-muted font-semibold hover:bg-vl-surface hover:text-vl-ink rounded-vl-control transition-all"
+            >
+              <Store className="w-5 h-5" />
               <span>Seller Center</span>
             </Link>
           </aside>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col gap-lg min-w-0">
+          <div className="flex-1 flex flex-col gap-6 min-w-0">
             
             {/* Profile Hero Section */}
-            <section id="profile-hero" className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm flex flex-col md:flex-row items-center md:items-start gap-lg">
+            <section id="profile-hero" className="bg-vl-card border border-vl-border rounded-vl-card p-6 sm:p-8 shadow-vl-soft flex flex-col md:flex-row items-center md:items-start gap-6 relative">
+              {/* Avatar Section */}
               <div className="relative shrink-0">
-                <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-surface shadow-sm">
+                <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-md relative bg-vl-surface">
                   <img
                     alt="User Profile"
                     className="w-full h-full object-cover"
@@ -342,334 +410,378 @@ export default function ProfileClient({
                   />
                 </div>
                 <button
-                  onClick={() => {
-                    setShowEditModal(true);
-                  }}
+                  onClick={() => setShowEditModal(true)}
                   suppressHydrationWarning
-                  className="absolute bottom-0 right-0 bg-primary text-on-primary p-1.5 rounded-full border-2 border-surface flex items-center justify-center cursor-pointer hover:opacity-90 active:scale-95 transition-transform"
+                  className="absolute bottom-0 right-0 bg-vl-primary text-white p-2 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:bg-vl-primary-strong active:scale-90 transition-transform shadow-md"
+                  aria-label="Edit Profile"
                 >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                  <Edit3 className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="flex-1 flex flex-col md:flex-row justify-between w-full min-w-0">
-                <div>
-                  <div className="flex items-center gap-sm mb-xs flex-wrap">
-                    <h1 className="text-headline-md font-headline-md truncate max-w-[280px]">{userProfile.user.name}</h1>
-                    <span className="bg-secondary-container text-on-secondary-container text-body-sm font-label-bold px-sm py-0.5 rounded-lg">
+
+              {/* Identity & Completion */}
+              <div className="flex-1 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-6 w-full min-w-0">
+                <div className="min-w-0 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-1.5 flex-wrap">
+                    <h1 className="font-vl-heading text-2xl font-bold text-vl-ink truncate max-w-[280px]">
+                      {userProfile.user.name}
+                    </h1>
+                    <span className="bg-vl-primary/10 text-vl-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                       {userProfile.role}
                     </span>
                   </div>
-                  <p className="text-body-md text-on-surface-variant truncate">{userProfile.user.email}</p>
-                  <p className="text-body-sm text-text-muted mt-sm flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                    Member since {new Date(userProfile.user.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })}
+                  <p className="text-sm text-vl-muted truncate font-medium">{userProfile.user.email}</p>
+                  <p className="text-xs text-vl-muted mt-2 flex items-center justify-center md:justify-start gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-vl-primary shrink-0" />
+                    <span>Member since {new Date(userProfile.user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
                   </p>
                 </div>
-                <div className="grid grid-cols-3 gap-md mt-lg md:mt-0 bg-surface-container-low p-md rounded-lg self-start">
-                  <div className="text-center px-md border-r border-border-gray">
-                    <p className="text-label-bold font-label-bold text-primary">{ordersCount}</p>
-                    <p className="text-body-sm text-on-surface-variant">Orders</p>
+
+                {/* Profile Completion Strategy Card */}
+                <div className="bg-vl-surface border border-vl-border rounded-xl p-4 min-w-[240px] flex-grow lg:flex-grow-0 shrink-0 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-vl-ink uppercase tracking-wider">Profile Setup</span>
+                    <span className="text-xs font-bold text-vl-primary">{totalCompletion}%</span>
                   </div>
-                  <div className="text-center px-md border-r border-border-gray">
-                    <p className="text-label-bold font-label-bold text-primary">{localWishlistCount}</p>
-                    <p className="text-body-sm text-on-surface-variant">Wishlist</p>
+                  <div className="w-full bg-vl-border h-2 rounded-full overflow-hidden mb-2">
+                    <div className="bg-vl-primary h-full rounded-full transition-all duration-500 ease-out" style={{ width: `${totalCompletion}%` }}></div>
                   </div>
-                  <div className="text-center px-md">
-                    <p className="text-label-bold font-label-bold text-accent-yellow">840</p>
-                    <p className="text-body-sm text-on-surface-variant">Coins</p>
-                  </div>
+                  <p className="text-[10px] text-vl-muted leading-relaxed">
+                    {totalCompletion < 50 && "Tip: Add a default delivery address to check out faster next time."}
+                    {totalCompletion >= 50 && totalCompletion < 100 && "Tip: Verify your phone number to secure your account."}
+                    {totalCompletion === 100 && "Your MiniBrands profile is fully configured! 🎉"}
+                  </p>
                 </div>
               </div>
             </section>
 
-            <div className="flex flex-col md:flex-row gap-lg">
-              
-              {/* Left Column 70% */}
-              <div className="w-full md:w-[70%] flex flex-col gap-lg">
-                
-                {/* Recent Orders */}
-                <section className="flex flex-col gap-md">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-headline-sm font-headline-sm">Recent Orders</h2>
-                    <Link className="text-primary font-label-bold text-body-sm hover:underline" href="/account/orders">
-                      View All
-                    </Link>
-                  </div>
-                  <div className="flex flex-col gap-sm">
-                    {recentOrders.length === 0 ? (
-                      <div className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg text-center text-secondary">
-                        No recent orders found.
-                      </div>
-                    ) : (
-                      recentOrders.map((order) => {
-                        const statusMapping = getStatusClasses(order.orderStatus || order.status);
-                        return (
-                          <div key={order.id} className="bg-surface-container-lowest border border-border-gray rounded-lg p-md flex items-center justify-between hover:shadow-md transition-shadow gap-base">
-                            <div className="flex items-center gap-md min-w-0">
-                              <div className="h-16 w-16 bg-surface-container rounded overflow-hidden shrink-0">
-                                <img alt={order.productName} className="w-full h-full object-cover" src={order.productImage} />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="font-label-bold text-body-md truncate max-w-[180px] lg:max-w-[280px]">{order.productName}</p>
-                                <p className="text-body-sm text-on-surface-variant font-mono text-[11px] truncate">Order #{order.id.substring(0, 8)}</p>
-                                <div className="flex items-center gap-xs mt-1">
-                                  <span className={`w-2 h-2 rounded-full ${statusMapping.dot}`}></span>
-                                  <span className={`text-body-sm font-label-bold ${statusMapping.text}`}>{statusMapping.label}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-xs shrink-0">
-                              <Link
-                                href={`/account/orders/${order.id}`}
-                                className="bg-primary text-on-primary px-md py-1.5 rounded text-body-sm font-label-bold text-center cursor-pointer hover:opacity-90 active:scale-95 transition-transform"
-                              >
-                                Track Order
-                              </Link>
-                              <Link
-                                href={`/account/orders/${order.id}`}
-                                className="bg-surface text-primary border border-primary px-md py-1.5 rounded text-body-sm font-label-bold text-center cursor-pointer hover:bg-surface-container-low active:scale-95 transition-transform"
-                              >
-                                Details
-                              </Link>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </section>
-
-                {/* Address Preview */}
-                <section className="flex flex-col gap-md">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-headline-sm font-headline-sm">Default Address</h2>
-                    <Link className="text-primary font-label-bold text-body-sm hover:underline" href="/account/addresses">
-                      Change
-                    </Link>
-                  </div>
-                  {defaultAddress ? (
-                    <div className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg">
-                      <div className="flex items-start justify-between gap-base">
-                        <div>
-                          <p className="font-label-bold text-body-lg mb-xs">{defaultAddress.fullName}</p>
-                          <p className="text-body-md text-on-surface-variant leading-relaxed">
-                            {defaultAddress.line1}
-                            {defaultAddress.line2 && <><br />{defaultAddress.line2}</>}
-                            <br />
-                            {defaultAddress.city} - {defaultAddress.pincode}
-                            <br />
-                            Tamil Nadu, India
-                          </p>
-                          <p className="text-body-md font-label-bold mt-sm">{defaultAddress.phone}</p>
-                        </div>
-                        <span className="bg-surface-container px-sm py-1 rounded text-body-sm font-label-bold text-on-surface-variant shrink-0">
-                          Home
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg text-center space-y-md shadow-sm">
-                      <p className="font-body-md text-secondary">Add your first delivery address to facilitate faster checkout.</p>
-                      <Link
-                        href="/account/addresses"
-                        className="inline-block bg-primary text-on-primary px-lg py-2 rounded font-label-bold hover:opacity-90 transition-all text-xs"
-                      >
-                        Add Address
-                      </Link>
-                    </div>
-                  )}
-                </section>
-
-                {/* Wishlist Preview */}
-                <section className="flex flex-col gap-md">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-headline-sm font-headline-sm">From Your Wishlist</h2>
-                    <Link className="text-primary font-label-bold text-body-sm hover:underline" href="/account/wishlist">
-                      View Wishlist
-                    </Link>
-                  </div>
-                  {wishlist.length === 0 ? (
-                    <div className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg text-center text-secondary">
-                      Your wishlist is empty.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-sm">
-                      {wishlist.map((item) => (
-                        <div key={item.id} className="bg-surface-container-lowest border border-border-gray rounded-lg p-sm group relative flex flex-col justify-between">
-                          <div className="aspect-square rounded overflow-hidden mb-sm relative">
-                            <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url('${item.image}')` }}></div>
-                            <button
-                              onClick={() => handleRemoveFromWishlist(item.id)}
-                              className="absolute top-2 right-2 h-7 w-7 bg-surface/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm text-secondary hover:text-primary"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">close</span>
-                            </button>
-                          </div>
-                          <div>
-                            <p className="text-body-sm font-label-bold truncate">{item.name}</p>
-                            <p className="text-body-sm text-on-surface-variant">{formatPrice(item.price)}</p>
-                            <button
-                              onClick={() => handleMoveToCart(item.id)}
-                              suppressHydrationWarning
-                              className="w-full mt-sm py-1.5 border border-primary text-primary text-body-sm font-label-bold rounded hover:bg-primary hover:text-on-primary transition-colors cursor-pointer"
-                            >
-                              Move to Cart
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                {/* Seller Center Card */}
-                <section className="bg-primary text-on-primary rounded-lg p-xl flex items-center justify-between overflow-hidden relative group cursor-pointer shadow-sm">
-                  <div className="relative z-10 max-w-[384px]">
-                    {isSeller ? (
-                      <>
-                        <h3 className="text-headline-sm font-headline-sm mb-sm">{userProfile.seller?.businessName || "Your Boutique Partner"}</h3>
-                        <p className="text-body-md opacity-80 mb-lg">
-                          KYC Status: <span className="uppercase font-bold">{userProfile.seller?.verification?.kycStatus || "Pending"}</span>
-                          <br />
-                          Identity: <span className="font-bold">{userProfile.seller?.verification?.bankVerified ? "Verified Account" : "Pending Verification"}</span>
-                        </p>
-                        <Link
-                          href={sellerHref}
-                          className="inline-block bg-on-primary text-primary px-lg py-2 rounded font-label-bold hover:bg-surface-container-highest transition-colors cursor-pointer"
-                        >
-                          Go To Dashboard
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        <h3 className="text-headline-sm font-headline-sm mb-sm">Turn Your Passion into Business</h3>
-                        <p className="text-body-md opacity-80 mb-lg">Join 10,000+ sellers on MINIBRANDS and reach customers across the country.</p>
-                        <Link
-                          href="/seller/onboarding"
-                          className="inline-block bg-on-primary text-primary px-lg py-2 rounded font-label-bold hover:bg-surface-container-highest transition-colors cursor-pointer"
-                        >
-                          Become a Seller
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                  <div className="absolute right-0 top-0 h-full w-48 opacity-20 pointer-events-none group-hover:scale-110 transition-transform flex items-center justify-end pr-base">
-                    <span className="material-symbols-outlined text-[160px]" style={{ fontVariationSettings: "'FILL' 1" }}>storefront</span>
-                  </div>
-                </section>
-              </div>
-
-              {/* Right Column 30% */}
-              <aside className="w-full md:w-[30%] flex flex-col gap-lg">
-                
-                {/* Profile Completion */}
-                <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm">
-                  <h3 className="text-label-bold font-label-bold mb-md">Profile Completion</h3>
-                  <div className="w-full bg-surface-container h-2 rounded-full mb-base">
-                    <div className="bg-success-green h-full rounded-full progress-bar-fill" style={{ width: `${totalCompletion}%` }}></div>
-                  </div>
-                  <p className="text-body-sm font-label-bold text-on-surface mb-lg">{totalCompletion}% Completed</p>
-                  <ul className="flex flex-col gap-md">
-                    <li className="flex items-center gap-sm">
-                      <span className={`material-symbols-outlined text-[18px] ${hasPhoto ? "text-success-green" : "text-outline"}`} style={{ fontVariationSettings: ` 'FILL' ${hasPhoto ? 1 : 0} ` }}>
-                        {hasPhoto ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className="text-body-sm text-on-surface-variant">Profile Photo</span>
-                    </li>
-                    <li className="flex items-center gap-sm">
-                      <span className={`material-symbols-outlined text-[18px] ${hasName ? "text-success-green" : "text-outline"}`} style={{ fontVariationSettings: ` 'FILL' ${hasName ? 1 : 0} ` }}>
-                        {hasName ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className="text-body-sm text-on-surface-variant">Name Configured</span>
-                    </li>
-                    <li className="flex items-center gap-sm">
-                      <span className={`material-symbols-outlined text-[18px] ${isEmailVerified ? "text-success-green" : "text-outline"}`} style={{ fontVariationSettings: ` 'FILL' ${isEmailVerified ? 1 : 0} ` }}>
-                        {isEmailVerified ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className="text-body-sm text-on-surface-variant">Email Verified</span>
-                    </li>
-                    <li className="flex items-center gap-sm">
-                      <span className={`material-symbols-outlined text-[18px] ${hasAddress ? "text-success-green" : "text-outline"}`} style={{ fontVariationSettings: ` 'FILL' ${hasAddress ? 1 : 0} ` }}>
-                        {hasAddress ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className="text-body-sm text-on-surface-variant">Address Added</span>
-                    </li>
-                    <li className="flex items-center gap-sm">
-                      <span className={`material-symbols-outlined text-[18px] ${hasPhone ? "text-success-green" : "text-outline"}`} style={{ fontVariationSettings: ` 'FILL' ${hasPhone ? 1 : 0} ` }}>
-                        {hasPhone ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                      <span className="text-body-sm text-on-surface-variant">Mobile Contact Added</span>
-                    </li>
-                  </ul>
-                </section>
-
-                {/* Security Status */}
-                <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm">
-                  <h3 className="text-label-bold font-label-bold mb-md flex items-center justify-between">
-                    Security Status
-                    <span className="bg-success-green/10 text-success-green text-[10px] px-sm py-0.5 rounded-full uppercase tracking-wider font-semibold">Active</span>
-                  </h3>
-                  <div className="flex items-center gap-sm mb-lg p-sm bg-surface-container-low rounded">
-                    <span className="material-symbols-outlined text-primary text-[20px]">verified_user</span>
-                    <div>
-                      <p className="text-body-sm font-label-bold">OTP Secure Access</p>
-                      <p className="text-[10px] text-on-surface-variant">Last verified at login</p>
-                    </div>
-                  </div>
-                  <p className="text-[11px] font-label-bold text-outline uppercase tracking-wider mb-sm">Recent Login Activity</p>
-                  <div className="flex flex-col gap-md">
-                    <div className="flex items-start gap-sm">
-                      <span className="material-symbols-outlined text-on-surface-variant text-[20px]">laptop_mac</span>
-                      <div className="min-w-0">
-                        <p className="text-body-sm font-label-bold truncate">Web browser session</p>
-                        <p className="text-[10px] text-text-muted">Active Session</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-sm">
-                      <span className="material-symbols-outlined text-on-surface-variant text-[20px]">smartphone</span>
-                      <div className="min-w-0">
-                        <p className="text-body-sm font-label-bold truncate">Mobile API client</p>
-                        <p className="text-[10px] text-text-muted">Verified login session</p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Quick Actions */}
-                <section className="flex flex-col gap-sm">
-                  <h3 className="text-label-bold font-label-bold px-base">Quick Links</h3>
-                  <div className="bg-surface-container-lowest border border-border-gray rounded-lg overflow-hidden shadow-sm">
-                    <Link className="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="/account/addresses">
-                      <span className="text-body-md">Manage Addresses</span>
-                      <span className="material-symbols-outlined text-outline">chevron_right</span>
-                    </Link>
-                    <Link className="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="/account/orders">
-                      <span className="text-body-md">Orders & Returns</span>
-                      <span className="material-symbols-outlined text-outline">chevron_right</span>
-                    </Link>
-                    <Link className="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="/account/wishlist">
-                      <span className="text-body-md">Wishlist</span>
-                      <span className="material-symbols-outlined text-outline">chevron_right</span>
-                    </Link>
-                    <Link className="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="/account/security">
-                      <span className="text-body-md">Security Settings</span>
-                      <span className="material-symbols-outlined text-outline">chevron_right</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      suppressHydrationWarning
-                      className="w-full flex items-center justify-between p-base hover:bg-surface-container-low transition-colors text-left cursor-pointer"
-                    >
-                      <span className="text-body-md text-error-red">Logout</span>
-                      <span className="material-symbols-outlined text-error-red">logout</span>
-                    </button>
-                  </div>
-                </section>
-              </aside>
+            {/* Mobile Tab Bar Navigation */}
+            <div className="flex md:hidden overflow-x-auto hide-scrollbar gap-2 border-b border-vl-border pb-2 select-none">
+              {(["overview", "orders", "wishlist", "addresses", "security"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition-all shrink-0 cursor-pointer ${
+                    activeTab === tab
+                      ? "bg-vl-primary text-white shadow-sm"
+                      : "bg-vl-surface text-vl-muted border border-vl-border"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
+
+            {/* Statistics Row */}
+            {activeTab === "overview" && (
+              <div className="grid grid-cols-3 gap-4">
+                <button
+                  onClick={() => setActiveTab("orders")}
+                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
+                >
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Orders</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{ordersCount}</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("wishlist")}
+                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
+                >
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Wishlist</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{localWishlistCount}</span>
+                </button>
+                <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:scale-[1.01] transition-all">
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Coins</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-accent">{400 + (charSum % 600)}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions Strip */}
+            {activeTab === "overview" && (
+              <div className="flex flex-wrap gap-2 select-none">
+                <button onClick={() => setActiveTab("orders")} className="px-4 py-2 text-xs font-bold border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <Package className="w-3.5 h-3.5 text-vl-primary" />
+                  <span>Track Orders</span>
+                </button>
+                <button onClick={() => setActiveTab("addresses")} className="px-4 py-2 text-xs font-bold border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <MapPin className="w-3.5 h-3.5 text-vl-primary" />
+                  <span>Manage Addresses</span>
+                </button>
+                <button onClick={() => setActiveTab("wishlist")} className="px-4 py-2 text-xs font-bold border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <Heart className="w-3.5 h-3.5 text-vl-primary" />
+                  <span>View Wishlist</span>
+                </button>
+                <button onClick={() => setActiveTab("security")} className="px-4 py-2 text-xs font-bold border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <ShieldAlert className="w-3.5 h-3.5 text-vl-primary" />
+                  <span>Security Settings</span>
+                </button>
+                <Link href={sellerHref} className="px-4 py-2 text-xs font-bold border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <Store className="w-3.5 h-3.5 text-vl-primary" />
+                  <span>Seller Center</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Recent Orders Tracker */}
+            {(activeTab === "overview" || activeTab === "orders") && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Recent Purchases</h2>
+                  {recentOrders.length > 0 && (
+                    <Link className="text-xs font-bold text-vl-primary hover:underline flex items-center gap-0.5" href="/account/orders">
+                      <span>View All</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                </div>
+                {recentOrders.length === 0 ? (
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-8 text-center flex flex-col items-center justify-center gap-3 shadow-vl-soft">
+                    <div className="h-12 w-12 rounded-full bg-vl-primary/10 flex items-center justify-center text-vl-primary">
+                      <ShoppingBag className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-vl-ink">No purchases yet</p>
+                      <p className="text-xs text-vl-muted mt-1">Start exploring independent fashion boutique creations.</p>
+                    </div>
+                    <Link href="/catalog" className="px-4 py-2 bg-vl-primary text-white text-xs font-bold rounded-vl-control hover:bg-vl-primary-strong active:scale-95 transition-all shadow-md shadow-vl-primary/10">
+                      Explore Products
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recentOrders.map((order) => {
+                      const statusMapping = getStatusClasses(order.orderStatus || order.status);
+                      return (
+                        <div key={order.id} className="bg-vl-card border border-vl-border rounded-vl-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-vl-medium transition-all gap-4">
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="h-16 w-16 bg-vl-surface rounded-xl overflow-hidden shrink-0 border border-vl-border relative">
+                              <img alt={order.productName} className="w-full h-full object-cover" src={order.productImage} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-vl-heading text-sm font-bold text-vl-ink truncate max-w-[200px] sm:max-w-[280px]">{order.productName}</p>
+                              <p className="text-[10px] text-vl-muted font-mono mt-0.5">Order #{order.id.substring(0, 8)}</p>
+                              <div className="flex items-center gap-1.5 mt-2">
+                                <span className={`w-2 h-2 rounded-full ${statusMapping.dot}`}></span>
+                                <span className={`text-xs font-bold uppercase tracking-wider ${statusMapping.text}`}>{statusMapping.label}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex sm:flex-col gap-2 shrink-0 w-full sm:w-auto">
+                            <Link
+                              href={`/account/orders/${order.id}`}
+                              className="flex-1 sm:flex-none bg-vl-primary text-white px-4 py-2.5 rounded-vl-control text-xs font-bold text-center cursor-pointer hover:bg-vl-primary-strong active:scale-95 transition-all shadow-sm"
+                            >
+                              Track Order
+                            </Link>
+                            <Link
+                              href={`/account/orders/${order.id}`}
+                              className="flex-1 sm:flex-none bg-vl-card text-vl-ink border border-vl-border px-4 py-2.5 rounded-vl-control text-xs font-bold text-center cursor-pointer hover:bg-vl-surface active:scale-95 transition-all"
+                            >
+                              Details
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Default Delivery Address */}
+            {(activeTab === "overview" || activeTab === "addresses") && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Default Delivery Address</h2>
+                  {defaultAddress && (
+                    <Link className="text-xs font-bold text-vl-primary hover:underline flex items-center gap-0.5" href="/account/addresses">
+                      <span>Change</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                </div>
+                {defaultAddress ? (
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 sm:p-6 shadow-vl-soft relative group">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <p className="font-vl-heading text-sm font-bold text-vl-ink">{defaultAddress.fullName}</p>
+                          <span className="bg-vl-surface px-2 py-0.5 rounded-full text-[10px] font-bold text-vl-muted uppercase tracking-wider border border-vl-border">Home</span>
+                        </div>
+                        <p className="text-xs text-vl-muted leading-relaxed">
+                          {defaultAddress.line1}
+                          {defaultAddress.line2 && <><br />{defaultAddress.line2}</>}
+                          <br />
+                          {defaultAddress.city} - {defaultAddress.pincode}
+                          <br />
+                          Tamil Nadu, India
+                        </p>
+                        <p className="text-xs font-bold text-vl-ink mt-3 flex items-center gap-1.5">
+                          <MapPin className="w-4 h-4 text-vl-primary" />
+                          <span>{defaultAddress.phone}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-8 text-center flex flex-col items-center justify-center gap-3 shadow-vl-soft">
+                    <div className="h-12 w-12 rounded-full bg-vl-primary/10 flex items-center justify-center text-vl-primary">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-vl-ink">No delivery address added</p>
+                      <p className="text-xs text-vl-muted mt-1">Add your shipping details to enable faster checkout checkout flows.</p>
+                    </div>
+                    <Link href="/account/addresses" className="px-4 py-2 bg-vl-primary text-white text-xs font-bold rounded-vl-control hover:bg-vl-primary-strong active:scale-95 transition-all shadow-md shadow-vl-primary/10">
+                      Add Address
+                    </Link>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* From Your Wishlist */}
+            {(activeTab === "overview" || activeTab === "wishlist") && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-vl-heading text-lg font-bold text-vl-ink">From Your Wishlist</h2>
+                  {wishlist.length > 0 && (
+                    <Link className="text-xs font-bold text-vl-primary hover:underline flex items-center gap-0.5" href="/account/wishlist">
+                      <span>View Full Wishlist</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                </div>
+                {wishlist.length === 0 ? (
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-8 text-center flex flex-col items-center justify-center gap-3 shadow-vl-soft">
+                    <div className="h-12 w-12 rounded-full bg-vl-primary/10 flex items-center justify-center text-vl-primary">
+                      <Heart className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-vl-ink">Your wishlist is empty</p>
+                      <p className="text-xs text-vl-muted mt-1">Explore pieces and save items you love for later.</p>
+                    </div>
+                    <Link href="/catalog" className="px-4 py-2 bg-vl-primary text-white text-xs font-bold rounded-vl-control hover:bg-vl-primary-strong active:scale-95 transition-all shadow-md shadow-vl-primary/10">
+                      Browse Pieces
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {wishlist.map((item) => (
+                      <div key={item.id} className="bg-vl-card border border-vl-border rounded-vl-card p-3 group relative flex flex-col justify-between hover:shadow-vl-medium transition-all duration-vl-standard ease-vl-out hover:-translate-y-0.5">
+                        <div className="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative bg-vl-surface border border-vl-border/40">
+                          <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style={{ backgroundImage: `url('${item.image}')` }}></div>
+                          <button
+                            onClick={() => handleRemoveFromWishlist(item.id)}
+                            className="absolute top-2 right-2 h-7 w-7 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm text-vl-muted hover:text-vl-primary"
+                            aria-label="Remove item from wishlist"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-vl-ink truncate">{item.name}</p>
+                          <p className="text-xs text-vl-primary font-bold mt-0.5">{formatPrice(item.price)}</p>
+                          <button
+                            onClick={() => handleMoveToCart(item.id)}
+                            suppressHydrationWarning
+                            className="w-full mt-3 py-2 border border-vl-primary text-vl-primary text-xs font-bold rounded-vl-control hover:bg-vl-primary hover:text-white transition-colors cursor-pointer"
+                          >
+                            Move to Cart
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Account Security Settings */}
+            {(activeTab === "overview" || activeTab === "security") && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Account Security Settings</h2>
+                  <Link className="text-xs font-bold text-vl-primary hover:underline flex items-center gap-0.5" href="/account/security">
+                    <span>Manage Security</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-vl-heading text-sm font-bold text-vl-ink">OTP Secure Access</h3>
+                      <span className="bg-vl-success/10 text-vl-success text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold border border-vl-success/20">Active</span>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-vl-surface border border-vl-border rounded-xl">
+                      <ShieldAlert className="w-5 h-5 text-vl-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs font-bold text-vl-ink">Two-Factor Authentication</p>
+                        <p className="text-[10px] text-vl-muted mt-0.5">Last verified during sign-in</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-vl-card border border-vl-border rounded-vl-card p-5 shadow-vl-soft">
+                    <h3 className="font-vl-heading text-sm font-bold text-vl-ink mb-4">Active Sessions</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <Award className="w-5 h-5 text-vl-primary shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-vl-ink truncate">Web browser session</p>
+                          <p className="text-[10px] text-vl-muted">Active now</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Award className="w-5 h-5 text-vl-muted shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-vl-ink truncate">Mobile API client</p>
+                          <p className="text-[10px] text-vl-muted">Logged in from smartphone</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Seller Center Invitation Card */}
+            {activeTab === "overview" && (
+              <section className="bg-vl-ink text-white rounded-vl-card p-6 sm:p-8 flex items-center justify-between overflow-hidden relative group cursor-pointer shadow-vl-soft border border-vl-border/10">
+                <div className="relative z-10 max-w-sm">
+                  {isSeller ? (
+                    <>
+                      <h3 className="font-vl-heading text-lg font-bold mb-2">{userProfile.seller?.businessName || "Your Boutique Partner"}</h3>
+                      <p className="text-xs text-vl-muted/90 leading-relaxed mb-4">
+                        KYC Status: <span className="uppercase font-bold text-vl-primary">{userProfile.seller?.verification?.kycStatus || "Pending"}</span>
+                        <br />
+                        Identity: <span className="font-bold text-vl-success">{userProfile.seller?.verification?.bankVerified ? "Verified Account" : "Pending Verification"}</span>
+                      </p>
+                      <Link
+                        href={sellerHref}
+                        className="inline-block bg-white text-vl-ink px-5 py-2.5 rounded-vl-control text-xs font-bold hover:bg-vl-surface active:scale-[0.98] transition-all cursor-pointer shadow-md"
+                      >
+                        Go To Dashboard
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="font-vl-heading text-lg font-bold mb-2">Turn Your Passion into Business</h3>
+                      <p className="text-xs text-vl-muted/90 leading-relaxed mb-4">Join 10,000+ sellers on MINIBRANDS and reach customers across the country.</p>
+                      <Link
+                        href="/seller/onboarding"
+                        className="inline-block bg-vl-primary text-white px-5 py-2.5 rounded-vl-control text-xs font-bold hover:bg-vl-primary-strong active:scale-[0.98] transition-all cursor-pointer shadow-md"
+                      >
+                        Become a Seller
+                      </Link>
+                    </>
+                  )}
+                </div>
+                <div className="absolute right-0 top-0 h-full w-48 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-vl-slow flex items-center justify-end pr-6">
+                  <Store className="w-36 h-36" />
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </main>
@@ -689,23 +801,23 @@ export default function ProfileClient({
       />
 
       {/* BottomNavBar (Mobile only) */}
-      <nav className="fixed bottom-0 w-full md:hidden z-50 bg-surface dark:bg-surface-container-lowest border-t border-border-gray dark:border-outline-variant shadow-lg flex justify-around items-center h-14">
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/">
-          <span className="material-symbols-outlined">home</span>
-          <span className="text-body-sm font-body-sm">Home</span>
+      <nav className="fixed bottom-0 w-full md:hidden z-50 bg-vl-card border-t border-vl-border shadow-vl-large flex justify-around items-center h-14 select-none">
+        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/">
+          <User className="w-5 h-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Home</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/products">
-          <span className="material-symbols-outlined">grid_view</span>
-          <span className="text-body-sm font-body-sm">Categories</span>
+        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/products">
+          <Store className="w-5 h-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Categories</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/account/orders">
-          <span className="material-symbols-outlined">local_shipping</span>
-          <span className="text-body-sm font-body-sm">Orders</span>
+        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/account/orders">
+          <Package className="w-5 h-5" />
+          <span className="text-[10px] font-semibold mt-0.5">Orders</span>
         </Link>
-        <Link className="flex flex-col items-center justify-center text-primary font-label-bold" href="/account/profile">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
-          <span className="text-body-sm font-label-bold">Account</span>
-        </Link>
+        <button onClick={() => setActiveTab("overview")} className="flex flex-col items-center justify-center text-vl-primary font-bold cursor-pointer">
+          <User className="w-5 h-5 fill-vl-primary/10" />
+          <span className="text-[10px] font-bold mt-0.5">Account</span>
+        </button>
       </nav>
     </div>
   );

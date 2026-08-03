@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, AlertCircle } from "lucide-react";
 
 // Form Validation Schema
 const editProfileSchema = z.object({
@@ -66,6 +66,7 @@ export default function EditProfileModal({
         name: initialData.name,
         phone: initialData.phone,
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAvatarUrl(initialData.image || "");
       setUploadError(null);
       setUploadProgress(0);
@@ -198,9 +199,10 @@ export default function EditProfileModal({
       const data = await uploadPromise;
       
       setAvatarUrl(data.secure_url);
-    } catch (err: any) {
-      console.error("[Avatar Upload Error]:", err);
-      setUploadError(err.message || "Failed to upload image. Please try again.");
+    } catch (err) {
+      const error = err as Error;
+      console.error("[Avatar Upload Error]:", error);
+      setUploadError(error.message || "Failed to upload image. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -255,40 +257,40 @@ export default function EditProfileModal({
     >
       <div
         ref={modalRef}
-        className="bg-surface-container-lowest border border-border-gray rounded-xl shadow-xl w-full md:min-w-[600px] md:max-w-[720px] max-w-[420px] p-base md:p-lg space-y-base relative animate-fade-in-up"
+        className="bg-vl-card border border-vl-border rounded-vl-card shadow-vl-large w-full md:min-w-[600px] md:max-w-[720px] max-w-[420px] p-6 md:p-8 space-y-6 relative animate-fade-in-up transition-all duration-vl-standard ease-vl-out"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1 rounded-full hover:bg-surface-container-low"
+          className="absolute top-4 right-4 text-vl-muted hover:text-vl-primary transition-colors cursor-pointer p-1.5 rounded-full hover:bg-vl-surface focus-visible:ring-2 focus-visible:ring-vl-primary"
           aria-label="Close dialog"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="border-b border-border-gray pb-sm">
-          <h2 id="modal-title" className="text-headline-sm font-headline-sm text-primary">
+        <div className="border-b border-vl-border pb-4">
+          <h2 id="modal-title" className="font-vl-heading text-xl sm:text-2xl font-bold text-vl-ink">
             Edit Profile
           </h2>
-          <p id="modal-description" className="text-body-sm text-on-surface-variant mt-1">
+          <p id="modal-description" className="text-xs text-vl-muted mt-1">
             Update your account information
           </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-base">
+        <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
           {/* Profile Photo Section */}
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-base md:gap-lg p-sm">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 p-1">
             {/* Image Preview */}
-            <div className="relative shrink-0 w-24 h-24 rounded-full overflow-hidden border-2 border-border-gray group bg-surface-container-low shadow-sm">
+            <div className="relative shrink-0 w-24 h-24 rounded-full overflow-hidden border-2 border-vl-border group bg-vl-surface shadow-sm">
               <img
                 src={avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuCpvGeNWBUDoqe841o3wofq-HGvzKtAYcEwXFBFheL2teGTF4Tp6bRgKXGUToN7CG2_gYevYtb7_QxE2GAE9CS1Yk2HkEKA2wMpP81AxvtpMDPP4bc2GeMnbSH9vCBT_uC0YbGTvAY-_aEj0_aqCAY94_rg-8OuQY14ze7KJPK8kuAeCsu6H6lsRtwlwmmBw-MW-nl9Y643Hme6794nZ6W-_m3-T1ngfxGG1dAaK6RieIp27aevhAUevgIsfHqKnsfunM9M6wwz2UIz"}
                 alt="Profile Preview"
                 className="w-full h-full object-cover"
               />
               {uploading && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <div className="absolute inset-0 bg-vl-ink/60 flex items-center justify-center">
                   <span className="text-white text-xs font-bold font-mono">{uploadProgress}%</span>
                 </div>
               )}
@@ -301,10 +303,10 @@ export default function EditProfileModal({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-lg p-md text-center cursor-pointer transition-colors ${
+                className={`border-2 border-dashed rounded-vl-control p-4 text-center cursor-pointer transition-colors duration-vl-fast ${
                   isDragging
-                    ? "border-primary bg-primary/5"
-                    : "border-border-gray bg-surface-container-lowest hover:border-primary/50"
+                    ? "border-vl-primary bg-vl-primary/5"
+                    : "border-vl-border bg-vl-surface hover:border-vl-primary/50"
                 }`}
               >
                 <input
@@ -314,24 +316,24 @@ export default function EditProfileModal({
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <div className="flex flex-col items-center gap-xs">
+                <div className="flex flex-col items-center gap-1">
                   {uploading ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <Loader2 className="w-5 h-5 animate-spin text-vl-primary" />
                   ) : (
-                    <Upload className="w-5 h-5 text-on-surface-variant" />
+                    <Upload className="w-5 h-5 text-vl-muted" />
                   )}
-                  <p className="text-body-sm font-label-bold text-on-surface">
+                  <p className="text-sm font-bold text-vl-ink">
                     {uploading ? "Uploading..." : "Click or Drag & Drop to Upload"}
                   </p>
-                  <p className="text-[10px] text-text-muted">Supported: JPG, PNG, WEBP (Max 5MB)</p>
+                  <p className="text-[10px] text-vl-muted">Supported: JPG, PNG, WEBP (Max 5MB)</p>
                 </div>
               </div>
 
               {/* Progress bar */}
               {uploading && (
-                <div className="w-full bg-surface-container h-1 rounded-full mt-sm overflow-hidden">
+                <div className="w-full bg-vl-surface h-1 rounded-full mt-2 overflow-hidden">
                   <div
-                    className="bg-primary h-full rounded-full transition-all duration-150"
+                    className="bg-vl-primary h-full rounded-full transition-all duration-150"
                     style={{ width: `${uploadProgress}%` }}
                   ></div>
                 </div>
@@ -339,91 +341,91 @@ export default function EditProfileModal({
 
               {/* Upload errors */}
               {uploadError && (
-                <p className="text-error-red text-[11px] font-semibold mt-xs flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-[12px]">error</span>
+                <p className="text-vl-danger text-[11px] font-semibold mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{uploadError}</span>
                 </p>
               )}
             </div>
           </div>
 
-          <hr className="border-t border-border-gray" />
+          <hr className="border-t border-vl-border" />
 
           {/* Full Name */}
-          <div className="space-y-xs">
-            <label htmlFor="edit-name" className="block font-label-bold text-label-bold text-on-surface">
+          <div className="space-y-1">
+            <label htmlFor="edit-name" className="block font-vl-heading text-xs font-bold text-vl-ink uppercase tracking-wider">
               Full Name
             </label>
             <input
               id="edit-name"
               type="text"
-              className={`w-full border rounded text-body-sm outline-none p-sm font-body-sm focus:ring-1 focus:ring-primary ${
-                errors.name ? "border-error-red focus:border-error-red" : "border-border-gray focus:border-primary"
+              className={`w-full border rounded-vl-control text-sm outline-none p-3 font-sans transition-all focus:border-vl-primary focus:ring-1 focus:ring-vl-primary focus:ring-vl-primary/40 ${
+                errors.name ? "border-vl-danger focus:border-vl-danger" : "border-vl-border focus:border-vl-primary"
               }`}
               placeholder="Enter full name"
               disabled={isSaving}
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-error-red text-[11px] font-semibold flex items-center gap-xs mt-0.5">
-                <span className="material-symbols-outlined text-[12px]">error</span>
+              <p className="text-vl-danger text-[11px] font-semibold flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{errors.name.message}</span>
               </p>
             )}
           </div>
 
           {/* Email Address (Disabled) */}
-          <div className="space-y-xs">
-            <label htmlFor="edit-email" className="block font-label-bold text-label-bold text-on-surface">
+          <div className="space-y-1">
+            <label htmlFor="edit-email" className="block font-vl-heading text-xs font-bold text-vl-ink uppercase tracking-wider">
               Email Address
             </label>
             <input
               id="edit-email"
               type="email"
-              className="w-full border border-border-gray rounded text-body-sm bg-surface-container-low text-text-muted cursor-not-allowed p-sm font-body-sm"
+              className="w-full border border-vl-border rounded-vl-control text-sm bg-vl-surface text-vl-muted cursor-not-allowed p-3 font-sans"
               value={initialData.email}
               disabled
             />
-            <p className="text-[10px] text-text-muted">Email address cannot be changed</p>
+            <p className="text-[10px] text-vl-muted">Email address cannot be changed</p>
           </div>
 
           {/* Phone Number */}
-          <div className="space-y-xs">
-            <label htmlFor="edit-phone" className="block font-label-bold text-label-bold text-on-surface">
+          <div className="space-y-1">
+            <label htmlFor="edit-phone" className="block font-vl-heading text-xs font-bold text-vl-ink uppercase tracking-wider">
               Phone Number
             </label>
             <input
               id="edit-phone"
               type="text"
-              className={`w-full border rounded text-body-sm outline-none p-sm font-body-sm focus:ring-1 focus:ring-primary ${
-                errors.phone ? "border-error-red focus:border-error-red" : "border-border-gray focus:border-primary"
+              className={`w-full border rounded-vl-control text-sm outline-none p-3 font-sans transition-all focus:border-vl-primary focus:ring-1 focus:ring-vl-primary focus:ring-vl-primary/40 ${
+                errors.phone ? "border-vl-danger focus:border-vl-danger" : "border-vl-border focus:border-vl-primary"
               }`}
               placeholder="Enter 10-digit mobile number"
               disabled={isSaving}
               {...register("phone")}
             />
             {errors.phone && (
-              <p className="text-error-red text-[11px] font-semibold flex items-center gap-xs mt-0.5">
-                <span className="material-symbols-outlined text-[12px]">error</span>
+              <p className="text-vl-danger text-[11px] font-semibold flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{errors.phone.message}</span>
               </p>
             )}
           </div>
 
           {/* Footer Actions */}
-          <div className="flex flex-col sm:flex-row gap-base justify-end border-t border-border-gray pt-base">
+          <div className="flex flex-col sm:flex-row gap-3 justify-end border-t border-vl-border pt-4">
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="w-full sm:w-auto px-base py-2.5 border border-border-gray text-secondary rounded font-label-bold text-label-bold hover:bg-surface-container cursor-pointer transition-colors text-xs text-center disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2.5 border border-vl-border text-vl-muted rounded-vl-control font-vl-heading font-bold hover:bg-vl-surface hover:text-vl-ink cursor-pointer transition-colors text-xs text-center disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving || uploading}
-              className="w-full sm:w-auto px-base py-2.5 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer transition-all disabled:opacity-55 text-xs text-center flex items-center justify-center gap-xs"
+              className="w-full sm:w-auto px-6 py-2.5 bg-vl-primary text-white rounded-vl-control font-vl-heading font-bold hover:bg-vl-primary-strong active:scale-95 cursor-pointer transition-all disabled:opacity-55 text-xs text-center flex items-center justify-center gap-1.5 shadow-md shadow-vl-primary/10"
             >
               {isSaving ? (
                 <>
