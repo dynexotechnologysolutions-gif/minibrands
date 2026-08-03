@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { BadgeCheck, MapPin, Store, Calendar, Star } from "lucide-react";
 
@@ -32,8 +32,6 @@ export default function StorefrontHeader({
   averageRating,
   reviewCount,
 }: StorefrontHeaderProps) {
-  const [isBioExpanded, setIsBioExpanded] = useState(false);
-
   const storeDisplayName = seller.storeName || seller.businessName;
   const initials = storeDisplayName
     ? storeDisplayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -44,12 +42,11 @@ export default function StorefrontHeader({
   const baseFollowers = 850 + (charSum % 650);
 
   const bioText = seller.storeDescription || `High-quality ${seller.category} creations curated by local independent designers in ${seller.city}.`;
-  const isBioLong = bioText.length > 120;
 
   return (
     <div className="bg-vl-card rounded-vl-card p-5 sm:p-8 border border-vl-border shadow-vl-soft flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 relative">
       {/* Profile info left side */}
-      <div className="flex flex-row items-start gap-4 sm:gap-6 w-full md:flex-1">
+      <div className="flex flex-row items-center gap-4 sm:gap-6 w-full md:flex-1">
         {/* Avatar logo overlapping hero cover via negative margin */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-vl-primary text-white rounded-xl flex items-center justify-center text-2xl sm:text-3xl font-extrabold border-2 border-vl-border shadow-md shrink-0 overflow-hidden relative">
           {seller.storeLogo ? (
@@ -65,7 +62,7 @@ export default function StorefrontHeader({
         </div>
 
         {/* Store Title & Bio */}
-        <div className="space-y-1.5 flex-1 min-w-0">
+        <div className="space-y-1.5 flex-1 min-w-0 max-w-none w-auto">
           <div className="flex items-center gap-1.5 flex-wrap">
             <h1 className="font-vl-heading text-xl sm:text-2xl font-bold text-vl-ink">
               {storeDisplayName}
@@ -100,20 +97,10 @@ export default function StorefrontHeader({
             </span>
           </div>
 
-          {/* Collapsible Bio */}
-          <div className="mt-3 text-xs leading-relaxed text-vl-muted max-w-xl">
-            <p className="whitespace-normal break-words break-normal">
-              {isBioLong && !isBioExpanded ? `${bioText.slice(0, 120)}...` : bioText}
-              {isBioLong && (
-                <button
-                  onClick={() => setIsBioExpanded(!isBioExpanded)}
-                  className="text-vl-primary font-bold ml-1 hover:underline cursor-pointer focus:outline-none"
-                >
-                  {isBioExpanded ? "Read Less" : "Read More"}
-                </button>
-              )}
-            </p>
-          </div>
+          {/* Clamped Bio */}
+          <p className="mt-2 text-xs leading-relaxed text-vl-muted whitespace-normal break-normal break-words line-clamp-2 overflow-hidden">
+            {bioText}
+          </p>
         </div>
       </div>
 
