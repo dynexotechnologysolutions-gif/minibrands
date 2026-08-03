@@ -49,7 +49,7 @@ export default function StorefrontHeader({
   return (
     <div className="bg-vl-card rounded-vl-card p-5 sm:p-8 border border-vl-border shadow-vl-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative">
       {/* Profile info left side */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full md:w-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full md:flex-1">
         {/* Avatar logo overlapping hero cover via negative margin */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-vl-primary text-white rounded-xl flex items-center justify-center text-2xl sm:text-3xl font-extrabold border-2 border-vl-border shadow-md shrink-0 overflow-hidden relative">
           {seller.storeLogo ? (
