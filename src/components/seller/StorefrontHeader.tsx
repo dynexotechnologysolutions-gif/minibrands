@@ -102,7 +102,7 @@ export default function StorefrontHeader({
 
           {/* Collapsible Bio */}
           <div className="mt-3 text-xs leading-relaxed text-vl-muted max-w-xl">
-            <p>
+            <p className="whitespace-normal break-words break-normal">
               {isBioLong && !isBioExpanded ? `${bioText.slice(0, 120)}...` : bioText}
               {isBioLong && (
                 <button
