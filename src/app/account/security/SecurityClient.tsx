@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import HomeHeader from "@/components/home/HomeHeader";
 
+import { UserProfileData } from "@/components/home/HomeHeader";
+
 interface SecurityClientProps {
-  userProfile: any;
+  userProfile: UserProfileData;
   cartCount: number;
   sellerHref: string;
 }
@@ -18,7 +20,7 @@ export default function SecurityClient({
   sellerHref,
 }: SecurityClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Alert/Toast State
   const [alertMsg, setAlertMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -332,26 +334,6 @@ export default function SecurityClient({
           </div>
         </div>
       </main>
-
-      {/* BottomNavBar (Mobile only) */}
-      <nav className="fixed bottom-0 w-full md:hidden z-50 bg-surface dark:bg-surface-container-lowest border-t border-border-gray dark:border-outline-variant shadow-lg flex justify-around items-center h-14">
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/">
-          <span className="material-symbols-outlined">home</span>
-          <span className="text-body-sm font-body-sm">Home</span>
-        </Link>
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/products">
-          <span className="material-symbols-outlined">grid_view</span>
-          <span className="text-body-sm font-body-sm">Categories</span>
-        </Link>
-        <Link className="flex flex-col items-center justify-center text-on-surface-variant" href="/account/orders">
-          <span className="material-symbols-outlined">local_shipping</span>
-          <span className="text-body-sm font-body-sm">Orders</span>
-        </Link>
-        <Link className="flex flex-col items-center justify-center text-primary font-label-bold" href="/account/profile">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
-          <span className="text-body-sm font-label-bold">Account</span>
-        </Link>
-      </nav>
     </div>
   );
 }

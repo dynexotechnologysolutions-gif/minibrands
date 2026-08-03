@@ -50,6 +50,7 @@ export default function WishlistIconButton({
         const res = await removeFromWishlistAction(productId);
         if (!res.success) throw new Error(res.error || "Failed to remove from wishlist");
       }
+      window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
       console.error("Wishlist toggle error:", error);
       // Revert on error

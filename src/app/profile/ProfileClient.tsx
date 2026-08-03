@@ -24,6 +24,7 @@ import {
   ShoppingBag,
   Edit3,
   ArrowRight,
+  ArrowLeft,
   X
 } from "lucide-react";
 
@@ -116,6 +117,7 @@ export default function ProfileClient({
   const totalCompletion = photoWeight + nameWeight + emailWeight + addressWeight + phoneWeight + roleWeight;
 
   // Actions
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const handleLogout = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     try {
@@ -455,22 +457,18 @@ export default function ProfileClient({
               </div>
             </section>
 
-            {/* Mobile Tab Bar Navigation */}
-            <div className="flex md:hidden overflow-x-auto hide-scrollbar gap-2 border-b border-vl-border pb-2 select-none">
-              {(["overview", "orders", "wishlist", "addresses", "security"] as const).map((tab) => (
+            {/* Mobile Tab Sub-View Back Button */}
+            {activeTab !== "overview" && (
+              <div className="flex md:hidden items-center gap-2 mb-4 select-none">
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition-all shrink-0 cursor-pointer ${
-                    activeTab === tab
-                      ? "bg-vl-primary text-white shadow-sm"
-                      : "bg-vl-surface text-vl-muted border border-vl-border"
-                  }`}
+                  onClick={() => setActiveTab("overview")}
+                  className="flex items-center gap-1.5 text-xs font-bold text-vl-primary hover:underline cursor-pointer bg-vl-primary/5 px-3 h-8 rounded-full border border-vl-primary/10"
                 >
-                  {tab}
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Overview</span>
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
 
             {/* Statistics Row */}
             {activeTab === "overview" && (
@@ -799,26 +797,6 @@ export default function ProfileClient({
         onSave={handleSaveProfile}
         isSaving={isSavingProfile}
       />
-
-      {/* BottomNavBar (Mobile only) */}
-      <nav className="fixed bottom-0 w-full md:hidden z-50 bg-vl-card border-t border-vl-border shadow-vl-large flex justify-around items-center h-14 select-none">
-        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/">
-          <User className="w-5 h-5" />
-          <span className="text-[10px] font-semibold mt-0.5">Home</span>
-        </Link>
-        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/products">
-          <Store className="w-5 h-5" />
-          <span className="text-[10px] font-semibold mt-0.5">Categories</span>
-        </Link>
-        <Link className="flex flex-col items-center justify-center text-vl-muted hover:text-vl-primary transition-colors" href="/account/orders">
-          <Package className="w-5 h-5" />
-          <span className="text-[10px] font-semibold mt-0.5">Orders</span>
-        </Link>
-        <button onClick={() => setActiveTab("overview")} className="flex flex-col items-center justify-center text-vl-primary font-bold cursor-pointer">
-          <User className="w-5 h-5 fill-vl-primary/10" />
-          <span className="text-[10px] font-bold mt-0.5">Account</span>
-        </button>
-      </nav>
     </div>
   );
 }

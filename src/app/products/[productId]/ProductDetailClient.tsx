@@ -184,6 +184,7 @@ export default function ProductDetailClient({
       } else {
         await removeFromWishlistAction(product.id);
       }
+      window.dispatchEvent(new Event("wishlist-updated"));
     } catch {
       console.error("Failed to toggle wishlist:");
       setIsWishlisted(!newWishlisted);

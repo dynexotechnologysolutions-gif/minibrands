@@ -21,8 +21,9 @@ import {
 import { switchActiveRole } from "@/actions/switch-role.action";
 import { getDefaultAddress } from "@/actions/address-get-default.action";
 import { getPreciseLocation } from "@/lib/geolocation";
+import MobileNavigationShell from "../mobile/MobileNavigationShell";
 
-interface UserProfileData {
+export interface UserProfileData {
   id: string;
   role: "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
   user: {
@@ -160,168 +161,94 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
   };
 
   const becomeSellerHref = userProfile?.seller ? sellerHref : "/login?role=seller";
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const accountHref = userProfile ? "/account/profile" : "/login?role=buyer";
   const wishlistHref = userProfile ? "/wishlist" : "/login?role=buyer";
   const getInitials = (name: string) => name ? name.split(" ").map((part) => part[0]).join("").toUpperCase().slice(0, 2) : "U";
   const displayName = activeMode === "BUYER" ? userProfile?.user?.name : userProfile?.seller?.storeName || userProfile?.seller?.businessName;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)] backdrop-blur-xl">
-      {/* ── Desktop Header ──────────────────────────────────────── */}
-      <div className="mx-auto hidden h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 md:flex">
-        <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
-            style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
-          >
-            M
-          </span>
-          <span className="hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827] sm:inline">MiniBrands</span>
-        </Link>
-
-        <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
-          <label htmlFor="global-search" className="sr-only">Search products, brands and categories</label>
-          <div className="relative w-full">
-            <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF] transition-colors duration-200" />
-            <input
-              id="global-search"
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search brands, products and styles…"
-              className="h-12 w-full rounded-3xl border-[1.5px] border-[#ECECEC] bg-[#F5F5F8] pl-11 pr-4 text-sm text-[#111827] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-[#6C3BFF] focus:bg-white focus:shadow-[0_0_0_4px_rgba(108,59,255,0.10)]"
-            />
-          </div>
-        </form>
-
-        <div className="flex items-center gap-2 md:gap-4">
-          <button suppressHydrationWarning type="button" onClick={handleHeaderLocationClick} className="hidden min-h-11 items-center gap-2 rounded-vl-control px-3 text-xs font-semibold text-vl-muted transition hover:bg-vl-surface hover:text-vl-ink xl:flex" aria-label={`Delivery location: ${locationText}`}>
-            <MapPin aria-hidden="true" className="h-4 w-4 text-vl-primary" />
-            <span className="max-w-28 truncate">{locationText}</span>
-          </button>
-          <Link href={wishlistHref} className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#FF4D8D]/8 hover:text-[#FF4D8D] sm:inline-flex" aria-label="Wishlist">
-            <Heart aria-hidden="true" className="h-5 w-5" />
-          </Link>
-          <Link href="/cart" className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#6C3BFF]/8 hover:text-[#6C3BFF]" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
-            <ShoppingBag aria-hidden="true" className="h-5 w-5" />
-            {cartCount > 0 ? <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF4D8D] px-1 text-[10px] font-bold text-white">{cartCount}</span> : null}
-          </Link>
-
-          <div ref={accountRef} className="relative">
-            <button suppressHydrationWarning type="button" onClick={() => setIsAccountOpen((open) => !open)} className="inline-flex min-h-11 items-center gap-2 rounded-vl-control px-2 text-sm font-semibold text-vl-ink transition hover:bg-vl-surface sm:px-3" aria-expanded={isAccountOpen} aria-haspopup="menu">
-              {userProfile?.user?.image && activeMode === "BUYER" ? <img src={userProfile.user.image} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="flex h-7 w-7 items-center justify-center rounded-full bg-vl-secondary/10 font-vl-heading text-xs font-bold text-vl-secondary">{getInitials(displayName || "Account")}</span>}
-              <span className="hidden max-w-20 truncate sm:inline">{displayName?.split(" ")[0] || "Account"}</span>
-              <ChevronDown aria-hidden="true" className={`hidden h-4 w-4 text-vl-muted transition sm:block ${isAccountOpen ? "rotate-180" : ""}`} />
-            </button>
-            {isAccountOpen ? (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating" role="menu">
-                <div className="border-b border-vl-border px-3 pb-3 pt-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-vl-muted">{activeMode === "BUYER" ? "Your account" : "Managing store"}</p>
-                  <p className="mt-1 truncate font-vl-heading text-sm font-bold text-vl-ink">{displayName || "Welcome to MiniBrands"}</p>
-                  {userProfile?.user?.email ? <p className="mt-0.5 truncate text-xs text-vl-muted">{userProfile.user.email}</p> : null}
-                </div>
-                <div className="py-1">
-                  {(activeMode === "BUYER" ? [[UserRound, "Profile", "/account/profile"], [Package, "Orders", "/account/orders"], [Heart, "Wishlist", "/account/wishlist"], [MapPin, "Addresses", "/account/addresses"]] : [[LayoutDashboard, "Seller dashboard", "/seller/dashboard"], [Store, "Store profile", "/seller/profile"], [Package, "Orders", "/seller/orders"], [RefreshCcw, "Returns & RMA", "/seller/returns"]]).map(([Icon, label, href]) => {
-                    const MenuIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-                    return <Link key={href as string} href={href as string} onClick={() => setIsAccountOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary" role="menuitem"><MenuIcon aria-hidden={true} className="h-4 w-4" /><span>{label as string}</span></Link>;
-                  })}
-                </div>
-                {userProfile?.seller ? <button suppressHydrationWarning type="button" onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")} className="flex min-h-10 w-full items-center gap-2 rounded-xl border border-vl-secondary/15 bg-vl-secondary/5 px-3 text-xs font-semibold text-vl-secondary transition hover:bg-vl-secondary/10"><ShieldCheck aria-hidden="true" className="h-4 w-4" />Switch to {activeMode === "BUYER" ? "seller" : "buyer"} mode</button> : null}
-                {userProfile ? <button suppressHydrationWarning type="button" onClick={handleSignOut} className="mt-1 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-vl-muted transition hover:bg-red-50 hover:text-vl-danger"><LogOut aria-hidden="true" className="h-4 w-4" />Sign out</button> : <Link href="/login?role=buyer" onClick={() => setIsAccountOpen(false)} className="mt-1 flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-vl-primary hover:bg-vl-primary/5"><UserRound aria-hidden="true" className="h-4 w-4" />Sign in</Link>}
-              </div>
-            ) : null}
-          </div>
-
-          <div ref={moreRef} className="relative hidden lg:block">
-            <button suppressHydrationWarning type="button" onClick={() => setIsMoreOpen((open) => !open)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-vl-muted transition hover:bg-vl-surface hover:text-vl-ink" aria-label="More options" aria-expanded={isMoreOpen}><MoreHorizontal aria-hidden="true" className="h-5 w-5" /></button>
-            {isMoreOpen ? <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating"><Link href={becomeSellerHref} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium text-vl-muted hover:bg-vl-surface hover:text-vl-primary"><Store aria-hidden="true" className="h-4 w-4" />Become a seller</Link></div> : null}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mobile Header (Refined, Compact Single Row) ────────────────── */}
-      <div className="flex md:hidden h-16 items-center justify-between gap-3 px-4 bg-white border-b border-[#ECECEC]/80">
-        <Link href="/" className="group flex shrink-0 items-center gap-1.5" aria-label="MiniBrands home">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl font-vl-heading text-sm font-extrabold text-white shadow-md"
-            style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
-          >
-            M
-          </span>
-          <span className="font-vl-heading text-sm font-extrabold tracking-[-0.04em] text-[#111827] xs:inline hidden">MiniBrands</span>
-        </Link>
-
-        {/* Compact Search bar */}
-        <form onSubmit={handleSearchSubmit} className="flex-grow max-w-[170px] xs:max-w-xs min-w-[90px]" role="search">
-          <label htmlFor="mobile-search" className="sr-only">Search products</label>
-          <div className="relative w-full">
-            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9CA3AF]" />
-            <input
-              id="mobile-search"
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search…"
-              className="h-9 w-full rounded-2xl border border-[#ECECEC] bg-[#F5F5F8] pl-8 pr-3 text-xs text-[#111827] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-[#6C3BFF] focus:bg-white"
-            />
-          </div>
-        </form>
-
-        {/* Compact Right Icons */}
-        <div className="flex items-center gap-1">
-          <Link href={wishlistHref} className="flex h-9 w-9 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#FF4D8D]/8 hover:text-[#FF4D8D]" aria-label="Wishlist">
-            <Heart aria-hidden="true" className="h-4.5 w-4.5" />
-          </Link>
-          <Link href="/cart" className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#6B7280] hover:bg-[#6C3BFF]/8 hover:text-[#6C3BFF]" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
-            <ShoppingBag aria-hidden="true" className="h-4.5 w-4.5" />
-            {cartCount > 0 ? (
-              <span className="absolute right-0.5 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#FF4D8D] px-0.5 text-[8px] font-bold text-white">
-                {cartCount}
-              </span>
-            ) : null}
-          </Link>
-
-          {/* Account/Profile Trigger */}
-          <div ref={accountRefMobile} className="relative">
-            <button
-              type="button"
-              onClick={() => setIsAccountOpen((open) => !open)}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-vl-ink hover:bg-vl-surface"
-              aria-label="Account options"
-              aria-expanded={isAccountOpen}
-              aria-haspopup="menu"
+    <>
+      {/* Desktop Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)] backdrop-blur-xl hidden md:block">
+        <div className="mx-auto h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 flex">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
+              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
             >
-              {userProfile?.user?.image && activeMode === "BUYER" ? (
-                <img src={userProfile.user.image} alt="" className="h-6 w-6 rounded-full object-cover" />
-              ) : (
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vl-secondary/10 font-vl-heading text-[10px] font-bold text-vl-secondary">
-                  {getInitials(displayName || "Account")}
-                </span>
-              )}
+              M
+            </span>
+            <span className="hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827] sm:inline">MiniBrands</span>
+          </Link>
+
+          <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
+            <label htmlFor="global-search" className="sr-only">Search products, brands and categories</label>
+            <div className="relative w-full">
+              <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF] transition-colors duration-200" />
+              <input
+                id="global-search"
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search brands, products and styles…"
+                className="h-12 w-full rounded-3xl border-[1.5px] border-[#ECECEC] bg-[#F5F5F8] pl-11 pr-4 text-sm text-[#111827] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-[#6C3BFF] focus:bg-white focus:shadow-[0_0_0_4px_rgba(108,59,255,0.10)]"
+              />
+            </div>
+          </form>
+
+          <div className="flex items-center gap-2 md:gap-4">
+            <button suppressHydrationWarning type="button" onClick={handleHeaderLocationClick} className="hidden min-h-11 items-center gap-2 rounded-vl-control px-3 text-xs font-semibold text-vl-muted transition hover:bg-vl-surface hover:text-vl-ink xl:flex" aria-label={`Delivery location: ${locationText}`}>
+              <MapPin aria-hidden="true" className="h-4 w-4 text-vl-primary" />
+              <span className="max-w-28 truncate">{locationText}</span>
             </button>
-            {isAccountOpen ? (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating" role="menu">
-                <div className="border-b border-vl-border px-3 pb-2 pt-1.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-vl-muted">{activeMode === "BUYER" ? "Account" : "Store"}</p>
-                  <p className="mt-0.5 truncate font-vl-heading text-xs font-bold text-vl-ink">{displayName || "Welcome"}</p>
+            <Link href={wishlistHref} className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#FF4D8D]/8 hover:text-[#FF4D8D] sm:inline-flex" aria-label="Wishlist">
+              <Heart aria-hidden="true" className="h-5 w-5" />
+            </Link>
+            <Link href="/cart" className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#6C3BFF]/8 hover:text-[#6C3BFF]" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
+              <ShoppingBag aria-hidden="true" className="h-5 w-5" />
+              {cartCount > 0 ? <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF4D8D] px-1 text-[10px] font-bold text-white">{cartCount}</span> : null}
+            </Link>
+
+            <div ref={accountRef} className="relative">
+              <button suppressHydrationWarning type="button" onClick={() => setIsAccountOpen((open) => !open)} className="inline-flex min-h-11 items-center gap-2 rounded-vl-control px-2 text-sm font-semibold text-vl-ink transition hover:bg-vl-surface sm:px-3" aria-expanded={isAccountOpen} aria-haspopup="menu">
+                {userProfile?.user?.image && activeMode === "BUYER" ? <img src={userProfile.user.image} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="flex h-7 w-7 items-center justify-center rounded-full bg-vl-secondary/10 font-vl-heading text-xs font-bold text-vl-secondary">{getInitials(displayName || "Account")}</span>}
+                <span className="hidden max-w-20 truncate sm:inline">{displayName?.split(" ")[0] || "Account"}</span>
+                <ChevronDown aria-hidden="true" className={`hidden h-4 w-4 text-vl-muted transition sm:block ${isAccountOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isAccountOpen ? (
+                <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating" role="menu">
+                  <div className="border-b border-vl-border px-3 pb-3 pt-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-vl-muted">{activeMode === "BUYER" ? "Your account" : "Managing store"}</p>
+                    <p className="mt-1 truncate font-vl-heading text-sm font-bold text-vl-ink">{displayName || "Welcome to MiniBrands"}</p>
+                    {userProfile?.user?.email ? <p className="mt-0.5 truncate text-xs text-vl-muted">{userProfile.user.email}</p> : null}
+                  </div>
+                  <div className="py-1">
+                    {(activeMode === "BUYER" ? [[UserRound, "Profile", "/account/profile"], [Package, "Orders", "/account/orders"], [Heart, "Wishlist", "/account/wishlist"], [MapPin, "Addresses", "/account/addresses"]] : [[LayoutDashboard, "Seller dashboard", "/seller/dashboard"], [Store, "Store profile", "/seller/profile"], [Package, "Orders", "/seller/orders"], [RefreshCcw, "Returns & RMA", "/seller/returns"]]).map(([Icon, label, href]) => {
+                      const MenuIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+                      return <Link key={href as string} href={href as string} onClick={() => setIsAccountOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary" role="menuitem"><MenuIcon aria-hidden={true} className="h-4 w-4" /><span>{label as string}</span></Link>;
+                    })}
+                  </div>
+                  {userProfile?.seller ? <button suppressHydrationWarning type="button" onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")} className="flex min-h-10 w-full items-center gap-2 rounded-xl border border-vl-secondary/15 bg-vl-secondary/5 px-3 text-xs font-semibold text-vl-secondary transition hover:bg-vl-secondary/10"><ShieldCheck aria-hidden="true" className="h-4 w-4" />Switch to {activeMode === "BUYER" ? "seller" : "buyer"} mode</button> : null}
+                  {userProfile ? <button suppressHydrationWarning type="button" onClick={handleSignOut} className="mt-1 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-vl-muted transition hover:bg-red-50 hover:text-vl-danger"><LogOut aria-hidden="true" className="h-4 w-4" />Sign out</button> : <Link href="/login?role=buyer" onClick={() => setIsAccountOpen(false)} className="mt-1 flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-vl-primary hover:bg-vl-primary/5"><UserRound aria-hidden="true" className="h-4 w-4" />Sign in</Link>}
                 </div>
-                <div className="py-1">
-                  {(activeMode === "BUYER" ? [[UserRound, "Profile", "/account/profile"], [Package, "Orders", "/account/orders"], [Heart, "Wishlist", "/account/wishlist"], [MapPin, "Addresses", "/account/addresses"]] : [[LayoutDashboard, "Seller dashboard", "/seller/dashboard"], [Store, "Store profile", "/seller/profile"], [Package, "Orders", "/seller/orders"], [RefreshCcw, "Returns & RMA", "/seller/returns"]]).map(([Icon, label, href]) => {
-                    const MenuIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-                    return <Link key={href as string} href={href as string} onClick={() => setIsAccountOpen(false)} className="flex min-h-9 items-center gap-3 rounded-lg px-2 text-xs font-medium text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary" role="menuitem"><MenuIcon aria-hidden={true} className="h-3.5 w-3.5" /><span>{label as string}</span></Link>;
-                  })}
-                </div>
-                {userProfile?.seller ? <button suppressHydrationWarning type="button" onClick={() => handleRoleSwitch(activeMode === "BUYER" ? "SELLER" : "BUYER")} className="flex min-h-9 w-full items-center gap-2 rounded-lg border border-vl-secondary/15 bg-vl-secondary/5 px-2 text-[10px] font-semibold text-vl-secondary transition hover:bg-vl-secondary/10"><ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />Switch to {activeMode === "BUYER" ? "seller" : "buyer"}</button> : null}
-                {userProfile ? <button suppressHydrationWarning type="button" onClick={handleSignOut} className="mt-1 flex min-h-9 w-full items-center gap-3 rounded-lg px-2 text-xs font-medium text-vl-muted transition hover:bg-red-50 hover:text-vl-danger"><LogOut aria-hidden="true" className="h-3.5 w-3.5" />Sign out</button> : <Link href="/login?role=buyer" onClick={() => setIsAccountOpen(false)} className="mt-1 flex min-h-9 items-center gap-3 rounded-lg px-2 text-xs font-semibold text-vl-primary hover:bg-vl-primary/5"><UserRound aria-hidden="true" className="h-3.5 w-3.5" />Sign in</Link>}
-              </div>
-            ) : null}
+              ) : null}
+            </div>
+
+            <div ref={moreRef} className="relative hidden lg:block">
+              <button suppressHydrationWarning type="button" onClick={() => setIsMoreOpen((open) => !open)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-vl-muted transition hover:bg-vl-surface hover:text-vl-ink" aria-label="More options" aria-expanded={isMoreOpen}><MoreHorizontal aria-hidden="true" className="h-5 w-5" /></button>
+              {isMoreOpen ? <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating"><Link href={becomeSellerHref} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium text-vl-muted hover:bg-vl-surface hover:text-vl-primary"><Store aria-hidden="true" className="h-4 w-4" />Become a seller</Link></div> : null}
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-4 rounded-vl-card border border-vl-border bg-white/95 p-1.5 shadow-vl-floating backdrop-blur-xl md:hidden" aria-label="Mobile navigation">
-        {[["/", "Home", Store], ["/products", "Shop", ShoppingBag], [wishlistHref, "Wishlist", Heart], [accountHref, "Account", UserRound]].map(([href, label, Icon]) => { const NavIcon = Icon as React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>; return <Link key={label as string} href={href as string} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold text-vl-muted transition hover:bg-vl-surface hover:text-vl-primary"><NavIcon aria-hidden={true} className="h-4 w-4" /><span>{label as string}</span></Link>; })}
-      </nav>
-    </header>
+      {/* Mobile Navigation Shell */}
+      <MobileNavigationShell
+        userProfile={userProfile}
+        cartCount={cartCount}
+        sellerHref={sellerHref}
+      />
+    </>
   );
 }

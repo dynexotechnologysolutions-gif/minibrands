@@ -83,6 +83,7 @@ export function useWishlist() {
       // Re-fetch to ensure sync with server
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      window.dispatchEvent(new Event("wishlist-updated"));
     },
   });
 
