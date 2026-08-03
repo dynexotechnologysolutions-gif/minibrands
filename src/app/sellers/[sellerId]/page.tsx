@@ -17,6 +17,11 @@ const getCachedSeller = cache(async (sellerId: string) => {
     where: { id: sellerId },
     include: {
       verification: true,
+      userProfile: {
+        include: {
+          user: true,
+        },
+      },
       products: {
         where: {
           isDeleted: false,
