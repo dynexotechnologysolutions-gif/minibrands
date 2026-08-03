@@ -7,16 +7,18 @@ import {
   getWelcomeEmailHtml,
 } from "./email-templates";
 import { EmailService } from "./email.service";
+import { getAppUrl } from "./auth-utils";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: getAppUrl(),
   trustedOrigins: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    process.env.NEXT_PUBLIC_APP_URL || "",
+    "https://minibrands-fbms.vercel.app",
+    getAppUrl(),
   ].filter(Boolean),
   emailAndPassword: {
     enabled: true,
@@ -24,7 +26,7 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
     requireEmailVerification: false, // Handled via OTP / token verification flow
     async sendResetPassword({ user, token, url }) {
-      const resetUrl = url || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`;
+      const resetUrl = url || `${getAppUrl()}/reset-password?token=${token}`;
       const { renderPasswordResetEmail } = await import("../emails/password-reset/template");
       const html = renderPasswordResetEmail({
         name: user.name,

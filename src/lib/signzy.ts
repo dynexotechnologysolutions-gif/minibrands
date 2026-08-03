@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { getAppUrl } from "./auth-utils";
 
 const SIGNZY_API_KEY = process.env.SIGNZY_API_KEY || "mock_signzy_api_key";
 const SIGNZY_BASE_URL = process.env.SIGNZY_BASE_URL || "https://preproduction.signzy.tech/api/v2";
@@ -17,7 +18,7 @@ export async function initiateKycSession(sellerId: string): Promise<KycSessionRe
   const referenceId = `signzy_ref_${crypto.randomBytes(8).toString("hex")}`;
   
   // Base hosted URL redirect (mocking if not using a real live Signzy endpoint)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = getAppUrl();
   const mockRedirectUrl = `${appUrl}/api/webhooks/signzy/mock-redirect?referenceId=${referenceId}&sellerId=${sellerId}`;
 
   // If real API key is configured, perform actual integration call

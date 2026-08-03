@@ -1,7 +1,4 @@
-/**
- * MiniBrands / Velvet Lane Email Templates
- * Production-ready, responsive, branded HTML email templates for authentication flows.
- */
+import { getAppUrl } from "./auth-utils";
 
 interface VerificationEmailOptions {
   name?: string;
@@ -167,7 +164,7 @@ export function getWelcomeEmailHtml({ name, role }: WelcomeEmailOptions): string
               <h2 style="font-size: 20px; color: #0f172a; margin-top: 0;">Hi ${name},</h2>
               <p style="font-size: 15px; color: #475569; line-height: 1.6;">Your ${roleText} is now active and ready to go. Explore premium artisanal collections, seamless checkout, buyer protection, and boutique storefronts.</p>
               <div style="margin: 28px 0; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}" style="background-color: #0f172a; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; padding: 14px 28px; border-radius: 6px; display: inline-block;">Start Exploring</a>
+                <a href="${getAppUrl()}" style="background-color: #0f172a; color: #ffffff; font-weight: 700; font-size: 15px; text-decoration: none; padding: 14px 28px; border-radius: 6px; display: inline-block;">Start Exploring</a>
               </div>
             </td>
           </tr>

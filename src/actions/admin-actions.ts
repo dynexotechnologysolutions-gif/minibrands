@@ -5,6 +5,7 @@ import { ActionResponse } from "./seller-register.action";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { getAppUrl } from "@/lib/auth-utils";
 
 export async function approveSellerKycAction(
   sellerId: string
@@ -13,7 +14,7 @@ export async function approveSellerKycAction(
     await verifyAdminSession("approve_kyc");
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/admin/sellers/${sellerId}/approve-kyc`,
+      `${getAppUrl()}/api/admin/sellers/${sellerId}/approve-kyc`,
       {
         method: "PATCH",
         headers: await headers(),
@@ -43,7 +44,7 @@ export async function rejectSellerKycAction(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/admin/sellers/${sellerId}/reject-kyc`,
+      `${getAppUrl()}/api/admin/sellers/${sellerId}/reject-kyc`,
       {
         method: "PATCH",
         headers: await headers(),
@@ -71,7 +72,7 @@ export async function suspendUserAction(
     await verifyAdminSession("suspend_users");
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/admin/users/${userProfileId}/suspend`,
+      `${getAppUrl()}/api/admin/users/${userProfileId}/suspend`,
       {
         method: "PATCH",
         headers: await headers(),
@@ -99,7 +100,7 @@ export async function updatePlatformSettingAction(
     await verifyAdminSession("manage_settings");
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/admin/settings`,
+      `${getAppUrl()}/api/admin/settings`,
       {
         method: "PATCH",
         headers: await headers(),

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { getAppUrl } from "@/lib/auth-utils";
 
 const WEBHOOK_SECRET = process.env.SIGNZY_WEBHOOK_SECRET || "mock_signzy_webhook_secret";
 
@@ -133,7 +134,7 @@ export async function POST(req: Request) {
     hmac.update(payloadString);
     const signature = hmac.digest("hex");
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = getAppUrl();
 
     // Call our actual webhook endpoint
     const webhookRes = await fetch(`${appUrl}/api/webhooks/signzy`, {
