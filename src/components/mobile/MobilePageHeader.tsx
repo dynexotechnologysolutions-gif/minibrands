@@ -20,7 +20,7 @@ export default function MobilePageHeader({
   const router = useRouter();
 
   return (
-    <div className="w-full flex items-center justify-between h-14 bg-white border-b border-[#ECECEC]/80 px-4 pt-[calc(env(safe-area-inset-top)+4px)] shadow-sm md:hidden">
+    <div className="w-full flex items-center justify-between h-16 bg-white border-b border-[#ECECEC]/80 px-4 pt-[calc(env(safe-area-inset-top)+4px)] shadow-sm md:hidden">
       <div className="flex items-center gap-2">
         {showBackButton && (
           <button

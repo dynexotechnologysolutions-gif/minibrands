@@ -67,21 +67,26 @@ export default function HomeHero() {
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     const delta = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev();
+    if (Math.abs(delta) > 50) {
+      if (delta > 0) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    }
   };
 
   return (
     <section
-      className="w-full px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5"
+      className="w-full px-3 sm:px-6 lg:px-8 pt-[calc(4.75rem+env(safe-area-inset-top))] md:pt-6 lg:pt-8"
       aria-label="Hero promotional carousel"
     >
-      {/* Container uses natural aspect ratio of the pamphlet (roughly 8:3 wide banner). */}
+      {/* Container uses natural aspect ratio of the pamphlet (16:9 on mobile, 8:3 on desktop). */}
       {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/9] md:aspect-[8/3]"
         style={{
-          aspectRatio: "8 / 3",
           maxWidth: "1600px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
         }}

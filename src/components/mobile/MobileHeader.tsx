@@ -57,7 +57,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     );
 
     return (
-      <div className="w-full flex items-center justify-between h-14 bg-white border-b border-[#ECECEC]/80 px-4 pt-[calc(env(safe-area-inset-top)+4px)] shadow-sm md:hidden">
+      <div className="w-full flex items-center justify-between h-16 bg-white border-b border-[#ECECEC]/80 px-4 pt-[calc(env(safe-area-inset-top)+4px)] shadow-sm md:hidden">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-1.5" aria-label="MiniBrands Home">
           <span
