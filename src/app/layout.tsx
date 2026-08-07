@@ -22,7 +22,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0">
         <Providers>{children}</Providers>
-        <Footer />
+        <div className="hidden md:block"><Footer /></div>
       </body>
     </html>
   );
