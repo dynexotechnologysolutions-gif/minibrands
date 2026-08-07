@@ -198,7 +198,7 @@ export default function WishlistClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
+      <main className="vl-section-shell flex w-full flex-grow flex-col pt-[calc(5.75rem+env(safe-area-inset-top))] sm:pt-[calc(6.25rem+env(safe-area-inset-top))] md:pt-8 lg:pt-10 pb-6 sm:pb-8 lg:pb-10">
         
         {/* Banner Messages */}
         {feedbackMessage && (
@@ -245,22 +245,22 @@ export default function WishlistClient({
 
         {wishlistItems.length === 0 ? (
           /* Empty Wishlist State */
-          <div className="flex-grow w-full flex flex-col items-center justify-center py-16">
-            <div className="flex flex-col items-center text-center bg-vl-card border border-vl-border rounded-vl-card p-10 max-w-md w-full shadow-vl-soft animate-fade-in">
-              <div className="w-20 h-20 rounded-full bg-vl-primary/10 flex items-center justify-center text-vl-primary mb-6">
-                <Heart className="h-10 w-10 fill-vl-primary/10" />
+          <div className="flex-grow w-full flex justify-center items-center py-12 px-4 select-none">
+            <div className="w-full max-w-md flex flex-col items-center text-center bg-vl-card border border-vl-border rounded-vl-card p-8 sm:p-10 shadow-vl-soft animate-fade-in">
+              <div className="w-16 h-16 rounded-full bg-vl-primary/10 flex items-center justify-center text-vl-primary mb-6 shrink-0">
+                <Heart className="h-8 w-8 fill-vl-primary/10" aria-hidden="true" />
               </div>
-              <h2 className="font-vl-heading text-xl font-extrabold tracking-tight text-vl-ink mb-2">
+              <h2 className="font-vl-heading text-lg sm:text-xl font-bold tracking-tight text-vl-ink mb-2">
                 Nothing saved yet.
               </h2>
-              <p className="text-sm text-vl-muted mb-8 max-w-xs leading-relaxed">
-                Save products you love while catalog browsing, and they will appear here.
+              <p className="text-xs sm:text-sm text-vl-muted mb-8 max-w-[280px] sm:max-w-xs leading-relaxed">
+                Save products you love while browsing, and they will appear here.
               </p>
               <Link
                 href="/products"
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.20)] hover:bg-vl-primary-strong transition-all duration-vl-fast"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-vl-primary px-6 text-sm font-bold text-white shadow-[0_4px_16px_rgba(255,63,108,0.2)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast"
               >
-                Explore Fashion Collections
+                Explore Fashion
               </Link>
             </div>
           </div>

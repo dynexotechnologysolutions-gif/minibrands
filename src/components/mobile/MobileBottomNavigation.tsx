@@ -27,7 +27,7 @@ export default function MobileBottomNavigation({
     pathname.startsWith("/catalog") ||
     pathname.startsWith("/category") ||
     pathname.startsWith("/search");
-  const isWishlist = pathname === "/wishlist";
+  const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
   const isCart = pathname === "/cart";
   const isAccount = pathname === "/account/profile";
 

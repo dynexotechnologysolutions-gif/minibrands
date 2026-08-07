@@ -36,7 +36,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
   const isHome = pathname === "/";
   const isExplore = pathname === "/products";
   const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
-  const isWishlist = pathname === "/wishlist";
+  const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
   const isCart = pathname === "/cart";
   const isAccount = pathname === "/account/profile";
   const isCheckout = pathname === "/checkout";
