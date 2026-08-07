@@ -126,21 +126,46 @@ export default function ProductDetailClient({
 }: ProductDetailClientProps) {
   const router = useRouter();
 
+  const images =
+    product.images.length > 0
+      ? product.images
+      : [{ url: "/placeholder.jpg", cloudinaryPublicId: "placeholder" }];
+
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
   const [imgVisible, setImgVisible] = useState(true);
   const mainImageRef = useRef<HTMLDivElement>(null);
+  const mobileScrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleMobileScroll = () => {
+    const container = mobileScrollContainerRef.current;
+    if (!container) return;
+    const width = container.clientWidth;
+    if (width === 0) return;
+    const newIdx = Math.round(container.scrollLeft / width);
+    if (newIdx >= 0 && newIdx < images.length && newIdx !== selectedImageIdx) {
+      setSelectedImageIdx(newIdx);
+    }
+  };
 
   const handleThumbnailClick = (idx: number, isMobile = false) => {
     if (idx === selectedImageIdx) return;
-    setImgVisible(false);
-    const timer = setTimeout(() => {
+    if (isMobile) {
+      const container = mobileScrollContainerRef.current;
+      if (container) {
+        container.scrollTo({
+          left: idx * container.clientWidth,
+          behavior: "smooth",
+        });
+      }
       setSelectedImageIdx(idx);
-      setImgVisible(true);
-    }, 140);
-    if (isMobile && mainImageRef.current) {
-      mainImageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else {
+      setImgVisible(false);
+      const timer = setTimeout(() => {
+        setSelectedImageIdx(idx);
+        setImgVisible(true);
+      }, 140);
+      return () => clearTimeout(timer);
     }
-    return () => clearTimeout(timer);
   };
 
   const [selectedSize, setSelectedSize] = useState<string | null>(
@@ -193,10 +218,6 @@ export default function ProductDetailClient({
     }
   };
 
-  const images =
-    product.images.length > 0
-      ? product.images
-      : [{ url: "/placeholder.jpg", cloudinaryPublicId: "placeholder" }];
   const currentImage = images[selectedImageIdx]?.url;
 
   const isSellerVerified =
@@ -404,7 +425,7 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-6 sm:py-8 lg:py-10 pb-28 lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-6 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumbs */}
         <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-vl-muted" aria-label="Breadcrumb">
           <Link className="hover:text-vl-primary transition-colors" href="/">
@@ -441,57 +462,56 @@ export default function ProductDetailClient({
           
           {/* LEFT COLUMN: Gallery (5 cols on lg) */}
           <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-24">
-            
-            {/* Main Image Aspect Ratio 3/4 */}
-            <div ref={mainImageRef} className="relative aspect-[3/4] w-full flex-1 overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
-              <Image
-                alt={product.name}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className={`object-cover object-center transition-opacity duration-150 ease-in-out ${
-                  imgVisible ? "opacity-100" : "opacity-0"
-                }`}
-                src={currentImage}
-              />
-              
-              {/* Product Badges (top-left) */}
-              <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
-                {product.aiGenerated && (
-                  <span className="inline-flex items-center rounded-md bg-vl-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white select-none">
-                    Best Seller
+            {/* Desktop-only gallery layout */}
+            <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
+              {/* Main Image Aspect Ratio 3/4 */}
+              <div ref={mainImageRef} className="relative aspect-[3/4] w-full flex-1 overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+                <Image
+                  alt={product.name}
+                  fill
+                  priority
+                  sizes="50vw"
+                  className={`object-cover object-center transition-opacity duration-150 ease-in-out ${
+                    imgVisible ? "opacity-100" : "opacity-0"
+                  }`}
+                  src={currentImage}
+                />
+                
+                {/* Product Badges (top-left) */}
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
+                  {product.aiGenerated && (
+                    <span className="inline-flex items-center rounded-md bg-vl-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white select-none">
+                      Best Seller
+                    </span>
+                  )}
+                  <span className="inline-flex items-center rounded-md bg-vl-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-vl-ink select-none">
+                    Trending
                   </span>
-                )}
-                <span className="inline-flex items-center rounded-md bg-vl-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-vl-ink select-none">
-                  Trending
-                </span>
+                </div>
+
+                {/* Wishlist toggle with scaling pulse */}
+                <button
+                  type="button"
+                  onClick={handleToggleWishlist}
+                  disabled={isTogglingWishlist}
+                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  className={`absolute right-3 top-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 text-vl-primary shadow-vl-soft backdrop-blur-sm transition-all duration-vl-fast ${
+                    isTogglingWishlist ? "opacity-60 cursor-not-allowed pointer-events-none" : "hover:scale-105 active:scale-95"
+                  }`}
+                >
+                  <Heart
+                    aria-hidden="true"
+                    className={`h-5 w-5 transition-all duration-vl-fast ${
+                      isWishlisted ? "fill-vl-primary text-vl-primary" : "text-vl-muted"
+                    }`}
+                    strokeWidth={2}
+                  />
+                </button>
               </div>
 
-              {/* Wishlist toggle with scaling pulse */}
-              <button
-                type="button"
-                onClick={handleToggleWishlist}
-                disabled={isTogglingWishlist}
-                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                className={`absolute right-3 top-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 text-vl-primary shadow-vl-soft backdrop-blur-sm transition-all duration-vl-fast ${
-                  isTogglingWishlist ? "opacity-60 cursor-not-allowed pointer-events-none" : "hover:scale-105 active:scale-95"
-                }`}
-              >
-                <Heart
-                  aria-hidden="true"
-                  className={`h-5 w-5 transition-all duration-vl-fast ${
-                    isWishlisted ? "fill-vl-primary text-vl-primary" : "text-vl-muted"
-                  }`}
-                  strokeWidth={2}
-                />
-              </button>
-            </div>
-
-            {/* Thumbnails list (desktop: vertical strip, mobile: horizontal) */}
-            {images.length > 1 && (
-              <>
-                {/* Desktop vertical strip */}
-                <div className="hidden lg:flex w-20 shrink-0 flex-col gap-2.5">
+              {/* Desktop vertical strip */}
+              {images.length > 1 && (
+                <div className="w-20 shrink-0 flex flex-col gap-2.5">
                   {images.map((img, idx) => (
                     <button
                       key={idx}
@@ -514,33 +534,78 @@ export default function ProductDetailClient({
                     </button>
                   ))}
                 </div>
+              )}
+            </div>
 
-                {/* Mobile/Tablet horizontal strip */}
-                <div className="hide-scrollbar flex gap-2.5 overflow-x-auto pb-1 pt-1 lg:hidden">
-                  {images.map((img, idx) => (
-                    <button
+            {/* Mobile-only horizontal swipe gallery layout */}
+            <div className="lg:hidden relative w-full aspect-[3/4] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+              <div
+                ref={mobileScrollContainerRef}
+                onScroll={handleMobileScroll}
+                className="hide-scrollbar flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth"
+              >
+                {images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-full h-full shrink-0 snap-start snap-always"
+                  >
+                    <Image
+                      alt={`${product.name} - Image ${idx + 1}`}
+                      fill
+                      priority={idx === 0}
+                      sizes="100vw"
+                      className="object-cover object-center"
+                      src={img.url}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Dot Indicators */}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 bg-black/25 px-3 py-1.5 rounded-full backdrop-blur-[2px] select-none pointer-events-none">
+                  {images.map((_, idx) => (
+                    <span
                       key={idx}
-                      type="button"
-                      onClick={() => handleThumbnailClick(idx, true)}
-                      aria-label={`View image ${idx + 1} of ${images.length}`}
-                      className={`h-16 w-12 shrink-0 cursor-pointer overflow-hidden rounded-vl-control border-2 transition-all duration-vl-fast relative ${
-                        selectedImageIdx === idx
-                          ? "border-vl-primary shadow-vl-soft ring-1 ring-vl-primary/30"
-                          : "border-vl-border opacity-70 hover:opacity-100"
+                      className={`h-1.5 rounded-full transition-all duration-200 ${
+                        selectedImageIdx === idx ? "w-3 bg-white" : "w-1.5 bg-white/50"
                       }`}
-                    >
-                      <Image
-                        fill
-                        className="object-cover"
-                        src={img.url}
-                        alt={`Thumbnail ${idx + 1}`}
-                        sizes="72px"
-                      />
-                    </button>
+                    />
                   ))}
                 </div>
-              </>
-            )}
+              )}
+
+              {/* Product Badges (top-left) */}
+              <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">
+                {product.aiGenerated && (
+                  <span className="inline-flex items-center rounded-md bg-vl-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white select-none">
+                    Best Seller
+                  </span>
+                )}
+                <span className="inline-flex items-center rounded-md bg-vl-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-vl-ink select-none">
+                  Trending
+                </span>
+              </div>
+
+              {/* Wishlist toggle with scaling pulse */}
+              <button
+                type="button"
+                onClick={handleToggleWishlist}
+                disabled={isTogglingWishlist}
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                className={`absolute right-3 top-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/90 text-vl-primary shadow-vl-soft backdrop-blur-sm transition-all duration-vl-fast z-10 ${
+                  isTogglingWishlist ? "opacity-60 cursor-not-allowed pointer-events-none" : "hover:scale-105 active:scale-95"
+                }`}
+              >
+                <Heart
+                  aria-hidden="true"
+                  className={`h-5 w-5 transition-all duration-vl-fast ${
+                    isWishlisted ? "fill-vl-primary text-vl-primary" : "text-vl-muted"
+                  }`}
+                  strokeWidth={2}
+                />
+              </button>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: Product Info & Selection (7 cols on lg) */}
@@ -1009,8 +1074,7 @@ export default function ProductDetailClient({
 
       {/* Mobile Floating Sticky CTA (Add to Cart / Buy Now) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-3 md:hidden flex items-center gap-3 shadow-vl-large"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed bottom-[calc(64px+env(safe-area-inset-bottom))] left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-3 md:hidden flex items-center gap-3 shadow-vl-large"
       >
         <button
           type="button"

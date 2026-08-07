@@ -24,6 +24,7 @@ export default function HomeNewsletter() {
               placeholder="Your email address"
               className="w-full bg-transparent text-sm text-white placeholder:text-white/50 outline-none focus:ring-0"
               required
+              suppressHydrationWarning
             />
           </div>
           <button

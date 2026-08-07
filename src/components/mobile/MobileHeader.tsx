@@ -35,7 +35,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
   // Mapped exact route conditions
   const isHome = pathname === "/";
   const isExplore = pathname === "/products";
-  const isExploreQuery = pathname.startsWith("/products") && !pathname.includes("/", 10); // matches /products/ but not /products/[id]
+  const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
   const isWishlist = pathname === "/wishlist";
   const isCart = pathname === "/cart";
   const isAccount = pathname === "/account/profile";

@@ -24,11 +24,11 @@ export default function HomeCategoryGrid() {
           <Link
             key={category.label}
             href={category.href}
-            className={`group relative isolate flex-shrink-0 w-[70vw] xs:w-[65vw] sm:w-auto aspect-[4/5] overflow-hidden rounded-xl sm:rounded-[20px] bg-vl-border shadow-vl-soft transition-all duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium snap-start ${index === 0 ? "col-span-2 sm:col-span-1" : ""}`}
+            className={`group relative isolate flex-shrink-0 w-[45vw] xs:w-[40vw] sm:w-auto aspect-[4/5] overflow-hidden rounded-xl sm:rounded-[20px] bg-vl-border shadow-vl-soft transition-all duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium snap-start ${index === 0 ? "col-span-2 sm:col-span-1" : ""}`}
           >
             <Image src={category.image} alt={category.alt} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="object-cover transition duration-500 ease-vl-out group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-vl-ink/80 via-vl-ink/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
-            <span className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 font-vl-heading text-sm sm:text-xl font-bold text-white tracking-tight">{category.label}</span>
+            <span className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 font-vl-heading text-xs sm:text-xl font-bold text-white tracking-tight">{category.label}</span>
           </Link>
         ))}
       </div>
