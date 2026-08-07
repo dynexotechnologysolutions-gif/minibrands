@@ -210,7 +210,7 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
       <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
         
         {/* Celebration Header Section */}
-        <section className="w-full max-w-2xl mx-auto px-6 py-10 sm:py-12 bg-gradient-to-br from-vl-primary/5 via-vl-card to-vl-card rounded-vl-card border border-vl-border text-center mb-8 shadow-vl-soft flex flex-col items-center">
+        <section className="w-full max-w-2xl mx-auto px-6 py-10 sm:py-12 mt-12 bg-gradient-to-br from-vl-primary/5 via-vl-card to-vl-card rounded-vl-card border border-vl-border text-center mb-8 shadow-vl-soft flex flex-col items-center">
           {/* Animated success icon */}
           <div className="w-20 h-20 bg-vl-success/10 rounded-full flex items-center justify-center mb-6 animate-bounce shrink-0">
             <CheckCircle2 className="text-vl-success h-10 w-10" strokeWidth={2} />
