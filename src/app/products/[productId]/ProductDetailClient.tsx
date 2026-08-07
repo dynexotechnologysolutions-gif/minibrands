@@ -36,6 +36,7 @@ import { getDefaultAddress } from "@/actions/address-get-default.action";
 import HomeHeader from "@/components/home/HomeHeader";
 import ReviewGallery from "@/components/review/ReviewGallery";
 import ProductCard from "@/features/catalog/components/ProductCard";
+import { Product } from "@/features/catalog/types/Product";
 
 interface ProductDetailClientProps {
   product: {
@@ -112,6 +113,52 @@ interface ProductDetailClientProps {
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialReviews: any[];
+}
+
+interface SimpleProduct {
+  id: string;
+  name: string;
+  category?: string;
+  price?: number;
+  images?: { url: string }[];
+  seller?: { businessName: string };
+}
+
+function mapToCanonicalProduct(item: SimpleProduct): Product {
+  return {
+    id: item.id,
+    sellerId: item.id,
+    name: item.name,
+    shortDescription: "",
+    fullDescription: "",
+    category: item.category || "",
+    subcategory: null,
+    tags: [],
+    price: item.price || 0,
+    isPublished: true,
+    isDeleted: false,
+    createdAt: "",
+    updatedAt: "",
+    images: item.images?.map((img: { url: string }, i: number) => ({
+      id: String(i),
+      productId: item.id,
+      url: img.url,
+      sortOrder: i,
+    })) || [],
+    variants: [],
+    seller: {
+      id: "",
+      businessName: item.seller?.businessName || "",
+      storeName: item.seller?.businessName || "",
+      storeLogo: null,
+    },
+    mrp: item.price || 0,
+    discountPercent: 0,
+    rating: 0,
+    reviewCount: 0,
+    formattedReviews: "0",
+    badge: null,
+  };
 }
 
 export default function ProductDetailClient({
@@ -367,53 +414,7 @@ export default function ProductDetailClient({
     });
   }
 
-  const finalSimilarProducts =
-    similarProducts.length > 0
-      ? similarProducts
-      : [
-          {
-            id: "similar-1",
-            name: "Modern Abstract Vase",
-            category: "DECOR",
-            price: 129900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDznikgBmkL0JxH58XWOHEAqpnicm1SjBTy-Y7D-4vrEt8_bZQlAxSyW4QTs_NAPn2_b0tETCtm1vVIJooVry1pELDUlQ3zh7As1QBQa7NAw92uorHBAkGyZ6aYkW0TY426cJ6ybGO2cuyEKmG3YpxLvT2TzUQumJ84J-fbrQmd8XH3rfy70ps07xKo4M3X6v2uuFQlLzKTXMPbug5BOEjuVZYpUSeP0DVqTYYyG5VxllBeElfecg7dMsZb6ACjrFLM-YE_Rx0DP0bK",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-          {
-            id: "similar-2",
-            name: "Minimalist Oak Clock",
-            category: "DECOR",
-            price: 89900,
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9jfdIU6kdumUZfJNExb077UXYil_C9gsRF7cX5GN_rU7gwwV4NhAF8RlGik-15mTJi5cdVvc1pnhO1ItflgJ74MuLmAmcEpOh5iaEW-Mi-amV6oN7UviegOnOmQW6TcsSrbw5a-gqiFhYxI1x-SUrXSnC1eYl5BIIkWsjEtgMSa6V32zWx-YCML-H1KBBaAPDNomaYtNlayIuqMeRFJjrSyIyP8X3o7600JGyl7q4TDSR-nNCEQDRomr3iz4eQo_bRZqe68Voaw8c",
-              },
-            ],
-            seller: { businessName: "Aura Wear" },
-          },
-        ];
-
-  const finalRecentlyViewed =
-    recentlyViewed.length > 0
-      ? recentlyViewed
-      : [
-          {
-            id: "recent-1",
-            name: "Black Arched Lamp",
-            images: [
-              {
-                url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAufCMePcxpC6E6yrxD7YgZTj2S2yrexjSHxOHRu1mDD_I3gYQmvF0-vzv1S9YHiERgvDr9Sg3JlbUTw2MyE8j2dDBxTSQEraSPLf8DQSscH8femXDKgAy0kMbPQMEMqbkdp2SUvDWqgVs2jmi64zT3ZingqwwPjnOfv1u7U41anP9uDt9WwLidMG_4HLSD38a0mhpor1wtsrIDyh7qK1fyPPh8zSaeR5EBCZXauzGgzfT2KoqKukjZvo1lMacUbv-H8Vq299g4W2dM",
-              },
-            ],
-          },
-        ];
-
-  const isFallbackId = (id: string) =>
-    id.startsWith("similar-") || id.startsWith("recent-");
+  // Mock fallbacks removed
 
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
@@ -921,154 +922,45 @@ export default function ProductDetailClient({
         </section>
 
         {/* Similar Products Grid section */}
-        <section className="mt-14 pt-8 border-t border-vl-border">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink">
-              You May Also Like
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-5 xl:grid-cols-4">
-            {finalSimilarProducts.map((item) => {
-              const isFallback = isFallbackId(item.id);
-              
-              // Map custom item to type compliant with canonical card
-              const compliantItem = {
-                id: item.id,
-                sellerId: isFallback ? "" : item.id,
-                name: item.name,
-                shortDescription: "",
-                fullDescription: "",
-                category: item.category,
-                subcategory: null,
-                tags: [],
-                price: item.price,
-                isPublished: true,
-                isDeleted: false,
-                createdAt: "",
-                updatedAt: "",
-                images: item.images?.map((img, i) => ({
-                  id: String(i),
-                  productId: item.id,
-                  url: img.url,
-                  sortOrder: i,
-                })) || [],
-                variants: [],
-                seller: {
-                  id: "",
-                  businessName: item.seller.businessName,
-                  storeName: item.seller.businessName,
-                  storeLogo: null,
-                },
-                mrp: item.price * 1.4,
-                discountPercent: 28,
-                rating: 4.5,
-                reviewCount: 12,
-                formattedReviews: "12",
-                badge: null,
-              };
-
-              return (
+        {similarProducts && similarProducts.length > 0 && (
+          <section className="mt-14 pt-8 border-t border-vl-border">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink">
+                You May Also Like
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+              {similarProducts.map((item) => (
                 <ProductCard
                   key={item.id}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  product={compliantItem as any}
+                  product={mapToCanonicalProduct(item)}
                   isLoggedIn={!!userProfile}
                   onWishlistToggle={async () => {}}
                 />
-              );
-            })}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Recently Viewed */}
-        <section className="mt-14 pt-8 border-t border-vl-border">
-          <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink mb-6">
-            Recently Viewed
-          </h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            {finalRecentlyViewed.map((item) => {
-              const isFallback = isFallbackId(item.id);
-              return (
-                <Link
+        {recentlyViewed && recentlyViewed.length > 0 && (
+          <section className="mt-14 pt-8 border-t border-vl-border">
+            <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink mb-6">
+              Recently Viewed
+            </h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+              {recentlyViewed.map((item) => (
+                <ProductCard
                   key={item.id}
-                  href={isFallback ? "#" : `/products/${item.id}`}
-                  className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card p-2 hover:shadow-vl-soft transition-all duration-vl-fast hover:border-vl-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2"
-                >
-                  <div className="relative aspect-square w-full overflow-hidden rounded-vl-control bg-vl-surface">
-                    <Image
-                      src={item.images?.[0]?.url || "/placeholder.jpg"}
-                      alt={item.name}
-                      fill
-                      sizes="120px"
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-vl-standard"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs font-bold text-vl-ink truncate">
-                    {item.name}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Explore More Like This */}
-        <section className="mt-14 pt-8 border-t border-vl-border">
-          <h2 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink mb-6">
-            Explore More Like This
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/products?category=Decor" className="group space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2 rounded-vl-card p-1">
-              <div className="relative aspect-video w-full overflow-hidden rounded-vl-card border border-vl-border">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF6EwSD6V-HIcVIRzmGKx2oBOD4h0URNI_iPC_TlYIRO8u-kEb5_-G5GlvwrWWigEJPWYKe55FlOv-a7_YKCghqeqwhSCu92UGJIwnKcIZmVrs5xM5rnalLwHgsqm9tWlPTA4R9X21haPvbW-zw13YhHE3bpVdx_f1z374S7KAEEj-Wm0JZZGN51s38lIeII5p_EAKrD3p3ki-u6vhTVvfc-UCQDxV5nwEV4RmIlxUMTkfvh5v9Vhx2-f6Ayem98sGP9HfpGf700dS"
-                  alt="Botanical Art Prints"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-vl-standard"
+                  product={mapToCanonicalProduct(item)}
+                  isLoggedIn={!!userProfile}
+                  onWishlistToggle={async () => {}}
                 />
-              </div>
-              <h4 className="text-sm font-bold text-vl-ink">Botanical Art Prints</h4>
-              <p className="text-xs text-vl-muted">Explore Wall Decor</p>
-            </Link>
-            <Link href="/products?category=Decor" className="group space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2 rounded-vl-card p-1">
-              <div className="relative aspect-video w-full overflow-hidden rounded-vl-card border border-vl-border">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbB4zIvaeLb1Upa26R5nfP9fghtMm4I5lg60rSTxBlYfEHjsZ7OnKPoZ5bvY_yQlME3-5pkosGCB1VsZdYrzBm_oHiwcx-k85C-a7naptx8S5nIOwTs4oOjBcHRmO3MvFLoIoAI0z5jgcdehlWsrJrUXtXJ3KkXAInqmjwdIy8hJ0crJe07ENgv4AKt3Fy5vk34ddovqaAfBLBJHnTSiLjvNBI7PT1KGTRGiTarKBR6_XqHRNwO-PTVu3bPq_EUaPSCMEd_c0GoDzO"
-                  alt="Texture Wool Rugs"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-vl-standard"
-                />
-              </div>
-              <h4 className="text-sm font-bold text-vl-ink">Texture Wool Rugs</h4>
-              <p className="text-xs text-vl-muted">Explore Carpets</p>
-            </Link>
-            <Link href="/products?category=Decor" className="group space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2 rounded-vl-card p-1">
-              <div className="relative aspect-video w-full overflow-hidden rounded-vl-card border border-vl-border">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH-E0-8bBvmZB_0KrE5Ihm-5J_vDXJzUVp6jI65HPc6IFvyLP2CP5p0MSLQU8VMVeTi-dRkD0GhR4A6JV3ozqwmmKka30cSjY7IExUQizCtTiG-pX0jF3qsrDHjzBUwOIDRBB7ot3fkgpbjgnbXNMYsFTQiQYE_83_83QjJ7o3yXX48pXjg6YgtPMk5HgIUKqYyon5JfsS1BIyji9GwS-83c5lJ9mlgDcemg07q6j8w9uDrBkeGjdXsVYpUfNrLarZmujRXUj0sbpp"
-                  alt="Matte Kitchenware"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-vl-standard"
-                />
-              </div>
-              <h4 className="text-sm font-bold text-vl-ink">Matte Kitchenware</h4>
-              <p className="text-xs text-vl-muted">Explore Kitchen</p>
-            </Link>
-            <Link href="/products?category=Decor" className="group space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2 rounded-vl-card p-1">
-              <div className="relative aspect-video w-full overflow-hidden rounded-vl-card border border-vl-border">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAua2IKxpteIAmE7gCqgyJA-hzpCGeyjVVJPAbFPzmeQKUsYS2oJlWO7gETticVpoIWzRhgBtk3SZyFGM7F1z5uBhXlP5yigGOu9WIrlK1pM5p53MBt1KGf49dmSOCivxpp9VlhHYzF2zB9GZQ7EIZjV9CyN4Oy1MNSRe_NNL3fJ078We5__uDaEq2Vf6HJ7OJSJKkC0duMH3SmoT_sYzH9oz8omfYnF70ZGBpw8O9SX_9hqJ60dEqXEpE-3iajuOAOtDOzpS8dIUd6"
-                  alt="Mid-Century Dressers"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-vl-standard"
-                />
-              </div>
-              <h4 className="text-sm font-bold text-vl-ink">Mid-Century Dressers</h4>
-              <p className="text-xs text-vl-muted">Explore Furniture</p>
-            </Link>
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
 
