@@ -70,6 +70,13 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
   // State to control mobile filter drawer
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
+  // Listen for the 'open-filter-drawer' event dispatched by MobileSearchHeader's Filters pill
+  useEffect(() => {
+    const handler = () => setIsFilterDrawerOpen(true);
+    window.addEventListener("open-filter-drawer", handler);
+    return () => window.removeEventListener("open-filter-drawer", handler);
+  }, []);
+
   // 2. Dynamic SEO browser titles
   useEffect(() => {
     let title = "Products | Velvet Lane";
@@ -192,8 +199,8 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         sellerHref={sellerHref}
       />
 
-      {/* Main content block */}
-      <main className="vl-section-shell flex w-full flex-1 flex-col py-6 sm:py-8 lg:py-10">
+      {/* Main content block — mobile top offset clears the sticky MobileSearchHeader (~90px tall) */}
+      <main className="vl-section-shell flex w-full flex-1 flex-col pt-[calc(6.5rem+env(safe-area-inset-top))] pb-6 sm:pt-8 sm:pb-8 lg:py-10">
         {/* Results Toolbar */}
         <SearchToolbar
           query={filters.q}
@@ -202,8 +209,6 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
           searchTime={searchTime}
           sort={filters.sort || "popularity"}
           onSortChange={(val) => updateUrl({ sort: val })}
-          onFilterOpen={() => setIsFilterDrawerOpen(true)}
-          activeFilterCount={[filters.priceRange, filters.rating, filters.discount].filter(Boolean).length}
           breadcrumbs={
             filters.category && filters.category !== "All"
               ? ["Home", "Products", filters.category]
