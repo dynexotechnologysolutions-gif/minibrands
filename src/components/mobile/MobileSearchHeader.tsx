@@ -104,13 +104,15 @@ export default function MobileSearchHeader() {
               Sort:{" "}
               {currentSort === "popularity"
                 ? "Popularity"
-                : currentSort === "price-asc"
-                ? "Price: Low to High"
-                : currentSort === "price-desc"
-                ? "Price: High to Low"
+                : currentSort === "price_asc"
+                ? "Low to High"
+                : currentSort === "price_desc"
+                ? "High to Low"
                 : currentSort === "newest"
                 ? "Newest"
-                : currentSort}
+                : currentSort === "rating"
+                ? "Top Rated"
+                : "Popularity"}
             </span>
           </button>
 
@@ -124,8 +126,9 @@ export default function MobileSearchHeader() {
                 {[
                   ["popularity", "Popularity"],
                   ["newest", "Newest Arrivals"],
-                  ["price-asc", "Price: Low to High"],
-                  ["price-desc", "Price: High to Low"],
+                  ["price_asc", "Price: Low to High"],
+                  ["price_desc", "Price: High to Low"],
+                  ["rating", "Top Rated"],
                 ].map(([val, label]) => (
                   <button
                     key={val}

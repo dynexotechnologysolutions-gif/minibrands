@@ -34,7 +34,7 @@ export default function SearchToolbar({
   }
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 hidden sm:block">
       {/* Breadcrumb */}
       <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm" aria-label="Breadcrumb">
         {breadcrumbs.map((crumb, idx) => (
