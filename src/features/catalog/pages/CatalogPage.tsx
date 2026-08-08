@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, SlidersHorizontal } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HomeHeader from "@/components/home/HomeHeader";
 import SearchToolbar from "../components/SearchToolbar";
@@ -202,6 +202,8 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
           searchTime={searchTime}
           sort={filters.sort || "popularity"}
           onSortChange={(val) => updateUrl({ sort: val })}
+          onFilterOpen={() => setIsFilterDrawerOpen(true)}
+          activeFilterCount={[filters.priceRange, filters.rating, filters.discount].filter(Boolean).length}
           breadcrumbs={
             filters.category && filters.category !== "All"
               ? ["Home", "Products", filters.category]
@@ -249,22 +251,6 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         </div>
       </main>
 
-      {/* Floating Filter Button (Mobile & Tablet only) */}
-      <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 lg:hidden">
-        <button
-          type="button"
-          onClick={() => setIsFilterDrawerOpen(true)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-vl-ink px-6 text-sm font-bold text-white shadow-vl-floating transition-all duration-vl-fast hover:scale-105 active:scale-95"
-        >
-          <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-vl-accent" />
-          Filters
-          {[filters.priceRange, filters.rating, filters.discount].filter(Boolean).length > 0 && (
-            <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary text-[10px] font-bold text-white">
-              {[filters.priceRange, filters.rating, filters.discount].filter(Boolean).length}
-            </span>
-          )}
-        </button>
-      </div>
 
       {/* Mobile Filter Drawer */}
       <FilterDrawer

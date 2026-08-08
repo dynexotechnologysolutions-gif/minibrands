@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronDown, LayoutGrid, List } from "lucide-react";
+import { ChevronDown, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 
 interface SearchToolbarProps {
   query?: string;
@@ -10,6 +10,8 @@ interface SearchToolbarProps {
   searchTime?: number;
   sort: string;
   onSortChange: (sort: string) => void;
+  onFilterOpen?: () => void;
+  activeFilterCount?: number;
   breadcrumbs?: string[];
 }
 
@@ -20,6 +22,8 @@ export default function SearchToolbar({
   searchTime = 0.42,
   sort,
   onSortChange,
+  onFilterOpen,
+  activeFilterCount = 0,
   breadcrumbs = ["Home", "Products"],
 }: SearchToolbarProps) {
   const handleSortSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -70,7 +74,7 @@ export default function SearchToolbar({
           </p>
         </div>
 
-        {/* Right: Sort + View toggle */}
+        {/* Right: Sort + View toggle + Mobile Filter */}
         <div className="flex items-center gap-2">
           {/* View toggle — grid only for now, list is UI placeholder */}
           <div
@@ -118,6 +122,24 @@ export default function SearchToolbar({
               className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-vl-muted"
             />
           </div>
+
+          {/* Filter button — mobile only (hidden on lg where sidebar is shown) */}
+          {onFilterOpen && (
+            <button
+              type="button"
+              onClick={onFilterOpen}
+              aria-label="Open filters"
+              className="lg:hidden relative inline-flex min-h-11 items-center gap-1.5 rounded-vl-control border border-vl-border bg-vl-card px-3 text-sm font-semibold text-vl-ink shadow-vl-soft transition-all duration-vl-fast hover:border-vl-border-strong active:scale-95"
+            >
+              <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+              <span className="hidden sm:inline">Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
