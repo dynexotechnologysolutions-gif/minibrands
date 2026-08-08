@@ -199,8 +199,8 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         sellerHref={sellerHref}
       />
 
-      {/* Main content block — mobile top offset clears the sticky MobileSearchHeader (~90px tall) */}
-      <main className="vl-section-shell flex w-full flex-1 flex-col pt-[calc(6.5rem+env(safe-area-inset-top))] pb-6 sm:pt-8 sm:pb-8 lg:py-10">
+      {/* Main content block — mobile top offset clears the sticky MobileSearchHeader (~112px tall) */}
+      <main className="vl-section-shell flex w-full flex-1 flex-col pt-[calc(7.5rem+env(safe-area-inset-top))] pb-6 sm:pt-8 sm:pb-8 lg:py-10">
         {/* Results Toolbar */}
         <SearchToolbar
           query={filters.q}
