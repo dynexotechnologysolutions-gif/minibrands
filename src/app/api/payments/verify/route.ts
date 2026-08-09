@@ -136,7 +136,19 @@ export async function POST(req: Request) {
     });
 
     // 4. Remove purchased items from cart if checkout originated from Cart
-    if (pendingOrder.sessionId) {
+    if (pendingOrder.isGuest === true) {
+      if (pendingOrder.guestCartId) {
+        const guestKeys = await redis.keys(`guest-reservation:${pendingOrder.guestCartId}:*`);
+        if (guestKeys.length > 0) {
+          const pipeline = redis.pipeline();
+          guestKeys.forEach((key) => pipeline.del(key));
+          await pipeline.exec();
+        }
+      }
+      if (pendingOrder.sessionId) {
+        await redis.del(`checkout-session:${pendingOrder.sessionId}`);
+      }
+    } else if (pendingOrder.sessionId) {
       // Delete the checkout-session from Redis
       await redis.del(`checkout-session:${pendingOrder.sessionId}`);
       

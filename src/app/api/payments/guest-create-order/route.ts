@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { redis } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import { createRazorpayOrder } from "@/lib/razorpay";
@@ -7,6 +8,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { guestInfo, products } = body;
+
+    const cookieStore = await cookies();
+    const guestCartId = cookieStore.get("mb-guest-cart")?.value;
 
     if (!guestInfo) {
       return NextResponse.json({ error: "Customer details are required" }, { status: 400 });
@@ -84,6 +88,7 @@ export async function POST(req: Request) {
     // Cache authoritative pending guest order state in Redis with 15-minute TTL
     const pendingOrderPayload = {
       isGuest: true,
+      guestCartId: guestCartId || null,
       guestEmail: normalizedEmail,
       guestPhone: phone,
       guestName: name,

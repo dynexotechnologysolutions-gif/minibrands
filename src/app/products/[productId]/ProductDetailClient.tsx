@@ -299,6 +299,38 @@ export default function ProductDetailClient({
     setSuccessMessage(null);
 
     try {
+      if (!userProfile) {
+        // Guest user: Add to guest cart via public API
+        const res = await fetch("/api/guest-cart/reserve", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: product.id,
+            variantId: selectedVariantInfo.id,
+            quantity: 1,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setSuccessMessage("Added to guest cart successfully!");
+            setCartCount((prev) => prev + 1);
+            router.refresh();
+            window.dispatchEvent(new Event("cart-updated"));
+          } else {
+            setErrorMessage(data.error || "Failed to add to cart. Please try again.");
+          }
+        } else {
+          const errData = await res.json();
+          setErrorMessage(errData.error || "Failed to add to cart. Please try again.");
+        }
+        return;
+      }
+
+      // Logged-in user: server action
       const response = await reserveCartItem({
         productId: product.id,
         variantId: selectedVariantInfo.id,
@@ -326,11 +358,6 @@ export default function ProductDetailClient({
   };
 
   const handleBuyNow = async () => {
-    if (!userProfile) {
-      router.push(`/login?redirectTo=/products/${product.id}`);
-      return;
-    }
-
     if (!selectedSize || !selectedVariantInfo) {
       setErrorMessage("Please select a size first.");
       return;
@@ -359,7 +386,11 @@ export default function ProductDetailClient({
       const response = await createCheckoutSession(payload);
 
       if (response.success && response.sessionId) {
-        router.push(`/checkout?sessionId=${response.sessionId}`);
+        if (userProfile) {
+          router.push(`/checkout?sessionId=${response.sessionId}`);
+        } else {
+          router.push(`/checkout/guest?sessionId=${response.sessionId}`);
+        }
       } else {
         setErrorMessage(
           response.error || "Failed to initiate Buy Now. Please try again."
