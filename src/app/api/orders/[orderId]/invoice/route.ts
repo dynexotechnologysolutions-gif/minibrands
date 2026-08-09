@@ -116,18 +116,31 @@ export async function GET(
       paymentMethod: order.razorpayPaymentId ? "Online (Razorpay)" : "Prepaid",
       status: currentStatus.toUpperCase(),
 
-      buyer: {
-        name: order.address.fullName || order.buyer.user.name,
-        email: order.buyer.user.email,
-        phone: order.address.phone,
-        address: {
-          line1: order.address.line1,
-          line2: order.address.line2,
-          city: order.address.city,
-          pincode: order.address.pincode,
-          country: "India",
-        },
-      },
+      buyer: order.address && order.buyer
+        ? {
+            name: order.address.fullName || order.buyer.user.name,
+            email: order.buyer.user.email,
+            phone: order.address.phone,
+            address: {
+              line1: order.address.line1,
+              line2: order.address.line2,
+              city: order.address.city,
+              pincode: order.address.pincode,
+              country: "India",
+            },
+          }
+        : {
+            name: (order.guestShippingAddress as any)?.name || order.guestName || "Customer",
+            email: order.guestEmail || "",
+            phone: (order.guestShippingAddress as any)?.phone || order.guestPhone || "",
+            address: {
+              line1: (order.guestShippingAddress as any)?.line1 || "",
+              line2: (order.guestShippingAddress as any)?.line2 || "",
+              city: (order.guestShippingAddress as any)?.city || "",
+              pincode: (order.guestShippingAddress as any)?.postalCode || "",
+              country: "India",
+            },
+          },
 
       seller: {
         businessName: order.seller.businessName,

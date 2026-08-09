@@ -71,15 +71,24 @@ export default async function SellerOrderDetailPage({
     icarryLabelUrl: order.icarryLabelUrl,
     trackingUrl: order.trackingUrl,
     escrowReleaseAt: order.escrowReleaseAt?.toISOString() ?? null,
-    buyerName: order.buyer.user.name ?? "Unknown",
-    address: {
-      fullName: order.address.fullName,
-      phone: order.address.phone,
-      line1: order.address.line1,
-      line2: order.address.line2 ?? null,
-      city: order.address.city,
-      pincode: order.address.pincode,
-    },
+    buyerName: order.buyer?.user?.name ?? order.guestName ?? "Guest Buyer",
+    address: order.address
+      ? {
+          fullName: order.address.fullName,
+          phone: order.address.phone,
+          line1: order.address.line1,
+          line2: order.address.line2 ?? null,
+          city: order.address.city,
+          pincode: order.address.pincode,
+        }
+      : {
+          fullName: (order.guestShippingAddress as any)?.name || order.guestName || "Customer",
+          phone: (order.guestShippingAddress as any)?.phone || order.guestPhone || "",
+          line1: (order.guestShippingAddress as any)?.line1 || "",
+          line2: (order.guestShippingAddress as any)?.line2 || null,
+          city: (order.guestShippingAddress as any)?.city || "",
+          pincode: (order.guestShippingAddress as any)?.postalCode || "",
+        },
     items: order.items.map((item) => ({
       id: item.id,
       name: item.product.name,

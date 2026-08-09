@@ -268,39 +268,55 @@ model Address {
 }
 
 model Order {
-  id                  String      @id @default(uuid())
-  buyerId             String
-  buyer               UserProfile @relation(fields: [buyerId], references: [id])
-  sellerId            String
-  seller              Seller      @relation(fields: [sellerId], references: [id])
-  addressId           String
-  address             Address     @relation(fields: [addressId], references: [id])
-  status              OrderStatus @default(created)
-  subtotal            Int         @default(0) // paise
-  shipping            Int         @default(0) // paise
-  tax                 Int         @default(0) // paise
-  totalAmount         Int         // paise
-  commissionAmount    Int         // paise, calculated server-side
-  paymentStatus       String      @default("pending")
-  orderStatus         String      @default("created")
-  razorpayOrderId     String?     @unique
-  razorpayPaymentId   String?     @unique
-  escrowReleaseAt     DateTime?   // set when buyer confirms delivery
-  icarryOrderId       String?
-  icarryAwbNumber     String?
-  icarryLabelUrl      String?
-  trackingUrl         String?
-  razorpayPayoutId    String?     @unique
-  items               OrderItem[]
-  review              Review?
-  returnRequest       ReturnRequest?
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  id                   String       @id @default(uuid())
+  // Nullable — null for guest orders that have not yet been claimed
+  buyerId              String?
+  buyer                UserProfile? @relation(fields: [buyerId], references: [id])
+  sellerId             String
+  seller               Seller       @relation(fields: [sellerId], references: [id])
+  // Nullable — null for guest orders (address is snapshotted in guestShippingAddress)
+  addressId            String?
+  address              Address?     @relation(fields: [addressId], references: [id])
+  status               OrderStatus  @default(created)
+  subtotal             Int          @default(0) // paise
+  shipping             Int          @default(0) // paise
+  tax                  Int          @default(0) // paise
+  totalAmount          Int          // paise
+  commissionAmount     Int          // paise, calculated server-side
+  paymentStatus        String       @default("pending")
+  orderStatus          String       @default("created")
+  razorpayOrderId      String?      @unique
+  razorpayPaymentId    String?      @unique
+  escrowReleaseAt      DateTime?    // set when buyer confirms delivery
+  icarryOrderId        String?
+  icarryAwbNumber      String?
+  icarryLabelUrl       String?
+  trackingUrl          String?
+  razorpayPayoutId     String?      @unique
+  items                OrderItem[]
+  review               Review?
+  returnRequest        ReturnRequest?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  // ── GUEST CHECKOUT FIELDS ─────────────────────────────────────────────────
+  // All nullable. Populated only for guest orders. Never modified after creation.
+  guestEmail           String?      // Normalized (lowercase) email supplied at checkout
+  guestPhone           String?      // Phone supplied at checkout
+  guestName            String?      // Full name supplied at checkout
+  guestShippingAddress Json?        // Immutable snapshot: { name, phone, line1, line2?, city, state, postalCode, country }
+  guestTokenHash       String?      @unique // SHA-256(rawToken). Raw token shown ONCE, never persisted.
+  guestTokenCreatedAt  DateTime?    // When token was generated
+  guestTokenExpiresAt  DateTime?    // Token expiry (createdAt + 30 days)
+  guestClaimedAt       DateTime?    // Set when order is claimed by an authenticated account
+  // ─────────────────────────────────────────────────────────────────────────
 
   @@index([buyerId])
   @@index([sellerId])
   @@index([status])
   @@index([razorpayOrderId])
+  @@index([guestEmail])           // Efficient claim queries
+  @@index([guestTokenHash])       // Efficient token lookup
   @@index([status, escrowReleaseAt])
   @@map("order")
 }

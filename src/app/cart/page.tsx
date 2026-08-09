@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { getUserReservations } from "@/lib/redis";
+import { cookies } from "next/headers";
+import { redis, getUserReservations } from "@/lib/redis";
 import CartClient from "./CartClient";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,60 @@ export default async function CartPage() {
   });
 
   if (!session || !session.user) {
-    redirect("/login?redirectTo=/cart");
+    const cookieStore = await cookies();
+    const guestCartId = cookieStore.get("mb-guest-cart")?.value;
+    const cartItems = [];
+
+    if (guestCartId) {
+      const guestKeys = await redis.keys(`guest-reservation:${guestCartId}:*`);
+      if (guestKeys.length > 0) {
+        const pipeline = redis.pipeline();
+        guestKeys.forEach((key) => pipeline.get(key));
+        const results = await pipeline.exec();
+
+        for (const val of results) {
+          if (!val) continue;
+          const item = typeof val === "string" ? JSON.parse(val) : val;
+
+          const product = await prisma.product.findUnique({
+            where: { id: item.productId, isDeleted: false },
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+              seller: true,
+              variants: { where: { id: item.variantId } },
+            },
+          });
+
+          const variant = product?.variants[0];
+          if (!product || !variant || !product.isPublished) continue;
+
+          cartItems.push({
+            id: `${guestCartId}:${item.variantId}`,
+            productId: product.id,
+            variantId: variant.id,
+            quantity: item.quantity,
+            price: product.price,
+            createdAt: item.createdAt,
+            name: product.name,
+            image: product.images[0]?.url || "/placeholder.jpg",
+            sellerName: product.seller.businessName,
+            sellerId: product.sellerId,
+            size: variant.size,
+          });
+        }
+      }
+    }
+
+    return (
+      <main className="min-h-screen bg-background">
+        <CartClient
+          initialItems={cartItems}
+          userProfile={null}
+          cartCount={cartItems.reduce((acc, curr) => acc + curr.quantity, 0)}
+          sellerHref="/login?role=seller"
+        />
+      </main>
+    );
   }
 
   const userProfile = await prisma.userProfile.findUnique({

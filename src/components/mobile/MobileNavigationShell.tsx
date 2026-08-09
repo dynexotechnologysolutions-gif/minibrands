@@ -6,6 +6,8 @@ import MobileBottomNavigation from "./MobileBottomNavigation";
 
 import { UserProfileData } from "@/components/home/HomeHeader";
 
+import { usePathname } from "next/navigation";
+
 interface MobileNavigationShellProps {
   userProfile?: UserProfileData | null;
   cartCount: number;
@@ -16,6 +18,18 @@ export default function MobileNavigationShell({
   userProfile,
   cartCount,
 }: MobileNavigationShellProps) {
+  const pathname = usePathname();
+  
+  // Hide global header/footer navigation on checkout and order confirmation screens
+  const isCheckoutOrClaim = 
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/order/success") ||
+    pathname.startsWith("/claim-order");
+
+  if (isCheckoutOrClaim) {
+    return null;
+  }
+
   return (
     <div className="md:hidden block">
       {/* Dynamic Mobile Header */}

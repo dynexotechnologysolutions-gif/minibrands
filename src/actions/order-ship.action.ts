@@ -78,15 +78,19 @@ export async function shipOrderAction(
     });
 
     // ── Non-blocking: WhatsApp notification to buyer ───────────────────────────
-    void sendMessage(
-      updatedOrder.buyer.user.email,
-      TEMPLATES.ORDER_SHIPPED,
-      [
-        updatedOrder.buyer.user.name?.split(" ")[0] ?? "Customer",
-        orderId.slice(0, 8),
-        trackingUrl ?? "Track your package in the app",
-      ]
-    );
+    const buyerEmail = updatedOrder.buyer?.user?.email || updatedOrder.guestEmail;
+    const buyerName = updatedOrder.buyer?.user?.name?.split(" ")[0] || updatedOrder.guestName?.split(" ")[0] || "Customer";
+    if (buyerEmail) {
+      void sendMessage(
+        buyerEmail,
+        TEMPLATES.ORDER_SHIPPED,
+        [
+          buyerName,
+          orderId.slice(0, 8),
+          trackingUrl ?? "Track your package in the app",
+        ]
+      );
+    }
 
     return {
       success: true,

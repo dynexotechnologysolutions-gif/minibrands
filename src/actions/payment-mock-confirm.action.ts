@@ -65,17 +65,20 @@ export async function mockConfirmPayment(
     });
 
     // Delete reservation
-    for (const item of order.items) {
-      await deleteMatchingReservation(
-        order.buyerId,
-        item.productId,
-        item.variantId,
-        item.quantity
-      );
+    if (order.buyerId) {
+      for (const item of order.items) {
+        await deleteMatchingReservation(
+          order.buyerId,
+          item.productId,
+          item.variantId,
+          item.quantity
+        );
+      }
     }
 
     // Track analytics event
-    trackEvent(order.buyer.userId, "payment_completed", {
+    const buyerUserId = order.buyer?.userId || `guest_${order.guestEmail}`;
+    trackEvent(buyerUserId, "payment_completed", {
       orderId: order.id,
       totalAmount: order.totalAmount,
       commissionAmount: order.commissionAmount,
@@ -83,7 +86,7 @@ export async function mockConfirmPayment(
       environment: "sandbox_mock",
     });
 
-    console.log(`[NOTIFICATION_EVENT] ORDER_PAID (MOCK): {"orderId": "${order.id}", "buyerId": "${order.buyerId}", "totalAmount": ${order.totalAmount}}`);
+    console.log(`[NOTIFICATION_EVENT] ORDER_PAID (MOCK): {"orderId": "${order.id}", "buyerId": "${order.buyerId || "GUEST"}", "totalAmount": ${order.totalAmount}}`);
 
     return {
       success: true,

@@ -97,14 +97,23 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     razorpayOrderId: order.razorpayOrderId,
     razorpayPaymentId: order.razorpayPaymentId,
     sellerName: order.seller.businessName,
-    address: {
-      fullName: order.address.fullName,
-      phone: order.address.phone,
-      line1: order.address.line1,
-      line2: order.address.line2,
-      city: order.address.city,
-      pincode: order.address.pincode,
-    },
+    address: order.address
+      ? {
+          fullName: order.address.fullName,
+          phone: order.address.phone,
+          line1: order.address.line1,
+          line2: order.address.line2,
+          city: order.address.city,
+          pincode: order.address.pincode,
+        }
+      : {
+          fullName: (order.guestShippingAddress as any)?.name || order.guestName || "Customer",
+          phone: (order.guestShippingAddress as any)?.phone || order.guestPhone || "",
+          line1: (order.guestShippingAddress as any)?.line1 || "",
+          line2: (order.guestShippingAddress as any)?.line2 || "",
+          city: (order.guestShippingAddress as any)?.city || "",
+          pincode: (order.guestShippingAddress as any)?.postalCode || "",
+        },
     items: formattedItems,
     // Epic 4 fields
     trackingUrl: order.trackingUrl,

@@ -38,25 +38,62 @@ export async function POST(req: Request) {
     const pendingOrder = typeof pendingOrderRaw === "string" ? JSON.parse(pendingOrderRaw) : pendingOrderRaw;
 
     // 3. Create records inside Prisma Transaction
-    const order = await prisma.$transaction(async (tx) => {
-      // Create the main Order record
-      const dbOrder = await tx.order.create({
-        data: {
-          buyerId: pendingOrder.userId,
-          sellerId: pendingOrder.sellerId,
-          addressId: pendingOrder.addressId,
-          status: "paid",
-          subtotal: pendingOrder.subtotal,
-          shipping: pendingOrder.shipping,
-          tax: pendingOrder.tax,
-          totalAmount: pendingOrder.totalAmount,
-          commissionAmount: Math.round(pendingOrder.totalAmount * 0.08),
-          paymentStatus: "paid",
-          orderStatus: "confirmed",
-          razorpayOrderId: razorpay_order_id,
-          razorpayPaymentId: razorpay_payment_id,
-        },
-      });
+    const verifyResult = await prisma.$transaction(async (tx) => {
+      let dbOrder;
+      let rawGuestToken: string | undefined;
+
+      if (pendingOrder.isGuest === true) {
+        const { GuestOrderService } = await import("@/lib/guest-order.service");
+        rawGuestToken = GuestOrderService.generateGuestToken();
+        const hash = GuestOrderService.hashGuestToken(rawGuestToken);
+
+        // Create the main Order record for guest checkout (buyerId and addressId are null)
+        dbOrder = await tx.order.create({
+          data: {
+            buyerId: null,
+            sellerId: pendingOrder.sellerId,
+            addressId: null,
+            status: "paid",
+            subtotal: pendingOrder.subtotal,
+            shipping: pendingOrder.shipping,
+            tax: pendingOrder.tax,
+            totalAmount: pendingOrder.totalAmount,
+            commissionAmount: Math.round(pendingOrder.totalAmount * 0.08),
+            paymentStatus: "paid",
+            orderStatus: "confirmed",
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id,
+            
+            // Populate guest fields
+            guestEmail: pendingOrder.guestEmail,
+            guestPhone: pendingOrder.guestPhone,
+            guestName: pendingOrder.guestName,
+            guestShippingAddress: pendingOrder.guestShippingAddress,
+            guestTokenHash: hash,
+            guestTokenCreatedAt: new Date(),
+            guestTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
+      } else {
+        // Create the main Order record for authenticated checkout
+        dbOrder = await tx.order.create({
+          data: {
+            buyerId: pendingOrder.userId,
+            sellerId: pendingOrder.sellerId,
+            addressId: pendingOrder.addressId,
+            status: "paid",
+            subtotal: pendingOrder.subtotal,
+            shipping: pendingOrder.shipping,
+            tax: pendingOrder.tax,
+            totalAmount: pendingOrder.totalAmount,
+            commissionAmount: Math.round(pendingOrder.totalAmount * 0.08),
+            paymentStatus: "paid",
+            orderStatus: "confirmed",
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id,
+          },
+        });
+      }
 
       // Create OrderItem records and update stock count
       for (const item of pendingOrder.products) {
@@ -92,7 +129,7 @@ export async function POST(req: Request) {
         },
       });
 
-      return dbOrder;
+      return { orderId: dbOrder.id, guestToken: rawGuestToken };
     }, {
       maxWait: 15000,
       timeout: 30000,
@@ -117,7 +154,11 @@ export async function POST(req: Request) {
     // 5. Clean up pending order from Redis
     await redis.del(`pending-order:${razorpay_order_id}`);
 
-    return NextResponse.json({ success: true, orderId: order.id });
+    return NextResponse.json({
+      success: true,
+      orderId: verifyResult.orderId,
+      guestToken: verifyResult.guestToken,
+    });
   } catch (error: any) {
     console.error("[Verify Payment API Error]", error);
     return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });

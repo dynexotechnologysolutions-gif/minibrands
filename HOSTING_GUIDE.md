@@ -10,9 +10,9 @@ Velvet Lane uses a modern, high-performance web architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              Vercel (Frontend + Server Actions)        │
-│          Next.js App Router (React 19 + SSR)            │
-└──────────────┬──────────────────┬───────────────────────┘
+│              Vercel (Frontend + Server Actions)         │
+│          Next.js App Router (React 19 + SSR)           │
+└──────────────┬──────────────────┬───────────────────────┘ 
                │                  │
                ▼                  ▼
 ┌──────────────────────────┐    ┌─────────────────────────┐

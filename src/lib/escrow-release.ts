@@ -155,7 +155,7 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
 
       // ── WhatsApp notifications — non-blocking ────────────────────────────────
       const sellerPhone = order.seller.userProfile.user.name; // phone stored in user.name fallback
-      const buyerName = order.buyer.user.name?.split(" ")[0] ?? "Customer";
+      const buyerName = order.buyer?.user?.name?.split(" ")[0] || order.guestName?.split(" ")[0] || "Customer";
       const formattedAmount = `₹${(sellerAmount / 100).toFixed(2)}`;
 
       // Notify seller

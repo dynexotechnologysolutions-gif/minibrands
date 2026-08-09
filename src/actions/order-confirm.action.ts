@@ -79,26 +79,49 @@ export async function confirmOrderAction(
     });
 
     // ── Non-blocking: WhatsApp notification to buyer ───────────────────────────
-    void sendMessage(
-      updatedOrder.buyer.user.email,
-      TEMPLATES.ORDER_CONFIRMED,
-      [updatedOrder.buyer.user.name?.split(" ")[0] ?? "Customer", orderId.slice(0, 8)]
-    );
+    const buyerEmail = updatedOrder.buyer?.user?.email || updatedOrder.guestEmail;
+    const buyerFirstName = updatedOrder.buyer?.user?.name?.split(" ")[0] || updatedOrder.guestName?.split(" ")[0] || "Customer";
+    if (buyerEmail) {
+      void sendMessage(
+        buyerEmail,
+        TEMPLATES.ORDER_CONFIRMED,
+        [buyerFirstName, orderId.slice(0, 8)]
+      );
+    }
 
     // ── Non-blocking: iCarry shipment creation ─────────────────────────────────
     const result: ConfirmResult = {};
 
     try {
-      const shipment = await createShipment({
-        id: orderId,
-        address: {
+      let shippingAddressInfo;
+      if (updatedOrder.address) {
+        shippingAddressInfo = {
           fullName: updatedOrder.address.fullName,
           phone: updatedOrder.address.phone,
           line1: updatedOrder.address.line1,
           line2: updatedOrder.address.line2,
           city: updatedOrder.address.city,
           pincode: updatedOrder.address.pincode,
-        },
+        };
+      } else if (updatedOrder.guestShippingAddress) {
+        const guestAddr = updatedOrder.guestShippingAddress as any;
+        shippingAddressInfo = {
+          fullName: guestAddr.name || updatedOrder.guestName || "Customer",
+          phone: guestAddr.phone || updatedOrder.guestPhone || "",
+          line1: guestAddr.line1 || "",
+          line2: guestAddr.line2 || "",
+          city: guestAddr.city || "",
+          pincode: guestAddr.postalCode || "",
+        };
+      }
+
+      if (!shippingAddressInfo) {
+        throw new Error("No shipping address available");
+      }
+
+      const shipment = await createShipment({
+        id: orderId,
+        address: shippingAddressInfo,
       });
 
       result.icarryOrderId = shipment.icarryOrderId;

@@ -81,7 +81,7 @@ export async function GET() {
       date: o.createdAt.toISOString(),
       orderId: o.id,
       sellerName: o.seller.businessName,
-      buyerName: o.buyer.user.name || "Buyer",
+      buyerName: o.buyer?.user?.name || o.guestName || "Guest Buyer",
       grossAmount: o.totalAmount / 100,
       commissionAmount: o.commissionAmount / 100,
       netPayout: (o.totalAmount - o.commissionAmount) / 100,

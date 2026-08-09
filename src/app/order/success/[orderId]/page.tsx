@@ -315,13 +315,27 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
           <div className="lg:col-span-8 bg-vl-card p-6 rounded-vl-card border border-vl-border shadow-vl-soft flex flex-col sm:flex-row gap-6">
             <div className="flex-1 space-y-2">
               <p className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em]">Delivery Address</p>
-              <p className="font-bold text-vl-ink text-base">{order.address.fullName}</p>
-              <div className="text-sm text-vl-muted leading-relaxed">
-                <p>{order.address.line1}</p>
-                {order.address.line2 && <p>{order.address.line2}</p>}
-                <p>{order.address.city} - {order.address.pincode}</p>
-                <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {order.address.phone}</p>
-              </div>
+              {order.address ? (
+                <>
+                  <p className="font-bold text-vl-ink text-base">{order.address.fullName}</p>
+                  <div className="text-sm text-vl-muted leading-relaxed">
+                    <p>{order.address.line1}</p>
+                    {order.address.line2 && <p>{order.address.line2}</p>}
+                    <p>{order.address.city} - {order.address.pincode}</p>
+                    <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {order.address.phone}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold text-vl-ink text-base">{(order.guestShippingAddress as any)?.name || order.guestName}</p>
+                  <div className="text-sm text-vl-muted leading-relaxed">
+                    <p>{(order.guestShippingAddress as any)?.line1}</p>
+                    {(order.guestShippingAddress as any)?.line2 && <p>{(order.guestShippingAddress as any)?.line2}</p>}
+                    <p>{(order.guestShippingAddress as any)?.city} - {(order.guestShippingAddress as any)?.postalCode}</p>
+                    <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {(order.guestShippingAddress as any)?.phone || order.guestPhone}</p>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="hidden sm:block w-px bg-vl-border shrink-0 self-stretch" />

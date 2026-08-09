@@ -51,12 +51,19 @@ export async function GET(
       trackingUrl: order.trackingUrl,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
-      buyer: {
-        id: order.buyer.id,
-        name: order.buyer.user.name,
-        email: order.buyer.user.email,
-        abuseScore: order.buyer.abuseScore,
-      },
+      buyer: order.buyer
+        ? {
+            id: order.buyer.id,
+            name: order.buyer.user.name,
+            email: order.buyer.user.email,
+            abuseScore: order.buyer.abuseScore,
+          }
+        : {
+            id: "guest",
+            name: order.guestName || "Guest Buyer",
+            email: order.guestEmail || "",
+            abuseScore: 0.0,
+          },
       seller: {
         id: order.seller.id,
         businessName: order.seller.businessName,

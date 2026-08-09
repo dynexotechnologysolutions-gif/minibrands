@@ -309,7 +309,11 @@ export default function CartClient({
 
         const sessionRes = await createCheckoutSession(payload);
         if (sessionRes.success && sessionRes.sessionId) {
-          router.push(`/checkout?sessionId=${sessionRes.sessionId}`);
+          if (userProfile) {
+            router.push(`/checkout?sessionId=${sessionRes.sessionId}`);
+          } else {
+            router.push(`/checkout/guest?sessionId=${sessionRes.sessionId}`);
+          }
         } else {
           setError(sessionRes.error || "Failed to initiate checkout.");
         }

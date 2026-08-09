@@ -85,7 +85,8 @@ export async function confirmDeliveryAction(
     });
 
     // ── Non-blocking: WhatsApp to buyer + seller ───────────────────────────────
-    const buyerName = updatedOrder.buyer.user.name?.split(" ")[0] ?? "Customer";
+    const buyerName = updatedOrder.buyer?.user?.name?.split(" ")[0] || updatedOrder.guestName?.split(" ")[0] || "Customer";
+    const buyerEmail = updatedOrder.buyer?.user?.email || updatedOrder.guestEmail;
     const sellerName = updatedOrder.seller.businessName;
     const releaseFormatted = escrowReleaseAt.toLocaleDateString("en-IN", {
       day: "numeric",
@@ -93,11 +94,13 @@ export async function confirmDeliveryAction(
       year: "numeric",
     });
 
-    void sendMessage(
-      updatedOrder.buyer.user.email,
-      TEMPLATES.DELIVERY_CONFIRMED,
-      [buyerName, orderId.slice(0, 8), releaseFormatted]
-    );
+    if (buyerEmail) {
+      void sendMessage(
+        buyerEmail,
+        TEMPLATES.DELIVERY_CONFIRMED,
+        [buyerName, orderId.slice(0, 8), releaseFormatted]
+      );
+    }
 
     void sendMessage(
       updatedOrder.seller.userProfile.user.email,

@@ -103,7 +103,7 @@ export async function GET(
       })),
       orders: seller.orders.slice(0, 10).map((o) => ({
         id: o.id,
-        buyerName: o.buyer.user.name,
+        buyerName: o.buyer?.user?.name || o.guestName || "Guest Buyer",
         totalAmount: o.totalAmount / 100,
         status: o.status,
         createdAt: o.createdAt.toISOString(),

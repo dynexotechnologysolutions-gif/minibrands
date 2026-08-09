@@ -97,17 +97,20 @@ export async function POST(req: Request) {
     });
 
     // 7. Clean up reservation from Redis (outside transaction to avoid database blocking)
-    for (const item of order.items) {
-      await deleteMatchingReservation(
-        order.buyerId,
-        item.productId,
-        item.variantId,
-        item.quantity
-      );
+    if (order.buyerId) {
+      for (const item of order.items) {
+        await deleteMatchingReservation(
+          order.buyerId,
+          item.productId,
+          item.variantId,
+          item.quantity
+        );
+      }
     }
 
     // 8. Track successful payment analytics (Server-side)
-    trackEvent(order.buyer.userId, "payment_completed", {
+    const buyerUserId = order.buyer?.userId || `guest_${order.guestEmail}`;
+    trackEvent(buyerUserId, "payment_completed", {
       orderId: order.id,
       totalAmount: order.totalAmount,
       commissionAmount: order.commissionAmount,

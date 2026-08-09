@@ -38,8 +38,8 @@ export async function GET(request: Request) {
 
     const formattedOrders = orders.map((o) => ({
       id: o.id,
-      buyerName: o.buyer.user.name || "Buyer",
-      buyerEmail: o.buyer.user.email,
+      buyerName: o.buyer?.user?.name || o.guestName || "Guest Buyer",
+      buyerEmail: o.buyer?.user?.email || o.guestEmail || "",
       sellerName: o.seller.businessName,
       sellerId: o.seller.id,
       status: o.status,

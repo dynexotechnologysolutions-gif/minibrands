@@ -163,7 +163,7 @@ export default async function FounderDashboardPage() {
     ...recentOrdersForFeedAndTable.slice(0, 10).map((o) => ({
       id: `ord-${o.id}`,
       title: `New Order #${o.id.slice(0, 8)}`,
-      description: `Placed by ${o.buyer.user.name || "Buyer"} for ₹${(o.totalAmount / 100).toLocaleString("en-IN")}`,
+      description: `Placed by ${o.buyer?.user?.name || o.guestName || "Guest Buyer"} for ₹${(o.totalAmount / 100).toLocaleString("en-IN")}`,
       timestamp: o.createdAt.toISOString(),
     })),
     ...recentReturns.slice(0, 5).map((r) => ({
@@ -179,7 +179,7 @@ export default async function FounderDashboardPage() {
   // ── Recent Orders Table ──────────────────────────────────────────────────
   const recentOrders = recentOrdersForFeedAndTable.slice(0, 8).map((o) => ({
     id: o.id,
-    buyerName: o.buyer.user.name || "Buyer",
+    buyerName: o.buyer?.user?.name || o.guestName || "Guest Buyer",
     sellerName: o.seller.businessName,
     totalAmount: o.totalAmount / 100,
     status: o.status,

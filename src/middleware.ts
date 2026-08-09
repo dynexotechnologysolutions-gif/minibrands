@@ -14,6 +14,12 @@ const PUBLIC_PATHS = [
   "/forgot-password",
   "/reset-password",
   "/verify-email",
+  "/checkout/guest",
+  "/order/success/guest",
+  "/claim-order",
+  "/api/guest-cart",
+  "/api/guest-orders",
+  "/api/payments/guest-create-order",
   "/api/auth",
   "/api/webhooks",
 ];
