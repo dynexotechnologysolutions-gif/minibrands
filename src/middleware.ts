@@ -22,10 +22,10 @@ const PUBLIC_PATHS = [
   "/api/payments/guest-create-order",
   "/api/auth",
   "/api/webhooks",
+  "/cart",
 ];
 
 const BUYER_PROTECTED_PATHS = [
-  "/cart",
   "/account",
   "/orders",
   "/wishlist",
@@ -74,6 +74,16 @@ export async function middleware(request: NextRequest) {
     request.cookies.get("__Secure-better-auth.session_token")?.value;
 
   const isAuthenticated = !!sessionToken;
+
+  // Check if it's a public path
+  const isPublicPath = PUBLIC_PATHS.some((path) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  });
+
+  if (isPublicPath) {
+    return response;
+  }
 
   // 3. Protected Route Checking
   const isBuyerRoute = BUYER_PROTECTED_PATHS.some((path) =>

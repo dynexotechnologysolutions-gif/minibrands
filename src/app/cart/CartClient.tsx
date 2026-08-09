@@ -292,6 +292,25 @@ export default function CartClient({
       setIsCheckingOut(true);
       setError(null);
       try {
+        if (!userProfile) {
+          // Guest user: call public guest-checkout session API
+          const res = await fetch("/api/guest-checkout/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode: "CART_CHECKOUT" }),
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data.sessionId) {
+            setError(data.error || "Failed to initiate checkout.");
+            return;
+          }
+
+          router.push(`/checkout/guest?sessionId=${data.sessionId}`);
+          return;
+        }
+
+        // Authenticated user: use server action with reservationId tracking
         const payload = {
           mode: "CART_CHECKOUT" as const,
           products: activeItems.map((item) => ({
@@ -309,11 +328,7 @@ export default function CartClient({
 
         const sessionRes = await createCheckoutSession(payload);
         if (sessionRes.success && sessionRes.sessionId) {
-          if (userProfile) {
-            router.push(`/checkout?sessionId=${sessionRes.sessionId}`);
-          } else {
-            router.push(`/checkout/guest?sessionId=${sessionRes.sessionId}`);
-          }
+          router.push(`/checkout?sessionId=${sessionRes.sessionId}`);
         } else {
           setError(sessionRes.error || "Failed to initiate checkout.");
         }

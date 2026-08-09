@@ -367,6 +367,34 @@ export default function ProductDetailClient({
     setSuccessMessage(null);
 
     try {
+      if (!userProfile) {
+        // Guest user: call public guest-checkout session API
+        const res = await fetch("/api/guest-checkout/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "BUY_NOW",
+            productId: product.id,
+            variantId: selectedVariantInfo.id,
+            quantity: 1,
+            size: selectedVariantInfo.size,
+            image: images[0]?.url || "/placeholder.jpg",
+            sellerName: product.seller.businessName,
+            sellerId: product.seller.id,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.sessionId) {
+          setErrorMessage(data.error || "Failed to initiate Buy Now. Please try again.");
+          return;
+        }
+
+        router.push(`/checkout/guest?sessionId=${data.sessionId}`);
+        return;
+      }
+
+      // Authenticated user: use server action with cart reservation
       const payload = {
         mode: "BUY_NOW" as const,
         products: [
@@ -386,11 +414,7 @@ export default function ProductDetailClient({
       const response = await createCheckoutSession(payload);
 
       if (response.success && response.sessionId) {
-        if (userProfile) {
-          router.push(`/checkout?sessionId=${response.sessionId}`);
-        } else {
-          router.push(`/checkout/guest?sessionId=${response.sessionId}`);
-        }
+        router.push(`/checkout?sessionId=${response.sessionId}`);
       } else {
         setErrorMessage(
           response.error || "Failed to initiate Buy Now. Please try again."

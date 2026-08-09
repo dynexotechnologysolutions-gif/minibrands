@@ -4,6 +4,17 @@ import { redis } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import { createRazorpayOrder } from "@/lib/razorpay";
 
+/**
+ * POST /api/payments/guest-create-order
+ *
+ * Creates a Razorpay order for a guest checkout session.
+ *
+ * Security rules:
+ * 1. All prices are fetched from the database — never from the client request.
+ * 2. Seller verification is validated server-side.
+ * 3. Stock is validated server-side.
+ * 4. The pending order payload stored in Redis does NOT include raw items with client-supplied prices.
+ */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -38,8 +49,10 @@ export async function POST(req: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Validate products, stock, and seller status
+    // Validate products, stock, and seller status — fetch all from DB
     let sellerId = "";
+    const validatedProducts: { productId: string; variantId: string; quantity: number; price: number }[] = [];
+
     for (const p of products) {
       const dbProduct = await prisma.product.findUnique({
         where: { id: p.productId, isDeleted: false },
@@ -69,10 +82,18 @@ export async function POST(req: Request) {
       }
 
       sellerId = dbProduct.sellerId;
+
+      // Use server-side price from DB — never from client request body
+      validatedProducts.push({
+        productId: dbProduct.id,
+        variantId: variant.id,
+        quantity: p.quantity,
+        price: dbProduct.price, // authoritative paise price from DB
+      });
     }
 
-    // Calculate final payable amount (authoritative server-side calculation)
-    const itemsTotal = products.reduce((acc: number, p: any) => acc + p.price * p.quantity, 0); // in paise
+    // Authoritative server-side amount calculation
+    const itemsTotal = validatedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0); // in paise
     const platformFee = itemsTotal > 10000 ? 1000 : 0;
     const packagingFee = itemsTotal > 10000 ? 5900 : 0;
 
@@ -102,7 +123,8 @@ export async function POST(req: Request) {
         postalCode: address.postalCode,
         country: "IN",
       },
-      products,
+      // Use validated DB-sourced products — not client payload
+      products: validatedProducts,
       subtotal: orderSubtotal,
       shipping: orderShipping,
       tax: orderTax,

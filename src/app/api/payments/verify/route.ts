@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { redis } from "@/lib/redis";
 import crypto from "crypto";
+import { processSuccessfulPayment } from "@/lib/process-payment";
 
+/**
+ * POST /api/payments/verify
+ *
+ * Client-side callback after Razorpay payment success.
+ *
+ * Security:
+ * 1. Always verifies Razorpay HMAC signature in production.
+ * 2. Delegates order creation to processSuccessfulPayment() — the single source of truth.
+ * 3. Idempotent: duplicate calls return the same orderId.
+ */
 export async function POST(req: Request) {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = await req.json();
@@ -19,8 +28,14 @@ export async function POST(req: Request) {
         razorpay_order_id.startsWith("order_mock_"));
 
     if (!isMock) {
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      if (!keySecret) {
+        console.error("[verify] RAZORPAY_KEY_SECRET is not configured.");
+        return NextResponse.json({ error: "Payment verification is not configured" }, { status: 500 });
+      }
+
       const generated = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
+        .createHmac("sha256", keySecret)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest("hex");
 
@@ -29,147 +44,18 @@ export async function POST(req: Request) {
       }
     }
 
-    // 2. Fetch pending order details from Redis
-    const pendingOrderRaw = await redis.get(`pending-order:${razorpay_order_id}`);
-    if (!pendingOrderRaw) {
-      return NextResponse.json({ error: "Payment verification window expired or order processed" }, { status: 400 });
+    // 2. Delegate to unified payment processor
+    const result = await processSuccessfulPayment(razorpay_order_id, razorpay_payment_id);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
-
-    const pendingOrder = typeof pendingOrderRaw === "string" ? JSON.parse(pendingOrderRaw) : pendingOrderRaw;
-
-    // 3. Create records inside Prisma Transaction
-    const verifyResult = await prisma.$transaction(async (tx) => {
-      let dbOrder;
-      let rawGuestToken: string | undefined;
-
-      if (pendingOrder.isGuest === true) {
-        const { GuestOrderService } = await import("@/lib/guest-order.service");
-        rawGuestToken = GuestOrderService.generateGuestToken();
-        const hash = GuestOrderService.hashGuestToken(rawGuestToken);
-
-        // Create the main Order record for guest checkout (buyerId and addressId are null)
-        dbOrder = await tx.order.create({
-          data: {
-            buyerId: null,
-            sellerId: pendingOrder.sellerId,
-            addressId: null,
-            status: "paid",
-            subtotal: pendingOrder.subtotal,
-            shipping: pendingOrder.shipping,
-            tax: pendingOrder.tax,
-            totalAmount: pendingOrder.totalAmount,
-            commissionAmount: Math.round(pendingOrder.totalAmount * 0.08),
-            paymentStatus: "paid",
-            orderStatus: "confirmed",
-            razorpayOrderId: razorpay_order_id,
-            razorpayPaymentId: razorpay_payment_id,
-            
-            // Populate guest fields
-            guestEmail: pendingOrder.guestEmail,
-            guestPhone: pendingOrder.guestPhone,
-            guestName: pendingOrder.guestName,
-            guestShippingAddress: pendingOrder.guestShippingAddress,
-            guestTokenHash: hash,
-            guestTokenCreatedAt: new Date(),
-            guestTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-          },
-        });
-      } else {
-        // Create the main Order record for authenticated checkout
-        dbOrder = await tx.order.create({
-          data: {
-            buyerId: pendingOrder.userId,
-            sellerId: pendingOrder.sellerId,
-            addressId: pendingOrder.addressId,
-            status: "paid",
-            subtotal: pendingOrder.subtotal,
-            shipping: pendingOrder.shipping,
-            tax: pendingOrder.tax,
-            totalAmount: pendingOrder.totalAmount,
-            commissionAmount: Math.round(pendingOrder.totalAmount * 0.08),
-            paymentStatus: "paid",
-            orderStatus: "confirmed",
-            razorpayOrderId: razorpay_order_id,
-            razorpayPaymentId: razorpay_payment_id,
-          },
-        });
-      }
-
-      // Create OrderItem records and update stock count
-      for (const item of pendingOrder.products) {
-        await tx.orderItem.create({
-          data: {
-            orderId: dbOrder.id,
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-            unitPrice: item.price,
-          },
-        });
-
-        // Decrement product variant stock count
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: {
-            stockCount: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      }
-
-      // Create the Payment record
-      await tx.payment.create({
-        data: {
-          razorpayPaymentId: razorpay_payment_id,
-          razorpayOrderId: razorpay_order_id,
-          amount: pendingOrder.totalAmount,
-          paymentMethod: "razorpay",
-          status: "captured",
-        },
-      });
-
-      return { orderId: dbOrder.id, guestToken: rawGuestToken };
-    }, {
-      maxWait: 15000,
-      timeout: 30000,
-    });
-
-    // 4. Remove purchased items from cart if checkout originated from Cart
-    if (pendingOrder.isGuest === true) {
-      if (pendingOrder.guestCartId) {
-        const guestKeys = await redis.keys(`guest-reservation:${pendingOrder.guestCartId}:*`);
-        if (guestKeys.length > 0) {
-          const pipeline = redis.pipeline();
-          guestKeys.forEach((key) => pipeline.del(key));
-          await pipeline.exec();
-        }
-      }
-      if (pendingOrder.sessionId) {
-        await redis.del(`checkout-session:${pendingOrder.sessionId}`);
-      }
-    } else if (pendingOrder.sessionId) {
-      // Delete the checkout-session from Redis
-      await redis.del(`checkout-session:${pendingOrder.sessionId}`);
-      
-      // Delete individual reservations for products (cart items)
-      for (const item of pendingOrder.products) {
-        if (item.reservationId) {
-          await redis.del(`reservation:${item.reservationId}`);
-        }
-      }
-    } else if (pendingOrder.reservationId) {
-      // Buy Now single item reservation cleanup
-      await redis.del(`reservation:${pendingOrder.reservationId}`);
-    }
-
-    // 5. Clean up pending order from Redis
-    await redis.del(`pending-order:${razorpay_order_id}`);
 
     return NextResponse.json({
       success: true,
-      orderId: verifyResult.orderId,
-      guestToken: verifyResult.guestToken,
+      orderId: result.orderId,
+      guestToken: result.guestToken,
+      alreadyProcessed: result.alreadyProcessed,
     });
   } catch (error: any) {
     console.error("[Verify Payment API Error]", error);

@@ -4,7 +4,7 @@ import { redis } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import GuestCheckoutClient from "./GuestCheckoutClient";
-import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
+import type { GuestCheckoutSessionPayload } from "@/app/api/guest-checkout/session/route";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +25,8 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
   let totalQuantity = 0;
 
   if (sessionId) {
-    // Retrieve single session checkout (e.g. from Buy Now or specific cart group checkout)
-    const sessionKey = `checkout-session:${sessionId}`;
-    const sessionRaw = await redis.get(sessionKey);
+    // ── PATH A: Session-based (Buy Now or Cart Checkout via /api/guest-checkout/session)
+    const sessionRaw = await redis.get(`guest-checkout-session:${sessionId}`);
 
     if (!sessionRaw) {
       return (
@@ -50,12 +49,12 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
 
     const checkoutSession = (
       typeof sessionRaw === "string" ? JSON.parse(sessionRaw) : sessionRaw
-    ) as CheckoutSessionPayload;
+    ) as GuestCheckoutSessionPayload;
 
     totalQuantity = checkoutSession.products.reduce((acc, p) => acc + p.quantity, 0);
 
     for (const item of checkoutSession.products) {
-      // Fetch product info from DB to guarantee price security
+      // Fetch authoritative product details from DB — never trust client-supplied prices
       const product = await prisma.product.findUnique({
         where: { id: item.productId, isDeleted: false },
         include: {
@@ -77,7 +76,7 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
       checkoutProducts.push({
         id: product.id,
         name: product.name,
-        price: product.price, // in paise
+        price: product.price, // authoritative server-side price in paise
         size: variant.size,
         image: product.images[0]?.url || "/placeholder.jpg",
         sellerName: product.seller.businessName,
@@ -88,7 +87,7 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
       });
     }
   } else {
-    // Guest cart fallback
+    // ── PATH B: Direct cart fallback (no sessionId)
     if (!guestCartId) {
       return (
         <main className="min-h-screen bg-vl-surface px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center font-vl-body">
@@ -108,9 +107,13 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
       );
     }
 
-    // Retrieve guest reservations
-    const guestKeys = await redis.keys(`guest-reservation:${guestCartId}:*`);
-    if (guestKeys.length === 0) {
+    // Use catalog hash index to avoid key scan
+    const { getGuestCartItems } = await import("@/lib/guest-cart");
+    const guestItems = await getGuestCartItems(guestCartId);
+
+    const activeItems = guestItems.filter((item) => item.isReserved);
+
+    if (activeItems.length === 0) {
       return (
         <main className="min-h-screen bg-vl-surface px-4 py-16 max-w-[448px] mx-auto text-center flex flex-col justify-center items-center font-vl-body">
           <div className="p-8 rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft">
@@ -129,16 +132,9 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
       );
     }
 
-    const pipeline = redis.pipeline();
-    guestKeys.forEach((key) => pipeline.get(key));
-    const results = await pipeline.exec();
-
-    for (const val of results) {
-      if (!val) continue;
-      const item = typeof val === "string" ? JSON.parse(val) : val;
+    for (const item of activeItems) {
       totalQuantity += item.quantity;
 
-      // Fetch product info from DB to guarantee price security
       const product = await prisma.product.findUnique({
         where: { id: item.productId, isDeleted: false },
         include: {
@@ -160,7 +156,7 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
       checkoutProducts.push({
         id: product.id,
         name: product.name,
-        price: product.price, // in paise
+        price: product.price, // authoritative server-side price
         size: variant.size,
         image: product.images[0]?.url || "/placeholder.jpg",
         sellerName: product.seller.businessName,
@@ -197,3 +193,5 @@ export default async function GuestCheckoutPage({ searchParams }: GuestCheckoutP
     </main>
   );
 }
+
+

@@ -1,0 +1,47 @@
+# Task List: Guest Purchase & Checkout
+
+- [x] **Phase 0 — Repository & Dependency Audit**
+  - [x] Audit `prisma/schema.prisma` guest fields and indexes
+  - [x] Run `npx prisma validate` to confirm schema integrity
+  - [x] Audit middleware `src/middleware.ts` path rules
+  - [x] Audit existing cart page `/cart` and component dependencies
+  - [x] Audit existing server-side cart actions and Redis utilities
+  - [x] Verify existing Razorpay verification and signature checks
+- [x] **Phase 1 — Guest Identity + Cookie Setup**
+  - [x] Implement `mb-guest-cart` HttpOnly Secure SameSite cookie helper
+  - [x] Add visitor session resolution checking
+- [x] **Phase 2 — Guest Cart CRUD APIs**
+  - [x] Create Redis `guest-cart:{guestCartId}` catalog index schema
+  - [x] Create `POST /api/guest-cart/items` to reserve stock (15m TTL)
+  - [x] Create `GET /api/guest-cart` to load cached catalog items
+  - [x] Create `PATCH /api/guest-cart/items/[variantId]` to update quantity
+  - [x] Create `DELETE /api/guest-cart/items/[variantId]` to remove item
+  - [x] Create `DELETE /api/guest-cart` to clear cart catalog
+- [x] **Phase 3 — Guest Buy Now Checkout Session**
+  - [x] Implement `createGuestCheckoutSession()` server service
+  - [x] Bind session payload `guestCartId` to incoming cookie identifier
+- [/] **Phase 4 — Guest Checkout UX**
+  - [/] Audit and adapt `/cart` route components for unauthenticated views
+  - [ ] Implement `/checkout/guest` layout and shipping/contact form details
+- [x] **Phase 5 — Payment Creation**
+  - [x] Implement server-side checkout validation contract
+  - [x] Implement Razorpay order creation for guest checkout session
+- [x] **Phase 6 — Unified Payment Verification + Webhook**
+  - [x] Create backend payment handler `processSuccessfulPayment()`
+  - [x] Link `/api/payments/verify` and webhooks to idempotent transaction
+- [ ] **Phase 7 — Guest Order Creation**
+  - [ ] Create Prisma order transaction inserting immutable shipping JSON snapshots
+  - [ ] Generate guest token hashes and record timestamps
+- [ ] **Phase 8 — Guest Success/Tracking**
+  - [ ] Build `/order/success/guest/[token]` view
+  - [ ] Deploy public read-only status query API
+- [ ] **Phase 9 — Account Claim**
+  - [ ] Implement OTP verified email claim transaction logic
+  - [ ] Add UX prompt asking for guest order claim confirmation post-login
+- [ ] **Phase 10 — Cart Merge**
+  - [ ] Create transactional merge handler `mergeGuestCart()`
+  - [ ] Enforce stock limits and cap quantities correctly
+- [ ] **Phase 11 — Security + Regression Testing**
+  - [ ] Test guest purchase & Buy Now e2e flows
+  - [ ] Verify signature validation and payment amount checks
+  - [ ] Verify zero regressions on authenticated user checkouts
