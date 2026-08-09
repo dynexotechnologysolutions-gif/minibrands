@@ -50,6 +50,12 @@ export async function GET(request: Request) {
       seller: {
         status: "APPROVED",
       },
+      // Exclude sold-out products: require at least one variant with stock > 0
+      variants: {
+        some: {
+          stockCount: { gt: 0 },
+        },
+      },
     };
 
     if (category && category !== "All") {
