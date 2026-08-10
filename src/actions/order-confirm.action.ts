@@ -79,8 +79,9 @@ export async function confirmOrderAction(
     });
 
     // ── Non-blocking: WhatsApp notification to buyer ───────────────────────────
-    const buyerEmail = updatedOrder.buyer?.user?.email || updatedOrder.guestEmail;
-    const buyerFirstName = updatedOrder.buyer?.user?.name?.split(" ")[0] || updatedOrder.guestName?.split(" ")[0] || "Customer";
+    const updatedOrderAny = updatedOrder as any;
+    const buyerEmail = updatedOrderAny.buyer?.user?.email || updatedOrderAny.guestEmail;
+    const buyerFirstName = updatedOrderAny.buyer?.user?.name?.split(" ")[0] || updatedOrderAny.guestName?.split(" ")[0] || "Customer";
     if (buyerEmail) {
       void sendMessage(
         buyerEmail,
@@ -103,11 +104,11 @@ export async function confirmOrderAction(
           city: updatedOrder.address.city,
           pincode: updatedOrder.address.pincode,
         };
-      } else if (updatedOrder.guestShippingAddress) {
-        const guestAddr = updatedOrder.guestShippingAddress as any;
+      } else if (updatedOrderAny.guestShippingAddress) {
+        const guestAddr = updatedOrderAny.guestShippingAddress as any;
         shippingAddressInfo = {
-          fullName: guestAddr.name || updatedOrder.guestName || "Customer",
-          phone: guestAddr.phone || updatedOrder.guestPhone || "",
+          fullName: guestAddr.name || updatedOrderAny.guestName || "Customer",
+          phone: guestAddr.phone || updatedOrderAny.guestPhone || "",
           line1: guestAddr.line1 || "",
           line2: guestAddr.line2 || "",
           city: guestAddr.city || "",

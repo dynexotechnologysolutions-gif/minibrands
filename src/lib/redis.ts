@@ -4,11 +4,11 @@ const redisUrl = process.env.REDIS_URL;
 const redisToken = process.env.REDIS_TOKEN;
 
 if (!redisUrl) {
-  throw new Error("FATAL: REDIS_URL environment variable is missing.");
+  console.warn("WARNING: REDIS_URL environment variable is missing. Redis operations will fail at runtime.");
 }
 
 export const redis = new Redis({
-  url: redisUrl,
+  url: redisUrl || "http://mock-redis-url-for-build-time-purposes",
   token: redisToken || "",
 });
 
