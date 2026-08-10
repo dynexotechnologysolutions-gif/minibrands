@@ -139,11 +139,13 @@ export async function addGuestCartItem(
 
   // Update the 30-day guest-cart catalog index Hash
   const hashKey = `guest-cart:${guestCartId}`;
-  await redis.hset(hashKey, variantId, JSON.stringify({
-    productId,
-    quantity,
-    addedAt: new Date().toISOString(),
-  }));
+  await redis.hset(hashKey, {
+    [variantId]: JSON.stringify({
+      productId,
+      quantity,
+      addedAt: new Date().toISOString(),
+    })
+  });
   // Set the catalog hash to expire in 30 days
   await redis.expire(hashKey, 30 * 24 * 60 * 60);
 
@@ -202,11 +204,13 @@ export async function updateGuestCartItemQuantity(
   await redis.expire(reservationKey, 900);
 
   // Update catalog hash
-  await redis.hset(hashKey, variantId, JSON.stringify({
-    productId: item.productId,
-    quantity: newQuantity,
-    addedAt: item.addedAt || new Date().toISOString(),
-  }));
+  await redis.hset(hashKey, {
+    [variantId]: JSON.stringify({
+      productId: item.productId,
+      quantity: newQuantity,
+      addedAt: item.addedAt || new Date().toISOString(),
+    })
+  });
 
   return { success: true };
 }

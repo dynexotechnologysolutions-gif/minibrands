@@ -42,6 +42,7 @@ vi.mock("../lib/prisma", () => {
     order: {
       create: vi.fn(),
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
     orderItem: {
       create: vi.fn(),

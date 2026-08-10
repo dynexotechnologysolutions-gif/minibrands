@@ -10,7 +10,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { redis } from "@/lib/redis";
+import { redis, deleteMatchingReservation } from "@/lib/redis";
 import { GuestOrderService } from "@/lib/guest-order.service";
 
 export interface ProcessPaymentResult {
@@ -26,22 +26,85 @@ export async function processSuccessfulPayment(
   razorpayPaymentId: string
 ): Promise<ProcessPaymentResult> {
   try {
-    // 1. Idempotency check: if this Razorpay order was already fulfilled, return existing record
-    const existingOrder = await prisma.order.findFirst({
+    // 1. Idempotency check: check if the order exists in the DB
+    const existingOrder = await prisma.order.findUnique({
       where: { razorpayOrderId },
-      select: { id: true, guestTokenHash: true },
+      include: {
+        items: true,
+        buyer: true,
+      },
     });
 
     if (existingOrder) {
-      console.log(`[processSuccessfulPayment] Order already exists for ${razorpayOrderId}`);
+      if (existingOrder.status === "paid" || existingOrder.paymentStatus === "paid") {
+        console.log(`[processSuccessfulPayment] Order already fully processed for ${razorpayOrderId}`);
+        return {
+          success: true,
+          orderId: existingOrder.id,
+          alreadyProcessed: true,
+        };
+      }
+
+      // Order exists but is not paid (i.e. authenticated checkout order created via server action in "created" status)
+      console.log(`[processSuccessfulPayment] Fulfilling existing unpaid order ${existingOrder.id} for ${razorpayOrderId}`);
+      
+      const result = await prisma.$transaction(
+        async (tx) => {
+          // Update Order status
+          const dbOrder = await tx.order.update({
+            where: { id: existingOrder.id },
+            data: {
+              status: "paid",
+              paymentStatus: "paid",
+              razorpayPaymentId,
+            },
+          });
+
+          // Decrement stock count for each variant in the order
+          for (const item of existingOrder.items) {
+            await tx.productVariant.update({
+              where: { id: item.variantId },
+              data: {
+                stockCount: { decrement: item.quantity },
+              },
+            });
+          }
+
+          // Create the Payment record
+          await tx.payment.create({
+            data: {
+              razorpayPaymentId,
+              razorpayOrderId,
+              amount: existingOrder.totalAmount,
+              paymentMethod: "razorpay",
+              status: "captured",
+            },
+          });
+
+          return { orderId: existingOrder.id };
+        },
+        { maxWait: 15000, timeout: 30000 }
+      );
+
+      // Clean up reservation from Redis (outside transaction to avoid database blocking)
+      if (existingOrder.buyerId) {
+        for (const item of existingOrder.items) {
+          await deleteMatchingReservation(
+            existingOrder.buyerId,
+            item.productId,
+            item.variantId,
+            item.quantity
+          );
+        }
+      }
+
       return {
         success: true,
-        orderId: existingOrder.id,
-        alreadyProcessed: true,
+        orderId: result.orderId,
       };
     }
 
-    // 2. Fetch pending order payload from Redis
+    // 2. Fetch pending order payload from Redis (Guest checkout path)
     const pendingOrderRaw = await redis.get(`pending-order:${razorpayOrderId}`);
     if (!pendingOrderRaw) {
       return {
