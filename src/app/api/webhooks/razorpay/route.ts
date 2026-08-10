@@ -73,7 +73,9 @@ export async function POST(req: Request) {
       });
 
       if (order) {
-        const buyerUserId = order.buyer?.userId || `guest_${order.guestEmail}`;
+        const buyerUserId =
+          order.buyer?.userId ??
+          (order.guestEmail ? `guest_${order.guestEmail}` : `guest_order_${order.id}`);
         trackEvent(buyerUserId, "payment_completed", {
           orderId: order.id,
           totalAmount: order.totalAmount,
