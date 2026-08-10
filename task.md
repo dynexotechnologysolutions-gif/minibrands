@@ -20,27 +20,30 @@
 - [x] **Phase 3 — Guest Buy Now Checkout Session**
   - [x] Implement `createGuestCheckoutSession()` server service
   - [x] Bind session payload `guestCartId` to incoming cookie identifier
-- [/] **Phase 4 — Guest Checkout UX**
-  - [/] Audit and adapt `/cart` route components for unauthenticated views
-  - [ ] Implement `/checkout/guest` layout and shipping/contact form details
+- [x] **Phase 4 — Guest Checkout UX**
+  - [x] Audit and adapt `/cart` route components for unauthenticated views
+  - [x] Implement `/checkout/guest` layout and shipping/contact form details
 - [x] **Phase 5 — Payment Creation**
   - [x] Implement server-side checkout validation contract
   - [x] Implement Razorpay order creation for guest checkout session
 - [x] **Phase 6 — Unified Payment Verification + Webhook**
   - [x] Create backend payment handler `processSuccessfulPayment()`
   - [x] Link `/api/payments/verify` and webhooks to idempotent transaction
-- [ ] **Phase 7 — Guest Order Creation**
-  - [ ] Create Prisma order transaction inserting immutable shipping JSON snapshots
-  - [ ] Generate guest token hashes and record timestamps
-- [ ] **Phase 8 — Guest Success/Tracking**
-  - [ ] Build `/order/success/guest/[token]` view
-  - [ ] Deploy public read-only status query API
-- [ ] **Phase 9 — Account Claim**
-  - [ ] Implement OTP verified email claim transaction logic
-  - [ ] Add UX prompt asking for guest order claim confirmation post-login
-- [ ] **Phase 10 — Cart Merge**
-  - [ ] Create transactional merge handler `mergeGuestCart()`
-  - [ ] Enforce stock limits and cap quantities correctly
+- [x] **Phase 7 — Guest Order Creation**
+  - [x] Create Prisma order transaction inserting immutable shipping JSON snapshots
+  - [x] Generate guest token hashes and record timestamps
+- [x] **Phase 8 — Guest Success/Tracking**
+  - [x] Build `/order/success/guest/[token]` view
+  - [x] Deploy public read-only status query API (`GET /api/guest-orders/[token]`)
+- [x] **Phase 9 — Account Claim**
+  - [x] Implement OTP verified email claim transaction logic (`/api/guest-orders/claim`)
+  - [x] Add UX prompt asking for guest order claim confirmation post-login (`/claim-order` page)
+- [x] **Phase 10 — Cart Merge**
+  - [x] Create transactional merge handler `mergeGuestCart()` (`src/lib/cart-merge.service.ts`)
+  - [x] Enforce stock limits and cap quantities correctly (max 5 per variant)
+  - [x] Create `POST /api/cart/merge-guest` endpoint
+  - [x] Trigger cart merge on login (password + OTP paths in `LoginForm.tsx`)
+  - [x] Trigger cart merge after guest order claim (`ClaimOrderClient.tsx`)
 - [ ] **Phase 11 — Security + Regression Testing**
   - [ ] Test guest purchase & Buy Now e2e flows
   - [ ] Verify signature validation and payment amount checks

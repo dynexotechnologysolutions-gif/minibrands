@@ -78,8 +78,8 @@ export async function shipOrderAction(
     });
 
     // ── Non-blocking: WhatsApp notification to buyer ───────────────────────────
-    const buyerEmail = updatedOrder.buyer?.user?.email || updatedOrder.guestEmail;
-    const buyerName = updatedOrder.buyer?.user?.name?.split(" ")[0] || updatedOrder.guestName?.split(" ")[0] || "Customer";
+    const buyerEmail = updatedOrder.buyer?.user?.email ?? updatedOrder.guestEmail;
+    const buyerName = updatedOrder.buyer?.user?.name?.split(" ")[0] ?? updatedOrder.guestName?.split(" ")[0] ?? "Customer";
     if (buyerEmail) {
       void sendMessage(
         buyerEmail,

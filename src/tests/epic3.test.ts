@@ -51,6 +51,7 @@ vi.mock("../lib/prisma", () => {
     order: {
       create: vi.fn(),
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       update: vi.fn(),
     },
     orderItem: {
@@ -58,6 +59,9 @@ vi.mock("../lib/prisma", () => {
     },
     productVariant: {
       update: vi.fn(),
+    },
+    payment: {
+      create: vi.fn(),
     },
     $transaction: vi.fn((callback) => callback(mockPrisma)),
   };

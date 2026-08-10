@@ -50,42 +50,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing order_id or payment_id in payload" }, { status: 400 });
     }
 
-    // 4. Check if the order already exists in the DB
-    const existingOrder = await prisma.order.findFirst({
-      where: { razorpayOrderId },
-      include: { buyer: true },
-    });
-
-    if (existingOrder) {
-      // Order already created by verify callback — just update payment status if needed
-      if (existingOrder.paymentStatus !== "paid") {
-        await prisma.order.update({
-          where: { id: existingOrder.id },
-          data: {
-            status: "paid",
-            paymentStatus: "paid",
-            razorpayPaymentId,
-          },
-        });
-        console.log(`[Razorpay Webhook] Updated existing order ${existingOrder.id} payment status to paid.`);
-      } else {
-        console.log(`[Razorpay Webhook Idempotency] Order ${existingOrder.id} already fully processed.`);
-      }
-
-      // Track analytics
-      const buyerUserId = existingOrder.buyer?.userId || `guest_${existingOrder.guestEmail}`;
-      trackEvent(buyerUserId, "payment_completed", {
-        orderId: existingOrder.id,
-        totalAmount: existingOrder.totalAmount,
-        commissionAmount: existingOrder.commissionAmount,
-        sellerId: existingOrder.sellerId,
-      });
-
-      return NextResponse.json({ received: true });
-    }
-
-    // 5. Order does not yet exist — delegate to unified payment processor (race condition case)
-    console.log(`[Razorpay Webhook] No order found for ${razorpayOrderId}. Delegating to processSuccessfulPayment.`);
+    // 4. Delegate payment fulfillment to processSuccessfulPayment (unified processor)
+    console.log(`[Razorpay Webhook] Delegating payment fulfillment for ${razorpayOrderId} to processSuccessfulPayment.`);
     const result = await processSuccessfulPayment(razorpayOrderId, razorpayPaymentId);
 
     if (!result.success) {
@@ -94,7 +60,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // Track analytics for newly created order
+    if (result.alreadyProcessed) {
+      console.log(`[Razorpay Webhook Idempotency] Order for ${razorpayOrderId} was already processed.`);
+      return NextResponse.json({ received: true });
+    }
+
+    // Track analytics for newly created or updated order
     if (result.orderId) {
       const order = await prisma.order.findUnique({
         where: { id: result.orderId },
@@ -102,7 +73,9 @@ export async function POST(req: Request) {
       });
 
       if (order) {
-        const buyerUserId = order.buyer?.userId || `guest_${order.guestEmail}`;
+        const buyerUserId =
+          order.buyer?.userId ??
+          (order.guestEmail ? `guest_${order.guestEmail}` : `guest_order_${order.id}`);
         trackEvent(buyerUserId, "payment_completed", {
           orderId: order.id,
           totalAmount: order.totalAmount,

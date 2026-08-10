@@ -77,7 +77,9 @@ export default function ClaimOrderClient({ email, token }: ClaimOrderClientProps
         return;
       }
 
-      // Claim success! Redirect straight to order history
+      // Claim success! Silently merge any remaining guest cart items
+      fetch("/api/cart/merge-guest", { method: "POST" }).catch(() => {});
+      // Redirect straight to order history
       router.push("/account/orders");
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to process verification.");

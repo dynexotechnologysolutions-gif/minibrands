@@ -81,6 +81,8 @@ export default function LoginForm() {
         setError(response.error.message || "Invalid email or password. Please check your credentials.");
       } else {
         setSuccessMessage("Login successful! Redirecting...");
+        // Fire-and-forget: merge any guest cart items silently after login
+        fetch("/api/cart/merge-guest", { method: "POST" }).catch(() => {});
         setTimeout(() => {
           if (roleIntent === "seller") {
             router.push("/seller/onboarding");
@@ -155,6 +157,8 @@ export default function LoginForm() {
         setError(response.error.message || "Invalid or expired verification code.");
       } else {
         setSuccessMessage("Code verified! Redirecting...");
+        // Fire-and-forget: merge any guest cart items silently after login
+        fetch("/api/cart/merge-guest", { method: "POST" }).catch(() => {});
         setTimeout(() => {
           if (roleIntent === "seller") {
             router.push("/seller/onboarding");
