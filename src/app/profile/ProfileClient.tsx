@@ -8,6 +8,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import { removeFromWishlistAction } from "@/actions/wishlist.action";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 import EditProfileModal from "./EditProfileModal";
+import MobileAccountSwitcher from "@/components/mobile/MobileAccountSwitcher";
 import { createAddress } from "@/actions/address-create.action";
 import { updateAddress } from "@/actions/address-update.action";
 import {
@@ -468,6 +469,11 @@ export default function ProfileClient({
                   <span>Back to Overview</span>
                 </button>
               </div>
+            )}
+
+            {/* Mobile Account Switcher (Only visible on mobile) */}
+            {activeTab === "overview" && (
+              <MobileAccountSwitcher userProfile={userProfile} />
             )}
 
             {/* Statistics Row */}
