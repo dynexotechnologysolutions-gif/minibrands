@@ -58,7 +58,7 @@ export default function BrandSpotlightCard({ brand, userCity }: BrandSpotlightCa
   };
 
   const storeDisplayName = brand.storeName || brand.businessName;
-  const logoUrl = brand.storeLogo || brand.userProfile.user.image;
+  const logoUrl = brand.storeLogo;
   const initials = storeDisplayName
     ? storeDisplayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "ST";

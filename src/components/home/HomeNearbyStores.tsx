@@ -95,7 +95,7 @@ export default function HomeNearbyStores({ stores, userCity }: HomeNearbyStoresP
         <div className="hide-scrollbar -mx-4 sm:-mx-6 lg:-mx-8 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth px-4 sm:px-6 lg:px-8 pb-4">
           {stores.map((store) => {
             const storeDisplayName = store.storeName || store.businessName;
-            const logoUrl = store.storeLogo || store.userProfile.user.image;
+            const logoUrl = store.storeLogo;
             const initials = storeDisplayName
               ? storeDisplayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
               : "ST";

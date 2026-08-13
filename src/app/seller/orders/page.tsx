@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
+import { RedirectService } from "@/lib/auth-services/redirect.service";
 import { prisma } from "@/lib/prisma";
 import SellerOrdersClient from "./SellerOrdersClient";
 
@@ -12,22 +15,29 @@ export const metadata = {
 };
 
 export default async function SellerOrdersPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.SELLER);
 
-  if (!session?.user) {
-    redirect("/login?role=seller");
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
+    redirect("/seller/login");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: { seller: { include: { verification: true } }, user: true },
-  });
-
-  if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
-    redirect("/login?role=seller");
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect("/session-expired?redirectTo=%2Fseller%2Forders");
   }
 
+  if (authResult.state === "ROLE_MISMATCH") {
+    const userRole = authResult.userProfile?.role;
+    const safeUrl = RedirectService.getFallbackForRole(userRole);
+    redirect(safeUrl);
+  }
+
+  const userProfile = authResult.userProfile!;
   const seller = userProfile.seller;
+
+  if (!seller || seller.status === "DRAFT") {
+    redirect("/seller/onboarding");
+  }
 
   const orders = await prisma.order.findMany({
     where: { sellerId: seller.id },

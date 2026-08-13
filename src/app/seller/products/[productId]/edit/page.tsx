@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
+import { RedirectService } from "@/lib/auth-services/redirect.service";
 import EditProductForm from "./EditProductForm";
 
 interface PageProps {
@@ -15,26 +17,24 @@ import SellerLayout from "@/components/seller/SellerLayout";
 export default async function EditProductPage({ params }: PageProps) {
   const { productId } = await params;
 
-  // 1. Session check
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.SELLER);
 
-  if (!session || !session.user) {
-    redirect("/login?role=seller");
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
+    redirect("/seller/login");
   }
 
-  const userId = session.user.id;
-
-  // 2. Fetch user profile and verify role
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId },
-    include: { seller: { include: { verification: true } }, user: true },
-  });
-
-  if (!userProfile || (userProfile.role !== "SELLER" && userProfile.role !== "ADMIN")) {
-    redirect("/login?role=seller");
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect(`/session-expired?redirectTo=%2Fseller%2Fproducts%2F${productId}%2Fedit`);
   }
+
+  if (authResult.state === "ROLE_MISMATCH") {
+    const userRole = authResult.userProfile?.role;
+    const safeUrl = RedirectService.getFallbackForRole(userRole);
+    redirect(safeUrl);
+  }
+
+  const userProfile = authResult.userProfile!;
 
   // 3. Fetch product including its images and variants
   const product = await prisma.product.findUnique({

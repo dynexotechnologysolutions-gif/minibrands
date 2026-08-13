@@ -283,7 +283,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       id: product.seller.id,
       businessName: product.seller.businessName,
       city: product.seller.city,
-      logoUrl: product.seller.storeLogo || product.seller.userProfile?.user?.image || null,
+      logoUrl: product.seller.storeLogo || null,
       verification: product.seller.verification
         ? {
             kycStatus: product.seller.verification.kycStatus,

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Settings, Lock } from "lucide-react";
@@ -19,6 +19,19 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
   const pathname = usePathname();
   const router = useRouter();
   const { wishlist = [] } = useWishlist();
+  const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )active_role_mode=([^;]*)/);
+    const cookieVal = match ? match[1] : null;
+    const resolvedMode = cookieVal === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER";
+    
+    const timer = setTimeout(() => {
+      setActiveMode(resolvedMode);
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [userProfile]);
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -30,7 +43,9 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
       .slice(0, 2);
   };
 
-  const displayName = userProfile?.user?.name || "User";
+  const displayName = activeMode === "BUYER"
+    ? userProfile?.user?.name || "User"
+    : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
 
   // Mapped exact route conditions
   const isHome = pathname === "/";
@@ -43,10 +58,11 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
 
   // 1. Home Header
   if (isHome) {
-    const avatarElement = userProfile?.user?.image ? (
+    const avatarUrl = activeMode === "BUYER" ? userProfile?.user?.image : userProfile?.seller?.storeLogo;
+    const avatarElement = avatarUrl ? (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
-        src={userProfile.user.image}
+        src={avatarUrl}
         alt={displayName}
         className="w-7 h-7 rounded-full object-cover border border-[#ECECEC]"
       />

@@ -167,7 +167,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   ]);
 
   const totalPages = Math.ceil(trendingCount / itemsPerPage);
-  const shapeSeller = (seller: (typeof featuredSellers)[number]) => ({ id: seller.id, businessName: seller.businessName, category: seller.category, logoUrl: seller.storeLogo || seller.userProfile?.user?.image || null });
+  const shapeSeller = (seller: (typeof featuredSellers)[number]) => ({ id: seller.id, businessName: seller.businessName, category: seller.category, logoUrl: seller.storeLogo || null });
   const mockSellers = [
     { id: "mock-store-1", businessName: "TechHaven", category: "Electronics", logoUrl: null },
     { id: "mock-store-2", businessName: "Aura Wear", category: "Fashion", logoUrl: null },
@@ -181,7 +181,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     id: seller.id,
     businessName: seller.businessName,
     category: seller.category,
-    logoUrl: seller.storeLogo || seller.userProfile?.user?.image || null,
+    logoUrl: seller.storeLogo || null,
     bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
     tagline: seller.category || "Independent fashion label",
     productCount: seller._count.products,
