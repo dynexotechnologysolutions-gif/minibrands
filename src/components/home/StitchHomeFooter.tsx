@@ -47,8 +47,9 @@ export default function StitchHomeFooter() {
         <div className="flex flex-col gap-2">
           <h4 className="font-semibold text-base text-white mb-1">Newsletter</h4>
           <p className="text-sm text-white/80 mb-2">Subscribe to get update and offers.</p>
-          <form onSubmit={handleSubscribe} className="flex">
+          <form onSubmit={handleSubscribe} className="flex" suppressHydrationWarning>
             <input
+              suppressHydrationWarning
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -57,6 +58,7 @@ export default function StitchHomeFooter() {
               required
             />
             <button
+              suppressHydrationWarning
               type="submit"
               className="bg-[#F39C12] text-white px-4 rounded-r text-xs font-semibold hover:bg-[#D68910] transition-colors shrink-0"
             >

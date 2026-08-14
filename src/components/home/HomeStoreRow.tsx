@@ -98,6 +98,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                       />
                     </div>
                     <button
+                      suppressHydrationWarning
                       type="button"
                       onClick={(e) => toggleFollow(seller.id, e)}
                       className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${
@@ -142,6 +143,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                       />
                     </div>
                     <button
+                      suppressHydrationWarning
                       type="button"
                       onClick={(e) => toggleFollow(store.id, e)}
                       className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${

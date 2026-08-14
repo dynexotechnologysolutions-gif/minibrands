@@ -39,7 +39,7 @@ export default function StitchHomeHeader({ userProfile, cartCount }: StitchHomeH
   const wishlistHref = userProfile ? "/wishlist" : "/login?role=buyer";
 
   return (
-    <header className="bg-[#00302f] text-white px-4 md:px-8 pt-12 md:pt-6 pb-4 md:pb-6 sticky top-0 z-50 rounded-b-[1.5rem] md:rounded-none" data-purpose="main-header">
+    <header className="bg-[#00302f] text-white px-4 md:px-8 pt-12 md:pt-6 pb-4 md:pb-6 relative z-50 rounded-b-[1.5rem] md:rounded-none" data-purpose="main-header">
       <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8">
         <div className="flex items-center justify-between w-full md:w-auto">
           <div className="flex items-center gap-3">
