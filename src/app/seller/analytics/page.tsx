@@ -1,10 +1,12 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
+import { RedirectService } from "@/lib/auth-services/redirect.service";
 import SellerLayout from "@/components/seller/SellerLayout";
-import { BarChart3, TrendingUp, DollarSign, ShoppingBag, RotateCcw } from "lucide-react";
+import { BarChart3, TrendingUp, DollarSign, ShoppingBag } from "lucide-react";
 
 export const metadata = {
   title: "Sales Analytics | Seller Hub — Velvet Lane",
@@ -12,29 +14,29 @@ export const metadata = {
 };
 
 export default async function SellerAnalyticsPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.SELLER);
 
-  if (!session?.user) {
-    redirect("/login?role=seller");
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
+    redirect("/seller/login");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-    },
-  });
-
-  if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
-    redirect("/login?role=seller");
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect("/session-expired?redirectTo=%2Fseller%2Fanalytics");
   }
 
+  if (authResult.state === "ROLE_MISMATCH") {
+    const userRole = authResult.userProfile?.role;
+    const safeUrl = RedirectService.getFallbackForRole(userRole);
+    redirect(safeUrl);
+  }
+
+  const userProfile = authResult.userProfile!;
   const seller = userProfile.seller;
+
+  if (!seller || seller.status === "DRAFT") {
+    redirect("/seller/onboarding");
+  }
 
   // Aggregate orders and revenue from database
   const orders = await prisma.order.findMany({

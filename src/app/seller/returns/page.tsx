@@ -1,38 +1,39 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Role } from "@prisma/client";
+import { validateSessionAndRole } from "@/lib/auth-services/guard";
+import { RedirectService } from "@/lib/auth-services/redirect.service";
 import SellerReturnQueueClient from "./SellerReturnQueueClient";
 
 import SellerLayout from "@/components/seller/SellerLayout";
 
 export default async function SellerReturnQueuePage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const reqHeaders = await headers();
+  const authResult = await validateSessionAndRole(reqHeaders, Role.SELLER);
 
-  if (!session || !session.user) {
-    redirect("/login?role=seller");
+  if (authResult.state === "NO_COOKIE" || authResult.state === "INVALID_SESSION") {
+    redirect("/seller/login");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-    },
-  });
-
-  if (!userProfile || userProfile.role !== "SELLER" || !userProfile.seller) {
-    redirect("/seller/dashboard");
+  if (authResult.state === "EXPIRED_SESSION") {
+    redirect("/session-expired?redirectTo=%2Fseller%2Freturns");
   }
 
+  if (authResult.state === "ROLE_MISMATCH") {
+    const userRole = authResult.userProfile?.role;
+    const safeUrl = RedirectService.getFallbackForRole(userRole);
+    redirect(safeUrl);
+  }
+
+  const userProfile = authResult.userProfile!;
   const seller = userProfile.seller;
+
+  if (!seller || seller.status === "DRAFT") {
+    redirect("/seller/onboarding");
+  }
+
   const sellerId = seller.id;
 
   const returnRequests = await prisma.returnRequest.findMany({

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Settings, Lock } from "lucide-react";
@@ -19,6 +19,19 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
   const pathname = usePathname();
   const router = useRouter();
   const { wishlist = [] } = useWishlist();
+  const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )active_role_mode=([^;]*)/);
+    const cookieVal = match ? match[1] : null;
+    const resolvedMode = cookieVal === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER";
+    
+    const timer = setTimeout(() => {
+      setActiveMode(resolvedMode);
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [userProfile]);
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -30,7 +43,9 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
       .slice(0, 2);
   };
 
-  const displayName = userProfile?.user?.name || "User";
+  const displayName = activeMode === "BUYER"
+    ? userProfile?.user?.name || "User"
+    : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
 
   // Mapped exact route conditions
   const isHome = pathname === "/";
@@ -43,10 +58,11 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
 
   // 1. Home Header
   if (isHome) {
-    const avatarElement = userProfile?.user?.image ? (
+    const avatarUrl = activeMode === "BUYER" ? userProfile?.user?.image : userProfile?.seller?.storeLogo;
+    const avatarElement = avatarUrl ? (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
-        src={userProfile.user.image}
+        src={avatarUrl}
         alt={displayName}
         className="w-7 h-7 rounded-full object-cover border border-[#ECECEC]"
       />
@@ -72,13 +88,13 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
         </Link>
 
         {/* Compact Search Bar Redirector */}
-        <div
-          onClick={() => router.push("/products")}
-          className="flex-1 mx-3 max-w-[180px] xs:max-w-xs h-9 pl-3 pr-2 flex items-center gap-2 bg-[#F5F5F8] border border-transparent rounded-vl-control text-slate-400 cursor-pointer"
+        <Link
+          href="/products"
+          className="flex-1 mx-3 max-w-[180px] xs:max-w-xs h-9 pl-3 pr-2 flex items-center gap-2 bg-[#F5F5F8] border border-transparent rounded-vl-control text-slate-400 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-1"
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="w-3.5 h-3.5" aria-hidden="true" />
           <span className="text-[11px] font-medium truncate">Search...</span>
-        </div>
+        </Link>
 
         {/* User Profile Avatar Link */}
         <Link
