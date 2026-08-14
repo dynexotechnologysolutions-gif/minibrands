@@ -88,13 +88,13 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
         </Link>
 
         {/* Compact Search Bar Redirector */}
-        <div
-          onClick={() => router.push("/products")}
-          className="flex-1 mx-3 max-w-[180px] xs:max-w-xs h-9 pl-3 pr-2 flex items-center gap-2 bg-[#F5F5F8] border border-transparent rounded-vl-control text-slate-400 cursor-pointer"
+        <Link
+          href="/products"
+          className="flex-1 mx-3 max-w-[180px] xs:max-w-xs h-9 pl-3 pr-2 flex items-center gap-2 bg-[#F5F5F8] border border-transparent rounded-vl-control text-slate-400 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-1"
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="w-3.5 h-3.5" aria-hidden="true" />
           <span className="text-[11px] font-medium truncate">Search...</span>
-        </div>
+        </Link>
 
         {/* User Profile Avatar Link */}
         <Link

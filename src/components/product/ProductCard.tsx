@@ -58,9 +58,13 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
     product.variants.every((v) => v.stockCount === 0);
 
   return (
-    <div className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden cursor-pointer transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1">
+    <Link
+      href={`/products/${product.id}`}
+      aria-label={`${product.name} by ${product.seller.businessName} — ${formattedPrice}`}
+      className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2"
+    >
       {/* ── Image Container ─────────────────────────────── */}
-      <Link href={`/products/${product.id}`} className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
+      <div className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
         <Image
           src={primaryImage}
           alt={product.name}
@@ -84,7 +88,7 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
             )}
           </div>
         )}
-      </Link>
+      </div>
 
       <WishlistIconButton
         productId={product.id}
@@ -93,7 +97,7 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
       />
 
       {/* ── Info Section ────────────────────────────────── */}
-      <Link href={`/products/${product.id}`} className="flex flex-col flex-1 p-4 gap-1 select-none">
+      <div className="flex flex-col flex-1 p-4 gap-1 select-none">
         {/* Brand + Verified */}
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-[11px] font-bold text-vl-muted uppercase tracking-[0.06em] truncate leading-tight">
@@ -125,7 +129,7 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
             -{discountPct}%
           </span>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }

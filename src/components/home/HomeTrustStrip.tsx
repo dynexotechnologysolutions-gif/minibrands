@@ -1,44 +1,41 @@
-import { BadgeCheck, CreditCard, RotateCcw, Star, Truck } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+"use client";
 
-interface TrustItem {
-  Icon: LucideIcon;
-  label: string;
-}
-
-const trustItems: TrustItem[] = [
-  { Icon: Star, label: "4.9 Customer Rating" },
-  { Icon: BadgeCheck, label: "Verified Sellers" },
-  { Icon: CreditCard, label: "Secure Payments" },
-  { Icon: Truck, label: "Fast Delivery" },
-  { Icon: RotateCcw, label: "Easy Returns" },
-];
+import React from "react";
 
 export default function HomeTrustStrip() {
   return (
-    <section
-      className="vl-section-shell mt-6 sm:mt-8"
-      aria-label="Platform trust indicators"
-    >
-      <div className="flex items-center justify-center gap-3 overflow-x-auto hide-scrollbar">
-        {trustItems.map(({ Icon, label }, index) => (
-          <div key={label} className="flex shrink-0 items-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-[#ECECEC] bg-[#FAFAFC] px-5 py-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-md cursor-default">
-              <Icon
-                aria-hidden="true"
-                className="h-4 w-4 shrink-0"
-                style={{ color: "#6C3BFF" }}
-                strokeWidth={2.2}
-              />
-              <span className="whitespace-nowrap text-[14px] font-semibold text-[#111827]">
-                {label}
-              </span>
+    <section className="mb-6 md:mb-12 bg-white md:py-8" data-purpose="trust-badges">
+      <div className="max-w-[1280px] mx-auto px-4 md:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 border-t md:border-none border-gray-200 pt-4 md:pt-0">
+          <div className="flex items-center gap-3 md:gap-4 md:justify-center">
+            <i className="fa-solid fa-shield-halved text-2xl md:text-4xl w-8 md:w-12 text-center text-[#004F50]"></i>
+            <div className="flex flex-col">
+              <span className="text-xs md:text-base font-bold text-gray-800">Secure Payment</span>
+              <span className="text-[10px] md:text-sm text-gray-500">100% Safe</span>
             </div>
-            {index < trustItems.length - 1 && (
-              <div className="hidden h-5 w-px shrink-0 bg-[#ECECEC] sm:block" />
-            )}
           </div>
-        ))}
+          <div className="flex items-center gap-3 md:gap-4 md:justify-center">
+            <i className="fa-solid fa-box-open text-2xl md:text-4xl w-8 md:w-12 text-center text-[#004F50]"></i>
+            <div className="flex flex-col">
+              <span className="text-xs md:text-base font-bold text-gray-800">Easy Returns</span>
+              <span className="text-[10px] md:text-sm text-gray-500">Hassle Free</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 md:gap-4 md:justify-center">
+            <i className="fa-solid fa-truck-fast text-2xl md:text-4xl w-8 md:w-12 text-center text-[#004F50]"></i>
+            <div className="flex flex-col">
+              <span className="text-xs md:text-base font-bold text-gray-800">Fast Delivery</span>
+              <span className="text-[10px] md:text-sm text-gray-500">Across India</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 md:gap-4 md:justify-center">
+            <i className="fa-solid fa-hand-holding-dollar text-2xl md:text-4xl w-8 md:w-12 text-center text-[#004F50]"></i>
+            <div className="flex flex-col">
+              <span className="text-xs md:text-base font-bold text-gray-800">COD Available</span>
+              <span className="text-[10px] md:text-sm text-gray-500">Pay on Delivery</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
