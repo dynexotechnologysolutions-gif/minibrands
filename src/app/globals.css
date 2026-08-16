@@ -353,7 +353,21 @@
   50%       { transform: translateY(-8px); }
 }
 
-/* ── Stitch homepage utilities ────────────────── */
+/* ── Stitch homepage utilities & brand colors ────────────────── */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+.bg-brand-dark { background-color: #0d3b36 !important; }
+.text-brand-dark { color: #0d3b36 !important; }
+.border-brand-dark { border-color: #0d3b36 !important; }
+
+.bg-brand-orange { background-color: #F39C12 !important; }
+.text-brand-orange { color: #F39C12 !important; }
+
+.text-brand-red { color: #d64545 !important; }
+.bg-brand-red { background-color: #d64545 !important; }
+
+.text-brand-teal { color: #0F7F7F !important; }
+.bg-brand-teal { background-color: #0F7F7F !important; }
+
