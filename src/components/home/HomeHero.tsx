@@ -7,38 +7,58 @@ export default function HomeHero() {
   const [activeDot, setActiveDot] = useState(0);
 
   return (
-    <section className="mb-6 md:mb-12" data-purpose="hero-banner">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-8">
+    <section className="px-4 md:px-6 mb-8 md:mb-12" data-purpose="hero-banner">
+      <div className="max-w-[1280px] mx-auto">
         <div
-          className="relative overflow-hidden rounded-lg md:rounded-2xl h-60 md:h-[400px]"
+          className="relative rounded-2xl overflow-hidden h-56 md:h-96 flex items-center"
           style={{
-            backgroundImage:
-              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAcWrSKhaVpFnohM5LCGUuccLi9DboDZFOVzHsqq00UFJaoK1LNuITaFo1NPbuAbeogsKuzfSKrHBBnDq0vSy-WnGjgvKf3fYUHZAqBeMTQ2f6iF_7Z3YugtRpKtDQjQ8FFFNJB5cUrtgwN-Lqcqr0FJWcwkXPQGrajkoFg6TXXI-uxqpOELqZWkrIPwwULozXOkB09ofiuDo9mQWJyrH83Rs1yVmAhLJeyRT4u_8JStGOiV5k6TnURfA")',
-            backgroundSize: "cover",
-            backgroundPosition: "center center",
+            background: "linear-gradient(to right, rgba(13,59,54,0.85), rgba(96,165,250,0.6))",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 md:from-black/50 to-transparent z-10"></div>
-          <div className="absolute inset-0 p-5 md:p-12 flex flex-col justify-center w-3/5 md:w-1/2 z-20">
-            <p className="text-sm md:text-lg font-semibold text-white tracking-wide">Mega Sale</p>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mt-1 mb-2 md:mb-4">
-              Up to 60% Off
+          {/* Background image */}
+          <img
+            alt="Mega Sale Banner"
+            className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuACQdixwWAIGKztY8FZrDgVQ0PrKq-RjVpAgMgJ030WgqgBvwxAbRnCL8r9ctCBPCLHgEx__LTe2Qdpv3exiAffT7uhOxZImBf-duF8fJXIKqZFxH3Xja0CCqwlKNSghSyyiPc_QFDNEnvGLX9E5TfdYBD3bRYGs3SYb_k0PK6ORE9H_nBoGQv_O37RQ2FFaA2o696xUL7lwT5UEdSQQb2Dvu6Op0NUul8MSuX1aSps2FCp8Yr0VKXZ0Q"
+          />
+
+          {/* Content */}
+          <div className="relative z-10 p-6 md:p-12 text-white w-2/3 md:w-1/2">
+            <p className="font-semibold mb-1 md:mb-3 md:text-lg text-[#F39C12] uppercase tracking-wider text-sm">
+              Mega Sale
+            </p>
+            <h2 className="text-3xl md:text-6xl font-bold leading-tight mb-2 md:mb-4">
+              Up to 60%<br />Off
             </h2>
-            <p className="text-sm md:text-xl text-gray-100 mb-4 md:mb-6">Across all stores</p>
-            <Link
-              href="/products"
-              className="bg-[#004b49] hover:bg-teal-800 transition-colors text-white px-6 md:px-8 py-2 md:py-3 rounded-lg text-sm md:text-base font-medium w-fit inline-block"
-            >
-              Shop Now
-            </Link>
+            <p className="text-sm md:text-xl text-gray-100 mb-4 md:mb-8">
+              Across all stores
+            </p>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/products"
+                className="bg-[#0F7F7F] hover:bg-[#0d6b6b] text-white px-5 md:px-8 py-2 md:py-3.5 rounded-lg text-sm md:text-base font-semibold transition shadow-md inline-block"
+              >
+                Shop Now
+              </Link>
+              <Link
+                href="/stores"
+                className="hidden md:inline-block border border-white/60 text-white hover:bg-white/10 transition px-6 py-3.5 rounded-lg text-base font-semibold"
+              >
+                Explore Stores
+              </Link>
+            </div>
           </div>
-          <div className="absolute bottom-2 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-30">
+
+          {/* Carousel dots */}
+          <div className="absolute bottom-3 md:bottom-6 left-0 right-0 flex justify-center gap-1.5 md:gap-2">
             {[0, 1, 2, 3].map((idx) => (
-              <div
+              <button
                 key={idx}
                 onClick={() => setActiveDot(idx)}
-                className={`w-2 md:w-3 h-2 md:h-3 rounded-full cursor-pointer transition-opacity ${
-                  activeDot === idx ? "bg-[#004b49]" : "bg-white opacity-50 hover:opacity-100"
+                aria-label={`Slide ${idx + 1}`}
+                suppressHydrationWarning
+                className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${
+                  activeDot === idx ? "bg-[#0F7F7F]" : "bg-white/60 hover:bg-white/80"
                 }`}
               />
             ))}

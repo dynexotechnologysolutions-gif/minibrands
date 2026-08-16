@@ -8,9 +8,9 @@ import StitchHomeHeader from "@/components/home/StitchHomeHeader";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeHero from "@/components/home/HomeHero";
 import HomeStoreRow from "@/components/home/HomeStoreRow";
+import HomeFlashSale from "@/components/home/HomeFlashSale";
+import HomeShopByBudget from "@/components/home/HomeShopByBudget";
 import HomeProductCard from "@/components/home/HomeProductCard";
-import HomeShopByStyle from "@/components/home/HomeShopByStyle";
-import HomeNewAndNoticed from "@/components/home/HomeNewAndNoticed";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import StitchHomeFooter from "@/components/home/StitchHomeFooter";
 import StitchMobileNav from "@/components/home/StitchMobileNav";
@@ -56,7 +56,7 @@ interface PageProps {
 export default async function HomePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentPage = Math.max(1, parseInt(params.page || "1", 10));
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
   const session = await auth.api.getSession({ headers: await headers() });
 
   let sellerHref = "/login?role=seller";
@@ -66,12 +66,19 @@ export default async function HomePage({ searchParams }: PageProps) {
   if (session?.user) {
     userProfile = await prisma.userProfile.findUnique({
       where: { userId: session.user.id },
-      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
+      include: {
+        user: true,
+        seller: { include: { verification: true } },
+        addresses: { where: { isDeleted: false } },
+      },
     });
 
     if (userProfile?.role === "SELLER") {
       const ver = userProfile.seller?.verification;
-      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
+      const isVerified =
+        ver &&
+        (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
+        ver.bankVerified;
       sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
     }
 
@@ -82,27 +89,67 @@ export default async function HomePage({ searchParams }: PageProps) {
   }
 
   let wishlistIds: string[] = [];
-  if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
+  if (userProfile) {
+    wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
+  }
 
-  const [featuredSellers, bestSellingProducts, trendingProducts] = await Promise.all([
+  const [featuredSellers, flashSaleProducts, popularProducts] = await Promise.all([
+    // Featured sellers (verified, have products)
     prisma.seller.findMany({
-      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
-      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
+      where: {
+        verification: {
+          kycStatus: { in: ["auto_approved", "approved"] },
+          bankVerified: true,
+        },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        _count: { select: { products: true } },
+      },
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
+    // Flash sale — best sellers (first 4 for the flash sale dark panel)
     prisma.product.findMany({
-      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        variants: true,
+        seller: { include: { verification: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+    }),
+    // Popular products (next page — "Explore Popular Products")
+    prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        variants: true,
+        seller: { include: { verification: true } },
+      },
       orderBy: { createdAt: "desc" },
       skip: (currentPage - 1) * itemsPerPage,
-      take: itemsPerPage,
-    }),
-    prisma.product.findMany({
-      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
-      orderBy: { createdAt: "desc" },
-      skip: itemsPerPage,
       take: itemsPerPage,
     }),
   ]);
@@ -118,30 +165,50 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   return (
     <div className="bg-gray-50 text-gray-800 pb-20 md:pb-0 min-h-screen font-sans flex flex-col">
-      {/* Header Section */}
-      <StitchHomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
+      {/* ── 1. HEADER ─────────────────────────────── */}
+      <StitchHomeHeader
+        userProfile={userProfile}
+        cartCount={cartCount}
+        sellerHref={sellerHref}
+      />
 
-      <main className="flex-grow w-full">
-        {/* Categories Section */}
+      <main className="flex-grow w-full pt-4 md:pt-8">
+        {/* ── 2. CATEGORIES NAV ──────────────────────── */}
         <HomeCategoryGrid />
 
-        {/* Hero Banner Section */}
+        {/* ── 3. HERO BANNER ─────────────────────────── */}
         <HomeHero />
 
-        {/* Top Stores Section */}
+        {/* ── 4. BEST STORES FOR YOU ─────────────────── */}
         <HomeStoreRow sellers={allSellers} />
 
-        {/* Best Selling Products Section */}
-        <section className="mb-6 md:mb-12" data-purpose="best-selling-products">
-          <div className="max-w-[1280px] mx-auto px-4 md:px-8">
-            <div className="flex justify-between items-end mb-4 md:mb-6">
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">Best Selling Products</h3>
-              <Link href="/products" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
-                View All
+        {/* ── 5. FLASH SALE (Best Selling Products) ──── */}
+        <HomeFlashSale
+          products={flashSaleProducts}
+          isLoggedIn={!!session?.user}
+          wishlistIds={wishlistIds}
+        />
+
+        {/* ── 6. SHOP BY BUDGET ──────────────────────── */}
+        <HomeShopByBudget />
+
+        {/* ── 7. EXPLORE POPULAR PRODUCTS ────────────── */}
+        <section className="px-4 md:px-6 mb-12" data-purpose="popular-products">
+          <div className="max-w-[1280px] mx-auto">
+            <div className="flex justify-between items-center mb-6 md:mb-8">
+              <h3 className="text-[20px] md:text-2xl font-bold text-gray-900">
+                Explore Popular Products
+              </h3>
+              <Link
+                href="/products"
+                className="text-sm md:text-base font-semibold text-[#0F7F7F] hover:underline"
+              >
+                View All →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {bestSellingProducts.map((product) => (
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {popularProducts.map((product) => (
                 <HomeProductCard
                   key={product.id}
                   product={product}
@@ -149,47 +216,25 @@ export default async function HomePage({ searchParams }: PageProps) {
                   isWishlisted={wishlistIds.includes(product.id)}
                 />
               ))}
+              {popularProducts.length === 0 && (
+                <div className="col-span-2 md:col-span-4 text-center py-12 text-gray-400">
+                  <i className="fa-solid fa-store text-5xl mb-4 block"></i>
+                  <p className="text-lg font-medium">Products coming soon</p>
+                  <p className="text-sm mt-1">Check back in a bit!</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Shop by Style Section */}
-        <HomeShopByStyle />
-
-        {/* Trending Right Now Section */}
-        <section className="mb-6 md:mb-12" data-purpose="trending-now">
-          <div className="max-w-[1280px] mx-auto px-4 md:px-8">
-            <div className="flex justify-between items-end mb-4 md:mb-6">
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">Trending Right Now</h3>
-              <Link href="/products?sort=popular" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
-                View All
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {(trendingProducts.length > 0 ? trendingProducts : bestSellingProducts).map((product) => (
-                <HomeProductCard
-                  key={`trending-${product.id}`}
-                  product={product}
-                  isLoggedIn={!!session?.user}
-                  isWishlisted={wishlistIds.includes(product.id)}
-                  badgeLabel="TRENDING"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* New & Noticed Section */}
-        <HomeNewAndNoticed />
-
-        {/* Trust Strip Section */}
+        {/* ── 8. TRUST STRIP ─────────────────────────── */}
         <HomeTrustStrip />
       </main>
 
-      {/* Footer */}
+      {/* ── FOOTER ─────────────────────────────────── */}
       <StitchHomeFooter />
 
-      {/* Mobile Bottom Navigation */}
+      {/* ── MOBILE BOTTOM NAV ──────────────────────── */}
       <StitchMobileNav cartCount={cartCount} isLoggedIn={!!session?.user} />
     </div>
   );

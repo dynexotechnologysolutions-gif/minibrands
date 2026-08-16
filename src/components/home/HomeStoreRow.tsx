@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -15,146 +15,123 @@ interface HomeStoreRowProps {
   sellers: SellerData[];
 }
 
+// Icon colors by category
+const categoryConfig: Record<string, { icon: string; bg: string; color: string }> = {
+  "home-decor": { icon: "fa-solid fa-house", bg: "bg-gray-100", color: "text-[#0d3b36]" },
+  spiritual: { icon: "fa-solid fa-om", bg: "bg-orange-50", color: "text-orange-600" },
+  wellness: { icon: "fa-solid fa-spa", bg: "bg-[#E6F2F2]", color: "text-[#0F7F7F]" },
+  kitchen: { icon: "fa-solid fa-utensils", bg: "bg-yellow-50", color: "text-yellow-600" },
+  beauty: { icon: "fa-solid fa-pump-soap", bg: "bg-pink-50", color: "text-pink-500" },
+  electronics: { icon: "fa-solid fa-mobile-screen", bg: "bg-blue-50", color: "text-blue-600" },
+  default: { icon: "fa-solid fa-store", bg: "bg-[#E6F2F2]", color: "text-[#0F7F7F]" },
+};
+
+const fallbackStores = [
+  { id: "s1", businessName: "EcoLife", category: "wellness", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMumtK8c5fywTtEgpNniKEZj4NJkCkVdEyYga6Rba_p400OXvbITFfZVIVLobUcG_42Q8KvEVV40ICzfRsOT29udrVUQwoAUeqyzodluWHt0NFV3rcfHYPO5C1dUhssAwYlb7tL_uU5Pzv38wBiYjw6ilAYmyNfTqX5yVZfaXEzYy5T0maQmimtgFteMdMeHj3kkgFQyzg-I1FF91tVG61B4j4KVc4LrPLf2AuG064i0n3G32GtJiT0pbvkCYHb-bQuOg", rating: "4.8", sales: "1.5K" },
+  { id: "s2", businessName: "Pooja House", category: "spiritual", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC3fa4or3W-WSU5sh78HJRsjQi8YuMU1x4OWK_qh5iG6g0urWXsZIzEYZ3z8xL34FVstj6zhQIfhpXSWeTtqCcHyxBcyqeRRxeUrJr99pas7RXWuZ07Nk56YBgV13PsEVVHEolDa5cj5sqKz_YEN5tIs5f70f36nbJ4dYgvGp2LyPYNF9UVUDZxbK-NP5a8Os37CVUxpOs8qQnuT__kwwiXYi93rPA7pb81W44VFzzNhqmD5xU0wrvkSkOCCV-RDeQtWGI", rating: "4.6", sales: "980" },
+  { id: "s3", businessName: "Decor Den", category: "home-decor", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuACQdixwWAIGKztY8FZrDgVQ0PrKq-RjVpAgMgJ030WgqgBvwxAbRnCL8r9ctCBPCLHgEx__LTe2Qdpv3exiAffT7uhOxZImBf-duF8fJXIKqZFxH3Xja0CCqwlKNSghSyyiPc_QFDNEnvGLX9E5TfdYBD3bRYGs3SYb_k0PK6ORE9H_nBoGQv_O37RQ2FFaA2o696xUL7lwT5UEdSQQb2Dvu6Op0NUul8MSuX1aSps2FCp8Yr0VKXZ0Q", rating: "4.7", sales: "1.2K" },
+  { id: "s4", businessName: "Wellness Plus", category: "wellness", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYuurJXwGdTdz_-0wMxVN2aMmGPGayCppYqHODfGdphCjeVgomeeby6jb8RsVhRvYVR_9cwyJLD-WS7LJoGO6aBxrR9RrRg9IVQbAosyaostEQQ7Zz76DIPAkpyeTePIzrpLbiMdgTbHJfmEcoFi6vgzxY7bxpJoesSOmpSH3cqQ6lZwNYQD4j3fq8hTSupdMZDRkGYjnAH89YApOv9SnGhCvHd21b0N1--B80LxTbxX6Z1qjfKXFe9w", rating: "4.8", sales: "1.5K" },
+  { id: "s5", businessName: "Urban Living", category: "home-decor", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMumtK8c5fywTtEgpNniKEZj4NJkCkVdEyYga6Rba_p400OXvbITFfZVIVLobUcG_42Q8KvEVV40ICzfRsOT29udrVUQwoAUeqyzodluWHt0NFV3rcfHYPO5C1dUhssAwYlb7tL_uU5Pzv38wBiYjw6ilAYmyNfTqX5yVZfaXEzYy5T0maQmimtgFteMdMeHj3kkgFQyzg-I1FF91tVG61B4j4KVc4LrPLf2AuG064i0n3G32GtJiT0pbvkCYHb-bQuOg", rating: "4.7", sales: "1.2K" },
+];
+
 export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
-  const [followingState, setFollowingState] = useState<Record<string, boolean>>({});
-
-  const toggleFollow = (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setFollowingState((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const defaultStores = [
-    {
-      id: "store-decor-den",
-      name: "Decor Den",
-      rating: "4.7 (1.2K)",
-      logoText: "DECOR\nDEN",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDc2cgI-o7c8nZ6sqtYIg1jSLUlPa7HchF619w19lZpLPQWgbGasg0hIL7wtv2T7W-1l2BPGXiyvN9-1PoBokb0N5uoW1-H5EBght96xOfztzBSuz1ecdJflcidmaZJImTyDXFMtrjR6tJs7mgNjI8PWAMVaBPrwzWzVSDGlaVfUt-e_oO4-StFSafrui5MgLWac8M7ifNjJ4ib_xZ_mBjmkUN4IUs31Z9he6IYjP0KcxO21W5zado5_w",
-    },
-    {
-      id: "store-pooja-house",
-      name: "Pooja House",
-      rating: "4.6 (980)",
-      icon: "fa-solid fa-om text-orange-600 text-xl md:text-2xl",
-      bgClass: "bg-orange-50 border-orange-100",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB3yybzhxvle1aJOB7P0X9aCkfsSZn96L8SZ2l-YaKYOc04mqkS419p-WGNxGfsNthHAdKATUb2F7HpYj9FxuJnPPT8Y6y83DsYKr9t85GH4DfMjfesrhSNM7-faktwah3ay67tFMwtZcXipUj_yP3U67RMm3tcd-ZJYN2a2mTfb8pmBk4vuK3qTLT61xwejNUPNNUnneedSMKbamd3EdsQ7DL0itW3pHSPm_LH9bkXEKYVV5jeDlckOA",
-    },
-    {
-      id: "store-ecolife",
-      name: "EcoLife",
-      rating: "4.6 (1.1K)",
-      icon: "fa-solid fa-leaf text-green-600 text-xl md:text-2xl",
-      bgClass: "bg-green-50 border-green-100",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAk1OOwBZBI1mHOcLSGAr99JbnCUWDTEMrukyq1ygQWjWgxPTFLHTgOURTPS5ij5FkL4reLJlOt5EdFAh5n8vjBBenPQHQt06CxUFFJrL9E2lojuC0gT3vljSnznny7hr72epr7aeRMKGQ-l-Huklfnl8i4LplqytZiSn85LHJtRV_Z3YyX4-PAK_zV4duBMkhydcsZNLeE0_CNXV06JUzw-TqYhHhNKeGenyDQd4h9u__ohqaJa4gmEA",
-    },
-  ];
+  const useFallback = sellers.length === 0;
 
   return (
-    <section className="mb-6 md:mb-12" data-purpose="top-stores">
+    <section className="px-4 md:px-6 mb-8 md:mb-12" data-purpose="top-stores">
       <div className="max-w-[1280px] mx-auto">
-        <div className="flex justify-between items-end px-4 md:px-8 mb-4 md:mb-6">
-          <h3 className="text-lg md:text-2xl font-bold text-gray-900">Top Stores For You</h3>
-          <Link href="/stores" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
-            View All Stores
+        {/* Header */}
+        <div className="flex justify-between items-end mb-6 md:mb-8">
+          <div>
+            <h3 className="text-[20px] md:text-2xl font-bold text-gray-900">Best Stores For You</h3>
+            <p className="text-[13px] md:text-base text-[#666666] mt-1">Handpicked sellers delivering exceptional quality</p>
+          </div>
+          <Link href="/stores" className="text-sm md:text-base font-semibold text-[#0F7F7F] hover:underline">
+            View All Stores →
           </Link>
         </div>
 
-        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:overflow-visible">
-          {sellers.length > 0
-            ? sellers.slice(0, 5).map((seller) => {
-                const isFollowing = !!followingState[seller.id];
+        {/* Grid: 2-col mobile / 3-col tablet / 5-col desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+          {useFallback
+            ? fallbackStores.map((store) => {
+                const cfg = categoryConfig[store.category] || categoryConfig.default;
                 return (
                   <Link
-                    key={seller.id}
-                    href={`/sellers/${seller.id}`}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4"
+                    key={store.id}
+                    href="/stores"
+                    className="bg-white border border-[#E5E7E7] rounded-[12px] p-4 flex flex-col hover:shadow-md transition-shadow group"
                   >
-                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                      <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden text-[8px] md:text-[10px] font-bold text-center leading-none flex-shrink-0 text-[#004F50]">
-                        {seller.logoUrl ? (
-                          <Image src={seller.logoUrl} alt={seller.businessName} fill sizes="48px" className="object-cover" />
-                        ) : (
-                          seller.businessName.slice(0, 2).toUpperCase()
-                        )}
+                    {/* Logo + name + rating */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`w-10 h-10 rounded-full ${cfg.bg} flex items-center justify-center ${cfg.color} flex-shrink-0`}>
+                        <i className={cfg.icon}></i>
                       </div>
-                      <div className="flex-grow min-w-0">
-                        <p className="text-sm md:text-base font-bold leading-tight text-gray-800 truncate">
-                          {seller.businessName}
-                        </p>
-                        <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-0.5">
-                          <i className="fa-solid fa-star text-orange-400"></i>
-                          <span className="font-medium">4.7 (1.2K)</span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-gray-900 truncate">{store.businessName}</h4>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-0.5">
+                          <span className="text-gray-800 font-medium">{store.rating}</span>
+                          <i className="fa-solid fa-star text-[#F39C12]"></i>
+                          <span>| {store.sales}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="h-28 md:h-36 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
-                      <Image
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc2cgI-o7c8nZ6sqtYIg1jSLUlPa7HchF619w19lZpLPQWgbGasg0hIL7wtv2T7W-1l2BPGXiyvN9-1PoBokb0N5uoW1-H5EBght96xOfztzBSuz1ecdJflcidmaZJImTyDXFMtrjR6tJs7mgNjI8PWAMVaBPrwzWzVSDGlaVfUt-e_oO4-StFSafrui5MgLWac8M7ifNjJ4ib_xZ_mBjmkUN4IUs31Z9he6IYjP0KcxO21W5zado5_w"
-                        alt={seller.businessName}
-                        fill
-                        sizes="200px"
-                        className="object-cover hover:scale-105 transition-transform duration-300"
+                    {/* Cover image */}
+                    <div className="h-32 md:h-40 w-full bg-gray-50 rounded-lg mb-4 overflow-hidden">
+                      <img
+                        src={store.img}
+                        alt={store.businessName}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={(e) => toggleFollow(seller.id, e)}
-                      className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${
-                        isFollowing
-                          ? "bg-[#004F50] text-white"
-                          : "text-[#004F50] hover:bg-[#004F50] hover:text-white"
-                      }`}
-                    >
-                      {isFollowing ? "Following" : "Follow"}
+                    {/* CTA */}
+                    <button className="w-full py-2 border border-[#0F7F7F] text-[#0F7F7F] rounded-lg text-xs font-semibold hover:bg-[#0F7F7F] hover:text-white transition-colors mt-auto" suppressHydrationWarning>
+                      Visit Store
                     </button>
                   </Link>
                 );
               })
-            : defaultStores.map((store) => {
-                const isFollowing = !!followingState[store.id];
+            : sellers.slice(0, 5).map((seller) => {
+                const cat = (seller.category || "default").toLowerCase().replace(/\s+/g, "-");
+                const cfg = categoryConfig[cat] || categoryConfig.default;
                 return (
-                  <div
-                    key={store.id}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4"
+                  <Link
+                    key={seller.id}
+                    href={`/sellers/${seller.id}`}
+                    className="bg-white border border-[#E5E7E7] rounded-[12px] p-4 flex flex-col hover:shadow-md transition-shadow group"
                   >
-                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                      <div
-                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border overflow-hidden text-[8px] md:text-[10px] font-bold text-center leading-none flex-shrink-0 ${
-                          store.bgClass || "bg-gray-100 border-gray-200"
-                        }`}
-                      >
-                        {store.icon ? <i className={store.icon}></i> : store.logoText}
-                      </div>
-                      <div className="flex-grow">
-                        <p className="text-sm md:text-base font-bold leading-tight text-gray-800">{store.name}</p>
-                        <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-0.5">
-                          <i className="fa-solid fa-star text-orange-400"></i>
-                          <span className="font-medium">{store.rating}</span>
+                    <div className="flex items-center gap-3 mb-4">
+                      {seller.logoUrl ? (
+                        <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden flex-shrink-0 relative">
+                          <Image src={seller.logoUrl} alt={seller.businessName} fill className="object-cover" sizes="40px" />
+                        </div>
+                      ) : (
+                        <div className={`w-10 h-10 rounded-full ${cfg.bg} flex items-center justify-center ${cfg.color} flex-shrink-0`}>
+                          <i className={cfg.icon}></i>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-gray-900 truncate">{seller.businessName}</h4>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-0.5">
+                          <span className="text-gray-800 font-medium">4.7</span>
+                          <i className="fa-solid fa-star text-[#F39C12]"></i>
+                          <span>| 1.2K</span>
                         </div>
                       </div>
                     </div>
-                    <div className="h-28 md:h-36 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
-                      <img
-                        alt={store.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        src={store.img}
+                    <div className="h-32 md:h-40 w-full bg-gray-50 rounded-lg mb-4 overflow-hidden relative">
+                      <Image
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMumtK8c5fywTtEgpNniKEZj4NJkCkVdEyYga6Rba_p400OXvbITFfZVIVLobUcG_42Q8KvEVV40ICzfRsOT29udrVUQwoAUeqyzodluWHt0NFV3rcfHYPO5C1dUhssAwYlb7tL_uU5Pzv38wBiYjw6ilAYmyNfTqX5yVZfaXEzYy5T0maQmimtgFteMdMeHj3kkgFQyzg-I1FF91tVG61B4j4KVc4LrPLf2AuG064i0n3G32GtJiT0pbvkCYHb-bQuOg"
+                        alt={seller.businessName}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 50vw, 20vw"
                       />
                     </div>
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={(e) => toggleFollow(store.id, e)}
-                      className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${
-                        isFollowing
-                          ? "bg-[#004F50] text-white"
-                          : "text-[#004F50] hover:bg-[#004F50] hover:text-white"
-                      }`}
-                    >
-                      {isFollowing ? "Following" : "Follow"}
+                    <button className="w-full py-2 border border-[#0F7F7F] text-[#0F7F7F] rounded-lg text-xs font-semibold hover:bg-[#0F7F7F] hover:text-white transition-colors mt-auto" suppressHydrationWarning>
+                      Visit Store
                     </button>
-                  </div>
+                  </Link>
                 );
               })}
         </div>
