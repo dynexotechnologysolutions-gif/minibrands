@@ -42,14 +42,13 @@ export default function StitchHomeHeader({ userProfile, cartCount, sellerHref }:
               <i className="fa-solid fa-bars"></i>
             </button>
             <div className="flex items-center gap-2">
-              {/* Gem icon shown on desktop */}
-              <i className="fa-solid fa-gem text-2xl hidden md:block text-white"></i>
-              {/* Shopping bag icon on mobile */}
-              <i className="fa-solid fa-shopping-bag text-2xl md:hidden text-white"></i>
+              {/* Shopping bag icon matching reference on all views */}
+              <i className="fa-solid fa-bag-shopping text-2xl text-[#F39C12]"></i>
               <div>
-                <h1 className="text-lg font-bold leading-tight tracking-wide">VELVET LANE</h1>
-                <p className="text-[10px] text-gray-300 hidden md:block">Luxury &amp; Style. One Place.</p>
-                <p className="text-[10px] text-gray-300 md:hidden">Many Stores. One Trusted Place.</p>
+                <h1 className="text-xl font-bold leading-tight tracking-wide font-sans">
+                  <span className="text-white">Shop</span><span className="text-[#F39C12]">Hub</span>
+                </h1>
+                <p className="text-[10px] text-gray-300">Many Stores. One Trusted Place.</p>
               </div>
             </div>
           </div>
@@ -71,7 +70,7 @@ export default function StitchHomeHeader({ userProfile, cartCount, sellerHref }:
           </div>
         </div>
 
-        {/* Search bar matching Stitch exactly */}
+        {/* Search bar matching reference */}
         <form onSubmit={handleSearch} className="relative w-full md:max-w-xl lg:max-w-2xl flex-1" suppressHydrationWarning>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <i className="fa-solid fa-search text-gray-400"></i>
@@ -81,11 +80,11 @@ export default function StitchHomeHeader({ userProfile, cartCount, sellerHref }:
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-12 py-2.5 rounded-xl focus:ring-2 focus:ring-brand-teal text-sm text-gray-900 placeholder-gray-500 bg-white border border-gray-200 focus:outline-none"
+            className="block w-full pl-10 pr-12 py-2.5 rounded-xl focus:ring-2 focus:ring-brand-teal text-sm text-gray-900 placeholder-gray-500 bg-white border border-gray-200 focus:outline-none font-sans"
             placeholder="Search products, brands or stores..."
           />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2 text-gray-400">
-            <button type="button" aria-label="Voice" className="hover:text-brand-teal transition" suppressHydrationWarning>
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2 text-[#0F7F7F]">
+            <button type="button" aria-label="Voice" className="hover:text-brand-orange transition" suppressHydrationWarning>
               <i className="fa-solid fa-microphone"></i>
             </button>
           </div>
@@ -93,18 +92,18 @@ export default function StitchHomeHeader({ userProfile, cartCount, sellerHref }:
 
         {/* Desktop Right navigation buttons */}
         <div className="hidden md:flex items-center gap-6 text-xl">
-          <Link href={wishlistHref} className="hover:text-brand-orange transition flex flex-col items-center gap-1">
+          <Link href={wishlistHref} className="hover:text-brand-orange transition flex flex-col items-center gap-1 font-sans">
             <i className="fa-regular fa-heart"></i>
             <span className="text-[10px] font-medium">Wishlist</span>
           </Link>
-          <Link href="/account/notifications" className="relative hover:text-brand-orange transition flex flex-col items-center gap-1">
+          <Link href="/account/notifications" className="relative hover:text-brand-orange transition flex flex-col items-center gap-1 font-sans">
             <div className="relative">
               <i className="fa-regular fa-bell"></i>
               <span className="absolute -top-1.5 -right-1.5 bg-brand-red text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-brand-dark">3</span>
             </div>
             <span className="text-[10px] font-medium">Alerts</span>
           </Link>
-          <Link href="/cart" className="relative hover:text-brand-orange transition flex flex-col items-center gap-1">
+          <Link href="/cart" className="relative hover:text-brand-orange transition flex flex-col items-center gap-1 font-sans">
             <div className="relative">
               <i className="fa-solid fa-cart-shopping"></i>
               {cartCount > 0 && (
@@ -113,7 +112,7 @@ export default function StitchHomeHeader({ userProfile, cartCount, sellerHref }:
             </div>
             <span className="text-[10px] font-medium">Cart</span>
           </Link>
-          <Link href={accountHref} className="hover:text-brand-orange transition flex flex-col items-center gap-1">
+          <Link href={accountHref} className="hover:text-brand-orange transition flex flex-col items-center gap-1 font-sans">
             <i className="fa-regular fa-user"></i>
             <span className="text-[10px] font-medium">{userProfile ? "Profile" : "Login"}</span>
           </Link>

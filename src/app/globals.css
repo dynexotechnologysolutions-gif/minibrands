@@ -1,31 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  --vl-primary: #ff3f6c;
-  --vl-primary-strong: #d92f59;
-  --vl-secondary: #6c63ff;
-  --vl-accent: #f8c630;
-  --vl-success: #22c55e;
+  --vl-primary: #0F7F7F;
+  --vl-primary-strong: #0d3b36;
+  --vl-secondary: #44403C;
+  --vl-accent: #F39C12;
+  --vl-success: #2E7D32;
   --vl-warning: #f59e0b;
-  --vl-danger: #ef4444;
+  --vl-danger: #E53935;
   --vl-canvas: #ffffff;
-  --vl-surface: #fafafa;
-  --vl-card: #ffffff;
-  --vl-ink: #111827;
+  --vl-surface: #ffffff;
+  --vl-card: #f7f9f9;
+  --vl-ink: #222222;
   --vl-muted: #6b7280;
   --vl-border: #e5e7eb;
   --vl-border-strong: #d1d5db;
-  --vl-heading: 'Manrope', sans-serif;
-  --vl-body: 'Inter', sans-serif;
-  --vl-radius-control: 1rem;
-  --vl-radius-card: 1.25rem;
-  --vl-radius-section: 2rem;
-  --vl-shadow-soft: 0 8px 28px rgb(17 24 39 / 0.06);
-  --vl-shadow-medium: 0 14px 36px rgb(17 24 39 / 0.10);
-  --vl-shadow-large: 0 22px 60px rgb(17 24 39 / 0.14);
-  --vl-shadow-floating: 0 16px 42px rgb(17 24 39 / 0.16);
+  --vl-heading: 'Cormorant Garamond', serif;
+  --vl-body: 'Montserrat', sans-serif;
+  --vl-radius-control: 0.5rem;
+  --vl-radius-card: 0.75rem;
+  --vl-radius-section: 1.5rem;
+  --vl-shadow-soft: 0 4px 16px rgb(0 0 0 / 0.04);
+  --vl-shadow-medium: 0 8px 24px rgb(0 0 0 / 0.08);
+  --vl-shadow-large: 0 16px 40px rgb(0 0 0 / 0.12);
+  --vl-shadow-floating: 0 12px 32px rgb(0 0 0 / 0.14);
   --vl-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --vl-duration-fast: 180ms;
   --vl-duration-standard: 220ms;
@@ -36,10 +36,10 @@
   --font-display: var(--vl-heading);
   --background: var(--vl-surface);
   --foreground: var(--vl-ink);
-  --primary: var(--vl-ink);
-  --primary-hover: #374151;
-  --card-bg: rgb(255 255 255 / 0.94);
-  --border-color: rgb(229 231 235 / 0.9);
+  --primary: var(--vl-primary);
+  --primary-hover: #0c6b6b;
+  --card-bg: #FFFFFF;
+  --border-color: #e5e7eb;
 }
 
 @theme inline {

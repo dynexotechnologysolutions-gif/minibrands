@@ -36,31 +36,31 @@ export default function HomeShopByBudget() {
   return (
     <section className="px-4 md:px-0 mb-8 md:mb-12" data-purpose="shop-by-budget">
       {/* Header Info */}
-      <div className="mb-6 md:mb-8 flex justify-between items-end">
+      <div className="mb-6 md:mb-8 flex justify-between items-end font-sans">
         <div>
-          <h3 className="text-[20px] md:text-2xl font-bold text-[#222222] font-inter">Shop by Budget</h3>
-          <p className="text-[13px] md:text-base text-[#666666] font-inter mt-1">Quality products tailored to your spend</p>
+          <h3 className="text-xl md:text-2xl font-bold text-[#222222]">Shop by Budget</h3>
+          <p className="text-xs md:text-base text-gray-500 mt-1">Quality products tailored to your spend</p>
         </div>
       </div>
 
       {/* Grid container */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-sans">
         {budgetTiers.map((tier) => (
           <Link
             key={tier.label}
             href={tier.href}
-            className="bg-[#FFFFFF] border border-[#E5E7E7] rounded-[12px] p-[16px] md:p-6 flex flex-col hover:shadow-md transition group cursor-pointer"
+            className="bg-[#FFFFFF] border border-[#E5E7E7] rounded-xl p-4 md:p-6 flex flex-col hover:shadow-md transition group cursor-pointer"
           >
             {/* Budget Chip */}
             <span
-              className={`inline-block text-sm md:text-base font-semibold px-3 py-1.5 rounded-lg mb-3 self-start transition-colors duration-250 ${tier.chipClass}`}
+              className={`inline-block text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg mb-3 self-start transition-colors duration-250 ${tier.chipClass}`}
             >
               {tier.label}
             </span>
             {/* Description */}
-            <p className="text-[13px] md:text-base text-[#666666] mb-6 font-inter flex-grow">{tier.desc}</p>
+            <p className="text-xs md:text-sm text-gray-500 mb-6 flex-grow">{tier.desc}</p>
             {/* Link row */}
-            <span className={`${tier.linkColor} text-sm md:text-base font-semibold mt-auto font-inter flex items-center gap-2 group-hover:gap-3 transition-all duration-200`}>
+            <span className={`${tier.linkColor} text-xs md:text-sm font-semibold mt-auto flex items-center gap-2 group-hover:gap-3 transition-all duration-200`}>
               Browse Tier <i className="fa-solid fa-arrow-right"></i>
             </span>
           </Link>

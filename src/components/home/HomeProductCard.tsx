@@ -74,12 +74,12 @@ export default function HomeProductCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="flex flex-col font-inter bg-white rounded-[12px] p-3 md:p-4 border border-[#E5E7E7] hover:shadow-lg transition group cursor-pointer"
+      className="flex flex-col font-sans bg-white rounded-xl p-3 md:p-4 border border-[#E5E7E7] hover:shadow-lg transition group cursor-pointer"
     >
-      {/* Product Image Container: aspect-square bg-[#F7F9F9] rounded-[8px] */}
-      <div className="relative w-full aspect-square bg-[#F7F9F9] rounded-[8px] mb-4 flex items-center justify-center overflow-hidden">
+      {/* Product Image Container: aspect-square bg-[#F7F9F9] rounded-lg */}
+      <div className="relative w-full aspect-square bg-[#F7F9F9] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
         {badgeLabel && (
-          <span className="absolute top-2 left-2 z-10 bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+          <span className="absolute top-2 left-2 z-10 bg-[#E53935] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
             {badgeLabel}
           </span>
         )}
@@ -106,28 +106,28 @@ export default function HomeProductCard({
 
       {/* Store Tag Badge */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[12px] font-medium text-[#666666] bg-gray-100 px-2 py-0.5 rounded truncate max-w-full">
+        <span className="text-[10px] md:text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded truncate max-w-full">
           {sellerName}
         </span>
       </div>
 
       {/* Product Title */}
-      <h4 className="text-[14px] md:text-base font-medium text-[#222222] line-clamp-2 mb-2 leading-tight min-h-[40px]">
+      <h4 className="text-[13px] md:text-sm font-semibold text-[#222222] line-clamp-2 mb-2 leading-tight min-h-[40px]">
         {product.name}
       </h4>
 
       {/* Rating Row */}
-      <div className="flex items-center gap-1 text-[12px] md:text-sm text-gray-500 mb-3">
-        <span className="text-[#222222] font-medium">4.8</span>
-        <i className="fa-solid fa-star text-[#F39C12] text-[10px] md:text-xs"></i>
-        <span>(1.2k sold)</span>
+      <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mb-3">
+        <span className="text-[#222222] font-semibold">4.6</span>
+        <i className="fa-solid fa-star text-[#F39C12] text-[9px] md:text-[10px]"></i>
+        <span>(980 sold)</span>
       </div>
 
       {/* Price row */}
       <div className="flex items-baseline gap-2 mb-4 mt-auto">
-        <span className="text-[18px] md:text-xl font-bold text-[#222222]">{formattedPrice}</span>
-        <span className="text-[13px] md:text-sm text-[#999999] line-through">{formattedOriginalPrice}</span>
-        <span className="text-[10px] md:text-xs font-bold text-[#E53935] bg-[#ffebee] px-1.5 py-0.5 rounded">
+        <span className="text-base md:text-lg font-bold text-[#222222]">{formattedPrice}</span>
+        <span className="text-xs md:text-sm text-[#999999] line-through">{formattedOriginalPrice}</span>
+        <span className="text-[9px] md:text-[10px] font-bold text-[#E53935] bg-[#ffebee] px-1.5 py-0.5 rounded">
           {discountPct}% OFF
         </span>
       </div>
@@ -138,15 +138,16 @@ export default function HomeProductCard({
         type="button"
         onClick={handleAddToCart}
         disabled={isAdding}
-        className={`w-full h-[44px] md:h-[48px] text-white rounded-[8px] text-sm md:text-base font-semibold transition shadow-sm ${
+        className={`w-full h-[40px] md:h-[44px] text-white rounded-lg text-xs md:text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2 ${
           added
-            ? "bg-green-600"
+            ? "bg-[#2E7D32]"
             : isAdding
             ? "bg-[#F39C12]/75 cursor-not-allowed"
             : "bg-[#F39C12] hover:bg-[#d68910]"
         }`}
       >
-        {added ? "Added!" : isAdding ? "Adding..." : "Add to Cart"}
+        <i className="fa-solid fa-cart-shopping"></i>
+        <span>{added ? "Added!" : isAdding ? "Adding..." : "Add to Cart"}</span>
       </button>
     </Link>
   );

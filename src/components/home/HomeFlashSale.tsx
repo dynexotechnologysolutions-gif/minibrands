@@ -61,10 +61,10 @@ function FlashCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="bg-white rounded-[12px] p-3 md:p-4 flex flex-col shadow-sm border border-gray-100 hover:shadow-md transition group"
+      className="bg-white rounded-xl p-3 md:p-4 flex flex-col shadow-sm border border-gray-100 hover:shadow-md transition group font-sans"
     >
       {/* Image Container */}
-      <div className="relative w-full aspect-square bg-[#F7F9F9] rounded-[8px] mb-3 flex items-center justify-center p-2 overflow-hidden">
+      <div className="relative w-full aspect-square bg-[#F7F9F9] rounded-lg mb-3 flex items-center justify-center p-2 overflow-hidden">
         <div className="absolute top-2 right-2 z-10">
           <WishlistIconButton productId={product.id} isLoggedIn={isLoggedIn} initialIsWishlisted={isWishlisted} />
         </div>
@@ -84,27 +84,27 @@ function FlashCard({
       </div>
 
       {/* Info Container */}
-      <h4 className="text-[14px] font-medium text-[#222222] line-clamp-1 mb-1 leading-tight">{product.name}</h4>
+      <h4 className="text-[13px] md:text-sm font-semibold text-[#222222] line-clamp-1 mb-1 leading-tight">{product.name}</h4>
       
       {/* Rating */}
-      <div className="flex items-center gap-1 text-[12px] text-gray-500 mb-2">
-        <span className="text-[#222222] font-medium">4.8</span>
-        <i className="fa-solid fa-star text-[#F39C12] text-[10px]"></i>
+      <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mb-2">
+        <span className="text-[#222222] font-semibold">4.8</span>
+        <i className="fa-solid fa-star text-[#F39C12] text-[9px] md:text-[10px]"></i>
         <span>(1.2k)</span>
       </div>
 
       {/* Pricing */}
       <div className="flex items-baseline gap-1.5 mb-3">
-        <span className="text-[18px] font-bold text-[#222222]">{price}</span>
-        <span className="text-[13px] text-[#999999] line-through">{orig}</span>
+        <span className="text-base md:text-lg font-bold text-[#222222]">{price}</span>
+        <span className="text-xs md:text-[13px] text-[#999999] line-through">{orig}</span>
       </div>
 
       {/* Stock indicators */}
       <div className="flex items-center justify-between mb-3">
         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mr-2">
-          <div className="h-full bg-brand-orange" style={{ width: `${stockPct}%` }}></div>
+          <div className="h-full bg-[#F39C12]" style={{ width: `${stockPct}%` }}></div>
         </div>
-        <span className="text-[10px] text-brand-red font-bold whitespace-nowrap">{stockCount} left</span>
+        <span className="text-[9px] md:text-[10px] text-[#E53935] font-bold whitespace-nowrap">{stockCount} left</span>
       </div>
 
       {/* CTA Grab Deal */}
@@ -112,8 +112,8 @@ function FlashCard({
         suppressHydrationWarning
         onClick={handleAdd}
         disabled={adding}
-        className={`w-full h-[40px] text-white rounded-[8px] text-sm font-semibold mt-auto hover:bg-opacity-90 transition shadow-sm ${
-          added ? "bg-green-600" : "bg-[#F39C12]"
+        className={`w-full h-[40px] text-white rounded-lg text-xs md:text-sm font-semibold mt-auto hover:bg-opacity-90 transition shadow-sm ${
+          added ? "bg-[#2E7D32]" : "bg-[#F39C12]"
         }`}
       >
         {added ? "Added!" : adding ? "Adding..." : "Grab Deal"}
@@ -139,7 +139,7 @@ function Countdown() {
   }, []);
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    <div className="bg-brand-red/90 text-white text-[10px] md:text-sm font-bold px-3 py-2 md:px-4 md:py-3 rounded-lg flex items-center gap-2 shadow-sm">
+    <div className="bg-[#E53935] text-white text-[10px] md:text-sm font-bold px-3 py-2 md:px-4 md:py-3 rounded-lg flex items-center gap-2 shadow-sm font-sans">
       <i className="fa-regular fa-clock"></i>
       <span className="bg-white/20 px-2 py-1 rounded tracking-widest">
         {pad(time.h)}h : {pad(time.m)}m : {pad(time.s)}s
@@ -161,13 +161,13 @@ export default function HomeFlashSale({ products, isLoggedIn = false, wishlistId
         <div className="relative z-10 flex flex-col md:flex-row gap-6">
           {/* Header & Timer Sidebar */}
           <div className="md:w-1/4 flex flex-row md:flex-col justify-between md:justify-center items-center md:items-start mb-4 md:mb-0 md:pr-6 md:border-r md:border-white/20">
-            <h4 className="text-white text-xl md:text-4xl font-bold flex items-center gap-2 md:mb-6 leading-tight">
+            <h4 className="text-white text-2xl md:text-4xl font-bold flex items-center gap-2 md:mb-6 leading-tight font-display">
               Flash<br className="hidden md:block" /> Sale
             </h4>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 font-sans">
               <p className="text-gray-300 text-sm hidden md:block">Don&apos;t miss out! Offers end in:</p>
               <Countdown />
-              <Link href="/products" className="text-brand-orange text-sm font-semibold hover:underline hidden md:inline-block mt-4">
+              <Link href="/products" className="text-[#F39C12] text-sm font-semibold hover:underline hidden md:inline-block mt-4">
                 View all deals →
               </Link>
             </div>
@@ -184,7 +184,7 @@ export default function HomeFlashSale({ products, isLoggedIn = false, wishlistId
               />
             ))}
             {products.length === 0 && (
-              <div className="col-span-4 text-center text-gray-400 py-8">
+              <div className="col-span-4 text-center text-gray-400 py-8 font-sans">
                 <i className="fa-solid fa-box-open text-4xl mb-3 block"></i>
                 <p>Flash deals loading...</p>
               </div>
