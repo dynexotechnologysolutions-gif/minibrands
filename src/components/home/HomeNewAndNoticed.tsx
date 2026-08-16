@@ -27,16 +27,16 @@ const newItems = [
 
 export default function HomeNewAndNoticed() {
   return (
-    <section className="mb-6 md:mb-12" data-purpose="new-and-noticed">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-8">
+    <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="new-and-noticed">
+      <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto px-4 md:px-8">
         <div className="mb-4 md:mb-6">
-          <h3 className="text-lg md:text-2xl font-bold text-gray-900">New &amp; Noticed</h3>
+          <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">New &amp; Noticed</h3>
         </div>
 
         {/* Featured Brand Banner */}
         <Link
           href="/sellers/ecolife"
-          className="mb-6 md:mb-8 relative h-48 md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer block"
+          className="mb-6 md:mb-8 relative h-48 md:h-[400px] lg:h-[420px] xl:h-[460px] rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer block"
         >
           <Image
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1c1E5NGHjQ0B6esPsQMT_HPG74JELUoG66hGyBysJ3QHZT-Y3SgnL9WRrgZ2iur4fwIbDy-47FKWAAAbd2C55UTuH38K0DuLJoJzIB8OU_B406yR731h8H2fIjdF2oZa89cL3--Nnu1SHJomg1bGRQFE_JZV7niO9Uzo-uaI4lAMPxYCGrvrln9bd6ut17qvPLRqLoGjkJqy238OOLBcjThzvVCoYIeOiwEKlazmeupd7iTBC_zMVPw"
@@ -55,10 +55,10 @@ export default function HomeNewAndNoticed() {
         </Link>
 
         {/* Mini New Items Grid */}
-        <div className="flex overflow-x-auto hide-scrollbar gap-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-6 md:overflow-visible">
+        <div className="flex overflow-x-auto hide-scrollbar gap-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-5 lg:gap-6 md:overflow-visible">
           {newItems.map((item) => (
             <Link key={item.title} href={item.href} className="min-w-[120px] md:min-w-0 flex flex-col group cursor-pointer block">
-              <div className="relative h-32 md:h-48 bg-gray-100 rounded-lg md:rounded-xl overflow-hidden mb-2 md:mb-3">
+              <div className="relative h-32 md:h-48 lg:h-52 bg-gray-100 rounded-lg md:rounded-xl overflow-hidden mb-2 md:mb-3">
                 <Image
                   src={item.img}
                   alt={item.title}
