@@ -51,16 +51,16 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
   ];
 
   return (
-    <section className="mb-6 md:mb-12" data-purpose="top-stores">
-      <div className="max-w-[1280px] mx-auto">
+    <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="top-stores">
+      <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto">
         <div className="flex justify-between items-end px-4 md:px-8 mb-4 md:mb-6">
-          <h3 className="text-lg md:text-2xl font-bold text-gray-900">Top Stores For You</h3>
+          <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Top Stores For You</h3>
           <Link href="/stores" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
             View All Stores
           </Link>
         </div>
 
-        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:overflow-visible">
+        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:gap-5 lg:gap-6 md:overflow-visible">
           {sellers.length > 0
             ? sellers.slice(0, 5).map((seller) => {
                 const isFollowing = !!followingState[seller.id];
@@ -68,7 +68,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                   <Link
                     key={seller.id}
                     href={`/sellers/${seller.id}`}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4"
+                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4 lg:p-5"
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden text-[8px] md:text-[10px] font-bold text-center leading-none flex-shrink-0 text-[#004F50]">
@@ -88,7 +88,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="h-28 md:h-36 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
+                    <div className="h-28 md:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
                       <Image
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc2cgI-o7c8nZ6sqtYIg1jSLUlPa7HchF619w19lZpLPQWgbGasg0hIL7wtv2T7W-1l2BPGXiyvN9-1PoBokb0N5uoW1-H5EBght96xOfztzBSuz1ecdJflcidmaZJImTyDXFMtrjR6tJs7mgNjI8PWAMVaBPrwzWzVSDGlaVfUt-e_oO4-StFSafrui5MgLWac8M7ifNjJ4ib_xZ_mBjmkUN4IUs31Z9he6IYjP0KcxO21W5zado5_w"
                         alt={seller.businessName}
@@ -117,7 +117,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                 return (
                   <div
                     key={store.id}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4"
+                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4 lg:p-5"
                   >
                     <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                       <div
@@ -135,7 +135,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="h-28 md:h-36 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
+                    <div className="h-28 md:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
                       <img
                         alt={store.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"

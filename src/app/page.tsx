@@ -9,6 +9,7 @@ import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeHero from "@/components/home/HomeHero";
 import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeProductCard from "@/components/home/HomeProductCard";
+import HomeProductCardDesktop from "@/components/home/HomeProductCardDesktop";
 import HomeShopByStyle from "@/components/home/HomeShopByStyle";
 import HomeNewAndNoticed from "@/components/home/HomeNewAndNoticed";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
@@ -132,17 +133,31 @@ export default async function HomePage({ searchParams }: PageProps) {
         <HomeStoreRow sellers={allSellers} />
 
         {/* Best Selling Products Section */}
-        <section className="mb-6 md:mb-12" data-purpose="best-selling-products">
-          <div className="max-w-[1280px] mx-auto px-4 md:px-8">
-            <div className="flex justify-between items-end mb-4 md:mb-6">
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">Best Selling Products</h3>
+        <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="best-selling-products">
+          <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto px-4 md:px-8">
+            <div className="flex justify-between items-end mb-4 md:mb-6 lg:mb-8">
+              <div>
+                <p className="hidden lg:block text-xs font-bold text-[#004b49] uppercase tracking-wider mb-1">MiniBrands Picks</p>
+                <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Best Selling Products</h3>
+              </div>
               <Link href="/products" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
                 View All
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+            {/* Mobile: existing card | Desktop: new desktop card */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:hidden gap-4 md:gap-6">
               {bestSellingProducts.map((product) => (
                 <HomeProductCard
+                  key={product.id}
+                  product={product}
+                  isLoggedIn={!!session?.user}
+                  isWishlisted={wishlistIds.includes(product.id)}
+                />
+              ))}
+            </div>
+            <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 xl:gap-6">
+              {bestSellingProducts.map((product) => (
+                <HomeProductCardDesktop
                   key={product.id}
                   product={product}
                   isLoggedIn={!!session?.user}
@@ -157,18 +172,34 @@ export default async function HomePage({ searchParams }: PageProps) {
         <HomeShopByStyle />
 
         {/* Trending Right Now Section */}
-        <section className="mb-6 md:mb-12" data-purpose="trending-now">
-          <div className="max-w-[1280px] mx-auto px-4 md:px-8">
-            <div className="flex justify-between items-end mb-4 md:mb-6">
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900">Trending Right Now</h3>
+        <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="trending-now">
+          <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto px-4 md:px-8">
+            <div className="flex justify-between items-end mb-4 md:mb-6 lg:mb-8">
+              <div>
+                <p className="hidden lg:block text-xs font-bold text-[#004b49] uppercase tracking-wider mb-1">What&apos;s Hot</p>
+                <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Trending Right Now</h3>
+              </div>
               <Link href="/products?sort=popular" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
                 View All
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+            {/* Mobile: existing card */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:hidden gap-4 md:gap-6">
               {(trendingProducts.length > 0 ? trendingProducts : bestSellingProducts).map((product) => (
                 <HomeProductCard
                   key={`trending-${product.id}`}
+                  product={product}
+                  isLoggedIn={!!session?.user}
+                  isWishlisted={wishlistIds.includes(product.id)}
+                  badgeLabel="TRENDING"
+                />
+              ))}
+            </div>
+            {/* Desktop: new desktop card */}
+            <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 xl:gap-6">
+              {(trendingProducts.length > 0 ? trendingProducts : bestSellingProducts).map((product) => (
+                <HomeProductCardDesktop
+                  key={`trending-d-${product.id}`}
                   product={product}
                   isLoggedIn={!!session?.user}
                   isWishlisted={wishlistIds.includes(product.id)}

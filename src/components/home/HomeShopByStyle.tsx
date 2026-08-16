@@ -29,21 +29,21 @@ const styles = [
 
 export default function HomeShopByStyle() {
   return (
-    <section className="mb-6 md:mb-12" data-purpose="shop-by-style">
-      <div className="max-w-[1280px] mx-auto">
+    <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="shop-by-style">
+      <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto">
         <div className="px-4 md:px-8 mb-4 md:mb-6">
           <p className="text-[10px] md:text-xs font-bold text-[#004b49] uppercase tracking-wider mb-0.5 md:mb-1">
             Curated For You
           </p>
-          <h3 className="text-lg md:text-2xl font-bold text-gray-900">Shop by Style</h3>
+          <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Shop by Style</h3>
         </div>
 
-        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:overflow-visible">
+        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-5 lg:gap-6 md:overflow-visible">
           {styles.map((style) => (
             <Link
               key={style.title}
               href={style.href}
-              className="relative min-w-[160px] md:min-w-0 h-48 md:h-64 rounded-xl md:rounded-2xl overflow-hidden flex-shrink-0 group cursor-pointer block"
+              className="relative min-w-[160px] md:min-w-0 h-48 md:h-64 lg:h-72 xl:h-80 rounded-xl md:rounded-2xl overflow-hidden flex-shrink-0 group cursor-pointer block"
             >
               <Image
                 src={style.img}
@@ -52,8 +52,8 @@ export default function HomeShopByStyle() {
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3 md:p-5">
-                <span className="text-white font-bold text-sm md:text-lg">{style.title}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3 md:p-5 lg:p-6">
+                <span className="text-white font-bold text-sm md:text-lg lg:text-xl">{style.title}</span>
               </div>
             </Link>
           ))}

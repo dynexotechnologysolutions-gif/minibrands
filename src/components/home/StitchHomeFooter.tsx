@@ -18,8 +18,8 @@ export default function StitchHomeFooter() {
   };
 
   return (
-    <footer className="hidden md:block bg-[#303030] text-[#F3F0EF] w-full py-10 px-4 md:px-6">
-      <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="hidden md:block bg-[#303030] text-[#F3F0EF] w-full py-10 px-4 md:px-6 lg:py-14">
+      <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
         {/* Brand Column */}
         <div className="flex flex-col gap-2">
           <span className="font-bold text-2xl text-[#97F2F1] mb-1">Velvet Lane</span>
