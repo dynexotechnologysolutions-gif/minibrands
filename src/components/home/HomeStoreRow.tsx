@@ -126,12 +126,8 @@ function StoreCard({ seller, previewImage, mockData }: StoreCardProps) {
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full bg-vl-surface border border-vl-border/60 overflow-hidden flex items-center justify-center shrink-0">
             {seller.logoUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={seller.logoUrl}
-                alt={seller.businessName}
-                className="w-full h-full object-cover"
-              />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={seller.logoUrl} alt={seller.businessName} className="w-full h-full object-cover" />
             ) : (
               <span className="text-[10px] font-extrabold text-[#0F7F7F]">{initials}</span>
             )}
@@ -142,9 +138,7 @@ function StoreCard({ seller, previewImage, mockData }: StoreCardProps) {
             </h3>
             <p className="text-[9.5px] text-vl-muted flex items-center gap-0.5 mt-0.5 font-bold">
               <span className="text-[#F39C12] text-[10px]">★</span>
-              <span>
-                {mockData.rating} ({mockData.count})
-              </span>
+              <span>{mockData.rating} ({mockData.count})</span>
             </p>
           </div>
         </div>

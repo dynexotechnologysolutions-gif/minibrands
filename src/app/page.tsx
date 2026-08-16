@@ -9,9 +9,6 @@ import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
-import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
-import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
-import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
@@ -91,7 +88,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand, nearbyStores] = await Promise.all([
+  const [featuredSellers, spotlightProducts, trendingCount, trendingProducts] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -102,67 +99,11 @@ export default async function HomePage({ searchParams }: PageProps) {
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, take: 2,
     }),
-    prisma.product.findMany({
-      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
-      orderBy: { createdAt: "desc" }, skip: 2, take: 4,
-    }),
-    prisma.seller.findMany({
-      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } },
-      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
-      orderBy: { createdAt: "desc" }, take: 2,
-    }),
     prisma.product.count({ where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } } }),
     prisma.product.findMany({
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, skip: (currentPage - 1) * itemsPerPage, take: itemsPerPage,
-    }),
-    prisma.seller.findFirst({
-      where: {
-        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        products: { some: { isPublished: true, isDeleted: false } },
-      },
-      include: {
-        userProfile: { include: { user: true } },
-        verification: true,
-        reviews: true,
-        products: {
-          where: { isPublished: true, isDeleted: false },
-          include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
-          take: 3,
-        },
-        _count: {
-          select: {
-            products: true,
-          },
-        },
-      },
-      orderBy: [
-        { verification: { trustScore: "desc" } },
-        { createdAt: "desc" },
-      ],
-    }),
-    prisma.seller.findMany({
-      where: {
-        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        products: { some: { isPublished: true, isDeleted: false } },
-      },
-      include: {
-        userProfile: { include: { user: true } },
-        verification: true,
-        reviews: true,
-        products: {
-          where: { isPublished: true, isDeleted: false },
-          include: { images: { orderBy: { sortOrder: "asc" } } },
-          take: 1,
-        },
-      },
-      orderBy: [
-        { verification: { trustScore: "desc" } },
-        { createdAt: "desc" },
-      ],
-      take: 10,
     }),
   ]);
 
@@ -177,15 +118,6 @@ export default async function HomePage({ searchParams }: PageProps) {
   ];
   const allSellers = [...featuredSellers.map(shapeSeller), ...mockSellers];
 
-  const sellerSpotlights = brandsSellers.map((seller) => ({
-    id: seller.id,
-    businessName: seller.businessName,
-    category: seller.category,
-    logoUrl: seller.storeLogo || null,
-    bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
-    tagline: seller.category || "Independent fashion label",
-    productCount: seller._count.products,
-  }));
 
   const productCard = (product: Parameters<typeof ProductCard>[0]["product"]) => (
     <ProductCard
@@ -262,27 +194,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
         ) : null}
 
-        <HomeEditorialCollections />
-        {(() => {
-          const userCity = userProfile?.addresses?.find((a) => a.isDefault)?.city || null;
-          const sortedNearbyStores = [...nearbyStores].sort((a, b) => {
-            if (userCity) {
-              const aMatch = a.city.toLowerCase() === userCity.toLowerCase();
-              const bMatch = b.city.toLowerCase() === userCity.toLowerCase();
-              if (aMatch && !bMatch) return -1;
-              if (!aMatch && bMatch) return 1;
-            }
-            return 0;
-          });
-          return (
-            <>
-              <HomeBrandSpotlight brand={spotlightBrand} userCity={userCity} />
-              <HomeNearbyStores stores={sortedNearbyStores} userCity={userCity} />
-            </>
-          );
-        })()}
-        {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
-        {sellerSpotlights.length > 0 ? <HomeSellerSpotlight sellers={sellerSpotlights} /> : null}
         <HomeInspiration />
         <HomeTrustStrip />
         <HomeNewsletter />

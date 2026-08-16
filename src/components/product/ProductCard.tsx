@@ -117,7 +117,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* ── Info Section ────────────────────────────────── */}
-      <Link href={`/products/${product.id}`} className="flex flex-col flex-1 px-3 pt-2.5 pb-1 gap-1 select-none">
+      <Link href={`/products/${product.id}`} className="flex flex-col flex-1 px-2.5 sm:px-3 pt-2 sm:pt-2.5 pb-1 gap-1 select-none">
         {/* Product Name — 2-line clamp */}
         <h3 className="text-xs sm:text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[34px] sm:min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
           {product.name}
@@ -144,7 +144,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* ── Add to Cart CTA — inside card with margin ─── */}
-      <div className="px-3 pb-3 pt-1.5">
+      <div className="px-2.5 sm:px-3 pb-2.5 sm:pb-3 pt-1.5">
         <Link
           href={`/products/${product.id}`}
           className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-[#0F7F7F] text-white text-[10.5px] font-extrabold uppercase tracking-wider rounded-xl transition-colors hover:bg-[#0A5C5C] shrink-0"
