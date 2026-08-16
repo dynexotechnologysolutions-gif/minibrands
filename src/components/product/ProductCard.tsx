@@ -1,8 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
-import WishlistIconButton from "./WishlistIconButton";
+import { BadgeCheck, ShoppingCart, Store } from "lucide-react";
 
 export interface ProductCardProps {
   product: {
@@ -24,7 +23,7 @@ export interface ProductCardProps {
   isWishlisted?: boolean;
 }
 
-export default function ProductCard({ product, isLoggedIn, isWishlisted }: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.images?.[0]?.url || "/placeholder.jpg";
 
   const priceInINR = Math.round(product.price / 100);
@@ -57,14 +56,24 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
     product.variants.length === 0 ||
     product.variants.every((v) => v.stockCount === 0);
 
+  // Generate mockup rating and sold counts based on product id
+  const charCode = product.id.charCodeAt(0) || 0;
+  const rating = (4.3 + (charCode % 7) * 0.1).toFixed(1);
+  const soldCount = (charCode * 9) % 1200 + 80;
+
+  // Truncate store name: first word, or first 12 chars if single long word
+  const rawName = product.seller.businessName || "Store";
+  const firstWord = rawName.split(" ")[0];
+  const storeName = firstWord.length > 12 ? firstWord.slice(0, 11) + "…" : firstWord;
+  const fullStoreName = rawName.length > 20
+    ? rawName.slice(0, 18) + "…"
+    : rawName;
+
   return (
-    <Link
-      href={`/products/${product.id}`}
-      aria-label={`${product.name} by ${product.seller.businessName} — ${formattedPrice}`}
-      className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2"
-    >
-      {/* ── Image Container ─────────────────────────────── */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
+    <div className="group relative flex flex-col bg-white border border-vl-border rounded-vl-card overflow-hidden cursor-pointer transition-all duration-vl-standard hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+
+      {/* ── Image Container with Store Badge overlay ─────── */}
+      <Link href={`/products/${product.id}`} className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
         <Image
           src={primaryImage}
           alt={product.name}
@@ -74,9 +83,26 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
           priority={false}
         />
 
-        {/* Stock badge — top-left */}
+        {/* Store badge — top-left transparent overlay */}
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-1 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.25)]" style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}>
+          <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <Store className="w-2.5 h-2.5 text-white" strokeWidth={2} />
+          </div>
+          <span className="text-[9.5px] font-bold text-white leading-none max-w-[80px] line-clamp-1" title={rawName}>
+            {storeName}
+          </span>
+          {isSellerVerified && (
+            <BadgeCheck
+              aria-label="Verified seller"
+              className="h-3 w-3 shrink-0 text-[#4ADE80]"
+              strokeWidth={2.2}
+            />
+          )}
+        </div>
+
+        {/* Stock badge — top-right */}
         {(isOutOfStock || lowStockVariant) && (
-          <div className="absolute top-sm left-sm z-10">
+          <div className="absolute top-2 right-2 z-10">
             {isOutOfStock ? (
               <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-vl-danger text-white uppercase tracking-wider leading-tight select-none">
                 Sold Out
@@ -88,48 +114,45 @@ export default function ProductCard({ product, isLoggedIn, isWishlisted }: Produ
             )}
           </div>
         )}
-      </div>
-
-      <WishlistIconButton
-        productId={product.id}
-        isLoggedIn={!!isLoggedIn}
-        initialIsWishlisted={!!isWishlisted}
-      />
+      </Link>
 
       {/* ── Info Section ────────────────────────────────── */}
-      <div className="flex flex-col flex-1 p-4 gap-1 select-none">
-        {/* Brand + Verified */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[11px] font-bold text-vl-muted uppercase tracking-[0.06em] truncate leading-tight">
-            {product.seller.businessName}
-          </span>
-          {isSellerVerified && (
-            <BadgeCheck
-              aria-label="Verified seller"
-              className="h-3.5 w-3.5 shrink-0 text-vl-success"
-              strokeWidth={2.2}
-            />
-          )}
-        </div>
-
+      <Link href={`/products/${product.id}`} className="flex flex-col flex-1 px-3 pt-2.5 pb-1 gap-1 select-none">
         {/* Product Name — 2-line clamp */}
-        <h3 className="text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
+        <h3 className="text-xs sm:text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[34px] sm:min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
           {product.name}
         </h3>
 
         {/* Price row */}
-        <div className="flex items-baseline gap-2 mt-2 flex-wrap">
-          <span className="text-base font-extrabold text-vl-ink">
+        <div className="flex items-baseline gap-1.5 mt-1 flex-wrap">
+          <span className="text-sm sm:text-base font-extrabold text-vl-ink">
             {formattedPrice}
           </span>
-          <span className="text-xs text-vl-muted line-through">
+          <span className="text-[10px] sm:text-xs text-vl-muted line-through">
             {formattedMrp}
           </span>
-          <span className="text-[11px] font-bold text-vl-primary">
+          <span className="text-[10px] sm:text-[11px] font-bold text-vl-primary">
             -{discountPct}%
           </span>
         </div>
+
+        {/* Rating Row */}
+        <div className="flex items-center gap-1 text-[10px] font-bold text-vl-muted mt-0.5">
+          <span className="text-[#F39C12] text-[11px]">★</span>
+          <span>{rating} ({soldCount} sold)</span>
+        </div>
+      </Link>
+
+      {/* ── Add to Cart CTA — inside card with margin ─── */}
+      <div className="px-3 pb-3 pt-1.5">
+        <Link
+          href={`/products/${product.id}`}
+          className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-[#0F7F7F] text-white text-[10.5px] font-extrabold uppercase tracking-wider rounded-xl transition-colors hover:bg-[#0A5C5C] shrink-0"
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+          <span>Add to Cart</span>
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 }

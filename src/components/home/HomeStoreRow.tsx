@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export interface SellerData {
+interface SellerData {
   id: string;
   businessName: string;
-  category?: string;
+  category: string;
   logoUrl?: string | null;
 }
 
@@ -16,149 +16,167 @@ interface HomeStoreRowProps {
 }
 
 export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
-  const [followingState, setFollowingState] = useState<Record<string, boolean>>({});
+  const rowRef = useRef<HTMLDivElement>(null);
+  const scroll = (distance: number) => rowRef.current?.scrollBy({ left: distance, behavior: "smooth" });
 
-  const toggleFollow = (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setFollowingState((prev) => ({ ...prev, [id]: !prev[id] }));
+  const getPreviewImage = (category: string, id: string) => {
+    const cat = (category || "").toLowerCase();
+    if (cat.includes("decor") || id.includes("store-1")) {
+      return "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80";
+    }
+    if (cat.includes("spiritual") || id.includes("store-2") || cat.includes("ethnic")) {
+      return "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&w=400&q=80";
+    }
+    if (cat.includes("bottle") || id.includes("store-3") || cat.includes("wellness")) {
+      return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80";
+    }
+    if (cat.includes("living") || id.includes("store-4")) {
+      return "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80";
+    }
+    if (cat.includes("beauty") || id.includes("store-5") || cat.includes("cosmetics")) {
+      return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80";
+    }
+    return "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=400&q=80";
   };
 
-  const defaultStores = [
-    {
-      id: "store-decor-den",
-      name: "Decor Den",
-      rating: "4.7 (1.2K)",
-      logoText: "DECOR\nDEN",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDc2cgI-o7c8nZ6sqtYIg1jSLUlPa7HchF619w19lZpLPQWgbGasg0hIL7wtv2T7W-1l2BPGXiyvN9-1PoBokb0N5uoW1-H5EBght96xOfztzBSuz1ecdJflcidmaZJImTyDXFMtrjR6tJs7mgNjI8PWAMVaBPrwzWzVSDGlaVfUt-e_oO4-StFSafrui5MgLWac8M7ifNjJ4ib_xZ_mBjmkUN4IUs31Z9he6IYjP0KcxO21W5zado5_w",
-    },
-    {
-      id: "store-pooja-house",
-      name: "Pooja House",
-      rating: "4.6 (980)",
-      icon: "fa-solid fa-om text-orange-600 text-xl md:text-2xl",
-      bgClass: "bg-orange-50 border-orange-100",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB3yybzhxvle1aJOB7P0X9aCkfsSZn96L8SZ2l-YaKYOc04mqkS419p-WGNxGfsNthHAdKATUb2F7HpYj9FxuJnPPT8Y6y83DsYKr9t85GH4DfMjfesrhSNM7-faktwah3ay67tFMwtZcXipUj_yP3U67RMm3tcd-ZJYN2a2mTfb8pmBk4vuK3qTLT61xwejNUPNNUnneedSMKbamd3EdsQ7DL0itW3pHSPm_LH9bkXEKYVV5jeDlckOA",
-    },
-    {
-      id: "store-ecolife",
-      name: "EcoLife",
-      rating: "4.6 (1.1K)",
-      icon: "fa-solid fa-leaf text-green-600 text-xl md:text-2xl",
-      bgClass: "bg-green-50 border-green-100",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAk1OOwBZBI1mHOcLSGAr99JbnCUWDTEMrukyq1ygQWjWgxPTFLHTgOURTPS5ij5FkL4reLJlOt5EdFAh5n8vjBBenPQHQt06CxUFFJrL9E2lojuC0gT3vljSnznny7hr72epr7aeRMKGQ-l-Huklfnl8i4LplqytZiSn85LHJtRV_Z3YyX4-PAK_zV4duBMkhydcsZNLeE0_CNXV06JUzw-TqYhHhNKeGenyDQd4h9u__ohqaJa4gmEA",
-    },
-  ];
+  const getMockRating = (id: string) => {
+    const charCode = id.charCodeAt(0) || 0;
+    const rating = (4.5 + (charCode % 5) * 0.1).toFixed(1);
+    const count = (charCode * 7) % 800 + 120;
+    return { rating, count };
+  };
 
   return (
-    <section className="mb-6 md:mb-12 lg:mb-20 xl:mb-24" data-purpose="top-stores">
-      <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto">
-        <div className="flex justify-between items-end px-4 md:px-8 mb-4 md:mb-6">
-          <h3 className="text-lg md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Top Stores For You</h3>
-          <Link href="/stores" className="text-xs md:text-sm text-gray-600 font-medium hover:underline text-[#004F50]">
+    <section className="vl-section-shell mt-6 sm:mt-16">
+      {/* Heading Block */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Top Stores For You</p>
+          <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">Featured boutiques</h2>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/products" className="text-xs sm:text-sm font-bold text-[#0F7F7F] hover:underline whitespace-nowrap">
             View All Stores
           </Link>
-        </div>
-
-        <div className="flex overflow-x-auto hide-scrollbar gap-4 px-4 md:px-8 pb-2 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:gap-5 lg:gap-6 md:overflow-visible">
-          {sellers.length > 0
-            ? sellers.slice(0, 5).map((seller) => {
-                const isFollowing = !!followingState[seller.id];
-                return (
-                  <Link
-                    key={seller.id}
-                    href={`/sellers/${seller.id}`}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4 lg:p-5"
-                  >
-                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                      <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 overflow-hidden text-[8px] md:text-[10px] font-bold text-center leading-none flex-shrink-0 text-[#004F50]">
-                        {seller.logoUrl ? (
-                          <Image src={seller.logoUrl} alt={seller.businessName} fill sizes="48px" className="object-cover" />
-                        ) : (
-                          seller.businessName.slice(0, 2).toUpperCase()
-                        )}
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <p className="text-sm md:text-base font-bold leading-tight text-gray-800 truncate">
-                          {seller.businessName}
-                        </p>
-                        <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-0.5">
-                          <i className="fa-solid fa-star text-orange-400"></i>
-                          <span className="font-medium">4.7 (1.2K)</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="h-28 md:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
-                      <Image
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc2cgI-o7c8nZ6sqtYIg1jSLUlPa7HchF619w19lZpLPQWgbGasg0hIL7wtv2T7W-1l2BPGXiyvN9-1PoBokb0N5uoW1-H5EBght96xOfztzBSuz1ecdJflcidmaZJImTyDXFMtrjR6tJs7mgNjI8PWAMVaBPrwzWzVSDGlaVfUt-e_oO4-StFSafrui5MgLWac8M7ifNjJ4ib_xZ_mBjmkUN4IUs31Z9he6IYjP0KcxO21W5zado5_w"
-                        alt={seller.businessName}
-                        fill
-                        sizes="200px"
-                        className="object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={(e) => toggleFollow(seller.id, e)}
-                      className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${
-                        isFollowing
-                          ? "bg-[#004F50] text-white"
-                          : "text-[#004F50] hover:bg-[#004F50] hover:text-white"
-                      }`}
-                    >
-                      {isFollowing ? "Following" : "Follow"}
-                    </button>
-                  </Link>
-                );
-              })
-            : defaultStores.map((store) => {
-                const isFollowing = !!followingState[store.id];
-                return (
-                  <div
-                    key={store.id}
-                    className="w-[160px] shrink-0 md:w-auto md:shrink-1 bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col p-3 md:p-4 lg:p-5"
-                  >
-                    <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                      <div
-                        className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border overflow-hidden text-[8px] md:text-[10px] font-bold text-center leading-none flex-shrink-0 ${
-                          store.bgClass || "bg-gray-100 border-gray-200"
-                        }`}
-                      >
-                        {store.icon ? <i className={store.icon}></i> : store.logoText}
-                      </div>
-                      <div className="flex-grow">
-                        <p className="text-sm md:text-base font-bold leading-tight text-gray-800">{store.name}</p>
-                        <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-0.5">
-                          <i className="fa-solid fa-star text-orange-400"></i>
-                          <span className="font-medium">{store.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="h-28 md:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 md:mb-4 overflow-hidden relative">
-                      <img
-                        alt={store.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        src={store.img}
-                      />
-                    </div>
-                    <button
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={(e) => toggleFollow(store.id, e)}
-                      className={`w-full py-2 md:py-2.5 border border-[#004F50] transition-colors rounded-lg text-sm md:text-base font-semibold mt-auto ${
-                        isFollowing
-                          ? "bg-[#004F50] text-white"
-                          : "text-[#004F50] hover:bg-[#004F50] hover:text-white"
-                      }`}
-                    >
-                      {isFollowing ? "Following" : "Follow"}
-                    </button>
-                  </div>
-                );
-              })}
+          <div className="hidden sm:flex gap-1.5">
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => scroll(-240)}
+              className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-white text-vl-muted transition hover:border-vl-primary hover:text-vl-primary cursor-pointer"
+              aria-label="Scroll featured stores left"
+            >
+              <ChevronLeft aria-hidden="true" className="h-4 w-4" />
+            </button>
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => scroll(240)}
+              className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-white text-vl-muted transition hover:border-vl-primary hover:text-vl-primary cursor-pointer"
+              aria-label="Scroll featured stores right"
+            >
+              <ChevronRight aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Cards List */}
+      <div
+        ref={rowRef}
+        className="hide-scrollbar mt-5 flex snap-x gap-4 overflow-x-auto pb-4 scroll-smooth px-0.5"
+      >
+        {sellers.map((seller) => (
+          <StoreCard
+            key={seller.id}
+            seller={seller}
+            previewImage={getPreviewImage(seller.category, seller.id)}
+            mockData={getMockRating(seller.id)}
+          />
+        ))}
+      </div>
     </section>
+  );
+}
+
+interface StoreCardProps {
+  seller: SellerData;
+  previewImage: string;
+  mockData: { rating: string; count: number };
+}
+
+function StoreCard({ seller, previewImage, mockData }: StoreCardProps) {
+  const [isFollowing, setIsFollowing] = useState(false);
+  const initials = seller.businessName
+    ? seller.businessName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "ST";
+
+  return (
+    <Link
+      href={`/sellers/${seller.id}`}
+      className="group flex flex-col justify-between w-[148px] sm:w-[170px] shrink-0 snap-start bg-white rounded-2xl border border-vl-border/70 p-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-vl-primary/25"
+    >
+      <div className="flex flex-col gap-3">
+        {/* Header (Logo + Name + Rating) */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-vl-surface border border-vl-border/60 overflow-hidden flex items-center justify-center shrink-0">
+            {seller.logoUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={seller.logoUrl}
+                alt={seller.businessName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-[10px] font-extrabold text-[#0F7F7F]">{initials}</span>
+            )}
+          </div>
+          <div className="min-w-0 flex-grow">
+            <h3 className="font-vl-heading text-xs font-bold text-vl-ink truncate leading-tight group-hover:text-vl-primary transition-colors">
+              {seller.businessName}
+            </h3>
+            <p className="text-[9.5px] text-vl-muted flex items-center gap-0.5 mt-0.5 font-bold">
+              <span className="text-[#F39C12] text-[10px]">★</span>
+              <span>
+                {mockData.rating} ({mockData.count})
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full aspect-square relative rounded-xl overflow-hidden bg-vl-surface border border-vl-border/40 mt-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewImage}
+            alt={`${seller.businessName} store preview`}
+            className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+          />
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <div className="mt-3.5 w-full">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsFollowing(!isFollowing);
+          }}
+          className={`w-full py-2 rounded-xl text-[11px] font-extrabold transition-all duration-vl-fast border cursor-pointer active:scale-[0.97] ${
+            isFollowing
+              ? "bg-vl-surface text-vl-muted border-vl-border hover:bg-vl-border/10"
+              : "bg-white text-[#0F7F7F] border-[#0F7F7F]/75 hover:bg-[#0F7F7F]/5"
+          }`}
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </button>
+      </div>
+    </Link>
   );
 }

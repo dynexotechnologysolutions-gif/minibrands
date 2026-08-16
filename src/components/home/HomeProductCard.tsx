@@ -38,10 +38,11 @@ export default function HomeProductCard({
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
-  const mainImage = product.images?.[0]?.url || "/placeholder.jpg";
+  const mainImage = product.images?.[0]?.url || null;
   const sellerName = product.seller?.businessName || "Independent Label";
   const formattedPrice = formatPrice(product.price);
-  const formattedOriginalPrice = formatPrice(product.price * 1.35);
+  const formattedOriginalPrice = formatPrice(product.price * 1.25);
+  const discountPct = 20;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -71,78 +72,83 @@ export default function HomeProductCard({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col group h-full">
-      {/* Product Image & Store/Badge Tag Overlay */}
-      <div className="relative bg-gray-100 h-40 md:h-52 overflow-hidden block">
-        <Link href={`/products/${product.id}`} className="block w-full h-full relative">
+    <Link
+      href={`/products/${product.id}`}
+      className="flex flex-col font-sans bg-white rounded-xl p-3 md:p-4 border border-[#E5E7E7] hover:shadow-lg transition group cursor-pointer"
+    >
+      {/* Product Image Container: aspect-square bg-[#F7F9F9] rounded-lg */}
+      <div className="relative w-full aspect-square bg-[#F7F9F9] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+        {badgeLabel && (
+          <span className="absolute top-2 left-2 z-10 bg-[#E53935] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+            {badgeLabel}
+          </span>
+        )}
+        
+        {/* Wishlist icon button container */}
+        <div className="absolute top-2 right-2 md:top-3 md:right-3 z-10">
+          <WishlistIconButton productId={product.id} isLoggedIn={isLoggedIn} initialIsWishlisted={isWishlisted} />
+        </div>
+
+        {mainImage ? (
           <Image
             src={mainImage}
             alt={product.name}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-contain mix-blend-multiply p-2 group-hover:scale-110 transition-transform duration-500"
           />
-        </Link>
-
-        {/* Store Name Badge or Custom Badge */}
-        <div className="absolute top-2 left-2 flex items-center gap-1.5 pointer-events-none">
-          {badgeLabel ? (
-            <span className="bg-[#004b49] text-white text-[8px] md:text-[10px] font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow-sm">
-              {badgeLabel}
-            </span>
-          ) : (
-            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full">
-              <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm">
-                <i className="fa-solid fa-store text-[8px] text-[#004b49]"></i>
-              </div>
-              <span className="text-[10px] font-bold text-white drop-shadow-md truncate max-w-24">
-                {sellerName}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Wishlist Icon */}
-        <div className="absolute top-2 right-2 z-10">
-          <WishlistIconButton productId={product.id} isLoggedIn={isLoggedIn} initialIsWishlisted={isWishlisted} />
-        </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <i className="fa-solid fa-image text-gray-300 text-3xl md:text-5xl group-hover:scale-110 transition-transform duration-500"></i>
+          </div>
+        )}
       </div>
 
-      {/* Info Section */}
-      <div className="p-3 md:p-4 flex flex-col flex-grow">
-        <Link href={`/products/${product.id}`}>
-          <h4 className="text-sm md:text-base text-gray-800 leading-tight mb-1 md:mb-2 truncate font-bold hover:text-[#004b49] transition-colors">
-            {product.name}
-          </h4>
-        </Link>
-
-        <div className="flex items-baseline gap-1 md:gap-2 mb-1 md:mb-2">
-          <span className="text-lg md:text-xl font-bold text-gray-900">{formattedPrice}</span>
-          <span className="text-xs md:text-sm text-gray-400 line-through">{formattedOriginalPrice}</span>
-        </div>
-
-        <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
-          <i className="fa-solid fa-star text-orange-400"></i>
-          <span>4.7 (1.2K sold)</span>
-        </div>
-
-        <button
-          suppressHydrationWarning
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          className={`w-full py-2 md:py-2.5 rounded-lg text-sm md:text-base font-medium mt-auto flex items-center justify-center gap-2 transition-colors ${
-            added
-              ? "bg-green-600 text-white"
-              : isAdding
-              ? "bg-[#004b49]/70 text-white cursor-not-allowed"
-              : "bg-[#004b49] hover:bg-teal-800 text-white"
-          }`}
-        >
-          <i className="fa-solid fa-cart-plus"></i>
-          {added ? "Added to Cart!" : isAdding ? "Adding..." : "Add to Cart"}
-        </button>
+      {/* Store Tag Badge */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[10px] md:text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded truncate max-w-full">
+          {sellerName}
+        </span>
       </div>
-    </div>
+
+      {/* Product Title */}
+      <h4 className="text-[13px] md:text-sm font-semibold text-[#222222] line-clamp-2 mb-2 leading-tight min-h-[40px]">
+        {product.name}
+      </h4>
+
+      {/* Rating Row */}
+      <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mb-3">
+        <span className="text-[#222222] font-semibold">4.6</span>
+        <i className="fa-solid fa-star text-[#F39C12] text-[9px] md:text-[10px]"></i>
+        <span>(980 sold)</span>
+      </div>
+
+      {/* Price row */}
+      <div className="flex items-baseline gap-2 mb-4 mt-auto">
+        <span className="text-base md:text-lg font-bold text-[#222222]">{formattedPrice}</span>
+        <span className="text-xs md:text-sm text-[#999999] line-through">{formattedOriginalPrice}</span>
+        <span className="text-[9px] md:text-[10px] font-bold text-[#E53935] bg-[#ffebee] px-1.5 py-0.5 rounded">
+          {discountPct}% OFF
+        </span>
+      </div>
+
+      {/* CTA Button: Add to Cart */}
+      <button
+        suppressHydrationWarning
+        type="button"
+        onClick={handleAddToCart}
+        disabled={isAdding}
+        className={`w-full h-[40px] md:h-[44px] text-white rounded-lg text-xs md:text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2 ${
+          added
+            ? "bg-[#2E7D32]"
+            : isAdding
+            ? "bg-[#F39C12]/75 cursor-not-allowed"
+            : "bg-[#F39C12] hover:bg-[#d68910]"
+        }`}
+      >
+        <i className="fa-solid fa-cart-shopping"></i>
+        <span>{added ? "Added!" : isAdding ? "Adding..." : "Add to Cart"}</span>
+      </button>
+    </Link>
   );
 }

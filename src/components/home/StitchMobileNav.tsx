@@ -15,13 +15,13 @@ export default function StitchMobileNav({ cartCount, isLoggedIn }: StitchMobileN
 
   return (
     <nav
-      className="fixed bottom-0 w-full bg-white px-2 py-3 z-50 flex md:hidden justify-between items-center shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+      className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 z-50 flex md:hidden justify-around items-center py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe"
       data-purpose="bottom-navigation"
     >
       <Link
         href="/"
         className={`flex flex-col items-center w-1/5 transition-colors ${
-          pathname === "/" ? "text-[#004b49]" : "text-gray-400 hover:text-gray-600"
+          pathname === "/" ? "text-[#0d3b36]" : "text-gray-400 hover:text-gray-600"
         }`}
       >
         <i className="fa-solid fa-house text-xl mb-1"></i>
@@ -31,7 +31,7 @@ export default function StitchMobileNav({ cartCount, isLoggedIn }: StitchMobileN
       <Link
         href="/categories"
         className={`flex flex-col items-center w-1/5 transition-colors ${
-          pathname === "/categories" ? "text-[#004b49]" : "text-gray-400 hover:text-gray-600"
+          pathname === "/categories" ? "text-[#0d3b36]" : "text-gray-400 hover:text-gray-600"
         }`}
       >
         <i className="fa-solid fa-shapes text-xl mb-1"></i>
@@ -41,7 +41,7 @@ export default function StitchMobileNav({ cartCount, isLoggedIn }: StitchMobileN
       <Link
         href="/stores"
         className={`flex flex-col items-center w-1/5 transition-colors ${
-          pathname === "/stores" ? "text-[#004b49]" : "text-gray-400 hover:text-gray-600"
+          pathname === "/stores" ? "text-[#0d3b36]" : "text-gray-400 hover:text-gray-600"
         }`}
       >
         <i className="fa-solid fa-store text-xl mb-1"></i>
@@ -51,7 +51,7 @@ export default function StitchMobileNav({ cartCount, isLoggedIn }: StitchMobileN
       <Link
         href="/cart"
         className={`flex flex-col items-center w-1/5 transition-colors relative ${
-          pathname === "/cart" ? "text-[#004b49]" : "text-gray-400 hover:text-gray-600"
+          pathname === "/cart" ? "text-[#0d3b36]" : "text-gray-400 hover:text-gray-600"
         }`}
       >
         <i className="fa-solid fa-cart-shopping text-xl mb-1"></i>
@@ -66,7 +66,7 @@ export default function StitchMobileNav({ cartCount, isLoggedIn }: StitchMobileN
       <Link
         href={accountHref}
         className={`flex flex-col items-center w-1/5 transition-colors ${
-          pathname.startsWith("/account") ? "text-[#004b49]" : "text-gray-400 hover:text-gray-600"
+          pathname.startsWith("/account") ? "text-[#0d3b36]" : "text-gray-400 hover:text-gray-600"
         }`}
       >
         <i className="fa-regular fa-user text-xl mb-1"></i>
