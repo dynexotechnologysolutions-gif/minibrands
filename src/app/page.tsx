@@ -1,27 +1,32 @@
 import { headers } from "next/headers";
 import { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserReservations, redis } from "@/lib/redis";
-import StitchHomeHeader from "@/components/home/StitchHomeHeader";
-import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
-import HomeHero from "@/components/home/HomeHero";
+import HomeHeader from "@/components/home/HomeHeader";
 import HomeStoreRow from "@/components/home/HomeStoreRow";
-import HomeFlashSale from "@/components/home/HomeFlashSale";
-import HomeShopByBudget from "@/components/home/HomeShopByBudget";
-import HomeProductCard from "@/components/home/HomeProductCard";
+import HomeHero from "@/components/home/HomeHero";
+import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
+import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
+import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
+import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
+import HomeNearbyStores from "@/components/home/HomeNearbyStores";
+import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
-import StitchHomeFooter from "@/components/home/StitchHomeFooter";
-import StitchMobileNav from "@/components/home/StitchMobileNav";
+import HomeNewsletter from "@/components/home/HomeNewsletter";
+import ProductCard from "@/components/product/ProductCard";
+import WishlistIconButton from "@/components/product/WishlistIconButton";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "MiniBrands | Many Stores. One Trusted Place.",
+  title: "Velvet Lane | Chennai's Fashion-Forward Local Marketplace",
   description:
-    "Discover quality products from top independent sellers in Chennai and across India. Enjoy fast delivery and secure payments.",
+    "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories â€” with KYC-verified boutiques and escrow payment safety.",
 };
+
 
 interface UserProfileData {
   id: string;
@@ -53,6 +58,8 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+const formatPrice = (price: number) => `â‚¹${Math.round(price / 100).toLocaleString("en-IN")}`;
+
 export default async function HomePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const currentPage = Math.max(1, parseInt(params.page || "1", 10));
@@ -66,19 +73,12 @@ export default async function HomePage({ searchParams }: PageProps) {
   if (session?.user) {
     userProfile = await prisma.userProfile.findUnique({
       where: { userId: session.user.id },
-      include: {
-        user: true,
-        seller: { include: { verification: true } },
-        addresses: { where: { isDeleted: false } },
-      },
+      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
     });
 
     if (userProfile?.role === "SELLER") {
       const ver = userProfile.seller?.verification;
-      const isVerified =
-        ver &&
-        (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-        ver.bankVerified;
+      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
       sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
     }
 
@@ -89,153 +89,204 @@ export default async function HomePage({ searchParams }: PageProps) {
   }
 
   let wishlistIds: string[] = [];
-  if (userProfile) {
-    wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
-  }
+  if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, flashSaleProducts, popularProducts] = await Promise.all([
-    // Featured sellers (verified, have products)
+  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand, nearbyStores] = await Promise.all([
     prisma.seller.findMany({
+      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
+      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
+      orderBy: { createdAt: "desc" }, take: 10,
+    }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, take: 2,
+    }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, skip: 2, take: 4,
+    }),
+    prisma.seller.findMany({
+      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } },
+      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
+      orderBy: { createdAt: "desc" }, take: 2,
+    }),
+    prisma.product.count({ where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } } }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, skip: (currentPage - 1) * itemsPerPage, take: itemsPerPage,
+    }),
+    prisma.seller.findFirst({
       where: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
         products: { some: { isPublished: true, isDeleted: false } },
       },
       include: {
         userProfile: { include: { user: true } },
         verification: true,
-        _count: { select: { products: true } },
+        reviews: true,
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+          take: 3,
+        },
+        _count: {
+          select: {
+            products: true,
+          },
+        },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { verification: { trustScore: "desc" } },
+        { createdAt: "desc" },
+      ],
+    }),
+    prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: true,
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } } },
+          take: 1,
+        },
+      },
+      orderBy: [
+        { verification: { trustScore: "desc" } },
+        { createdAt: "desc" },
+      ],
       take: 10,
-    }),
-    // Flash sale — best sellers (first 4 for the flash sale dark panel)
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: {
-            kycStatus: { in: ["auto_approved", "approved"] },
-            bankVerified: true,
-          },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-    }),
-    // Popular products (next page — "Explore Popular Products")
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: {
-            kycStatus: { in: ["auto_approved", "approved"] },
-            bankVerified: true,
-          },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      skip: (currentPage - 1) * itemsPerPage,
-      take: itemsPerPage,
     }),
   ]);
 
-  const shapeSeller = (seller: (typeof featuredSellers)[number]) => ({
+  const totalPages = Math.ceil(trendingCount / itemsPerPage);
+  const shapeSeller = (seller: (typeof featuredSellers)[number]) => ({ id: seller.id, businessName: seller.businessName, category: seller.category, logoUrl: seller.storeLogo || null });
+  const mockSellers = [
+    { id: "mock-store-1", businessName: "TechHaven", category: "Electronics", logoUrl: null },
+    { id: "mock-store-2", businessName: "Aura Wear", category: "Fashion", logoUrl: null },
+    { id: "mock-store-3", businessName: "Nest Living", category: "Home", logoUrl: null },
+    { id: "mock-store-4", businessName: "Apex Gear", category: "Sports", logoUrl: null },
+    { id: "mock-store-5", businessName: "GlowUp", category: "Beauty", logoUrl: null },
+  ];
+  const allSellers = [...featuredSellers.map(shapeSeller), ...mockSellers];
+
+  const sellerSpotlights = brandsSellers.map((seller) => ({
     id: seller.id,
     businessName: seller.businessName,
     category: seller.category,
     logoUrl: seller.storeLogo || null,
-  });
+    bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
+    tagline: seller.category || "Independent fashion label",
+    productCount: seller._count.products,
+  }));
 
-  const allSellers = featuredSellers.map(shapeSeller);
+  const productCard = (product: Parameters<typeof ProductCard>[0]["product"]) => (
+    <ProductCard
+      key={product.id}
+      product={product}
+      isLoggedIn={!!session?.user}
+      isWishlisted={wishlistIds.includes(product.id)}
+    />
+  );
 
   return (
-    <div className="bg-gray-50 text-gray-800 pb-20 md:pb-0 min-h-screen font-sans flex flex-col">
-      {/* ── 1. HEADER ─────────────────────────────── */}
-      <StitchHomeHeader
-        userProfile={userProfile}
-        cartCount={cartCount}
-        sellerHref={sellerHref}
-      />
-
-      <main className="flex-grow w-full pt-4 md:pt-8">
-        {/* ── 2. CATEGORIES NAV ──────────────────────── */}
-        <HomeCategoryGrid />
-
-        {/* ── 3. HERO BANNER ─────────────────────────── */}
+    <div className="min-h-screen w-full overflow-x-hidden bg-vl-surface font-vl-body text-vl-ink">
+      <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
+      <main className="pb-24 md:pb-0 pt-[168px] md:pt-0">
+        {/* Hero carousel â€” full width */}
         <HomeHero />
 
-        {/* ── 4. BEST STORES FOR YOU ─────────────────── */}
-        <HomeStoreRow sellers={allSellers} />
+        {/* Top Stores For You */}
+        {allSellers.length > 0 ? <HomeStoreRow sellers={allSellers} /> : null}
 
-        {/* ── 5. FLASH SALE (Best Selling Products) ──── */}
-        <HomeFlashSale
-          products={flashSaleProducts}
-          isLoggedIn={!!session?.user}
-          wishlistIds={wishlistIds}
-        />
-
-        {/* ── 6. SHOP BY BUDGET ──────────────────────── */}
-        <HomeShopByBudget />
-
-        {/* ── 7. EXPLORE POPULAR PRODUCTS ────────────── */}
-        <section className="px-4 md:px-6 mb-12" data-purpose="popular-products">
-          <div className="max-w-[1280px] mx-auto">
-            <div className="flex justify-between items-center mb-6 md:mb-8">
-              <h3 className="text-[20px] md:text-2xl font-bold text-gray-900">
-                Explore Popular Products
-              </h3>
-              <Link
-                href="/products"
-                className="text-sm md:text-base font-semibold text-[#0F7F7F] hover:underline"
-              >
-                View All →
-              </Link>
+        {/* Best Selling Products */}
+        {trendingProducts.length > 0 ? (
+          <section className="vl-section-shell mt-10 sm:mt-16">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Best Sellers</p>
+                <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">Best Selling Products</h2>
+              </div>
+              <Link href="/products" className="rounded-vl-control px-3 py-2 text-xs sm:text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary whitespace-nowrap">View All</Link>
             </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+              {trendingProducts.map(productCard)}
+            </div>
+            {currentPage < totalPages ? (
+              <div className="mt-8 flex justify-center">
+                <Link href={`/?page=${currentPage + 1}`} className="inline-flex min-h-11 items-center rounded-vl-control border border-vl-border bg-vl-card px-5 text-sm font-semibold text-vl-ink transition hover:border-vl-primary hover:text-vl-primary">Load more</Link>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {popularProducts.map((product) => (
-                <HomeProductCard
-                  key={product.id}
-                  product={product}
-                  isLoggedIn={!!session?.user}
-                  isWishlisted={wishlistIds.includes(product.id)}
-                />
+        {/* Shop Your Mood â€” category grid */}
+        <HomeCategoryGrid />
+
+        {/* Spotlight / Trending pieces */}
+        {spotlightProducts.length > 0 ? (
+          <section className="vl-section-shell mt-10 sm:mt-20">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Trending now</p>
+                <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">The pieces everyone is saving</h2>
+              </div>
+              <Link href="/products" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">Shop all</Link>
+            </div>
+            <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2">
+              {spotlightProducts.map((product) => (
+                <article key={product.id} className="group grid overflow-hidden rounded-vl-card bg-vl-ink text-white grid-cols-1 sm:grid-cols-[0.9fr_1.1fr]">
+                  <div className="relative min-h-[280px] sm:min-h-[320px] bg-vl-border">
+                    <Image src={product.images?.[0]?.url || "/placeholder.jpg"} alt={product.name} fill sizes="(max-width: 640px) 100vw, 30vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                    <WishlistIconButton productId={product.id} isLoggedIn={!!session?.user} initialIsWishlisted={wishlistIds.includes(product.id)} />
+                  </div>
+                  <div className="flex flex-col justify-center p-4 sm:p-7">
+                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.16em] text-white/55">{product.seller.businessName}</p>
+                    <h3 className="mt-1 sm:mt-3 font-vl-heading text-lg sm:text-2xl font-bold leading-tight tracking-[-0.04em]">{product.name}</h3>
+                    <div className="mt-2 sm:mt-5 flex items-baseline gap-2 sm:gap-3">
+                      <span className="font-vl-heading text-lg sm:text-2xl font-bold">{formatPrice(product.price)}</span>
+                      <span className="text-xs sm:text-sm text-white/45 line-through">{formatPrice(product.price * 1.4)}</span>
+                    </div>
+                    <Link href={`/products/${product.id}`} className="mt-4 sm:mt-6 inline-flex min-h-9 sm:min-h-11 w-fit items-center rounded-vl-control bg-vl-primary-button px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white transition hover:bg-vl-primary-button-strong">Shop this piece</Link>
+                  </div>
+                </article>
               ))}
-              {popularProducts.length === 0 && (
-                <div className="col-span-2 md:col-span-4 text-center py-12 text-gray-400">
-                  <i className="fa-solid fa-store text-5xl mb-4 block"></i>
-                  <p className="text-lg font-medium">Products coming soon</p>
-                  <p className="text-sm mt-1">Check back in a bit!</p>
-                </div>
-              )}
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
-        {/* ── 8. TRUST STRIP ─────────────────────────── */}
+        <HomeEditorialCollections />
+        {(() => {
+          const userCity = userProfile?.addresses?.find((a) => a.isDefault)?.city || null;
+          const sortedNearbyStores = [...nearbyStores].sort((a, b) => {
+            if (userCity) {
+              const aMatch = a.city.toLowerCase() === userCity.toLowerCase();
+              const bMatch = b.city.toLowerCase() === userCity.toLowerCase();
+              if (aMatch && !bMatch) return -1;
+              if (!aMatch && bMatch) return 1;
+            }
+            return 0;
+          });
+          return (
+            <>
+              <HomeBrandSpotlight brand={spotlightBrand} userCity={userCity} />
+              <HomeNearbyStores stores={sortedNearbyStores} userCity={userCity} />
+            </>
+          );
+        })()}
+        {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
+        {sellerSpotlights.length > 0 ? <HomeSellerSpotlight sellers={sellerSpotlights} /> : null}
+        <HomeInspiration />
         <HomeTrustStrip />
+        <HomeNewsletter />
       </main>
-
-      {/* ── FOOTER ─────────────────────────────────── */}
-      <StitchHomeFooter />
-
-      {/* ── MOBILE BOTTOM NAV ──────────────────────── */}
-      <StitchMobileNav cartCount={cartCount} isLoggedIn={!!session?.user} />
     </div>
   );
 }
