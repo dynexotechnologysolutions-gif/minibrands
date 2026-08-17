@@ -92,7 +92,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, newArrivalsProducts] = await Promise.all([
+  const [featuredSellers, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, newArrivalsProducts, trendingProductsSection] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -154,6 +154,11 @@ export default async function HomePage({ searchParams }: PageProps) {
         { createdAt: "desc" },
       ],
       take: 10,
+    }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, take: 8,
     }),
     prisma.product.findMany({
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
@@ -226,9 +231,17 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 4.1 Trust Indicators */}
         <HomeTrustStrip />
 
-        {/* 4.2 Curated Collections */}
+        {/* 4.2 Curated Collections / Shop by Occasion */}
         <HomeCuratedCollections />
 
+        {/* 4.3 Trending Products */}
+        <HomeProductSection
+            title="Trending Products"
+            products={trendingProductsSection}
+            href="/products?sort=trending"
+            isLoggedIn={!!session?.user}
+            wishlistIds={wishlistIds}
+        />
 
         {/* 5. New Arrivals */}
         <HomeProductSection
