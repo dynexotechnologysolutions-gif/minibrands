@@ -2,9 +2,8 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { Home, Search, Heart, ShoppingBag, User } from "lucide-react";
+import { Home, LayoutGrid, Store, ShoppingBag, User } from "lucide-react";
 import BottomNavigationItem from "./BottomNavigationItem";
-import { useWishlist } from "@/features/catalog/hooks/useWishlist";
 
 import { UserProfileData } from "@/components/home/HomeHeader";
 
@@ -18,23 +17,17 @@ export default function MobileBottomNavigation({
   cartCount,
 }: MobileBottomNavigationProps) {
   const pathname = usePathname();
-  const { wishlist = [] } = useWishlist();
 
   // Route matching rules
   const isHome = pathname === "/";
-  const isDiscover =
-    pathname === "/products" ||
-    pathname.startsWith("/catalog") ||
-    pathname.startsWith("/category") ||
-    pathname.startsWith("/search");
-  const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
+  const isCategories = pathname === "/categories" || pathname.startsWith("/category");
+  const isStores = pathname === "/stores" || pathname.startsWith("/sellers") || pathname.startsWith("/store");
   const isCart = pathname === "/cart";
   const isAccount = pathname === "/account/profile";
 
   const accountHref = userProfile ? "/account/profile" : "/login?role=buyer";
-  const wishlistHref = userProfile ? "/wishlist" : "/login?role=buyer";
 
-  // If user is inside checkout pages or subpage details, do not show bottom navigation bar or keep it unhighlighted.
+  // If user is inside checkout pages or subpage details, do not show bottom navigation bar
   const isCheckout = pathname.startsWith("/checkout") || pathname.startsWith("/order/success");
   if (isCheckout) return null;
 
@@ -51,17 +44,16 @@ export default function MobileBottomNavigation({
         isActive={isHome}
       />
       <BottomNavigationItem
-        href="/products"
-        label="Explore"
-        icon={Search}
-        isActive={isDiscover}
+        href="/categories"
+        label="Categories"
+        icon={LayoutGrid}
+        isActive={isCategories}
       />
       <BottomNavigationItem
-        href={wishlistHref}
-        label="Wishlist"
-        icon={Heart}
-        isActive={isWishlist}
-        badgeCount={userProfile ? wishlist.length : 0}
+        href="/stores"
+        label="Stores"
+        icon={Store}
+        isActive={isStores}
       />
       <BottomNavigationItem
         href="/cart"

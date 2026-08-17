@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Settings, Lock, Menu, Heart, Bell, ShoppingCart, ShoppingBag, Mic, Scan } from "lucide-react";
+import { Search, Settings, Lock, Menu, Heart, Bell, ShoppingCart, ShoppingBag, Mic, Scan, User } from "lucide-react";
 import MobileSearchHeader from "./MobileSearchHeader";
 import MobilePageHeader from "./MobilePageHeader";
 import { useWishlist } from "@/features/catalog/hooks/useWishlist";
@@ -60,28 +60,30 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
   if (isHome) {
     return (
       <div className="w-full flex flex-col bg-[#0d3b36] border-b border-[#0d3b36]/10 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 shadow-md md:hidden font-sans">
-        {/* Row 1: Menu + Brand Logo + Icons */}
+        {/* Row 1: Left Menu/Brand Logo + Right Icons */}
         <div className="flex items-center justify-between h-11 gap-2">
-          {/* Hamburger Menu Icon */}
-          <button className="text-white hover:opacity-85 active:scale-95 transition-all p-1" aria-label="Menu">
-            <Menu className="w-5.5 h-5.5" />
-          </button>
+          {/* Left section: Hamburger Menu + Logo */}
+          <div className="flex items-center gap-2">
+            {/* Hamburger Menu Icon */}
+            <button className="text-white hover:opacity-85 active:scale-95 transition-all p-1" aria-label="Menu">
+              <Menu className="w-5.5 h-5.5" />
+            </button>
 
-          {/* Brand Logo with tagline */}
-          <Link href="/" className="flex items-center gap-1.5" aria-label="ShopHub Home">
-            <div className="flex items-center gap-1.5 text-white">
-              <ShoppingBag className="w-6 h-6 text-white" />
-              <div className="flex flex-col items-start leading-none">
-                <div className="text-lg font-bold tracking-tight">
-                  <span className="text-white">Shop</span>
-                  <span className="text-[#F39C12]">Hub</span>
+            {/* Brand Logo with tagline */}
+            <Link href="/" className="flex items-center gap-1.5" aria-label="MiniBrands Home">
+              <div className="flex items-center gap-1.5 text-white">
+                <ShoppingBag className="w-5.5 h-5.5 text-white" />
+                <div className="flex flex-col items-start leading-none">
+                  <div className="text-sm font-extrabold tracking-tight">
+                    <span className="text-white font-sans">MiniBrands</span>
+                  </div>
+                  <span className="text-[7.5px] opacity-75 font-normal tracking-wide mt-0.5">
+                    Many Stores. One Trusted Place.
+                  </span>
                 </div>
-                <span className="text-[8px] opacity-90 font-medium tracking-wide mt-0.5">
-                  Many Stores. One Trusted Place.
-                </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
 
           {/* Quick Action Icons */}
           <div className="flex items-center gap-2 text-white">
@@ -94,12 +96,29 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
                 3
               </span>
             </Link>
-            <Link href="/cart" className="hover:opacity-85 active:scale-95 transition-all p-1 relative animate-scale-in" aria-label="Shopping Cart">
+            <Link href="/cart" className="hover:opacity-85 active:scale-95 transition-all p-1 relative animate-scale-in mr-0.5" aria-label="Shopping Cart">
               <ShoppingCart className="w-5 h-5" />
               <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-extrabold text-white border-2 border-[#0d3b36] shadow-sm leading-none">
                 {cartCount > 0 ? cartCount : 2}
               </span>
             </Link>
+
+            {/* Profile Avatar next to Cart */}
+            {userProfile?.user ? (
+              <Link href="/account/profile" className="flex items-center justify-center w-6 h-6 rounded-full overflow-hidden border border-white/20 shrink-0 ml-1 active:scale-95 transition-transform" aria-label="Profile">
+                {userProfile.user.image ? (
+                  <img src={userProfile.user.image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-white/10 text-white text-[9px] font-bold">
+                    {getInitials(userProfile.user.name)}
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <Link href="/login?role=buyer" className="hover:opacity-85 active:scale-95 transition-all p-1 ml-1" aria-label="Sign In">
+                <User className="w-5 h-5" />
+              </Link>
+            )}
           </div>
         </div>
 
