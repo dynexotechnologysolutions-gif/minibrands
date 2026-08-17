@@ -175,11 +175,11 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
           <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
-              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
+              style={{ background: "linear-gradient(135deg, #0F7F7F 0%, #16B3B3 100%)" }}
             >
               M
             </span>
-            <span className="hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#111827] sm:inline">MiniBrands</span>
+            <span className="hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] text-[#222222] sm:inline">MiniBrands</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
@@ -192,7 +192,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search brands, products and styles…"
-                className="h-12 w-full rounded-3xl border-[1.5px] border-[#ECECEC] bg-[#F5F5F8] pl-11 pr-4 text-sm text-[#111827] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-[#6C3BFF] focus:bg-white focus:shadow-[0_0_0_4px_rgba(108,59,255,0.10)]"
+                className="h-12 w-full rounded-3xl border-[1.5px] border-[#ECECEC] bg-[#F5F5F8] pl-11 pr-4 text-sm text-[#222222] placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-vl-primary focus:bg-white focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)]"
               />
             </div>
           </form>
@@ -202,12 +202,12 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref }: HomeH
               <MapPin aria-hidden="true" className="h-4 w-4 text-vl-primary" />
               <span className="max-w-28 truncate">{locationText}</span>
             </button>
-            <Link href={wishlistHref} className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#FF4D8D]/8 hover:text-[#FF4D8D] sm:inline-flex" aria-label="Wishlist">
+            <Link href={wishlistHref} className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-vl-primary/8 hover:text-vl-primary sm:inline-flex" aria-label="Wishlist">
               <Heart aria-hidden="true" className="h-5 w-5" />
             </Link>
-            <Link href="/cart" className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-[#6C3BFF]/8 hover:text-[#6C3BFF]" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
+            <Link href="/cart" className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-vl-primary/8 hover:text-vl-primary" aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
               <ShoppingBag aria-hidden="true" className="h-5 w-5" />
-              {cartCount > 0 ? <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF4D8D] px-1 text-[10px] font-bold text-white">{cartCount}</span> : null}
+              {cartCount > 0 ? <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E53935] px-1 text-[10px] font-bold text-white">{cartCount}</span> : null}
             </Link>
 
             <div ref={accountRef} className="relative">
