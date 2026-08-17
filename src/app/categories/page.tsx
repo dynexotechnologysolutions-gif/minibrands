@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import HomeHeader from "@/components/home/HomeHeader";
 import MobileBottomNavigation from "@/components/mobile/MobileBottomNavigation";
-import CategorySearchBar from "@/components/categories/CategorySearchBar";
 import CategoryFeaturedGrid from "@/components/categories/CategoryFeaturedGrid";
 import CategoryBrowseGrid from "@/components/categories/CategoryBrowseGrid";
 import CategoryPopularList from "@/components/categories/CategoryPopularList";
@@ -51,9 +50,6 @@ export default async function CategoriesPage() {
     <div className="min-h-screen w-full bg-white font-sans text-slate-800 pb-24 md:pb-0">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
       <main className="pt-[108px] md:pt-24 max-w-[1280px] mx-auto px-4 md:px-8">
-        {/* SEARCH */}
-        <CategorySearchBar />
-
         {/* PAGE TITLE */}
         <div className="mt-7 flex items-end justify-between gap-4">
           <div>
