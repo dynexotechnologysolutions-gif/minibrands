@@ -72,7 +72,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
       <button
         type="button"
         onClick={() => setIsFollowed(!isFollowed)}
-        className={`mt-2 sm:mt-3 py-1 sm:py-1.5 w-full text-center border rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
+        className={`mt-2 sm:mt-3 w-fit mx-auto px-3 sm:px-4 py-1 sm:py-1.5 text-center border rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
           isFollowed
             ? "bg-vl-primary text-white border-vl-primary"
             : "bg-white text-vl-primary border-vl-primary hover:bg-vl-primary/5"
