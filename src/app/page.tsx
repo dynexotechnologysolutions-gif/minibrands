@@ -92,16 +92,11 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, newArrivalsProducts] = await Promise.all([
+  const [featuredSellers, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, newArrivalsProducts] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
       orderBy: { createdAt: "desc" }, take: 10,
-    }),
-    prisma.product.findMany({
-      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
-      orderBy: { createdAt: "desc" }, take: 2,
     }),
     prisma.product.findMany({
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
@@ -234,37 +229,6 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 4.2 Curated Collections */}
         <HomeCuratedCollections />
 
-        {/* 4.3 Looks worth saving */}
-        {spotlightProducts.length > 0 ? (
-          <section className="vl-section-shell mt-10 sm:mt-16">
-            <div className="flex items-end justify-between gap-4 px-2 md:px-4">
-              <div>
-                <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Trending now</p>
-                <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">The pieces everyone is saving</h2>
-              </div>
-              <Link href="/products" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">Shop all</Link>
-            </div>
-            <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2 px-2 md:px-4">
-              {spotlightProducts.map((product) => (
-                <article key={product.id} className="group grid overflow-hidden rounded-vl-card bg-vl-ink text-white grid-cols-1 sm:grid-cols-[0.9fr_1.1fr]">
-                  <div className="relative min-h-[280px] sm:min-h-[320px] bg-vl-border">
-                    <Image src={product.images?.[0]?.url || "/placeholder.jpg"} alt={product.name} fill sizes="(max-width: 640px) 100vw, 30vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                    <WishlistIconButton productId={product.id} isLoggedIn={!!session?.user} initialIsWishlisted={wishlistIds.includes(product.id)} />
-                  </div>
-                  <div className="flex flex-col justify-center p-4 sm:p-7">
-                    <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.16em] text-white/55">{product.seller.businessName}</p>
-                    <h3 className="mt-1 sm:mt-3 font-vl-heading text-lg sm:text-2xl font-bold leading-tight tracking-[-0.04em]">{product.name}</h3>
-                    <div className="mt-2 sm:mt-5 flex items-baseline gap-2 sm:gap-3">
-                      <span className="font-vl-heading text-lg sm:text-2xl font-bold">{formatPrice(product.price)}</span>
-                      <span className="text-xs sm:text-sm text-white/45 line-through">{formatPrice(product.price * 1.4)}</span>
-                    </div>
-                    <Link href={`/products/${product.id}`} className="mt-4 sm:mt-6 inline-flex min-h-9 sm:min-h-11 w-fit items-center rounded-vl-control bg-vl-primary-button px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white transition hover:bg-vl-primary-button-strong">Shop this piece</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
 
         {/* 5. New Arrivals */}
         <HomeProductSection
