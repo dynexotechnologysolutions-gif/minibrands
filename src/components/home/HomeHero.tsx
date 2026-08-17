@@ -91,14 +91,14 @@ export default function HomeHero() {
 
   return (
     <section
-      className="w-full px-3 sm:px-6 lg:px-8 pt-2 md:pt-6 lg:pt-8"
+      className="w-full px-3 sm:px-6 lg:px-8 pt-1.5 md:pt-4"
       aria-label="Hero promotional carousel"
     >
       {/* Container uses natural aspect ratio of the pamphlet (16:9 on mobile, 8:3 on desktop). */}
       {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/9] md:aspect-[8/3]"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/9] md:aspect-[3.2/1]"
         style={{
           maxWidth: "1600px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
@@ -179,34 +179,6 @@ export default function HomeHero() {
             );
           })}
         </div>
-
-        {/* Previous arrow */}
-        <button
-          type="button"
-          onClick={goPrev}
-          aria-label="Previous slide"
-          suppressHydrationWarning
-          className="group absolute left-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
-        >
-          <ChevronLeft
-            aria-hidden="true"
-            className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5"
-          />
-        </button>
-
-        {/* Next arrow */}
-        <button
-          type="button"
-          onClick={goNext}
-          aria-label="Next slide"
-          suppressHydrationWarning
-          className="group absolute right-4 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/40 bg-white/75 text-[#111827] shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-white hover:shadow-xl"
-        >
-          <ChevronRight
-            aria-hidden="true"
-            className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5"
-          />
-        </button>
 
         {/* Navigation dots */}
         <div
