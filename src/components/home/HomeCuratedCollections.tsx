@@ -11,7 +11,7 @@ const collections = [
 
 export default function HomeCuratedCollections() {
   return (
-    <section className="vl-section-shell mt-16">
+    <section className="vl-section-shell mt-8 sm:mt-10">
       <SectionHeading title="Shop by Occasion" />
       <div className="mt-6 flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 hide-scrollbar sm:grid sm:grid-cols-2 md:grid-cols-4 sm:pb-0 sm:mx-0 sm:px-0">
         {collections.map((collection) => (
