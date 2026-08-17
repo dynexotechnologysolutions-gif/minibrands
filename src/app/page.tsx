@@ -228,10 +228,13 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
         ) : null}
 
-        {/* 4.1 Curated Collections */}
+        {/* 4.1 Trust Indicators */}
+        <HomeTrustStrip />
+
+        {/* 4.2 Curated Collections */}
         <HomeCuratedCollections />
 
-        {/* 4.2 Looks worth saving */}
+        {/* 4.3 Looks worth saving */}
         {spotlightProducts.length > 0 ? (
           <section className="vl-section-shell mt-10 sm:mt-16">
             <div className="flex items-end justify-between gap-4 px-2 md:px-4">
@@ -263,10 +266,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
         ) : null}
 
-        {/* 5. Trust Indicators */}
-        <HomeTrustStrip />
-
-        {/* 5.1 New Arrivals */}
+        {/* 5. New Arrivals */}
         <HomeProductSection
             title="New Arrivals"
             products={newArrivalsProducts}
