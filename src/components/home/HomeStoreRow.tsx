@@ -41,7 +41,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
   const previewImage = seller.logoUrl || fallbackPreviews[seller.category] || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80";
 
   return (
-    <div className="flex min-w-[190px] xs:min-w-[210px] snap-start flex-col rounded-[20px] border border-vl-border bg-vl-card p-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
+    <div className="flex min-w-[140px] md:min-w-[190px] snap-start flex-col rounded-[20px] border border-vl-border bg-vl-card p-3 md:p-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
       {/* Header: Logo, Name, Rating */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
@@ -105,7 +105,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
           <button suppressHydrationWarning type="button" onClick={() => scroll(260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores right"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
         </div>
       </div>
-      <div ref={rowRef} className="hide-scrollbar mt-6 flex snap-x gap-4 overflow-x-auto pb-4 px-1">
+      <div ref={rowRef} className="hide-scrollbar mt-6 flex snap-x gap-3 md:gap-4 overflow-x-auto pb-4 px-1">
         {sellers.map((seller) => (
           <StoreCard key={seller.id} seller={seller} />
         ))}
