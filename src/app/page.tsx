@@ -16,6 +16,8 @@ import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
 import HomeCuratedCollections from "@/components/home/HomeCuratedCollections";
+import HomeFeaturedCollections from "@/components/home/HomeFeaturedCollections";
+import HomeWhyShopWithVelvet from "@/components/home/HomeWhyShopWithVelvet";
 import ProductCard from "@/components/product/ProductCard";
 import WishlistIconButton from "@/components/product/WishlistIconButton";
 import Link from "next/link";
@@ -228,13 +230,22 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
         ) : null}
 
-        {/* 4.1 Trust Indicators */}
+        {/* 4.1 Curated Collections */}
+        <HomeFeaturedCollections />
+
+        {/* 4.2 Why Shop With Velvet Lane? */}
+        <HomeWhyShopWithVelvet />
+
+        {/* 4.3 Newsletter */}
+        <HomeNewsletter />
+
+        {/* 4.4 Trust Indicators */}
         <HomeTrustStrip />
 
-        {/* 4.2 Curated Collections / Shop by Occasion */}
+        {/* 4.5 Curated Collections / Shop by Occasion */}
         <HomeCuratedCollections />
 
-        {/* 4.3 Trending Products */}
+        {/* 4.6 Trending Products */}
         <HomeProductSection
             title="Trending Products"
             products={trendingProductsSection}
@@ -275,7 +286,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           })()}
           {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
           <HomeInspiration />
-          <HomeNewsletter />
         </div>
       </main>
     </div>
