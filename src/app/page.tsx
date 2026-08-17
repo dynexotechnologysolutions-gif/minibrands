@@ -9,7 +9,6 @@ import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
-import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
 import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
@@ -93,7 +92,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand, nearbyStores, trendingNowProducts, newArrivalsProducts] = await Promise.all([
+  const [featuredSellers, spotlightProducts, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, trendingNowProducts, newArrivalsProducts] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -108,11 +107,6 @@ export default async function HomePage({ searchParams }: PageProps) {
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, skip: 2, take: 4,
-    }),
-    prisma.seller.findMany({
-      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } },
-      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
-      orderBy: { createdAt: "desc" }, take: 2,
     }),
     prisma.product.count({ where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } } }),
     prisma.product.findMany({
@@ -189,16 +183,6 @@ export default async function HomePage({ searchParams }: PageProps) {
     { id: "mock-store-5", businessName: "GlowUp", category: "Beauty", logoUrl: null },
   ];
   const allSellers = [...featuredSellers.map(shapeSeller), ...mockSellers];
-
-  const sellerSpotlights = brandsSellers.map((seller) => ({
-    id: seller.id,
-    businessName: seller.businessName,
-    category: seller.category,
-    logoUrl: seller.storeLogo || null,
-    bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
-    tagline: seller.category || "Independent fashion label",
-    productCount: seller._count.products,
-  }));
 
   const productCard = (product: Parameters<typeof ProductCard>[0]["product"]) => (
     <ProductCard
