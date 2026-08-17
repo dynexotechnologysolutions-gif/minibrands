@@ -34,7 +34,7 @@ export default function MobileBottomNavigation({
   return (
     <nav
       role="tablist"
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)] bg-white/85 backdrop-blur-xl border-t border-[#ECECEC]/80 shadow-[0_-8px_24px_rgba(17,24,39,0.06)] rounded-t-[20px] md:hidden transform-gpu"
+      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)] bg-white border-t border-[#ECECEC] md:hidden transform-gpu"
       aria-label="Mobile Bottom Navigation"
     >
       <BottomNavigationItem
