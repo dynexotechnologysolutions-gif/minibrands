@@ -18,6 +18,7 @@ export interface ProductCardProps {
     variants: { id?: string; size: string; stockCount: number }[];
     seller: {
       businessName: string;
+      storeLogo?: string | null;
       verification?: {
         kycStatus: string;
         bankVerified: boolean;
@@ -145,11 +146,20 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
         />
 
         {/* Store Badge Overlay (ShopHub Style) */}
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 bg-white/92 backdrop-blur-sm rounded-lg px-2 py-1 border border-slate-100 shadow-sm">
-          <div className="w-4 h-4 rounded-full bg-vl-primary/10 flex items-center justify-center text-[8px] font-black text-vl-primary shrink-0 select-none">
-            {product.seller.businessName[0].toUpperCase()}
-          </div>
-          <span className="text-[9.5px] font-bold text-slate-700 truncate max-w-[80px]">
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 rounded-lg px-2 py-1 shadow-vl-medium backdrop-blur-[2px] bg-gradient-to-b from-black/10 to-black/5">
+          {product.seller.storeLogo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={product.seller.storeLogo}
+              alt=""
+              className="w-4 h-4 rounded-full object-cover shrink-0 border border-white/40"
+            />
+          ) : (
+            <div className="w-4 h-4 rounded-full bg-white/90 flex items-center justify-center text-[8px] font-black text-vl-primary shrink-0 select-none">
+              {product.seller.businessName[0].toUpperCase()}
+            </div>
+          )}
+          <span className="text-[9.5px] font-bold text-white drop-shadow-sm truncate max-w-[80px]">
             {product.seller.businessName}
           </span>
         </div>
