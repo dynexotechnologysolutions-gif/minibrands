@@ -63,7 +63,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
       </div>
 
       {/* Showcase Image */}
-      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 mt-2 sm:mt-3 block bg-vl-surface">
+      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 mt-3 sm:mt-4 block bg-vl-surface">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={previewImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
       </Link>
