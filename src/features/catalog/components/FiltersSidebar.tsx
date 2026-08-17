@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronDown, Star, SlidersHorizontal } from "lucide-react";
+import PriceRangeSlider from "./PriceRangeSlider";
 
 interface FiltersSidebarProps {
   priceRange: [number, number] | undefined;
@@ -59,11 +60,6 @@ export default function FiltersSidebar({
 }: FiltersSidebarProps) {
   const currentPriceMax = priceRange ? priceRange[1] : 10000;
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value, 10);
-    onPriceRangeChange([499, val]);
-  };
-
   const ratingOptions = [
     { value: 4, label: "4★ & above" },
     { value: 3, label: "3★ & above" },
@@ -102,27 +98,10 @@ export default function FiltersSidebar({
 
         {/* Price Filter */}
         <FilterSection title="Price">
-          <div className="space-y-3">
-            {/* Custom styled range slider */}
-            <input
-              aria-label="Maximum price filter"
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-vl-border accent-vl-primary"
-              type="range"
-              min="499"
-              max="10000"
-              step="100"
-              value={currentPriceMax}
-              onChange={handlePriceChange}
-            />
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-vl-surface px-2 py-1 text-xs font-semibold text-vl-muted">
-                ₹499
-              </span>
-              <span className="rounded-md bg-vl-primary/8 px-2 py-1 text-xs font-bold text-vl-primary">
-                {currentPriceMax >= 10000 ? "₹10,000+" : `₹${currentPriceMax.toLocaleString()}`}
-              </span>
-            </div>
-          </div>
+          <PriceRangeSlider
+            value={currentPriceMax}
+            onCommit={(v) => onPriceRangeChange([499, v])}
+          />
         </FilterSection>
 
         {/* Rating Filter */}
