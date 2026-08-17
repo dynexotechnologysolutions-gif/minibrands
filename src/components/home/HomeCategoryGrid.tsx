@@ -60,10 +60,10 @@ export default function HomeCategoryGrid() {
             className="flex flex-col items-center group flex-shrink-0 snap-start cursor-pointer"
             aria-label={`View ${category.label} products`}
           >
-            <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-base md:text-lg transition-colors duration-150`}></i>
+            <div className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-sm md:text-base transition-colors duration-150`}></i>
             </div>
-            <span className="text-[9px] md:text-[11px] font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.5rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
+            <span className="text-[8px] md:text-[10px] font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.25rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
               {category.label}
             </span>
           </Link>
