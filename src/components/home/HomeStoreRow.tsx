@@ -42,14 +42,8 @@ function StoreCard({ seller }: { seller: SellerData }) {
 
   return (
     <div className="flex min-w-[120px] sm:min-w-[170px] md:min-w-[200px] snap-start flex-col rounded-xl sm:rounded-2xl border border-vl-border bg-vl-card p-2 sm:p-3 md:p-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
-      {/* Showcase Image */}
-      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 block bg-vl-surface">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={previewImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
-      </Link>
-
-      {/* Store name */}
-      <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 min-w-0">
+      {/* Header: Logo + Name on top left */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="w-5 h-5 sm:w-8 sm:h-8 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
           {seller.logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -58,21 +52,27 @@ function StoreCard({ seller }: { seller: SellerData }) {
             <span className="text-[7px] sm:text-[10px] font-bold text-vl-primary">{initials}</span>
           )}
         </div>
-        <div className="min-w-0 flex-1 leading-tight">
-          <Link href={`/sellers/${seller.id}`} className="line-clamp-2 font-vl-heading text-[10px] sm:text-sm font-extrabold text-vl-ink hover:text-vl-primary transition-colors">
+        <div className="min-w-0 flex-1 leading-none">
+          <Link href={`/sellers/${seller.id}`} className="truncate block font-vl-heading text-[10px] sm:text-sm font-extrabold text-vl-ink hover:text-vl-primary transition-colors">
             {seller.businessName}
           </Link>
-          <span className="hidden sm:block text-[9px] text-slate-500 font-semibold mt-1">
+          <span className="text-[8px] sm:text-[9px] text-slate-500 font-semibold mt-1 block">
             ⭐ {rating} ({reviewCount})
           </span>
         </div>
       </div>
 
+      {/* Showcase Image */}
+      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 mt-2 sm:mt-3 block bg-vl-surface">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={previewImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+      </Link>
+
       {/* Follow Button */}
       <button
         type="button"
         onClick={() => setIsFollowed(!isFollowed)}
-        className={`hidden sm:block mt-3 py-1.5 w-full text-center border rounded-xl text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
+        className={`mt-2 sm:mt-3 py-1 sm:py-1.5 w-full text-center border rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
           isFollowed
             ? "bg-vl-primary text-white border-vl-primary"
             : "bg-white text-vl-primary border-vl-primary hover:bg-vl-primary/5"
