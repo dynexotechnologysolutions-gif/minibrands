@@ -3,10 +3,10 @@ import Image from "next/image";
 import SectionHeading from "@/components/ui/SectionHeading";
 
 const collections = [
-  { name: "Wedding Edit", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80", href: "/products?category=wedding" },
-  { name: "Office Wear", image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=600&q=80", href: "/products?category=office" },
-  { name: "Festive Vibes", image: "https://images.unsplash.com/photo-1596701833777-62bc346944e8?auto=format&fit=crop&w=600&q=80", href: "/products?category=festive" },
-  { name: "Casual Daily", image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80", href: "/products?category=casual" },
+  { name: "Wedding Edit", image: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=600&q=80", href: "/products?category=wedding" },
+  { name: "Office Wear", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80", href: "/products?category=office" },
+  { name: "Festive Vibes", image: "https://images.unsplash.com/photo-1611462987358-307379c2c890?auto=format&fit=crop&w=600&q=80", href: "/products?category=festive" },
+  { name: "Casual Daily", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80", href: "/products?category=casual" },
 ];
 
 export default function HomeCuratedCollections() {
