@@ -19,20 +19,15 @@ export default function CategoryChips({
     : ["All", ...categories];
 
   return (
-    <div className="relative mb-6">
-      {/* Left gradient fade — scroll hint */}
-      <div
-        className="pointer-events-none absolute left-0 top-0 z-10 h-full w-8 bg-gradient-to-r from-vl-surface to-transparent"
-        aria-hidden="true"
-      />
+    <div className="relative -mx-4 mb-4 px-4 sm:mx-0 sm:px-0">
       {/* Right gradient fade — scroll hint */}
       <div
-        className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-vl-surface to-transparent"
+        className="pointer-events-none absolute right-0 top-0 z-10 h-full w-8 bg-gradient-to-l from-vl-surface to-transparent sm:hidden"
         aria-hidden="true"
       />
 
       <div
-        className="hide-scrollbar flex items-center gap-2 overflow-x-auto px-1 pb-1"
+        className="hide-scrollbar flex items-stretch gap-1 overflow-x-auto border-b border-vl-border sm:gap-2"
         aria-label="Product categories"
         role="group"
       >
@@ -44,14 +39,19 @@ export default function CategoryChips({
               onClick={() => onCategoryChange(cat)}
               aria-pressed={isActive}
               className={`
-                min-h-11 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold
-                transition-all duration-vl-fast select-none
+                min-h-11 shrink-0 whitespace-nowrap rounded-t-md px-3 text-sm font-semibold
+                transition-colors duration-vl-fast select-none sm:px-4
                 ${
                   isActive
-                    ? "bg-vl-ink text-white shadow-vl-soft"
-                    : "border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary active:scale-[0.97]"
+                    ? "text-vl-primary"
+                    : "text-vl-muted hover:text-vl-ink"
                 }
               `}
+              style={
+                isActive
+                  ? { boxShadow: "inset 0 -2px 0 0 var(--vl-primary)" }
+                  : undefined
+              }
             >
               {cat}
             </button>

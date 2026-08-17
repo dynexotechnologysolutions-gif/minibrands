@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, SlidersHorizontal, ArrowUpDown, X } from "lucide-react";
+import { Search, ArrowLeft, X } from "lucide-react";
 
 export default function MobileSearchHeader() {
   const router = useRouter();
@@ -10,13 +10,18 @@ export default function MobileSearchHeader() {
   const currentQuery = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(currentQuery);
   const [prevQuery, setPrevQuery] = useState(currentQuery);
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Sync state with URL search param
   if (currentQuery !== prevQuery) {
     setSearchQuery(currentQuery);
     setPrevQuery(currentQuery);
   }
+
+  const categoryParam = searchParams.get("category");
+
+  const handleBack = () => {
+    router.push(categoryParam && categoryParam !== "All" ? "/categories" : "/");
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,29 +43,14 @@ export default function MobileSearchHeader() {
     router.push(`/products?${params.toString()}`);
   };
 
-  const handleSortChange = (sortVal: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sort", sortVal);
-    params.set("page", "1");
-    router.push(`/products?${params.toString()}`);
-    setShowSortDropdown(false);
-  };
-
-  const currentSort = searchParams.get("sort") || "popularity";
-  const activeFiltersCount = [
-    searchParams.get("priceRange"),
-    searchParams.get("rating"),
-    searchParams.get("discount"),
-  ].filter(Boolean).length;
-
   return (
     <div className="w-full flex flex-col bg-white border-b border-[#ECECEC]/80 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 shadow-sm md:hidden">
       {/* Search Input Row */}
       <div className="flex items-center gap-3 h-11">
         <button
-          onClick={() => router.push("/")}
+          onClick={handleBack}
           className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-50 text-slate-700"
-          aria-label="Go to Home"
+          aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -72,7 +62,7 @@ export default function MobileSearchHeader() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search brands, products, collections..."
-            className="w-full h-10 pl-9 pr-9 bg-[#F5F5F8] border border-transparent rounded-vl-control text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#FF3E6C] focus:outline-none transition-all duration-200"
+            className="w-full h-10 pl-9 pr-9 bg-[#F5F5F8] border border-transparent rounded-vl-control text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-vl-primary focus:outline-none transition-all duration-200"
           />
           {searchQuery && (
             <button
@@ -85,85 +75,6 @@ export default function MobileSearchHeader() {
             </button>
           )}
         </form>
-      </div>
-
-      {/* Sort & Filter Shortcuts Row */}
-      <div className="flex items-center gap-2 mt-2 pt-1">
-        {/* Sort Trigger */}
-        <div className="relative flex-1">
-          <button
-            onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className={`w-full flex items-center justify-center gap-1.5 h-9 rounded-vl-control text-[11px] font-bold border transition-colors ${
-              showSortDropdown
-                ? "border-[#FF3E6C] bg-[#FF3E6C]/5 text-[#FF3E6C]"
-                : "border-[#ECECEC] bg-white text-slate-700"
-            }`}
-          >
-            <ArrowUpDown className="w-3.5 h-3.5" />
-            <span>
-              Sort:{" "}
-              {currentSort === "popularity"
-                ? "Popularity"
-                : currentSort === "price_asc"
-                ? "Low to High"
-                : currentSort === "price_desc"
-                ? "High to Low"
-                : currentSort === "newest"
-                ? "Newest"
-                : currentSort === "rating"
-                ? "Top Rated"
-                : "Popularity"}
-            </span>
-          </button>
-
-          {showSortDropdown && (
-            <>
-              <div
-                className="fixed inset-0 z-40 bg-black/10"
-                onClick={() => setShowSortDropdown(false)}
-              />
-              <div className="absolute left-0 mt-1.5 w-full rounded-vl-card border border-[#ECECEC] bg-white p-1 shadow-lg z-50 animate-fade-in-up">
-                {[
-                  ["popularity", "Popularity"],
-                  ["newest", "Newest Arrivals"],
-                  ["price_asc", "Price: Low to High"],
-                  ["price_desc", "Price: High to Low"],
-                  ["rating", "Top Rated"],
-                ].map(([val, label]) => (
-                  <button
-                    key={val}
-                    onClick={() => handleSortChange(val)}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold ${
-                      currentSort === val
-                        ? "text-[#FF3E6C] bg-[#FF3E6C]/5 font-bold"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Filter Trigger */}
-        <button
-          onClick={() => window.dispatchEvent(new Event("open-filter-drawer"))}
-          className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-vl-control text-[11px] font-bold border transition-colors ${
-            activeFiltersCount > 0
-              ? "border-[#FF3E6C] bg-[#FF3E6C]/5 text-[#FF3E6C]"
-              : "border-[#ECECEC] bg-white text-slate-700"
-          }`}
-        >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          <span>Filters</span>
-          {activeFiltersCount > 0 && (
-            <span className="flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-[#FF3E6C] text-white text-[8px] font-bold">
-              {activeFiltersCount}
-            </span>
-          )}
-        </button>
       </div>
     </div>
   );

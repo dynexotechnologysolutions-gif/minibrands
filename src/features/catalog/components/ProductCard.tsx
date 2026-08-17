@@ -1,30 +1,23 @@
 "use client";
 
 /**
- * ProductCard — Canonical product card for MiniBrands.
- * @redesigned v4.0 — visual redesign only, public API unchanged.
+ * ProductCard — Catalog listing card for MiniBrands (Stitch redesign).
+ * Public API unchanged; presentation updated to the approved listing design.
  *
- * Purpose:
- *   Premium Myntra-style fashion product card used across PLP, related
- *   products, search results, wishlists, and recommendation surfaces.
- *
- * States: Default · Hover · Active · Focus · Disabled (toggling) ·
- *         Loading (wishlist) · Out-of-stock · Wishlisted
- *
- * Accessibility:
- *   - Link wraps the entire card with descriptive aria-label
- *   - Wishlist button has aria-label that updates on state change
- *   - All decorative icons marked aria-hidden="true"
- *   - Focus ring inherited from globals.css focus-visible rule
- *   - min-h-11 min-w-11 on all interactive elements (44px touch target)
+ * - 1:1 product image with hover swap (desktop)
+ * - Wishlist reuses the existing onWishlistToggle flow (guests go to login, as before)
+ * - Add to Cart preserves existing behavior:
+ *     Authenticated user  → reserveCartItem server action
+ *     Guest user          → /api/guest-cart/reserve (no login redirect)
  */
 
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Heart, Star, ShoppingBag } from "lucide-react";
+import { BadgeCheck, Heart, ShoppingBag, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Product } from "../types/Product";
+import { reserveCartItem } from "@/actions/cart-reserve.action";
 
 interface ProductCardProps {
   product: Product;
@@ -42,6 +35,8 @@ export default function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
   const [isToggling, setIsToggling] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [added, setAdded] = useState(false);
 
   const primaryImage = product.images?.[0]?.url || "/placeholder.jpg";
   const secondaryImage = product.images?.[1]?.url || null;
@@ -77,7 +72,6 @@ export default function ProductCard({
     (v) => v.stockCount > 0 && v.stockCount <= 3
   );
 
-  // Badge config — maps product.badge to pill style
   const badgeStyleMap: Record<string, string> = {
     "Best Seller": "bg-vl-success text-white",
     "New Arrival": "bg-vl-primary text-white",
@@ -91,7 +85,7 @@ export default function ProductCard({
   const badgeStyle = product.badge ? badgeStyleMap[product.badge] : null;
   const badgeLabel = product.badge ? badgeLabelMap[product.badge] : null;
 
-  // Wishlist toggle — optimistic UI with rollback on failure
+  // Wishlist toggle — optimistic UI with rollback on failure (existing behavior)
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -112,42 +106,92 @@ export default function ProductCard({
     }
   };
 
+  // Add to Cart — preserves authenticated + guest flows
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isAdding || isOutOfStock) return;
+
+    setIsAdding(true);
+    try {
+      const targetVariant = product.variants?.find((v) => v.stockCount > 0) || product.variants?.[0];
+      const variantId = targetVariant?.id || "default";
+
+      if (isLoggedIn) {
+        const res = await reserveCartItem({
+          productId: product.id,
+          variantId,
+          quantity: 1,
+        });
+        if (res.success) {
+          setAdded(true);
+          setTimeout(() => setAdded(false), 2000);
+          window.dispatchEvent(new Event("cart-updated"));
+          router.refresh();
+        } else {
+          alert(res.error?.message || "Failed to add to cart");
+        }
+      } else {
+        const res = await fetch("/api/guest-cart/reserve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id, variantId, quantity: 1 }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
+            window.dispatchEvent(new Event("cart-updated"));
+            router.refresh();
+          } else {
+            alert(data.error || "Failed to add to cart");
+          }
+        } else {
+          alert("Failed to add to guest cart");
+        }
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   const isPriority = index < 4;
 
   return (
-    <Link
-      href={`/products/${product.id}`}
-      aria-label={`${product.name} by ${brandName} — ${formattedPrice}`}
-      className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vl-primary focus-visible:ring-offset-2"
-    >
-      {/* ── Image Container ──────────────────────────────────────── */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0">
-        {/* Primary image */}
+    <div className="group relative flex flex-col overflow-hidden rounded-vl-card border border-vl-border bg-vl-card transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1">
+      {/* ── Image ───────────────────────────────────────────────── */}
+      <Link
+        href={`/products/${product.id}`}
+        aria-label={`${product.name} by ${brandName} — ${formattedPrice}`}
+        className="relative block aspect-square overflow-hidden bg-vl-surface"
+      >
         <Image
           src={primaryImage}
           alt={product.name}
           fill
           priority={isPriority}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={`object-cover object-center transition-all duration-500 ease-out group-hover:scale-[1.03] ${
+          className={`object-cover object-center transition-all duration-500 ease-out group-hover:scale-[1.04] ${
             secondaryImage ? "lg:group-hover:opacity-0" : ""
           }`}
         />
 
-        {/* Secondary image — hover swap, desktop only */}
         {secondaryImage && (
           <Image
             src={secondaryImage}
             alt={`${product.name} — alternate view`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center opacity-0 lg:group-hover:opacity-100 transition-opacity duration-vl-standard"
+            className="object-cover object-center opacity-0 transition-opacity duration-vl-standard lg:group-hover:opacity-100"
             aria-hidden="true"
           />
         )}
 
-        {/* ── Top-left: Badge stack ─────────────────────────────── */}
-        <div className="absolute left-2.5 top-2.5 z-10 flex flex-col gap-1.5 pointer-events-none">
+        {/* Badge stack — top-left */}
+        <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-col gap-1.5">
           {isOutOfStock ? (
             <span className="inline-flex items-center rounded-md bg-vl-danger px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white leading-tight select-none">
               Sold Out
@@ -163,100 +207,108 @@ export default function ProductCard({
           ) : null}
         </div>
 
-        {/* ── Top-right: Wishlist button ────────────────────────── */}
-        {/* Always visible on mobile; hover-reveal on desktop */}
-        <button
-          onClick={handleWishlistClick}
-          disabled={isToggling}
-          aria-label={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          className={`
-            absolute right-2.5 top-2.5 z-10
-            inline-flex min-h-11 min-w-11 items-center justify-center
-            rounded-full bg-white/90 shadow-vl-soft backdrop-blur-sm
-            transition-all duration-vl-fast
-            lg:opacity-0 lg:group-hover:opacity-100
-            ${isToggling ? "opacity-60 cursor-not-allowed pointer-events-none" : "hover:scale-105 active:scale-95"}
-          `}
-        >
-          <Heart
-            aria-hidden="true"
-            className={`h-[18px] w-[18px] transition-all duration-vl-fast ${
-              product.isWishlisted
-                ? "fill-vl-primary text-vl-primary"
-                : "text-vl-muted"
-            }`}
-            strokeWidth={2}
-          />
-        </button>
-
-        {/* ── Bottom: "View Details" overlay (desktop hover only) ─ */}
-        <div
-          className="absolute inset-x-0 bottom-0 flex justify-center pb-3 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-vl-standard pointer-events-none"
-          aria-hidden="true"
-        >
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-vl-ink/85 px-4 py-1.5 text-xs font-bold text-white backdrop-blur-sm select-none">
-            <ShoppingBag className="h-3.5 w-3.5" />
-            View Details
-          </span>
-        </div>
-
         {/* Sold out scrim */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-white/30 pointer-events-none" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-0 bg-white/30" aria-hidden="true" />
         )}
-      </div>
+      </Link>
 
-      {/* ── Info Section ─────────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 p-3 gap-1 select-none">
-        {/* Brand + Verified badge */}
-        <div className="flex items-center gap-1 min-w-0">
-          <span className="text-[10px] font-bold text-vl-muted uppercase tracking-[0.08em] truncate leading-tight">
-            {brandName}
-          </span>
-          {isSellerVerified && (
-            <BadgeCheck
-              aria-label="Verified seller"
-              className="h-3 w-3 shrink-0 text-vl-success"
-              strokeWidth={2.5}
-            />
-          )}
-        </div>
+      {/* ── Wishlist ────────────────────────────────────────────── */}
+      <button
+        onClick={handleWishlistClick}
+        disabled={isToggling}
+        aria-label={product.isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        className={`
+          absolute right-2 top-2 z-20
+          inline-flex min-h-9 min-w-9 items-center justify-center
+          rounded-full bg-white/90 shadow-vl-soft backdrop-blur-sm
+          transition-all duration-vl-fast
+          ${isToggling ? "pointer-events-none opacity-60" : "hover:scale-105 active:scale-95"}
+        `}
+      >
+        <Heart
+          aria-hidden="true"
+          className={`h-4 w-4 transition-all duration-vl-fast ${
+            product.isWishlisted ? "fill-vl-primary text-vl-primary" : "text-vl-muted"
+          }`}
+          strokeWidth={2}
+        />
+      </button>
 
-        {/* Product name — exactly 2 lines */}
-        <h3 className="text-sm font-semibold text-vl-ink leading-tight line-clamp-2 min-h-[40px] group-hover:text-vl-primary transition-colors duration-vl-fast">
-          {product.name}
-        </h3>
-
-        {/* Rating pill */}
-        {product.rating > 0 && (
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <div className="inline-flex items-center gap-0.5 rounded-md bg-vl-success px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
-              {product.rating.toFixed(1)}
-              <Star aria-hidden="true" className="h-2.5 w-2.5 fill-current" strokeWidth={0} />
-            </div>
-            <span className="text-[11px] text-vl-muted leading-none">
-              ({product.formattedReviews})
+      {/* ── Info ────────────────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col p-3">
+        <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
+          {/* Brand + Verified */}
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em] text-vl-muted leading-tight">
+              {brandName}
             </span>
+            {isSellerVerified && (
+              <BadgeCheck
+                aria-label="Verified seller"
+                className="h-3 w-3 shrink-0 text-vl-success"
+                strokeWidth={2.5}
+              />
+            )}
           </div>
-        )}
 
-        {/* Price row — never wraps mid-value */}
-        <div className="flex items-baseline gap-1.5 mt-1.5 flex-wrap">
-          <span className="text-base font-extrabold text-vl-ink whitespace-nowrap">
-            {formattedPrice}
-          </span>
-          {mrpInINR > priceInINR && (
-            <>
-              <span className="text-xs text-vl-muted line-through whitespace-nowrap">
-                {formattedMrp}
+          {/* Product name — max 2 lines */}
+          <h3 className="mt-1 line-clamp-2 min-h-[36px] text-sm font-semibold leading-tight text-vl-ink transition-colors duration-vl-fast group-hover:text-vl-primary">
+            {product.name}
+          </h3>
+
+          {/* Rating */}
+          {product.rating > 0 && (
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <div className="inline-flex items-center gap-0.5 rounded-md bg-vl-success px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                {product.rating.toFixed(1)}
+                <Star aria-hidden="true" className="h-2.5 w-2.5 fill-current" strokeWidth={0} />
+              </div>
+              <span className="text-[11px] text-vl-muted leading-none">
+                ({product.formattedReviews})
               </span>
-              <span className="text-[11px] font-bold text-vl-primary whitespace-nowrap">
-                -{product.discountPercent}%
-              </span>
-            </>
+            </div>
           )}
-        </div>
+
+          {/* Price row */}
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-1.5">
+            <span className="whitespace-nowrap text-base font-extrabold text-vl-ink">
+              {formattedPrice}
+            </span>
+            {mrpInINR > priceInINR && (
+              <>
+                <span className="whitespace-nowrap text-xs text-vl-muted line-through">
+                  {formattedMrp}
+                </span>
+                <span className="whitespace-nowrap text-[11px] font-bold text-vl-danger">
+                  {product.discountPercent}% OFF
+                </span>
+              </>
+            )}
+          </div>
+        </Link>
+
+        {/* Add to Cart — existing auth + guest cart flow */}
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding || isOutOfStock}
+          aria-label="Add product to cart"
+          className={`
+            mt-3 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-vl-control text-xs font-bold transition-all duration-vl-fast active:scale-[0.98] select-none ${
+              isOutOfStock
+                ? "cursor-not-allowed bg-vl-border text-vl-muted"
+                : added
+                  ? "bg-vl-success text-white"
+                  : "bg-vl-primary text-white hover:bg-vl-primary-strong"
+            }
+          `}
+        >
+          <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
+          <span>
+            {isOutOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added!" : "Add to Cart"}
+          </span>
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }
