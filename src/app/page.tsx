@@ -221,7 +221,7 @@ export default async function HomePage({ searchParams }: PageProps) {
               </Link>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4 px-4 md:px-8">
-              {trendingProducts.map(productCard)}
+              {trendingProducts.slice(0, 4).map(productCard)}
             </div>
             {currentPage < totalPages ? (
               <div className="mt-8 flex justify-center hidden md:flex">
