@@ -1,41 +1,70 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
 
 const categories = [
-  { label: "Home Decor", iconClass: "fa-solid fa-couch", href: "/products?category=home-decor" },
-  { label: "Kitchen", iconClass: "fa-solid fa-fire-burner", href: "/products?category=kitchen" },
-  { label: "Spiritual", iconClass: "fa-solid fa-om", href: "/products?category=spiritual" },
-  { label: "Bottles", iconClass: "fa-solid fa-bottle-water", href: "/products?category=bottles" },
-  { label: "Beauty", iconClass: "fa-solid fa-spray-can-sparkles", href: "/products?category=beauty" },
-  { label: "Wellness", iconClass: "fa-solid fa-spa", href: "/products?category=wellness" },
-  { label: "Toys", iconClass: "fa-solid fa-shapes", href: "/products?category=toys" },
-  { label: "Electronics", iconClass: "fa-solid fa-laptop", href: "/products?category=electronics" },
-  { label: "More", iconClass: "fa-solid fa-ellipsis", href: "/products" },
+  {
+    label: "Home Decor",
+    href: "/products?category=home-decor",
+    iconClass: "fa-solid fa-couch text-slate-700",
+  },
+  {
+    label: "Kitchen",
+    href: "/products?category=kitchen",
+    iconClass: "fa-solid fa-kitchen-set text-slate-700",
+  },
+  {
+    label: "Spiritual",
+    href: "/products?category=spiritual",
+    iconClass: "fa-solid fa-om text-slate-700",
+  },
+  {
+    label: "Bottles",
+    href: "/products?category=bottles",
+    iconClass: "fa-solid fa-bottle-water text-slate-700",
+  },
+  {
+    label: "Beauty",
+    href: "/products?category=beauty",
+    iconClass: "fa-solid fa-spray-can-sparkles text-slate-700",
+  },
+  {
+    label: "Wellness",
+    href: "/products?category=heart-pulse",
+    iconClass: "fa-solid fa-notes-medical text-slate-700",
+  },
+  {
+    label: "Toys",
+    href: "/products?category=toys",
+    iconClass: "fa-solid fa-teddy-bear text-slate-700",
+  },
+  {
+    label: "Electronics",
+    href: "/products?category=electronics",
+    iconClass: "fa-solid fa-laptop text-slate-700",
+  },
+  {
+    label: "More",
+    href: "/products",
+    iconClass: "fa-solid fa-ellipsis text-slate-700",
+  },
 ];
 
 export default function HomeCategoryGrid() {
   return (
-    <section className="px-2 md:px-0 mb-6 md:mb-10" data-purpose="categories-nav">
-      <div className="flex overflow-x-auto hide-scrollbar gap-4 md:gap-8 md:justify-center px-2 pb-2">
-        {categories.map((cat) => (
+    <section className="w-full bg-white border-b border-gray-100 py-2 md:py-3" data-purpose="categories-nav">
+      {/* Horizontally scrolling list of category icons */}
+      <div className="flex overflow-x-auto md:overflow-x-visible gap-6 md:gap-10 justify-start md:justify-center py-1.5 hide-scrollbar snap-x px-5 max-w-[1280px] mx-auto font-sans">
+        {categories.map((category) => (
           <Link
-            key={cat.label}
-            href={cat.href}
-            className="flex flex-col items-center gap-2 min-w-[60px] md:min-w-[80px] group cursor-pointer"
+            key={category.label}
+            href={category.href}
+            className="flex flex-col items-center group flex-shrink-0 snap-start cursor-pointer"
+            aria-label={`View ${category.label} products`}
           >
-            {/* White bg circle with border + shadow, hover fills brand teal */}
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center text-[#0F7F7F] text-xl md:text-2xl group-hover:bg-brand-teal group-hover:text-white transition duration-300">
-              <i className={cat.iconClass}></i>
+            <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-lg md:text-xl transition-colors duration-150`}></i>
             </div>
-            {/* Label - text transitions to brand-teal */}
-            <span className="text-xs md:text-sm text-center leading-tight font-medium text-[#222222] group-hover:text-brand-teal transition duration-300 whitespace-pre-line font-sans">
-              {cat.label === "Home Decor" ? (
-                <>Home<br className="md:hidden" /> Decor</>
-              ) : (
-                cat.label
-              )}
+            <span className="text-[10px] md:text-xs font-semibold text-slate-700 mt-0.5 text-center group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
+              {category.label}
             </span>
           </Link>
         ))}

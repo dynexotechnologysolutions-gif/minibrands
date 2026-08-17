@@ -1,41 +1,43 @@
-"use client";
-
-import React from "react";
+import { ShieldCheck, Wallet, Truck, Coins } from "lucide-react";
 
 export default function HomeTrustStrip() {
+  const trustItems = [
+    {
+      Icon: ShieldCheck,
+      title: "Secure Payment",
+      desc: "100% Safe",
+    },
+    {
+      Icon: Wallet,
+      title: "Easy Returns",
+      desc: "Hassle Free",
+    },
+    {
+      Icon: Truck,
+      title: "Fast Delivery",
+      desc: "Across India",
+    },
+    {
+      Icon: Coins,
+      title: "COD Available",
+      desc: "Pay on Delivery",
+    },
+  ];
+
   return (
-    <section className="py-16 bg-gray-50" data-purpose="trust-badges">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-          <div className="flex items-center gap-4 justify-center">
-            <i className="fa-solid fa-shield-halved text-4xl text-[#0F7F7F]"></i>
-            <div className="flex flex-col">
-              <span className="font-bold text-gray-900">Secure Payment</span>
-              <span className="text-sm text-gray-500">100% Safe</span>
+    <section className="w-full max-w-[1280px] mx-auto px-4 md:px-8 mt-8 mb-10 font-sans" aria-label="Platform trust indicators">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#F7F9F9] p-4 rounded-2xl border border-[#E5E7E7]">
+        {trustItems.map(({ Icon, title, desc }) => (
+          <div key={title} className="flex items-center gap-3 p-2">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white border border-[#E5E7E7] shadow-sm">
+              <Icon className="h-5 w-5 text-[#0F7F7F]" strokeWidth={2} />
+            </div>
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="text-xs font-bold text-slate-800 truncate">{title}</span>
+              <span className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">{desc}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4 justify-center">
-            <i className="fa-solid fa-box-open text-4xl text-[#0F7F7F]"></i>
-            <div className="flex flex-col">
-              <span className="font-bold text-gray-900">Easy Returns</span>
-              <span className="text-sm text-gray-500">Hassle Free</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 justify-center">
-            <i className="fa-solid fa-truck-fast text-4xl text-[#0F7F7F]"></i>
-            <div className="flex flex-col">
-              <span className="font-bold text-gray-900">Fast Delivery</span>
-              <span className="text-sm text-gray-500">Across India</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 justify-center">
-            <i className="fa-solid fa-hand-holding-dollar text-4xl text-[#0F7F7F]"></i>
-            <div className="flex flex-col">
-              <span className="font-bold text-gray-900">COD Available</span>
-              <span className="text-sm text-gray-500">Pay on Delivery</span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </section>
   );

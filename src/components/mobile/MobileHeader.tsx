@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Lock, Menu, ShoppingBag, Bell, Heart, Mic, Maximize, Sofa, Utensils, Flower2, GlassWater, Sparkles, HeartPulse, Gamepad, Tv, MoreHorizontal } from "lucide-react";
+import { Search, Settings, Lock, Menu, Heart, Bell, ShoppingCart, ShoppingBag, Mic, Scan } from "lucide-react";
 import MobileSearchHeader from "./MobileSearchHeader";
 import MobilePageHeader from "./MobilePageHeader";
 import { useWishlist } from "@/features/catalog/hooks/useWishlist";
+
 import { UserProfileData } from "@/components/home/HomeHeader";
 
 interface MobileHeaderProps {
@@ -14,168 +15,182 @@ interface MobileHeaderProps {
   cartCount: number;
 }
 
-const CATEGORY_ICONS = [
-  { label: "Home Decor", icon: Sofa,          href: "/products?category=home_decor" },
-  { label: "Kitchen",   icon: Utensils,       href: "/products?category=kitchen" },
-  { label: "Spiritual", icon: Flower2,         href: "/products?category=spiritual" },
-  { label: "Bottles",   icon: GlassWater,      href: "/products?category=bottles" },
-  { label: "Beauty",    icon: Sparkles,        href: "/products?category=beauty" },
-  { label: "Wellness",  icon: HeartPulse,      href: "/products?category=wellness" },
-  { label: "Toys",      icon: Gamepad,         href: "/products?category=toys" },
-  { label: "Electronics", icon: Tv,            href: "/products?category=electronics" },
-  { label: "More",      icon: MoreHorizontal,  href: "/products" },
-];
-
 export default function MobileHeader({ userProfile, cartCount }: MobileHeaderProps) {
-  const pathname  = usePathname();
-  const router    = useRouter();
+  const pathname = usePathname();
+  const router = useRouter();
   const { wishlist = [] } = useWishlist();
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
 
   useEffect(() => {
-    const match      = document.cookie.match(/(?:^|; )active_role_mode=([^;]*)/);
-    const cookieVal  = match ? match[1] : null;
-    const resolved   = cookieVal === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER";
-    const t = setTimeout(() => setActiveMode(resolved), 0);
-    return () => clearTimeout(t);
+    const match = document.cookie.match(/(?:^|; )active_role_mode=([^;]*)/);
+    const cookieVal = match ? match[1] : null;
+    const resolvedMode = cookieVal === "SELLER" && userProfile?.seller ? "SELLER" : "BUYER";
+    
+    const timer = setTimeout(() => {
+      setActiveMode(resolvedMode);
+    }, 0);
+    
+    return () => clearTimeout(timer);
   }, [userProfile]);
 
-  const getInitials = (name: string) =>
-    name
-      ? name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2)
-      : "U";
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
-  const displayName =
-    activeMode === "BUYER"
-      ? userProfile?.user?.name || "User"
-      : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
+  const displayName = activeMode === "BUYER"
+    ? userProfile?.user?.name || "User"
+    : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
 
-  const isHome         = pathname === "/";
-  const isExplore      = pathname === "/products";
-  const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/");
-  const isWishlist     = pathname === "/account/wishlist" || pathname === "/wishlist";
-  const isCart         = pathname === "/cart";
-  const isAccount      = pathname === "/account/profile";
-  const isCheckout     = pathname === "/checkout";
+  // Mapped exact route conditions
+  const isHome = pathname === "/";
+  const isExplore = pathname === "/products";
+  const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
+  const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
+  const isCart = pathname === "/cart";
+  const isAccount = pathname === "/account/profile";
+  const isCheckout = pathname === "/checkout";
 
-  /* ─── 1. HOME HEADER ─────────────────────────────────────── */
+  // 1. Home Header
   if (isHome) {
-    const avatarUrl = activeMode === "BUYER" ? userProfile?.user?.image : userProfile?.seller?.storeLogo;
-    const avatar = avatarUrl ? (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={avatarUrl} alt={displayName} className="w-7 h-7 rounded-full object-cover" />
-    ) : (
-      <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center font-vl-heading text-[9px] font-bold text-white">
-        {getInitials(displayName)}
-      </div>
-    );
-
     return (
-      <div className="w-full flex flex-col bg-[#0F7F7F] border-b border-[#0A5C5C]/20 px-4 pt-[calc(env(safe-area-inset-top)+10px)] pb-0 shadow-sm md:hidden">
+      <div className="w-full flex flex-col bg-[#0d3b36] border-b border-[#0d3b36]/10 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 shadow-md md:hidden font-sans">
+        {/* Row 1: Menu + Brand Logo + Icons */}
+        <div className="flex items-center justify-between h-11 gap-2">
+          {/* Hamburger Menu Icon */}
+          <button className="text-white hover:opacity-85 active:scale-95 transition-all p-1" aria-label="Menu">
+            <Menu className="w-5.5 h-5.5" />
+          </button>
 
-        {/* Top row */}
-        <div className="w-full flex items-center justify-between h-10">
-          <div className="flex items-center gap-3">
-            <button className="text-white hover:opacity-85 active:scale-95 transition-transform" aria-label="Menu">
-              <Menu className="w-5.5 h-5.5" />
-            </button>
-            <Link href="/" className="flex items-center gap-2" aria-label="MiniBrands Home">
-              <ShoppingBag className="w-5.5 h-5.5 text-white shrink-0" />
-              <div className="flex flex-col">
-                <span className="font-vl-heading text-[15px] font-extrabold tracking-tight text-white leading-none">MiniBrands</span>
-                <span className="text-[7.5px] font-semibold text-white/75 tracking-wide mt-0.5 whitespace-nowrap">Many Stores. One Trusted Place.</span>
+          {/* Brand Logo with tagline */}
+          <Link href="/" className="flex items-center gap-1.5" aria-label="ShopHub Home">
+            <div className="flex items-center gap-1.5 text-white">
+              <ShoppingBag className="w-6 h-6 text-white" />
+              <div className="flex flex-col items-start leading-none">
+                <div className="text-lg font-bold tracking-tight">
+                  <span className="text-white">Shop</span>
+                  <span className="text-[#F39C12]">Hub</span>
+                </div>
+                <span className="text-[8px] opacity-90 font-medium tracking-wide mt-0.5">
+                  Many Stores. One Trusted Place.
+                </span>
               </div>
-            </Link>
-          </div>
+            </div>
+          </Link>
 
-          <div className="flex items-center gap-3.5">
-            <Link href="/wishlist" className="relative text-white hover:opacity-85" aria-label="Wishlist">
+          {/* Quick Action Icons */}
+          <div className="flex items-center gap-2 text-white">
+            <Link href="/wishlist" className="hover:opacity-85 active:scale-95 transition-all p-1 relative animate-scale-in" aria-label="Wishlist">
               <Heart className="w-5 h-5" />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-bold text-white border border-[#0F7F7F]">
-                  {wishlist.length}
-                </span>
-              )}
             </Link>
-            <button className="relative text-white hover:opacity-85 cursor-pointer" aria-label="Notifications">
+            <Link href="/account" className="hover:opacity-85 active:scale-95 transition-all p-1 relative animate-scale-in" aria-label="Notifications">
               <Bell className="w-5 h-5" />
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-bold text-white border border-[#0F7F7F]">3</span>
-            </button>
-            <Link href="/cart" className="relative text-white hover:opacity-85" aria-label="Cart">
-              <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-bold text-white border border-[#0F7F7F]">
-                  {cartCount}
-                </span>
-              )}
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-extrabold text-white border-2 border-[#0d3b36] shadow-sm leading-none">
+                3
+              </span>
             </Link>
-            <Link
-              href={userProfile ? "/account/profile" : "/login?role=buyer"}
-              className="flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-white/20 shrink-0"
-              aria-label="Profile"
-            >
-              {avatar}
+            <Link href="/cart" className="hover:opacity-85 active:scale-95 transition-all p-1 relative animate-scale-in" aria-label="Shopping Cart">
+              <ShoppingCart className="w-5 h-5" />
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E53935] px-1 text-[8px] font-extrabold text-white border-2 border-[#0d3b36] shadow-sm leading-none">
+                {cartCount > 0 ? cartCount : 2}
+              </span>
             </Link>
           </div>
         </div>
 
-        {/* Search bar */}
-        <div className="w-full mt-3">
+        {/* Row 2: Search input bar redirector */}
+        <div className="w-full mt-2.5">
           <div
             onClick={() => router.push("/products")}
-            className="w-full relative flex items-center h-10 px-3.5 bg-white rounded-xl text-slate-400 cursor-pointer shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.03)]"
+            className="w-full h-11 px-3.5 bg-white border border-transparent rounded-full flex items-center justify-between text-slate-400 cursor-pointer shadow-sm active:scale-[0.99] transition-transform duration-75"
           >
-            <Search className="w-4 h-4 text-slate-400 mr-2.5 shrink-0" />
-            <span className="text-[11.5px] text-slate-400 flex-grow font-medium">Search products, brands or stores...</span>
-            <div className="flex items-center gap-2.5 text-slate-400 shrink-0">
-              <Mic className="w-4 h-4" />
-              <Maximize className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-slate-500" />
+              <span className="text-xs text-slate-500 font-medium">Search products, brands or stores...</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-slate-500">
+              <Mic className="w-4 h-4 text-[#0F7F7F]" />
+              <Scan className="w-4 h-4 text-[#0F7F7F]" />
             </div>
           </div>
-        </div>
-
-        {/* Category icon ribbon — bare icons, no circle bg */}
-        <div className="flex overflow-x-auto gap-5 hide-scrollbar py-2.5 scroll-smooth">
-          {CATEGORY_ICONS.map(({ label, icon: Icon, href }) => (
-            <Link
-              key={label}
-              href={href}
-              className="flex flex-col items-center gap-[3px] shrink-0 select-none active:scale-95 transition-transform"
-            >
-              <Icon className="w-[18px] h-[18px] text-white stroke-[1.5]" />
-              <span className="text-[8.5px] font-semibold text-white/80 whitespace-nowrap leading-tight">{label}</span>
-            </Link>
-          ))}
         </div>
       </div>
     );
   }
 
-  /* ─── 2. EXPLORE / SEARCH ───────────────────────────────── */
-  if (isExplore || isExploreQuery) return <MobileSearchHeader />;
+  // 2. Discover/Explore Search Header
+  if (isExplore || isExploreQuery) {
+    return <MobileSearchHeader />;
+  }
 
-  /* ─── 3. CHECKOUT ───────────────────────────────────────── */
-  if (isCheckout) return (
-    <MobilePageHeader title="Secure Checkout" showBackButton={false} rightElement={<Lock className="w-4 h-4 text-[#2E7D32]" />} />
-  );
+  // 3. Checkout Header
+  if (isCheckout) {
+    return (
+      <MobilePageHeader
+        title="Secure Checkout"
+        showBackButton={false}
+        rightElement={<Lock className="w-4 h-4 text-[#2E7D32]" />}
+      />
+    );
+  }
 
-  /* ─── 4. CART ───────────────────────────────────────────── */
-  if (isCart) return (
-    <MobilePageHeader
-      title="My Cart"
-      showBackButton={true}
-      rightElement={
-        <Link href="/products" className="text-xs font-semibold text-vl-primary">Continue shopping</Link>
-      }
-    />
-  );
+  // 4. Wishlist Header
+  if (isWishlist) {
+    return (
+      <MobilePageHeader
+        title="Wishlist"
+        count={wishlist.length}
+        showBackButton={true}
+      />
+    );
+  }
 
-  /* ─── 5. ACCOUNT ────────────────────────────────────────── */
-  if (isAccount) return <MobilePageHeader title="My Account" showBackButton={false} />;
+  // 5. Cart Header
+  if (isCart) {
+    return (
+      <MobilePageHeader
+        title="Shopping Cart"
+        count={cartCount}
+        showBackButton={true}
+      />
+    );
+  }
 
-  /* ─── 6. WISHLIST ───────────────────────────────────────── */
-  if (isWishlist) return <MobilePageHeader title="Wishlist" showBackButton={true} />;
+  // 6. Account Header
+  if (isAccount) {
+    return (
+      <MobilePageHeader
+        title="My Profile"
+        showBackButton={false}
+        rightElement={
+          <button
+            onClick={() => router.push("/account/security")}
+            className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-slate-50 text-slate-700"
+            aria-label="Security Settings"
+          >
+            <Settings className="w-4.5 h-4.5" />
+          </button>
+        }
+      />
+    );
+  }
 
-  /* ─── DEFAULT ───────────────────────────────────────────── */
-  return <MobilePageHeader title="" showBackButton={true} />;
+  // 7. Fallback for other pages
+  let fallbackTitle = "MiniBrands";
+  if (pathname.includes("/products/")) {
+    fallbackTitle = "Product Details";
+  } else if (pathname.includes("/orders")) {
+    fallbackTitle = "My Orders";
+  } else if (pathname.includes("/addresses")) {
+    fallbackTitle = "Saved Addresses";
+  } else if (pathname.includes("/security")) {
+    fallbackTitle = "Account Security";
+  }
+
+  return <MobilePageHeader title={fallbackTitle} showBackButton={true} />;
 }

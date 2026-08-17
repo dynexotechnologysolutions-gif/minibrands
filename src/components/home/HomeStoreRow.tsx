@@ -15,98 +15,8 @@ interface HomeStoreRowProps {
   sellers: SellerData[];
 }
 
-export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const scroll = (distance: number) => rowRef.current?.scrollBy({ left: distance, behavior: "smooth" });
-
-  const getPreviewImage = (category: string, id: string) => {
-    const cat = (category || "").toLowerCase();
-    if (cat.includes("decor") || id.includes("store-1")) {
-      return "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80";
-    }
-    if (cat.includes("spiritual") || id.includes("store-2") || cat.includes("ethnic")) {
-      return "https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&w=400&q=80";
-    }
-    if (cat.includes("bottle") || id.includes("store-3") || cat.includes("wellness")) {
-      return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80";
-    }
-    if (cat.includes("living") || id.includes("store-4")) {
-      return "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80";
-    }
-    if (cat.includes("beauty") || id.includes("store-5") || cat.includes("cosmetics")) {
-      return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80";
-    }
-    return "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=400&q=80";
-  };
-
-  const getMockRating = (id: string) => {
-    const charCode = id.charCodeAt(0) || 0;
-    const rating = (4.5 + (charCode % 5) * 0.1).toFixed(1);
-    const count = (charCode * 7) % 800 + 120;
-    return { rating, count };
-  };
-
-  return (
-    <section className="vl-section-shell mt-6 sm:mt-16">
-      {/* Heading Block */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Top Stores For You</p>
-          <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">Featured boutiques</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/products" className="text-xs sm:text-sm font-bold text-[#0F7F7F] hover:underline whitespace-nowrap">
-            View All Stores
-          </Link>
-          <div className="hidden sm:flex gap-1.5">
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={() => scroll(-240)}
-              className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-white text-vl-muted transition hover:border-vl-primary hover:text-vl-primary cursor-pointer"
-              aria-label="Scroll featured stores left"
-            >
-              <ChevronLeft aria-hidden="true" className="h-4 w-4" />
-            </button>
-            <button
-              suppressHydrationWarning
-              type="button"
-              onClick={() => scroll(240)}
-              className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-white text-vl-muted transition hover:border-vl-primary hover:text-vl-primary cursor-pointer"
-              aria-label="Scroll featured stores right"
-            >
-              <ChevronRight aria-hidden="true" className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Cards List */}
-      <div
-        ref={rowRef}
-        className="hide-scrollbar mt-5 flex snap-x gap-4 overflow-x-auto pb-4 scroll-smooth px-0.5"
-      >
-        {sellers.map((seller) => (
-          <StoreCard
-            key={seller.id}
-            seller={seller}
-            previewImage={getPreviewImage(seller.category, seller.id)}
-            mockData={getMockRating(seller.id)}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-interface StoreCardProps {
-  seller: SellerData;
-  previewImage: string;
-  mockData: { rating: string; count: number };
-}
-
-function StoreCard({ seller, previewImage, mockData }: StoreCardProps) {
-  const [isFollowing, setIsFollowing] = useState(false);
+function StoreCard({ seller }: { seller: SellerData }) {
+  const [isFollowed, setIsFollowed] = useState(false);
   const initials = seller.businessName
     ? seller.businessName
         .split(" ")
@@ -116,61 +26,90 @@ function StoreCard({ seller, previewImage, mockData }: StoreCardProps) {
         .slice(0, 2)
     : "ST";
 
+  // Generate realistic rating based on seller.id string hashing
+  const rating = (4.4 + (seller.businessName.charCodeAt(0) % 6) * 0.1).toFixed(1);
+  const reviewCount = 200 + (seller.businessName.charCodeAt(1) % 8) * 150;
+
+  // Fallback premium gallery previews based on category
+  const fallbackPreviews: Record<string, string> = {
+    Western: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=400&q=80",
+    Ethnic: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=400&q=80",
+    Footwear: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
+    Accessories: "https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=400&q=80",
+    Beauty: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80",
+  };
+  const previewImage = seller.logoUrl || fallbackPreviews[seller.category] || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80";
+
   return (
-    <Link
-      href={`/sellers/${seller.id}`}
-      className="group flex flex-col justify-between w-[148px] sm:w-[170px] shrink-0 snap-start bg-white rounded-2xl border border-vl-border/70 p-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-vl-primary/25"
-    >
-      <div className="flex flex-col gap-3">
-        {/* Header (Logo + Name + Rating) */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-vl-surface border border-vl-border/60 overflow-hidden flex items-center justify-center shrink-0">
-            {seller.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={seller.logoUrl} alt={seller.businessName} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-[10px] font-extrabold text-[#0F7F7F]">{initials}</span>
-            )}
-          </div>
-          <div className="min-w-0 flex-grow">
-            <h3 className="font-vl-heading text-xs font-bold text-vl-ink truncate leading-tight group-hover:text-vl-primary transition-colors">
-              {seller.businessName}
-            </h3>
-            <p className="text-[9.5px] text-vl-muted flex items-center gap-0.5 mt-0.5 font-bold">
-              <span className="text-[#F39C12] text-[10px]">★</span>
-              <span>{mockData.rating} ({mockData.count})</span>
-            </p>
-          </div>
+    <div className="flex min-w-[190px] xs:min-w-[210px] snap-start flex-col rounded-[20px] border border-vl-border bg-vl-card p-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
+      {/* Header: Logo, Name, Rating */}
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
+          {seller.logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={seller.logoUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[10px] font-bold text-vl-primary">{initials}</span>
+          )}
         </div>
-
-        <div className="w-full aspect-square relative rounded-xl overflow-hidden bg-vl-surface border border-vl-border/40 mt-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewImage}
-            alt={`${seller.businessName} store preview`}
-            className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-          />
+        <div className="min-w-0 flex-1 leading-none">
+          <Link href={`/sellers/${seller.id}`} className="truncate block font-vl-heading text-xs font-bold text-vl-ink hover:text-vl-primary transition-colors">
+            {seller.businessName}
+          </Link>
+          <span className="text-[9px] text-slate-500 font-semibold mt-1 block">
+            ⭐ {rating} ({reviewCount})
+          </span>
         </div>
       </div>
 
-      {/* Action Button */}
-      <div className="mt-3.5 w-full">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsFollowing(!isFollowing);
-          }}
-          className={`w-full py-2 rounded-xl text-[11px] font-extrabold transition-all duration-vl-fast border cursor-pointer active:scale-[0.97] ${
-            isFollowing
-              ? "bg-vl-surface text-vl-muted border-vl-border hover:bg-vl-border/10"
-              : "bg-white text-[#0F7F7F] border-[#0F7F7F]/75 hover:bg-[#0F7F7F]/5"
-          }`}
-        >
-          {isFollowing ? "Following" : "Follow"}
-        </button>
+      {/* Showcase Image */}
+      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-vl-border/60 mt-3 block bg-vl-surface">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={previewImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-103" />
+      </Link>
+
+      {/* Follow Button */}
+      <button
+        type="button"
+        onClick={() => setIsFollowed(!isFollowed)}
+        className={`mt-3.5 py-1.5 w-full text-center border rounded-xl text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-97 ${
+          isFollowed
+            ? "bg-vl-primary text-white border-vl-primary"
+            : "bg-white text-vl-primary border-vl-primary hover:bg-vl-primary/5"
+        }`}
+      >
+        {isFollowed ? "Following" : "Follow"}
+      </button>
+    </div>
+  );
+}
+
+export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const scroll = (distance: number) => rowRef.current?.scrollBy({ left: distance, behavior: "smooth" });
+
+  return (
+    <section className="vl-section-shell mt-6 sm:mt-10">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary md:block hidden">Browse the people behind the pieces</p>
+          <h2 className="font-vl-heading text-lg sm:text-3xl font-extrabold tracking-[-0.04em] text-vl-ink">Top Stores For You</h2>
+        </div>
+        {/* Mobile View All link */}
+        <Link href="/products" className="text-xs font-bold text-vl-primary hover:underline md:hidden select-none">
+          View All Stores
+        </Link>
+        {/* Desktop scroll arrows */}
+        <div className="hidden md:flex gap-2">
+          <button suppressHydrationWarning type="button" onClick={() => scroll(-260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores left"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
+          <button suppressHydrationWarning type="button" onClick={() => scroll(260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores right"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
+        </div>
       </div>
-    </Link>
+      <div ref={rowRef} className="hide-scrollbar mt-6 flex snap-x gap-4 overflow-x-auto pb-4 px-1">
+        {sellers.map((seller) => (
+          <StoreCard key={seller.id} seller={seller} />
+        ))}
+      </div>
+    </section>
   );
 }
