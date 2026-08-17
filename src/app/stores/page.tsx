@@ -1,11 +1,14 @@
-import React from "react";
-import HomeStoreRow from "@/components/home/HomeStoreRow";
-import HomeHeader from "@/components/home/HomeHeader";
-import MobileBottomNavigation from "@/components/mobile/MobileBottomNavigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
+import HomeHeader from "@/components/home/HomeHeader";
+import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
+import HomeTrustStrip from "@/components/home/HomeTrustStrip";
+import StoresIntro from "@/components/store/StoresIntro";
+import StoresPageClient from "@/components/store/StoresPageClient";
+import StoreCategoryGrid, { StoreCategoryCount } from "@/components/store/StoreCategoryGrid";
+import { StoreSummary } from "@/components/store/StoreCard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +23,7 @@ export default async function StoresPage() {
       where: { userId: session.user.id },
       include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
     });
-    
+
     if (userProfile?.role === "SELLER") {
       const ver = userProfile.seller?.verification;
       const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
@@ -33,44 +36,74 @@ export default async function StoresPage() {
     }
   }
 
-  const allSellers = await prisma.seller.findMany({
-    where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
-    include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
+  const verifiedSellers = await prisma.seller.findMany({
+    where: {
+      verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+      products: { some: { isPublished: true, isDeleted: false } },
+    },
+    include: {
+      userProfile: { include: { user: true } },
+      verification: true,
+      reviews: { select: { rating: true } },
+      products: {
+        where: { isPublished: true, isDeleted: false },
+        include: { images: { orderBy: { sortOrder: "asc" } } },
+        take: 1,
+      },
+      _count: { select: { products: true, reviews: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
-  // Re-map the structure to exactly match SellerData interface
-  const mappedSellers = allSellers.map((seller) => {
-    let salesText = "0 sales";
-    if (seller.createdAt) {
-      const hash = seller.id.charCodeAt(0) + seller.id.charCodeAt(seller.id.length - 1);
-      salesText = `${(hash % 150) + 10} sales`;
-    }
+  const stores: StoreSummary[] = verifiedSellers.map((seller) => {
+    const rating = seller.reviews.length
+      ? Math.round((seller.reviews.reduce((sum, review) => sum + review.rating, 0) / seller.reviews.length) * 10) / 10
+      : 0;
+    const isVerified =
+      !!seller.verification &&
+      (seller.verification.kycStatus === "auto_approved" || seller.verification.kycStatus === "approved") &&
+      seller.verification.bankVerified;
+
     return {
       id: seller.id,
-      name: seller.businessName,
-      businessName: seller.businessName,
-      rating: "4.8",
-      sales: salesText,
-      icon: "fa-solid fa-store",
-      bgClass: "bg-teal-50 text-teal-700",
+      name: seller.storeName || seller.businessName,
+      category: seller.category,
+      city: seller.city,
       logoUrl: seller.storeLogo || null,
-      products: [],
-      category: "Fashion Boutique",
+      coverImage: seller.storeBanner || seller.products[0]?.images[0]?.url || null,
+      rating,
+      reviewCount: seller._count.reviews,
+      productCount: seller._count.products,
+      trustScore: seller.verification?.trustScore || 0,
+      isVerified,
+      createdAt: seller.createdAt.toISOString(),
     };
   });
 
+  const categoryMap = new Map<string, number>();
+  stores.forEach((store) => {
+    categoryMap.set(store.category, (categoryMap.get(store.category) || 0) + 1);
+  });
+  const categories: StoreCategoryCount[] = [...categoryMap.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+
   return (
-    <div className="min-h-screen w-full bg-white font-sans text-slate-800 pb-24 md:pb-0">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-vl-ink">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-      <main className="pt-[108px] md:pt-24 max-w-[1280px] mx-auto px-4 md:px-8">
-        <div className="my-6">
-          <h1 className="text-2xl font-bold tracking-tight text-[#222222]">All Stores</h1>
-          <p className="text-sm text-slate-500 mt-1">Discover verified boutiques and labels</p>
+      <main className="pb-[76px] pt-[108px] md:pb-0 md:pt-0">
+        {/* Existing category shortcut row */}
+        <HomeCategoryGrid />
+
+        <div className="vl-section-shell">
+          <StoresIntro />
+          <StoresPageClient stores={stores} isLoggedIn={!!session?.user} />
+          <StoreCategoryGrid categories={categories} />
         </div>
-        <HomeStoreRow sellers={mappedSellers} />
+
+        {/* Existing trust section */}
+        <HomeTrustStrip />
       </main>
-      <MobileBottomNavigation userProfile={userProfile} cartCount={cartCount} />
     </div>
   );
 }
