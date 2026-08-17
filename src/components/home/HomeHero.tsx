@@ -98,7 +98,7 @@ export default function HomeHero() {
       {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/9] md:aspect-[3.2/1]"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/8] md:aspect-[3.2/1]"
         style={{
           maxWidth: "1600px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
