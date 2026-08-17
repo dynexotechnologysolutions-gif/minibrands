@@ -63,7 +63,7 @@ export default function HomeCategoryGrid() {
             <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-lg md:text-xl transition-colors duration-150`}></i>
             </div>
-            <span className="text-[10px] md:text-xs font-semibold text-slate-700 mt-0.5 text-center group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
+            <span className="text-[10px] md:text-xs font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.75rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
               {category.label}
             </span>
           </Link>
