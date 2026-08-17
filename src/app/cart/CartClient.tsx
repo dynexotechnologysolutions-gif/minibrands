@@ -34,7 +34,7 @@ import { removeCartItem } from "@/actions/cart-remove.action";
 import { updateCartItemQuantity } from "@/actions/cart-update.action";
 import { trackClientEvent } from "@/actions/track-event.action";
 import { createCheckoutSession } from "@/actions/checkout-session.action";
-import { addToWishlistAction } from "@/actions/wishlist.action";
+import { addToWishlistAction, removeFromWishlistAction } from "@/actions/wishlist.action";
 import HomeHeader from "@/components/home/HomeHeader";
 import ProductCard from "@/features/catalog/components/ProductCard";
 
@@ -152,12 +152,12 @@ export default function CartClient({
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const res = await fetch("/api/products?limit=4");
+        const res = await fetch("/api/products?limit=4&sort=popularity");
         if (res.ok) {
           const data = await res.json();
-          if (data.success && data.data) {
-            setRecommendedProducts(data.data);
-            return;
+          const products = data.products || data.data;
+          if (Array.isArray(products)) {
+            setRecommendedProducts(products);
           }
         }
       } catch (err) {
@@ -344,9 +344,9 @@ export default function CartClient({
   const handleWishlistToggleInRecommendations = async (productId: string, isWishlisted: boolean) => {
     try {
       if (isWishlisted) {
-        await addToWishlistAction(productId);
+        await removeFromWishlistAction(productId);
       } else {
-        // Toggle logic internally
+        await addToWishlistAction(productId);
       }
     } catch (e) {
       console.error(e);
@@ -773,21 +773,24 @@ export default function CartClient({
           </h2>
           
           {loadingRecommendations ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[3/4] rounded-vl-card bg-vl-border/30 animate-pulse border border-vl-border" />
+                <div key={i} className={i >= 2 ? "hidden md:block" : ""}>
+                  <div className="aspect-[3/4] rounded-vl-card bg-vl-border/30 animate-pulse border border-vl-border" />
+                </div>
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-              {recommendedProducts.map((prod, idx) => (
-                <ProductCard
-                  key={prod.id}
-                  product={prod}
-                  isLoggedIn={!!userProfile}
-                  onWishlistToggle={handleWishlistToggleInRecommendations}
-                  index={idx}
-                />
+              {recommendedProducts.slice(0, 4).map((prod, idx) => (
+                <div key={prod.id} className={idx >= 2 ? "hidden md:block" : ""}>
+                  <ProductCard
+                    product={prod}
+                    isLoggedIn={!!userProfile}
+                    onWishlistToggle={handleWishlistToggleInRecommendations}
+                    index={idx}
+                  />
+                </div>
               ))}
             </div>
           )}

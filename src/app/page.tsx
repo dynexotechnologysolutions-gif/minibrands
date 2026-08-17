@@ -9,12 +9,15 @@ import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
-import HomeSellerSpotlight from "@/components/home/HomeSellerSpotlight";
 import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
+import HomeProductSection from "@/components/home/HomeProductSection";
+import HomeCuratedCollections from "@/components/home/HomeCuratedCollections";
+import HomeFeaturedCollections from "@/components/home/HomeFeaturedCollections";
+import HomeWhyShopWithVelvet from "@/components/home/HomeWhyShopWithVelvet";
 import ProductCard from "@/components/product/ProductCard";
 import WishlistIconButton from "@/components/product/WishlistIconButton";
 import Link from "next/link";
@@ -91,7 +94,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   let wishlistIds: string[] = [];
   if (userProfile) wishlistIds = (await redis.smembers(`wishlist:${userProfile.id}`)) || [];
 
-  const [featuredSellers, spotlightProducts, suggestedProducts, brandsSellers, trendingCount, trendingProducts, spotlightBrand, nearbyStores] = await Promise.all([
+  const [featuredSellers, suggestedProducts, trendingCount, trendingProducts, spotlightBrand, nearbyStores, newArrivalsProducts, trendingProductsSection] = await Promise.all([
     prisma.seller.findMany({
       where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true }, products: { some: { isPublished: true, isDeleted: false } } },
       include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
@@ -100,17 +103,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     prisma.product.findMany({
       where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
       include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
-      orderBy: { createdAt: "desc" }, take: 2,
-    }),
-    prisma.product.findMany({
-      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
-      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
       orderBy: { createdAt: "desc" }, skip: 2, take: 4,
-    }),
-    prisma.seller.findMany({
-      where: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } },
-      include: { userProfile: { include: { user: true } }, verification: true, _count: { select: { products: true } } },
-      orderBy: { createdAt: "desc" }, take: 2,
     }),
     prisma.product.count({ where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } } }),
     prisma.product.findMany({
@@ -164,7 +157,18 @@ export default async function HomePage({ searchParams }: PageProps) {
       ],
       take: 10,
     }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, take: 8,
+    }),
+    prisma.product.findMany({
+      where: { isDeleted: false, isPublished: true, seller: { verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true } } },
+      include: { images: { orderBy: { sortOrder: "asc" } }, variants: true, seller: { include: { verification: true } } },
+      orderBy: { createdAt: "desc" }, take: 8,
+    }),
   ]);
+
 
   const totalPages = Math.ceil(trendingCount / itemsPerPage);
   const shapeSeller = (seller: (typeof featuredSellers)[number]) => ({ id: seller.id, businessName: seller.businessName, category: seller.category, logoUrl: seller.storeLogo || null });
@@ -176,16 +180,6 @@ export default async function HomePage({ searchParams }: PageProps) {
     { id: "mock-store-5", businessName: "GlowUp", category: "Beauty", logoUrl: null },
   ];
   const allSellers = [...featuredSellers.map(shapeSeller), ...mockSellers];
-
-  const sellerSpotlights = brandsSellers.map((seller) => ({
-    id: seller.id,
-    businessName: seller.businessName,
-    category: seller.category,
-    logoUrl: seller.storeLogo || null,
-    bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=85",
-    tagline: seller.category || "Independent fashion label",
-    productCount: seller._count.products,
-  }));
 
   const productCard = (product: Parameters<typeof ProductCard>[0]["product"]) => (
     <ProductCard
@@ -199,7 +193,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-vl-surface font-vl-body text-vl-ink">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-      <main className="pb-24 md:pb-0 pt-[108px] md:pt-0">
+      <main className="pb-[76px] md:pb-0 pt-[108px] md:pt-0">
         {/* 1. Category Ribbon */}
         <HomeCategoryGrid />
 
@@ -212,7 +206,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 4. Best Selling Products */}
         {trendingProducts.length > 0 ? (
           <section className="vl-section-shell mt-10 sm:mt-16 font-sans">
-            <div className="flex items-end justify-between gap-4 px-4 md:px-8">
+            <div className="flex items-end justify-between gap-4 px-2 md:px-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#222222]">Best Selling Products</h2>
               </div>
@@ -220,7 +214,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                 View All
               </Link>
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4 px-4 md:px-8">
+            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
               {trendingProducts.slice(0, 4).map(productCard)}
             </div>
             {currentPage < totalPages ? (
@@ -236,41 +230,32 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
         ) : null}
 
-        {/* 5. Trust Indicators */}
+        {/* 4.1 Trust Indicators */}
         <HomeTrustStrip />
+
+        {/* 4.2 Curated Collections / Shop by Occasion */}
+        <HomeCuratedCollections />
+
+        {/* 4.3 Trending Products */}
+        <HomeProductSection
+            title="Trending Products"
+            products={trendingProductsSection}
+            href="/products?sort=trending"
+            isLoggedIn={!!session?.user}
+            wishlistIds={wishlistIds}
+        />
+
+        {/* 5. New Arrivals */}
+        <HomeProductSection
+            title="New Arrivals"
+            products={newArrivalsProducts}
+            href="/products?sort=newest"
+            isLoggedIn={!!session?.user}
+            wishlistIds={wishlistIds}
+        />
 
         {/* 6. Desktop-Only Secondary Sections */}
         <div className="hidden md:block">
-          {spotlightProducts.length > 0 ? (
-            <section className="vl-section-shell mt-10 sm:mt-24">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">Trending now</p>
-                  <h2 className="font-vl-heading text-xl sm:text-3xl font-bold tracking-[-0.04em] text-vl-ink">The pieces everyone is saving</h2>
-                </div>
-                <Link href="/products" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">Shop all</Link>
-              </div>
-              <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2">
-                {spotlightProducts.map((product) => (
-                  <article key={product.id} className="group grid overflow-hidden rounded-vl-card bg-vl-ink text-white grid-cols-1 sm:grid-cols-[0.9fr_1.1fr]">
-                    <div className="relative min-h-[280px] sm:min-h-[320px] bg-vl-border">
-                      <Image src={product.images?.[0]?.url || "/placeholder.jpg"} alt={product.name} fill sizes="(max-width: 640px) 100vw, 30vw" className="object-cover transition duration-500 group-hover:scale-105" />
-                      <WishlistIconButton productId={product.id} isLoggedIn={!!session?.user} initialIsWishlisted={wishlistIds.includes(product.id)} />
-                    </div>
-                    <div className="flex flex-col justify-center p-4 sm:p-7">
-                      <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.16em] text-white/55">{product.seller.businessName}</p>
-                      <h3 className="mt-1 sm:mt-3 font-vl-heading text-lg sm:text-2xl font-bold leading-tight tracking-[-0.04em]">{product.name}</h3>
-                      <div className="mt-2 sm:mt-5 flex items-baseline gap-2 sm:gap-3">
-                        <span className="font-vl-heading text-lg sm:text-2xl font-bold">{formatPrice(product.price)}</span>
-                        <span className="text-xs sm:text-sm text-white/45 line-through">{formatPrice(product.price * 1.4)}</span>
-                      </div>
-                      <Link href={`/products/${product.id}`} className="mt-4 sm:mt-6 inline-flex min-h-9 sm:min-h-11 w-fit items-center rounded-vl-control bg-vl-primary-button px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white transition hover:bg-vl-primary-button-strong">Shop this piece</Link>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ) : null}
           <HomeEditorialCollections />
           {(() => {
             const userCity = userProfile?.addresses?.find((a) => a.isDefault)?.city || null;
@@ -291,10 +276,17 @@ export default async function HomePage({ searchParams }: PageProps) {
             );
           })()}
           {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
-          {sellerSpotlights.length > 0 ? <HomeSellerSpotlight sellers={sellerSpotlights} /> : null}
           <HomeInspiration />
-          <HomeNewsletter />
         </div>
+
+        {/* 7. Curated Collections */}
+        <HomeFeaturedCollections />
+
+        {/* 8. Why Shop With Velvet Lane? */}
+        <HomeWhyShopWithVelvet />
+
+        {/* 9. Newsletter */}
+        <HomeNewsletter />
       </main>
     </div>
   );

@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HomeHeader from "@/components/home/HomeHeader";
-import SearchToolbar from "../components/SearchToolbar";
+import CategoryHeader from "../components/CategoryHeader";
 import CategoryChips from "../components/CategoryChips";
+import ProductToolbar from "../components/ProductToolbar";
 import FiltersSidebar from "../components/FiltersSidebar";
 import FilterDrawer from "../components/FilterDrawer";
+import SortSheet from "../components/SortSheet";
 import ProductGrid from "../components/ProductGrid";
 import Pagination from "../components/Pagination";
 
@@ -24,18 +26,42 @@ interface CatalogPageProps {
 
 const ProductCardSkeleton = () => (
   <div className="flex flex-col overflow-hidden rounded-vl-card border border-vl-border bg-vl-card">
-    {/* Aspect ratio wrapper for zero CLS with shimmer */}
-    <div className="relative aspect-[3/4] overflow-hidden bg-vl-surface">
+    {/* 1:1 image skeleton matching the redesigned card */}
+    <div className="relative aspect-square overflow-hidden bg-vl-surface">
       <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
     </div>
-    <div className="flex flex-col gap-2.5 p-3">
+    <div className="flex flex-col gap-2 p-3">
       <div className="h-3 w-1/4 rounded-md animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
       <div className="h-4 w-3/4 rounded-md animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
       <div className="h-3 w-2/4 rounded-md animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
-      <div className="mt-1 h-3.5 w-1/3 rounded-md animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
+      <div className="mt-1 h-9 w-full rounded-md animate-pulse bg-gradient-to-r from-vl-border via-[#F5F5F8] to-vl-border bg-[length:200%_100%]" />
     </div>
   </div>
 );
+
+function ErrorState({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex w-full flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-vl-card text-vl-danger">
+        <AlertCircle aria-hidden="true" className="h-9 w-9" />
+      </div>
+      <h2 className="font-vl-heading mb-2 text-xl font-bold tracking-tight text-vl-ink">
+        Unable to load products
+      </h2>
+      <p className="mx-auto mb-6 max-w-[320px] text-sm leading-relaxed text-vl-muted">
+        Something went wrong while loading this category.
+      </p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary px-6 text-sm font-semibold text-white transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98]"
+      >
+        <RotateCcw aria-hidden="true" className="h-4 w-4" />
+        Try Again
+      </button>
+    </div>
+  );
+}
 
 export default function CatalogPage({ userProfile, initialCartCount, sellerHref }: CatalogPageProps) {
   const router = useRouter();
@@ -67,10 +93,13 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
     priceRange,
   };
 
-  // State to control mobile filter drawer
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const activeFiltersCount = [priceRange, rating, discount].filter(Boolean).length;
 
-  // Listen for the 'open-filter-drawer' event dispatched by MobileSearchHeader's Filters pill
+  // State to control mobile filter drawer + sort sheet
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
+
+  // Listen for the 'open-filter-drawer' event (legacy trigger path)
   useEffect(() => {
     const handler = () => setIsFilterDrawerOpen(true);
     window.addEventListener("open-filter-drawer", handler);
@@ -90,15 +119,10 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
 
   // 3. React Query hooks
   const { data: categories = [] } = useCategories();
-  const { data: productsData, isLoading } = useProducts(filters);
+  const { data: productsData, isLoading, isError, refetch } = useProducts(filters);
   const { toggleWishlist } = useWishlist();
 
   const [alertMsg, setAlertMsg] = useState<{ text: string; type: "success" | "error" } | null>(null);
-  const startTimeRef = useRef<number>(0);
-  useEffect(() => {
-    startTimeRef.current = Date.now();
-  }, []);
-  const [searchTime, setSearchTime] = useState(0.42);
 
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
     setAlertMsg({ text, type });
@@ -110,17 +134,6 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
       return () => clearTimeout(t);
     }
   }, [alertMsg]);
-
-  useEffect(() => {
-    startTimeRef.current = Date.now();
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const duration = ((Date.now() - startTimeRef.current) / 1000).toFixed(2);
-      setSearchTime(parseFloat(duration) || 0.12);
-    }
-  }, [isLoading]);
 
   // 4. Update dynamic parameters in the URL
   const updateUrl = (updated: Record<string, unknown>) => {
@@ -199,39 +212,43 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         sellerHref={sellerHref}
       />
 
-      {/* Main content block — mobile top offset clears the fixed MobileSearchHeader (≈112px) */}
-      <main className="vl-section-shell flex w-full flex-1 flex-col pt-[calc(7.5rem+env(safe-area-inset-top))] pb-6 sm:pt-8 sm:pb-8 lg:py-10">
-        {/* Results Toolbar */}
-        <SearchToolbar
-          query={filters.q}
+      {/* Main content block — mobile top offset clears the fixed MobileSearchHeader */}
+      <main className="vl-section-shell flex w-full flex-1 flex-col pt-[calc(4.5rem+env(safe-area-inset-top))] pb-6 sm:pt-8 sm:pb-8 lg:py-10">
+        {/* Category Header (breadcrumb + title + description + count) */}
+        <CategoryHeader
           category={filters.category}
+          query={filters.q}
           totalProducts={pagination.totalItems}
-          searchTime={searchTime}
-          sort={filters.sort || "popularity"}
-          onSortChange={(val) => updateUrl({ sort: val })}
-          breadcrumbs={
-            filters.category && filters.category !== "All"
-              ? ["Home", "Products", filters.category]
-              : ["Home", "Products"]
-          }
         />
 
-        {/* Category Pills Strip */}
+        {/* Subcategory Navigation */}
         <CategoryChips
           categories={categories}
           activeCategory={filters.category || "All"}
           onCategoryChange={(val) => updateUrl({ category: val })}
         />
 
+        {/* Product Toolbar — count + filter + sort */}
+        <ProductToolbar
+          totalProducts={pagination.totalItems}
+          activeSort={filters.sort || "popularity"}
+          activeFiltersCount={activeFiltersCount}
+          onSortChange={(val) => updateUrl({ sort: val })}
+          onOpenFilters={() => setIsFilterDrawerOpen(true)}
+          onOpenSort={() => setIsSortSheetOpen(true)}
+        />
+
         {/* Layout Row */}
-        <div ref={gridTopRef} className="flex flex-1 items-start gap-8 scroll-mt-24">
+        <div ref={gridTopRef} className="mt-5 flex flex-1 items-start gap-8 scroll-mt-24">
           {/* Desktop Filter Sidebar */}
           <FiltersSidebar {...sidebarAndDrawerProps} />
 
           {/* Grid View */}
-          <div className="flex-1 flex flex-col h-full justify-between">
-            {isLoading ? (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+          <div className="flex flex-1 flex-col justify-between h-full">
+            {isError ? (
+              <ErrorState onRetry={() => refetch()} />
+            ) : isLoading ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
                 {Array.from({ length: 8 }).map((_, idx) => (
                   <ProductCardSkeleton key={idx} />
                 ))}
@@ -242,6 +259,7 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
                   products={productsList}
                   isLoggedIn={isLoggedIn}
                   onWishlistToggle={handleWishlistToggle}
+                  onClearFilters={handleClearAll}
                 />
 
                 {/* Pagination */}
@@ -256,12 +274,19 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
         </div>
       </main>
 
-
       {/* Mobile Filter Drawer */}
       <FilterDrawer
         isOpen={isFilterDrawerOpen}
         onClose={() => setIsFilterDrawerOpen(false)}
         {...sidebarAndDrawerProps}
+      />
+
+      {/* Mobile Sort Sheet */}
+      <SortSheet
+        isOpen={isSortSheetOpen}
+        onClose={() => setIsSortSheetOpen(false)}
+        activeSort={filters.sort || "popularity"}
+        onSortChange={(val) => updateUrl({ sort: val })}
       />
 
       {/* Toast alert */}

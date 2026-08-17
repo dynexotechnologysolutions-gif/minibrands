@@ -43,6 +43,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ChevronDown, Star, X, SlidersHorizontal } from "lucide-react";
+import PriceRangeSlider from "./PriceRangeSlider";
 
 interface FilterDrawerProps {
   isOpen: boolean;
@@ -183,26 +184,10 @@ export default function FilterDrawer({
         <div className="flex-1 overflow-y-auto px-5">
           {/* Price Filter */}
           <DrawerFilterSection title="Price">
-            <div className="space-y-3">
-              <input
-                aria-label="Maximum price filter"
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-vl-border accent-vl-primary"
-                type="range"
-                min="499"
-                max="10000"
-                step="100"
-                value={currentPriceMax}
-                onChange={(e) => onPriceRangeChange([499, parseInt(e.target.value, 10)])}
-              />
-              <div className="flex items-center justify-between">
-                <span className="rounded-md bg-vl-surface px-2 py-1 text-xs font-semibold text-vl-muted">
-                  ₹499
-                </span>
-                <span className="rounded-md bg-vl-primary/8 px-2 py-1 text-xs font-bold text-vl-primary">
-                  {currentPriceMax >= 10000 ? "₹10,000+" : `₹${currentPriceMax.toLocaleString()}`}
-                </span>
-              </div>
-            </div>
+            <PriceRangeSlider
+              value={currentPriceMax}
+              onCommit={(v) => onPriceRangeChange([499, v])}
+            />
           </DrawerFilterSection>
 
           {/* Rating Filter */}
