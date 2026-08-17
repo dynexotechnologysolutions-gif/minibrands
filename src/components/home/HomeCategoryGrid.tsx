@@ -50,9 +50,9 @@ const categories = [
 
 export default function HomeCategoryGrid() {
   return (
-    <section className="w-full bg-white border-b border-gray-100 py-1 md:py-2" data-purpose="categories-nav">
+    <section className="w-full bg-white border-b border-gray-100 py-2 md:py-3" data-purpose="categories-nav">
       {/* Horizontally scrolling list of category icons */}
-      <div className="flex overflow-x-auto md:overflow-x-visible gap-4 md:gap-8 justify-start md:justify-center py-1 hide-scrollbar snap-x px-4 max-w-[1280px] mx-auto font-sans">
+      <div className="flex overflow-x-auto md:overflow-x-visible gap-6 md:gap-10 justify-start md:justify-center py-1.5 hide-scrollbar snap-x px-5 max-w-[1280px] mx-auto font-sans">
         {categories.map((category) => (
           <Link
             key={category.label}
@@ -60,10 +60,10 @@ export default function HomeCategoryGrid() {
             className="flex flex-col items-center group flex-shrink-0 snap-start cursor-pointer"
             aria-label={`View ${category.label} products`}
           >
-            <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-sm md:text-base transition-colors duration-150`}></i>
+            <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-lg md:text-xl transition-colors duration-150`}></i>
             </div>
-            <span className="text-[9px] md:text-[11px] font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.5rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
+            <span className="text-[10px] md:text-xs font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.75rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
               {category.label}
             </span>
           </Link>
