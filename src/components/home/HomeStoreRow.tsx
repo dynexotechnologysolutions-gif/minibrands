@@ -41,7 +41,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
   const previewImage = seller.logoUrl || fallbackPreviews[seller.category] || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80";
 
   return (
-    <div className="flex min-w-[120px] sm:min-w-[170px] md:min-w-[200px] snap-start flex-col rounded-xl sm:rounded-2xl border border-vl-border bg-vl-card p-2 sm:p-3 md:p-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
+    <div className="flex min-w-[120px] sm:min-w-[170px] md:min-w-[200px] snap-start flex-col rounded-xl sm:rounded-2xl border border-vl-border bg-vl-card px-2 py-2.5 sm:px-3 sm:py-3.5 md:px-4 md:py-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
       {/* Header: Logo + Name on top left */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="w-5 h-5 sm:w-8 sm:h-8 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
