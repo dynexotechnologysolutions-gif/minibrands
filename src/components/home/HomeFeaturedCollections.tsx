@@ -14,12 +14,12 @@ export default function HomeFeaturedCollections() {
   return (
     <section className="vl-section-shell mt-10 sm:mt-16">
       <SectionHeading title="Curated Collections" action={{ href: "/products", label: "View All" }} />
-      <div className="mt-6 flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 hide-scrollbar snap-x sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:pb-0 lg:grid-cols-4">
+      <div className="mt-6 flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 hide-scrollbar snap-x sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:pb-0 lg:grid-cols-4">
         {collections.map((collection) => (
           <Link
             key={collection.title}
             href={collection.href}
-            className="group relative w-[230px] shrink-0 snap-start overflow-hidden rounded-vl-card bg-vl-card shadow-vl-soft transition duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium sm:w-auto"
+            className="group relative w-[160px] shrink-0 snap-start overflow-hidden rounded-vl-card bg-vl-card shadow-vl-soft transition duration-vl-standard ease-vl-out hover:-translate-y-1 hover:shadow-vl-medium sm:w-auto"
           >
             <div className="relative aspect-[4/5]">
               <Image
