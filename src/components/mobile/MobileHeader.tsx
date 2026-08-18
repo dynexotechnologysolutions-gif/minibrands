@@ -48,7 +48,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
 
   // Mapped exact route conditions
-  const isHome = pathname === "/" || pathname === "/categories" || pathname.startsWith("/category/");
+  const isHome = pathname === "/" || pathname === "/categories" || pathname === "/stores" || pathname.startsWith("/category/");
   const isExplore = pathname === "/products";
   const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
   const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
