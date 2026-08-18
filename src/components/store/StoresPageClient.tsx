@@ -22,16 +22,26 @@ const SORT_LABELS: Record<SortOption, string> = {
   name: "Name (A–Z)",
 };
 
+let cachedRecentIds: string[] = [];
+
 function readRecentIds(): string[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return cachedRecentIds;
+  let next: string[];
   try {
     const raw = window.localStorage.getItem(RECENT_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
+    if (!raw) {
+      next = [];
+    } else {
+      const parsed = JSON.parse(raw);
+      next = Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
+    }
   } catch {
-    return [];
+    return cachedRecentIds;
   }
+  if (next.length !== cachedRecentIds.length || next.some((x, i) => x !== cachedRecentIds[i])) {
+    cachedRecentIds = next;
+  }
+  return cachedRecentIds;
 }
 
 function subscribeRecent(callback: () => void) {
