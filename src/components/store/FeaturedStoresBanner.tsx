@@ -10,15 +10,15 @@ export default function FeaturedStoresBanner() {
       aria-label="Shop from trusted stores"
     >
       <div className="flex flex-col md:flex-row">
-        <div className="flex flex-col justify-center p-6 sm:p-8 md:w-[52%]">
+        <div className="flex w-full flex-col justify-center p-6 sm:p-8 md:w-[52%] md:shrink-0">
           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white/70">
-            <BadgeCheck aria-hidden="true" className="h-4 w-4" />
+            <BadgeCheck aria-hidden={true} className="h-4 w-4" />
             Trusted sellers
           </p>
           <h2 className="mt-2 font-vl-heading text-2xl font-bold tracking-[-0.02em] text-white sm:text-3xl">
             Shop From Trusted Stores
           </h2>
-          <p className="mt-2 max-w-md text-sm leading-6 text-white/80 sm:text-base">
+          <p className="mt-2 w-full max-w-md text-left text-sm leading-6 text-white/80 sm:text-base">
             1000+ verified stores across multiple categories.
           </p>
           <Link
@@ -28,7 +28,7 @@ export default function FeaturedStoresBanner() {
             Explore Now
           </Link>
         </div>
-        <div className="relative h-44 sm:h-52 md:h-auto md:w-[48%]">
+        <div className="relative h-44 w-full sm:h-52 md:h-auto md:w-[48%] md:shrink-0">
           <Image
             src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"
             alt="Independent boutique storefront"
