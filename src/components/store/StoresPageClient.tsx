@@ -86,7 +86,7 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
   const [followedIds, setFollowedIds] = useState<Set<string>>(() => new Set(initialFollowedIds));
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const recentIds = useSyncExternalStore(subscribeRecent, readRecentIds, () => []);
+  const recentIds = useSyncExternalStore(subscribeRecent, readRecentIds, () => cachedRecentIds);
 
   const recordRecent = (id: string) => {
     const next = [id, ...readRecentIds().filter((x) => x !== id)].slice(0, 8);
