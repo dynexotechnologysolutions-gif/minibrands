@@ -3,11 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
 import HomeHeader from "@/components/home/HomeHeader";
-import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import StoresIntro from "@/components/store/StoresIntro";
 import StoresPageClient from "@/components/store/StoresPageClient";
-import StoreCategoryGrid, { StoreCategoryCount } from "@/components/store/StoreCategoryGrid";
 import { StoreSummary } from "@/components/store/StoreCard";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +15,7 @@ export default async function StoresPage() {
   let userProfile = null;
   let cartCount = 0;
   let sellerHref = "/login?role=seller";
+  let followedSellerIds: string[] = [];
 
   if (session?.user) {
     userProfile = await prisma.userProfile.findUnique({
@@ -33,6 +32,12 @@ export default async function StoresPage() {
     if (userProfile) {
       const reservations = await getUserReservations(userProfile.id);
       cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
+
+      const follows = await prisma.sellerFollow.findMany({
+        where: { userProfileId: userProfile.id },
+        select: { sellerId: true },
+      });
+      followedSellerIds = follows.map((f) => f.sellerId);
     }
   }
 
@@ -80,25 +85,13 @@ export default async function StoresPage() {
     };
   });
 
-  const categoryMap = new Map<string, number>();
-  stores.forEach((store) => {
-    categoryMap.set(store.category, (categoryMap.get(store.category) || 0) + 1);
-  });
-  const categories: StoreCategoryCount[] = [...categoryMap.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
-
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-vl-ink">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
       <main className="pb-[76px] pt-[108px] md:pb-0 md:pt-0">
-        {/* Existing category shortcut row */}
-        <HomeCategoryGrid />
-
         <div className="vl-section-shell">
           <StoresIntro />
-          <StoresPageClient stores={stores} isLoggedIn={!!session?.user} />
-          <StoreCategoryGrid categories={categories} />
+          <StoresPageClient stores={stores} isLoggedIn={!!session?.user} initialFollowedIds={followedSellerIds} />
         </div>
 
         {/* Existing trust section */}

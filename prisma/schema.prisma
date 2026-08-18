@@ -82,6 +82,7 @@ model UserProfile {
   orders         Order[]
   reviewsGiven   Review[]        @relation("BuyerReviews")
   returnRequests ReturnRequest[]
+  sellerFollows  SellerFollow[]
   returnCount    Int             @default(0)
   refundCount    Int             @default(0)
   disputeCount   Int             @default(0)
@@ -134,6 +135,7 @@ model Seller {
   products              Product[]
   orders                Order[]
   reviews               Review[]
+  sellerFollows         SellerFollow[]
   createdAt             DateTime            @default(now())
 
   // Verification & Document Fields
@@ -185,6 +187,20 @@ model SellerVerification {
 
   @@index([kycStatus])
   @@map("seller_verification")
+}
+
+model SellerFollow {
+  id            String       @id @default(uuid())
+  userProfileId String
+  userProfile   UserProfile  @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  sellerId      String
+  seller        Seller       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+
+  @@unique([userProfileId, sellerId])
+  @@index([userProfileId])
+  @@index([sellerId])
+  @@map("seller_follow")
 }
 
 model Product {

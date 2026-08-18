@@ -9,10 +9,10 @@ interface StoreSectionProps {
   href?: string;
   stores: StoreSummary[];
   followedIds: Set<string>;
-  favoriteIds: Set<string>;
   onToggleFollow: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
-  badge?: "NEW" | null;
+  onVisit?: (id: string) => void;
+  layout?: "carousel" | "grid";
+  compact?: boolean;
   emptyState?: React.ReactNode;
 }
 
@@ -23,10 +23,10 @@ export default function StoreSection({
   href,
   stores,
   followedIds,
-  favoriteIds,
   onToggleFollow,
-  onToggleFavorite,
-  badge = null,
+  onVisit,
+  layout = "carousel",
+  compact = false,
   emptyState,
 }: StoreSectionProps) {
   if (stores.length === 0 && !emptyState) return null;
@@ -47,17 +47,30 @@ export default function StoreSection({
 
       {stores.length === 0 ? (
         emptyState
+      ) : layout === "grid" ? (
+        <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+          {stores.map((store) => (
+            <StoreCard
+              key={store.id}
+              store={store}
+              isFollowed={followedIds.has(store.id)}
+              onToggleFollow={onToggleFollow}
+              onVisit={onVisit}
+              compact={compact}
+            />
+          ))}
+        </div>
       ) : (
         <div className="-mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-4 pb-2 hide-scrollbar md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 xl:grid-cols-4">
           {stores.map((store) => (
             <StoreCard
               key={store.id}
               store={store}
-              badge={badge}
+              carousel={true}
               isFollowed={followedIds.has(store.id)}
               onToggleFollow={onToggleFollow}
-              isFavorite={favoriteIds.has(store.id)}
-              onToggleFavorite={onToggleFavorite}
+              onVisit={onVisit}
+              compact={compact}
             />
           ))}
         </div>

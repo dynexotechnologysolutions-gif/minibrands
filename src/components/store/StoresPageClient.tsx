@@ -1,53 +1,61 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Heart, Store } from "lucide-react";
-import StoreFilterTabs, { StoreTab } from "./StoreFilterTabs";
-import FeaturedStoresBanner from "./FeaturedStoresBanner";
+import React, { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowUpDown, Heart, SearchX } from "lucide-react";
+import StoreSearch from "./StoreSearch";
+import StoreCategoryFilter from "./StoreCategoryFilter";
 import StoreSection from "./StoreSection";
-import { StoreSummary } from "./StoreCard";
+import StoreCard, { StoreSummary } from "./StoreCard";
+import { followSellerAction, unfollowSellerAction } from "@/actions/seller-follow.action";
 
-const VALID_TABS: StoreTab[] = ["all", "popular", "topRated", "new", "following"];
+const RECENT_KEY = "minibrands_recent_stores";
 
-const TAB_LABELS: Record<StoreTab, string> = {
-  all: "Top Stores",
-  popular: "Popular Stores",
-  topRated: "Top Rated Stores",
-  new: "New Stores",
-  following: "Stores You Follow",
+type SortOption = "topRated" | "popular" | "newest" | "name";
+
+const SORT_OPTIONS: SortOption[] = ["topRated", "popular", "newest", "name"];
+
+const SORT_LABELS: Record<SortOption, string> = {
+  topRated: "Top Rated",
+  popular: "Most Popular",
+  newest: "Newest",
+  name: "Name (A–Z)",
 };
 
-const TAB_DESCRIPTIONS: Record<StoreTab, string> = {
-  all: "Every verified store on MiniBrands, highest rated first.",
-  popular: "Most-loved stores by shoppers.",
-  topRated: "Highest-rated stores from real buyers.",
-  new: "Fresh stores recently onboarded.",
-  following: "Stores you follow. Follow more to build your feed.",
-};
+function readRecentIds(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(RECENT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function subscribeRecent(callback: () => void) {
+  const onStorage = () => callback();
+  window.addEventListener("storage", onStorage);
+  window.addEventListener("recent-stores-updated", onStorage);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("recent-stores-updated", onStorage);
+  };
+}
 
 interface StoresPageClientProps {
   stores: StoreSummary[];
   isLoggedIn: boolean;
+  initialFollowedIds: string[];
 }
 
-function EmptyGridState() {
-  return (
-    <div className="rounded-vl-card border border-dashed border-vl-border bg-vl-card p-10 text-center">
-      <Store aria-hidden="true" className="mx-auto h-10 w-10 text-vl-muted" />
-      <p className="mt-3 text-sm font-semibold text-vl-ink">No stores found</p>
-      <p className="mt-1 text-xs text-vl-muted">Try a different filter.</p>
-    </div>
-  );
-}
-
-function FollowingEmptyState({ onExplore }: { onExplore: () => void }) {
+function FollowedEmptyState({ onExplore }: { onExplore: () => void }) {
   return (
     <div className="rounded-vl-card border border-dashed border-vl-border bg-vl-card p-10 text-center">
       <Heart aria-hidden="true" className="mx-auto h-10 w-10 text-vl-muted" />
-      <p className="mt-3 text-sm font-semibold text-vl-ink">Discover stores you may love.</p>
-      <p className="mt-1 text-xs text-vl-muted">Follow stores to see them here.</p>
+      <p className="mt-3 text-sm font-semibold text-vl-ink">Discover stores you&apos;ll love</p>
+      <p className="mt-1 text-xs text-vl-muted">Follow your favorite stores to easily find them here later.</p>
       <button
         type="button"
         onClick={onExplore}
@@ -59,165 +67,249 @@ function FollowingEmptyState({ onExplore }: { onExplore: () => void }) {
   );
 }
 
-function SignInEmptyState() {
-  return (
-    <div className="rounded-vl-card border border-dashed border-vl-border bg-vl-card p-10 text-center">
-      <Heart aria-hidden="true" className="mx-auto h-10 w-10 text-vl-muted" />
-      <p className="mt-3 text-sm font-semibold text-vl-ink">Sign in to follow stores</p>
-      <p className="mt-1 text-xs text-vl-muted">Create an account to save the stores you love and see them here.</p>
-      <Link
-        href="/login?role=buyer"
-        className="mt-4 inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-5 text-sm font-bold text-white transition-all duration-150 hover:bg-vl-primary/90"
-      >
-        Sign in
-      </Link>
-    </div>
-  );
-}
-
-export default function StoresPageClient({ stores, isLoggedIn }: StoresPageClientProps) {
+export default function StoresPageClient({ stores, isLoggedIn, initialFollowedIds }: StoresPageClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const tabParam = searchParams.get("tab");
-  const categoryParam = searchParams.get("category");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [sortBy, setSortBy] = useState<SortOption>("topRated");
+  const [followedIds, setFollowedIds] = useState<Set<string>>(() => new Set(initialFollowedIds));
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const initialTab: StoreTab =
-    tabParam && (VALID_TABS as string[]).includes(tabParam) ? (tabParam as StoreTab) : "all";
-  const [activeTab, setActiveTab] = useState<StoreTab>(initialTab);
+  const recentIds = useSyncExternalStore(subscribeRecent, readRecentIds, () => []);
 
-  if (tabParam && (VALID_TABS as string[]).includes(tabParam) && tabParam !== activeTab) {
-    setActiveTab(tabParam as StoreTab);
-  }
-
-  const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
-
-  const toggleFollow = (id: string) =>
-    setFollowedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-
-  const toggleFavorite = (id: string) =>
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-
-  const handleTabChange = (tab: StoreTab) => {
-    setActiveTab(tab);
-    const params = new URLSearchParams(searchParams.toString());
-    if (tab === "all") params.delete("tab");
-    else params.set("tab", tab);
-    router.replace(`/stores?${params.toString()}`, { scroll: false });
+  const recordRecent = (id: string) => {
+    const next = [id, ...readRecentIds().filter((x) => x !== id)].slice(0, 8);
+    try {
+      window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    } catch {
+      return;
+    }
+    window.dispatchEvent(new Event("recent-stores-updated"));
   };
 
-  const byCategory = useMemo(
-    () => (categoryParam ? stores.filter((s) => s.category.toLowerCase() === categoryParam.toLowerCase()) : stores),
-    [stores, categoryParam],
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => setSearchQuery(value.trim()), 300);
+  };
+
+  const clearFilters = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setActiveCategory("all");
+    setSortBy("topRated");
+  };
+
+  const handleToggleFollow = async (storeId: string) => {
+    if (!isLoggedIn) {
+      router.push(`/login?redirectTo=${encodeURIComponent("/stores")}`);
+      return;
+    }
+
+    const willFollow = !followedIds.has(storeId);
+    setFollowedIds((prev) => {
+      const next = new Set(prev);
+      if (willFollow) next.add(storeId);
+      else next.delete(storeId);
+      return next;
+    });
+
+    try {
+      const res = willFollow
+        ? await followSellerAction(storeId)
+        : await unfollowSellerAction(storeId);
+      if (!res.success) throw new Error(res.error || "Failed to update follow");
+    } catch (error) {
+      console.error("Follow toggle error:", error);
+      setFollowedIds((prev) => {
+        const next = new Set(prev);
+        if (willFollow) next.delete(storeId);
+        else next.add(storeId);
+        return next;
+      });
+      alert("Failed to update follow. Please try again.");
+    }
+  };
+
+  const categories = useMemo(
+    () => [...new Set(stores.map((s) => s.category))].sort((a, b) => a.localeCompare(b)),
+    [stores],
   );
 
-  const filtered = useMemo(() => {
-    const list = [...byCategory];
-    switch (activeTab) {
+  const discoverStores = useMemo(() => {
+    let list = stores;
+    if (activeCategory !== "all") {
+      list = list.filter((s) => s.category === activeCategory);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q) ||
+          s.city.toLowerCase().includes(q),
+      );
+    }
+    const sorted = [...list];
+    switch (sortBy) {
       case "popular":
-        list.sort((a, b) => b.productCount - a.productCount);
+        sorted.sort((a, b) => b.productCount - a.productCount || b.reviewCount - a.reviewCount);
         break;
-      case "topRated":
-        list.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+      case "newest":
+        sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
         break;
-      case "new":
-        list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      case "name":
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case "following":
-        return byCategory.filter((s) => followedIds.has(s.id));
       default:
-        list.sort((a, b) => b.rating - a.rating || b.productCount - a.productCount);
+        sorted.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount || b.productCount - a.productCount);
         break;
     }
-    return list;
-  }, [byCategory, activeTab, followedIds]);
+    return sorted;
+  }, [stores, activeCategory, searchQuery, sortBy]);
 
-  const newStores = useMemo(
-    () => [...stores].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8),
+  const popularStores = useMemo(
+    () =>
+      [...stores]
+        .sort((a, b) => b.productCount - a.productCount || b.reviewCount - a.reviewCount || b.rating - a.rating)
+        .slice(0, 8),
     [stores],
   );
 
   const followedStores = useMemo(() => stores.filter((s) => followedIds.has(s.id)), [stores, followedIds]);
 
+  const recentStores = useMemo(
+    () =>
+      recentIds
+        .map((id) => stores.find((s) => s.id === id))
+        .filter((s): s is StoreSummary => Boolean(s)),
+    [recentIds, stores],
+  );
+
+  const hasFilters = searchQuery !== "" || activeCategory !== "all";
+
   return (
     <>
-      <StoreFilterTabs active={activeTab} onChange={handleTabChange} />
-      <FeaturedStoresBanner />
+      <div className="mt-6 sm:mt-8">
+        <StoreSearch value={searchInput} onChange={handleSearchChange} />
+      </div>
 
-      {categoryParam ? (
-        <div className="mt-8 flex items-center justify-between gap-3 rounded-vl-card border border-vl-border bg-vl-card px-4 py-3">
-          <p className="text-sm text-vl-ink">
-            Showing <span className="font-bold">{categoryParam}</span> stores
-          </p>
-          <Link href="/stores" className="text-sm font-semibold text-vl-primary hover:underline">
-            Clear
-          </Link>
-        </div>
-      ) : null}
+      <div className="mt-4">
+        <StoreCategoryFilter categories={categories} active={activeCategory} onChange={setActiveCategory} />
+      </div>
 
       <StoreSection
-        id="store-grid"
-        title={TAB_LABELS[activeTab]}
-        description={TAB_DESCRIPTIONS[activeTab]}
-        stores={filtered}
+        id="followed-stores"
+        title="Your Followed Stores"
+        description="Keep up with the stores you love."
+        stores={followedStores}
         followedIds={followedIds}
-        favoriteIds={favoriteIds}
-        onToggleFollow={toggleFollow}
-        onToggleFavorite={toggleFavorite}
+        onToggleFollow={handleToggleFollow}
+        onVisit={recordRecent}
         emptyState={
-          activeTab === "following" ? (
-            <FollowingEmptyState onExplore={() => handleTabChange("all")} />
-          ) : (
-            <EmptyGridState />
-          )
+          <FollowedEmptyState
+            onExplore={() => document.getElementById("discover-stores")?.scrollIntoView({ behavior: "smooth" })}
+          />
         }
       />
 
+      <section id="discover-stores" className="mt-8 scroll-mt-24 sm:mt-12">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="font-vl-heading text-xl font-bold tracking-[-0.03em] text-vl-ink sm:text-2xl">
+              Discover Stores
+            </h2>
+            <p className="mt-1 text-sm text-vl-muted">
+              {searchQuery
+                ? `${discoverStores.length} result${discoverStores.length === 1 ? "" : "s"} for “${searchQuery}”`
+                : activeCategory !== "all"
+                  ? `${discoverStores.length} verified ${activeCategory} store${discoverStores.length === 1 ? "" : "s"}`
+                  : `${discoverStores.length} verified store${discoverStores.length === 1 ? "" : "s"}`}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasFilters ? (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm font-semibold text-vl-primary hover:underline"
+              >
+                Clear
+              </button>
+            ) : null}
+            <div className="relative">
+              <ArrowUpDown
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-vl-muted"
+              />
+              <label htmlFor="store-sort" className="sr-only">
+                Sort stores
+              </label>
+              <select
+                id="store-sort"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="h-11 w-full appearance-none rounded-vl-control border border-vl-border bg-white pl-9 pr-8 text-sm font-semibold text-vl-ink outline-none transition-colors duration-200 focus:border-vl-primary"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {SORT_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {discoverStores.length === 0 ? (
+          <div className="mt-5 rounded-vl-card border border-dashed border-vl-border bg-vl-card p-10 text-center">
+            <SearchX aria-hidden="true" className="mx-auto h-10 w-10 text-vl-muted" />
+            <p className="mt-3 text-sm font-semibold text-vl-ink">No stores found</p>
+            <p className="mt-1 text-xs text-vl-muted">Try a different search or category.</p>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-5 text-sm font-bold text-white transition-all duration-150 hover:bg-vl-primary/90 active:scale-[0.98]"
+            >
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+            {discoverStores.map((store) => (
+              <StoreCard
+                key={store.id}
+                store={store}
+                isFollowed={followedIds.has(store.id)}
+                onToggleFollow={handleToggleFollow}
+                onVisit={recordRecent}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
       <StoreSection
-        title="New Stores"
-        description="Just onboarded and ready to explore."
-        href="/stores?tab=new"
-        stores={newStores}
-        badge="NEW"
+        title="Popular Stores"
+        description="Most-loved stores by shoppers."
+        stores={popularStores}
         followedIds={followedIds}
-        favoriteIds={favoriteIds}
-        onToggleFollow={toggleFollow}
-        onToggleFavorite={toggleFavorite}
+        onToggleFollow={handleToggleFollow}
+        onVisit={recordRecent}
       />
 
-      {isLoggedIn ? (
+      {recentStores.length > 0 ? (
         <StoreSection
-          title="Stores You Follow"
-          description="Keep up with your favourite sellers."
-          href="/stores?tab=following"
-          stores={followedStores}
+          title="Recently Viewed Stores"
+          description="Pick up where you left off."
+          stores={recentStores}
           followedIds={followedIds}
-          favoriteIds={favoriteIds}
-          onToggleFollow={toggleFollow}
-          onToggleFavorite={toggleFavorite}
-          emptyState={<FollowingEmptyState onExplore={() => handleTabChange("all")} />}
+          onToggleFollow={handleToggleFollow}
+          onVisit={recordRecent}
+          compact={true}
         />
-      ) : (
-        <section className="mt-8 sm:mt-12">
-          <h2 className="font-vl-heading text-xl font-bold tracking-[-0.03em] text-vl-ink sm:text-2xl">
-            Stores You Follow
-          </h2>
-          <p className="mt-1 text-sm text-vl-muted">Sign in to follow stores and see them here.</p>
-          <div className="mt-5">
-            <SignInEmptyState />
-          </div>
-        </section>
-      )}
+      ) : null}
     </>
   );
 }
