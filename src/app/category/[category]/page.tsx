@@ -6,7 +6,9 @@ import { prisma } from "@/lib/prisma";
 import ProductGrid from "@/components/product/ProductGrid";
 import { ChevronLeft } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+// Category pages are public and can be revalidated every 60 seconds.
+// No user-specific data is rendered on this page.
+export const revalidate = 60;
 
 interface CategoryPageProps {
   params: Promise<{

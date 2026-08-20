@@ -15,7 +15,7 @@
  *   are deleted.
  */
 
-import { redis } from "@/lib/redis";
+import { redis, addReservationToUserIndex } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 
@@ -170,6 +170,9 @@ export async function mergeGuestCart(
         })
       );
       await redis.expire(existingReservationKey, RESERVATION_TTL_SECONDS);
+
+      // Maintain per-user reservation index
+      await addReservationToUserIndex(userId, reservationId);
 
       mergedCount++;
     }

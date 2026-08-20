@@ -18,17 +18,37 @@ export async function GET() {
     const rawItems = await getGuestCartItems(guestCartId);
     const cartItems = [];
 
-    for (const item of rawItems) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId, isDeleted: false },
-        include: {
-          images: { orderBy: { sortOrder: "asc" } },
-          seller: true,
-          variants: { where: { id: item.variantId } },
-        },
-      });
+    // Batch fetch products and variants for all guest cart items
+    const productIds = [...new Set(rawItems.map((item) => item.productId).filter(Boolean))];
+    const variantIds = [...new Set(rawItems.map((item) => item.variantId).filter(Boolean))];
 
-      const variant = product?.variants[0];
+    const [products, variants] = await Promise.all([
+      productIds.length > 0
+        ? prisma.product.findMany({
+            where: {
+              id: { in: productIds },
+              isDeleted: false,
+              isPublished: true,
+            },
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+              seller: true,
+            },
+          })
+        : [],
+      variantIds.length > 0
+        ? prisma.productVariant.findMany({
+            where: { id: { in: variantIds } },
+          })
+        : [],
+    ]);
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const variantMap = new Map(variants.map((v) => [v.id, v]));
+
+    for (const item of rawItems) {
+      const product = productMap.get(item.productId);
+      const variant = variantMap.get(item.variantId);
       if (!product || !variant || !product.isPublished) continue;
 
       cartItems.push({
@@ -43,7 +63,7 @@ export async function GET() {
         sellerName: product.seller.businessName,
         sellerId: product.sellerId,
         size: variant.size,
-        isReserved: item.isReserved, // true if stock is locked, false if reservation expired
+        isReserved: item.isReserved,
       });
     }
 

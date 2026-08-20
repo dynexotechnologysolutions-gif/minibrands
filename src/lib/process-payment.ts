@@ -10,7 +10,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { redis, deleteMatchingReservation } from "@/lib/redis";
+import { redis, deleteMatchingReservation, removeReservationFromUserIndex } from "@/lib/redis";
 import { GuestOrderService } from "@/lib/guest-order.service";
 
 export interface ProcessPaymentResult {
@@ -235,11 +235,18 @@ export async function processSuccessfulPayment(
       for (const item of pendingOrder.products) {
         if (item.reservationId) {
           redisPipeline.del(`reservation:${item.reservationId}`);
+          // Remove from user index set
+          if (pendingOrder.userId) {
+            redisPipeline.srem(`reservations:user:${pendingOrder.userId}`, item.reservationId);
+          }
         }
       }
       // Buy Now single reservation
       if (pendingOrder.reservationId) {
         redisPipeline.del(`reservation:${pendingOrder.reservationId}`);
+        if (pendingOrder.userId) {
+          redisPipeline.srem(`reservations:user:${pendingOrder.userId}`, pendingOrder.reservationId);
+        }
       }
     }
 

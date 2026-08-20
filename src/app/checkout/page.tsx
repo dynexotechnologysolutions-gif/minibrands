@@ -83,26 +83,42 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     checkoutMode = checkoutSession.mode;
     createdAt = checkoutSession.createdAt;
 
-    // Fetch product, variant, and seller details
-    for (const item of checkoutSession.products) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId, isDeleted: false },
-        include: {
-          images: {
-            orderBy: { sortOrder: "asc" },
-          },
-          variants: {
-            where: { id: item.variantId },
-          },
-          seller: {
-            include: {
-              verification: true,
-            },
-          },
-        },
-      });
+    // Batch fetch products and variants for all checkout items
+    const productIds = [...new Set(checkoutSession.products.map((p) => p.productId).filter(Boolean))];
+    const variantIds = [...new Set(checkoutSession.products.map((p) => p.variantId).filter(Boolean))];
 
-      const variant = product?.variants[0];
+    const [products, variants] = await Promise.all([
+      productIds.length > 0
+        ? prisma.product.findMany({
+            where: {
+              id: { in: productIds },
+              isDeleted: false,
+              isPublished: true,
+            },
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+              seller: {
+                include: {
+                  verification: true,
+                },
+              },
+            },
+          })
+        : [],
+      variantIds.length > 0
+        ? prisma.productVariant.findMany({
+            where: { id: { in: variantIds } },
+          })
+        : [],
+    ]);
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const variantMap = new Map(variants.map((v) => [v.id, v]));
+
+    // Reconstruct checkout products from batch-fetched data
+    for (const item of checkoutSession.products) {
+      const product = productMap.get(item.productId);
+      const variant = variantMap.get(item.variantId);
 
       if (!product || !variant || !product.isPublished) {
         return (

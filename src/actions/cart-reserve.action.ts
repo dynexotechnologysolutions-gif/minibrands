@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CartReserveSchema, CartReserveInput } from "@/schemas/cart.schema";
-import { tryReserveStock, checkRateLimit, ReservationData } from "@/lib/redis";
+import { tryReserveStock, checkRateLimit, ReservationData, addReservationToUserIndex } from "@/lib/redis";
 import { captureAndLogError } from "@/lib/sentry";
 import { trackEvent } from "@/lib/posthog";
 import { ActionResponse } from "./seller-register.action";
@@ -141,6 +141,9 @@ export async function reserveCartItem(
         },
       };
     }
+
+    // Maintain per-user reservation index for fast lookup
+    await addReservationToUserIndex(userProfile.id, reservationId);
 
     // 6. Track Analytics
     trackEvent(userId, "product_added_to_cart", {

@@ -38,23 +38,49 @@ export default async function OrdersPage() {
     redirect("/login?redirectTo=/account/orders");
   }
 
-  // Fetch all orders placed by this buyer
+  // Fetch all orders placed by this buyer (capped at 100 for safety)
   const orders = await prisma.order.findMany({
     where: { buyerId: userProfile.id },
-    include: {
-      seller: true,
+    select: {
+      id: true,
+      status: true,
+      orderStatus: true,
+      totalAmount: true,
+      createdAt: true,
+      seller: {
+        select: {
+          businessName: true,
+        },
+      },
       items: {
-        include: {
+        select: {
+          id: true,
+          productId: true,
+          variantId: true,
+          unitPrice: true,
+          quantity: true,
           product: {
-            include: {
-              images: { orderBy: { sortOrder: "asc" } },
+            select: {
+              name: true,
+              images: {
+                take: 1,
+                orderBy: { sortOrder: "asc" },
+                select: {
+                  url: true,
+                },
+              },
             },
           },
-          variant: true,
+          variant: {
+            select: {
+              size: true,
+            },
+          },
         },
       },
     },
     orderBy: { createdAt: "desc" },
+    take: 100,
   });
 
   const formattedOrders = orders.map((order) => ({
