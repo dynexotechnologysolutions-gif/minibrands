@@ -97,7 +97,7 @@ export default function StoreCard({
       {/* Store cover */}
       <Link
         href={href}
-        className="relative block aspect-[16/10] w-full overflow-hidden bg-vl-surface"
+        className={`relative block w-full overflow-hidden bg-vl-surface ${carousel ? "aspect-[16/9]" : "aspect-[16/10]"}`}
         aria-label={`View ${store.name} store`}
       >
         {store.coverImage ? (
@@ -121,12 +121,22 @@ export default function StoreCard({
       </Link>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-center gap-3">
+      <div className={`flex flex-1 flex-col ${carousel ? "p-3" : "p-4"}`}>
+        <div className="flex items-center gap-2.5">
           {/* Store logo — isolated from buyer profile image, uses seller.storeLogo */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-vl-border bg-vl-surface">
+          <div
+            className={`flex shrink-0 items-center justify-center overflow-hidden border border-vl-border bg-vl-surface ${
+              carousel ? "h-10 w-10 rounded-lg" : "h-12 w-12 rounded-xl"
+            }`}
+          >
             {store.logoUrl ? (
-              <Image src={store.logoUrl} alt="" width={48} height={48} className="h-full w-full object-cover" />
+              <Image
+                src={store.logoUrl}
+                alt=""
+                width={carousel ? 40 : 48}
+                height={carousel ? 40 : 48}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <span className="text-sm font-bold text-vl-primary">{initials}</span>
             )}
@@ -135,7 +145,9 @@ export default function StoreCard({
             <div className="flex items-center gap-1">
               <Link
                 href={href}
-                className="truncate font-vl-heading text-base font-bold text-vl-ink transition-colors duration-200 hover:text-vl-primary"
+                className={`truncate font-vl-heading font-bold text-vl-ink transition-colors duration-200 hover:text-vl-primary ${
+                  carousel ? "text-sm" : "text-base"
+                }`}
               >
                 {store.name}
               </Link>
@@ -152,7 +164,7 @@ export default function StoreCard({
         </div>
 
         {/* Meta row */}
-        <div className="mt-3 flex items-center gap-2 text-xs text-vl-muted">
+        <div className={`flex items-center gap-2 text-xs text-vl-muted ${carousel ? "mt-2" : "mt-3"}`}>
           <span className="truncate">
             {store.category}
             {store.city ? ` · ${store.city}` : ""}
@@ -162,7 +174,7 @@ export default function StoreCard({
         </div>
 
         {/* Actions: Visit Store (primary) + Follow (secondary) */}
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className={`grid grid-cols-2 gap-2 ${carousel ? "mt-3" : "mt-4"}`}>
           <Link
             href={href}
             className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-2 text-sm font-bold text-white transition-all duration-150 hover:bg-vl-primary/90 active:scale-[0.98]"
