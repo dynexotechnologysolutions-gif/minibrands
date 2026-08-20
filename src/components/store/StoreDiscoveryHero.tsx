@@ -33,7 +33,7 @@ export default function StoreDiscoveryHero({
         <StoreSearch value={searchValue} onChange={onSearchChange} />
       </div>
       <div className="mt-4">
-        <StoreCategoryFilter categories={categories} active={activeCategory} onChange={onCategoryChange} />
+        <StoreCategoryFilter categories={categories} active={activeCategory} onChange={onCategoryChange} compact />
       </div>
     </div>
   );

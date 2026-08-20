@@ -6,9 +6,10 @@ interface StoreCategoryFilterProps {
   categories: string[];
   active: string;
   onChange: (category: string) => void;
+  compact?: boolean;
 }
 
-export default function StoreCategoryFilter({ categories, active, onChange }: StoreCategoryFilterProps) {
+export default function StoreCategoryFilter({ categories, active, onChange, compact = false }: StoreCategoryFilterProps) {
   const items = ["all", ...categories];
 
   return (
@@ -26,7 +27,9 @@ export default function StoreCategoryFilter({ categories, active, onChange }: St
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(category)}
-            className={`inline-flex h-11 shrink-0 items-center justify-center rounded-full border px-4 text-sm font-semibold transition-all duration-150 active:scale-[0.98] ${
+            className={`inline-flex shrink-0 items-center justify-center rounded-full border font-semibold transition-all duration-150 active:scale-[0.98] ${
+              compact ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm"
+            } ${
               isActive
                 ? "border-vl-primary bg-vl-primary text-white"
                 : "border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary/40 hover:text-vl-primary"
