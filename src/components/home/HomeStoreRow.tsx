@@ -89,7 +89,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
   const scroll = (distance: number) => rowRef.current?.scrollBy({ left: distance, behavior: "smooth" });
 
   return (
-    <section className="vl-section-shell mt-4 sm:mt-10">
+    <section className="vl-section-shell mt-4 sm:mt-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary md:block hidden">Browse the people behind the pieces</p>
