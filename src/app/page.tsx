@@ -208,7 +208,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           <section className="vl-section-shell mt-6 sm:mt-12 font-sans">
             <div className="flex items-end justify-between gap-4 px-2 md:px-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#222222]">Best Selling Products</h2>
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#222222]">Best Selling Products</h2>
               </div>
               <Link href="/products" className="text-sm font-semibold text-[#0F7F7F] hover:underline">
                 View All
