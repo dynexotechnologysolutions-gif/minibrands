@@ -31,25 +31,25 @@ export default function FeaturedBrand({ store, isFollowed, onToggleFollow }: Fea
       : `Independent label based in ${store.city}.`);
 
   return (
-    <section className="mt-8 sm:mt-12">
+    <section className="mt-6 sm:mt-12">
       <h2 className="font-vl-heading text-xl font-bold tracking-[-0.03em] text-vl-ink sm:text-2xl">Featured Label</h2>
       <p className="mt-1 text-sm text-vl-muted">A brand worth discovering.</p>
 
-      <article className="mt-5 grid overflow-hidden rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft md:grid-cols-[1.1fr_1fr]">
-        <div className="flex flex-col justify-center p-5 sm:p-8">
+      <article className="mt-4 grid overflow-hidden rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft md:grid-cols-[1.1fr_1fr]">
+        <div className="flex flex-col justify-center p-4 sm:p-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-vl-border bg-vl-surface">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-vl-border bg-vl-surface">
               {store.logoUrl ? (
-                <Image src={store.logoUrl} alt="" width={56} height={56} className="h-full w-full object-cover" />
+                <Image src={store.logoUrl} alt="" width={48} height={48} className="h-full w-full object-cover" />
               ) : (
                 <span className="text-base font-bold text-vl-primary">{initials}</span>
               )}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1">
-                <h3 className="truncate font-vl-heading text-lg font-bold text-vl-ink sm:text-xl">{store.name}</h3>
+                <h3 className="truncate font-vl-heading text-base font-bold text-vl-ink sm:text-xl">{store.name}</h3>
                 {store.isVerified ? (
-                  <BadgeCheck aria-label="Verified store" className="h-5 w-5 shrink-0 text-vl-success" />
+                  <BadgeCheck aria-label="Verified store" className="h-4 w-4 shrink-0 text-vl-success sm:h-5 sm:w-5" />
                 ) : null}
               </div>
               <div className="mt-0.5 flex items-center gap-1 text-xs text-vl-muted">
@@ -60,7 +60,7 @@ export default function FeaturedBrand({ store, isFollowed, onToggleFollow }: Fea
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-vl-muted">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-vl-muted">
             <span>{store.category}</span>
             <span className="inline-flex items-center gap-1">
               <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
@@ -69,9 +69,9 @@ export default function FeaturedBrand({ store, isFollowed, onToggleFollow }: Fea
             <span>{store.productCount} products</span>
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed text-vl-ink/80">{description}</p>
+          <p className="mt-3 text-sm leading-snug text-vl-ink/80">{description}</p>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href={href}
               className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-5 text-sm font-bold text-white transition-all duration-150 hover:bg-vl-primary/90 active:scale-[0.98]"
@@ -100,7 +100,7 @@ export default function FeaturedBrand({ store, isFollowed, onToggleFollow }: Fea
           </div>
         </div>
 
-        <div className="relative min-h-[220px] md:min-h-full">
+        <div className="relative min-h-[170px] md:min-h-full">
           {store.coverImage ? (
             <Image
               src={store.coverImage}
