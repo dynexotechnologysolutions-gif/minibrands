@@ -204,8 +204,8 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
             )}
           </div>
 
-          {/* Product Name — 2-line clamp */}
-          <h3 className="text-xs font-bold text-slate-700 leading-tight line-clamp-2 mt-1 min-h-[30px] group-hover:text-vl-primary transition-colors duration-vl-fast">
+          {/* Product Name — single-line */}
+          <h3 className="text-xs font-bold text-slate-700 leading-tight truncate mt-1 group-hover:text-vl-primary transition-colors duration-vl-fast">
             {product.name}
           </h3>
 
