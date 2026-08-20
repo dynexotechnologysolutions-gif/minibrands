@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
-import StoresIntro from "@/components/store/StoresIntro";
 import StoresPageClient from "@/components/store/StoresPageClient";
 import { StoreSummary } from "@/components/store/StoreCard";
 
@@ -82,6 +81,7 @@ export default async function StoresPage() {
       trustScore: seller.verification?.trustScore || 0,
       isVerified,
       createdAt: seller.createdAt.toISOString(),
+      description: seller.storeDescription || "",
     };
   });
 
@@ -90,7 +90,6 @@ export default async function StoresPage() {
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
       <main className="pb-[76px] pt-[108px] md:pb-0 md:pt-0">
         <div className="vl-section-shell">
-          <StoresIntro />
           <StoresPageClient stores={stores} isLoggedIn={!!session?.user} initialFollowedIds={followedSellerIds} />
         </div>
 

@@ -7,12 +7,13 @@ interface StoreSectionProps {
   title: string;
   description?: string;
   href?: string;
+  seeAllLabel?: string;
   stores: StoreSummary[];
   followedIds: Set<string>;
   onToggleFollow: (id: string) => void;
-  onVisit?: (id: string) => void;
   layout?: "carousel" | "grid";
   compact?: boolean;
+  badge?: "NEW" | null;
   emptyState?: React.ReactNode;
 }
 
@@ -21,12 +22,13 @@ export default function StoreSection({
   title,
   description,
   href,
+  seeAllLabel = "View All",
   stores,
   followedIds,
   onToggleFollow,
-  onVisit,
   layout = "carousel",
   compact = false,
+  badge = null,
   emptyState,
 }: StoreSectionProps) {
   if (stores.length === 0 && !emptyState) return null;
@@ -40,7 +42,7 @@ export default function StoreSection({
         </div>
         {href && stores.length > 0 ? (
           <Link href={href} className="shrink-0 text-sm font-semibold text-vl-primary hover:underline">
-            View All →
+            {seeAllLabel} →
           </Link>
         ) : null}
       </div>
@@ -55,8 +57,8 @@ export default function StoreSection({
               store={store}
               isFollowed={followedIds.has(store.id)}
               onToggleFollow={onToggleFollow}
-              onVisit={onVisit}
               compact={compact}
+              badge={badge}
             />
           ))}
         </div>
@@ -69,8 +71,8 @@ export default function StoreSection({
               carousel={true}
               isFollowed={followedIds.has(store.id)}
               onToggleFollow={onToggleFollow}
-              onVisit={onVisit}
               compact={compact}
+              badge={badge}
             />
           ))}
         </div>
