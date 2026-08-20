@@ -135,7 +135,7 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
   return (
     <div className="group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden cursor-pointer transition-all duration-vl-standard hover:shadow-vl-medium hover:-translate-y-1">
       {/* ── Image Container ─────────────────────────────── */}
-      <Link href={`/products/${product.id}`} className="relative aspect-[3/4] overflow-hidden bg-vl-surface flex-shrink-0 block">
+      <Link href={`/products/${product.id}`} className="relative aspect-square overflow-hidden bg-vl-surface flex-shrink-0 block">
         <Image
           src={primaryImage}
           alt={product.name}
