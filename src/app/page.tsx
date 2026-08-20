@@ -214,7 +214,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                 View All
               </Link>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
               {trendingProducts.slice(0, 4).map(productCard)}
             </div>
             {currentPage < totalPages ? (

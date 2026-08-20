@@ -188,7 +188,7 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
       />
 
       {/* ── Info Section ────────────────────────────────── */}
-      <div className="flex flex-col flex-1 p-3.5 pb-2.5 select-none justify-between gap-1">
+      <div className="flex flex-col flex-1 p-3 pb-2 select-none justify-between gap-1">
         <Link href={`/products/${product.id}`} className="block">
           {/* Brand + Verified */}
           <div className="flex items-center gap-1.5 min-w-0">
@@ -205,7 +205,7 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
           </div>
 
           {/* Product Name — 2-line clamp */}
-          <h3 className="text-xs font-bold text-slate-700 leading-tight line-clamp-2 mt-1 min-h-[32px] group-hover:text-vl-primary transition-colors duration-vl-fast">
+          <h3 className="text-xs font-bold text-slate-700 leading-tight line-clamp-2 mt-1 min-h-[30px] group-hover:text-vl-primary transition-colors duration-vl-fast">
             {product.name}
           </h3>
 
@@ -217,7 +217,7 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
           </div>
 
           {/* Price row */}
-          <div className="flex items-baseline gap-2 mt-2 flex-wrap">
+          <div className="flex items-baseline gap-2 mt-1.5 flex-wrap">
             <span className="text-sm font-extrabold text-vl-ink">
               {formattedPrice}
             </span>
@@ -234,7 +234,7 @@ export default function ProductCard({ product, isLoggedIn = false, isWishlisted 
         <button
           onClick={handleAddToCart}
           disabled={isAdding || isOutOfStock}
-          className={`w-full mt-3.5 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl text-[10.5px] font-extrabold text-white shadow-sm transition-all active:scale-97 select-none cursor-pointer ${
+          className={`w-full mt-2.5 inline-flex min-h-[34px] items-center justify-center gap-1.5 rounded-xl text-[10.5px] font-extrabold text-white shadow-sm transition-all active:scale-97 select-none cursor-pointer ${
             isOutOfStock
               ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
               : added
