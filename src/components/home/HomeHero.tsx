@@ -98,7 +98,7 @@ export default function HomeHero() {
       {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/8] md:aspect-[3.2/1]"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/7] md:aspect-[3.2/1]"
         style={{
           maxWidth: "1600px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
@@ -143,18 +143,18 @@ export default function HomeHero() {
                 <div className="md:hidden flex h-full w-full bg-[#FAF9F6] font-sans">
                   {/* Left content block */}
                   <div className="w-[58%] flex flex-col justify-center pl-5 pr-2 select-none">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0F7F7F] mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0F7F7F] mb-0.5">
                       {slide.label}
                     </span>
-                    <h2 className="font-display text-[22px] font-extrabold text-[#222222] leading-tight tracking-tight">
+                    <h2 className="font-display text-xl font-extrabold text-[#222222] leading-tight tracking-tight">
                       {slide.title}
                     </h2>
-                    <p className="text-xs text-[#666666] mt-1 font-semibold leading-normal font-sans">
+                    <p className="text-[11px] text-[#666666] mt-0.5 font-semibold leading-normal font-sans">
                       {slide.subtitle}
                     </p>
                     <Link
                       href="/products"
-                      className="mt-3.5 inline-flex h-8 w-fit items-center justify-center rounded-lg bg-[#0d3b36] hover:bg-[#002020] px-4 text-[10px] font-bold text-white shadow-sm active:scale-95 transition-all font-sans"
+                      className="mt-2.5 inline-flex h-7 w-fit items-center justify-center rounded-lg bg-[#0d3b36] hover:bg-[#002020] px-3.5 text-[10px] font-bold text-white shadow-sm active:scale-95 transition-all font-sans"
                     >
                       Shop Now
                     </Link>

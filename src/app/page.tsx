@@ -205,7 +205,7 @@ export default async function HomePage({ searchParams }: PageProps) {
 
         {/* 4. Best Selling Products */}
         {trendingProducts.length > 0 ? (
-          <section className="vl-section-shell mt-10 sm:mt-16 font-sans">
+          <section className="vl-section-shell mt-6 sm:mt-12 font-sans">
             <div className="flex items-end justify-between gap-4 px-2 md:px-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#222222]">Best Selling Products</h2>
@@ -214,7 +214,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                 View All
               </Link>
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
               {trendingProducts.slice(0, 4).map(productCard)}
             </div>
             {currentPage < totalPages ? (

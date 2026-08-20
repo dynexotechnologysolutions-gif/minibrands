@@ -89,7 +89,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
   const scroll = (distance: number) => rowRef.current?.scrollBy({ left: distance, behavior: "smooth" });
 
   return (
-    <section className="vl-section-shell mt-6 sm:mt-10">
+    <section className="vl-section-shell mt-4 sm:mt-10">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="mb-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary md:block hidden">Browse the people behind the pieces</p>
@@ -105,7 +105,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
           <button suppressHydrationWarning type="button" onClick={() => scroll(260)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-muted transition hover:border-vl-primary hover:text-vl-primary" aria-label="Scroll featured stores right"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
         </div>
       </div>
-      <div ref={rowRef} className="hide-scrollbar mt-6 flex snap-x gap-3 sm:gap-4 overflow-x-auto pb-4 px-1">
+      <div ref={rowRef} className="hide-scrollbar mt-3 flex snap-x gap-3 sm:gap-4 overflow-x-auto pb-2 px-1">
         {sellers.map((seller) => (
           <StoreCard key={seller.id} seller={seller} />
         ))}
