@@ -30,10 +30,10 @@ export default function StoresLoading() {
         className="md:hidden fixed inset-x-0 top-0 z-50 h-[calc(4.25rem+env(safe-area-inset-top))] border-b border-vl-border bg-white shadow-vl-soft"
       />
 
-      <main className="w-full overflow-x-hidden pb-[76px] pt-[108px] md:pb-0 md:pt-0">
+      <main className="w-full overflow-x-hidden pb-[76px] pt-[calc(119px+env(safe-area-inset-top))] md:pb-0 md:pt-0">
         <div className="vl-section-shell">
           {/* Hero */}
-          <div className="pt-6 sm:pt-10">
+          <div className="pt-3 sm:pt-10">
             <div className="h-8 w-56 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none sm:h-9 sm:w-64" />
             <div className="mt-2 h-4 w-72 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none sm:w-96" />
             <div className="mt-5 h-12 w-full rounded-vl-control bg-vl-border/50 animate-pulse motion-reduce:animate-none" />

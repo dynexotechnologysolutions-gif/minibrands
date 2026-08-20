@@ -20,7 +20,7 @@ export default function StoreDiscoveryHero({
   onCategoryChange,
 }: StoreDiscoveryHeroProps) {
   return (
-    <div className="pt-6 sm:pt-10">
+    <div className="pt-3 sm:pt-10">
       <div className="max-w-2xl">
         <h1 className="font-vl-heading text-2xl font-bold tracking-[-0.03em] text-vl-ink sm:text-3xl">
           Discover Brands

@@ -88,7 +88,7 @@ export default async function StoresPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-vl-ink">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-      <main className="pb-[76px] pt-[108px] md:pb-0 md:pt-0">
+      <main className="pb-[76px] pt-[calc(119px+env(safe-area-inset-top))] md:pb-0 md:pt-0">
         <div className="vl-section-shell">
           <StoresPageClient stores={stores} isLoggedIn={!!session?.user} initialFollowedIds={followedSellerIds} />
         </div>
