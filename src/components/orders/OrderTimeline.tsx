@@ -226,7 +226,7 @@ export default function OrderTimeline({
       {/* Connector line container */}
       <div className="relative flex items-center justify-between px-2 sm:px-6">
         {/* Background Track Line */}
-        <div className="absolute left-[30px] right-[30px] sm:left-[44px] sm:right-[44px] top-4 sm:top-5 h-1 bg-slate-100 rounded-full z-0 overflow-hidden">
+        <div className="absolute top-4 sm:top-5 left-4 sm:left-10 right-4 sm:right-10 h-1 bg-slate-100 rounded-full z-0 overflow-hidden">
           {/* Progress Filled Bar */}
           <div
             className="h-full bg-vl-primary transition-all duration-500 ease-out rounded-full"
@@ -270,7 +270,7 @@ export default function OrderTimeline({
               </div>
 
               {/* Step Labels */}
-              <div className="mt-2 text-center max-w-[70px] sm:max-w-[90px]">
+              <div className="mt-2 text-center max-w-[70px] sm:max-w-[90px] min-h-[40px] flex flex-col items-center">
                 <p
                   className={`text-[11px] sm:text-xs leading-tight transition-colors ${
                     isCurrent
@@ -286,7 +286,7 @@ export default function OrderTimeline({
 
                 {/* Subtitle Status Tag (Detailed variant or active node) */}
                 {isCurrent && (
-                  <span className="inline-block mt-1 px-1.5 py-0.5 bg-vl-primary/10 text-vl-primary text-[9px] font-bold uppercase rounded tracking-wider animate-pulse">
+                  <span className="inline-block mt-1 px-1.5 py-0.5 bg-vl-primary/10 text-vl-primary text-[9px] font-bold uppercase rounded tracking-wider animate-pulse whitespace-nowrap">
                     Active
                   </span>
                 )}
