@@ -20,15 +20,13 @@ import {
   MapPin,
   ShoppingBag,
   BadgeCheck,
-  QrCode,
-  CreditCard,
-  Landmark,
   ShieldCheck,
   Lock,
   CheckCircle2,
   ChevronRight,
   Loader2,
   Truck,
+  ShieldAlert,
 } from "lucide-react";
 import HomeHeader from "@/components/home/HomeHeader";
 import { trackClientEvent } from "@/actions/track-event.action";
@@ -75,7 +73,7 @@ interface CheckoutClientProps {
 // Local sub-component: Checkout progress stepper
 function CheckoutStepper() {
   return (
-    <div className="mb-8 flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-sm font-semibold sm:gap-4 md:justify-start">
+    <div className="mb-8 flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-xs font-semibold sm:gap-4 md:justify-start">
       <Link href="/cart" className="flex items-center gap-1 text-vl-muted hover:text-vl-primary transition-colors">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary/10 text-[10px] font-bold text-vl-primary">✔</span>
         Cart
@@ -161,7 +159,6 @@ export default function CheckoutClient({
   const [expiredTracked, setExpiredTracked] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [selectedPayment, setSelectedPayment] = useState<string>("upi");
 
   // Initialize and tick countdown timer
   useEffect(() => {
@@ -404,7 +401,7 @@ export default function CheckoutClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10 pb-28 lg:pb-10">
+      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10 pb-32 lg:pb-10">
         {/* Stepper progress indicator */}
         <CheckoutStepper />
 
@@ -630,92 +627,36 @@ export default function CheckoutClient({
 
             {/* 4. Payment Method Card */}
             <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
-              <div className="flex items-center gap-2 mb-5">
-                <Lock aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
-                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Payment Method</h2>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldAlert aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
+                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Secure Payment</h2>
               </div>
-              
-              <div className="space-y-3.5" role="radiogroup" aria-label="Payment method">
-                {/* UPI Option */}
-                <label
-                  onClick={() => setSelectedPayment("upi")}
-                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
-                    selectedPayment === "upi"
-                      ? "border-vl-primary bg-vl-primary/5"
-                      : "border-vl-border bg-vl-card hover:border-vl-primary"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment-option"
-                      checked={selectedPayment === "upi"}
-                      onChange={() => setSelectedPayment("upi")}
-                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
-                    />
-                    <div className="flex items-center gap-3">
-                      <QrCode aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
-                      <div>
-                        <p className="font-bold text-vl-ink text-sm">UPI (GPay / PhonePe / Paytm)</p>
-                        <p className="text-xs text-vl-muted mt-0.5">Pay directly via instant UPI gateway</p>
-                      </div>
-                    </div>
-                  </div>
-                </label>
+              <p className="text-sm text-vl-muted mb-6">Choose your preferred payment method securely with Razorpay.</p>
 
-                {/* Card Option */}
-                <label
-                  onClick={() => setSelectedPayment("card")}
-                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
-                    selectedPayment === "card"
-                      ? "border-vl-primary bg-vl-primary/5"
-                      : "border-vl-border bg-vl-card hover:border-vl-primary"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment-option"
-                      checked={selectedPayment === "card"}
-                      onChange={() => setSelectedPayment("card")}
-                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
-                    />
-                    <div className="flex items-center gap-3">
-                      <CreditCard aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
-                      <div>
-                        <p className="font-bold text-vl-ink text-sm">Credit / Debit Card</p>
-                        <p className="text-xs text-vl-muted mt-0.5">Secure credit card gateway processed by Razorpay</p>
-                      </div>
-                    </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="border border-vl-border rounded-vl-card p-3">
+                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">UPI</p>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
+                    <span>UPI</span> <span>•</span> <span>GPay</span> <span>•</span> <span>PhonePe</span> <span>•</span> <span>Paytm</span>
                   </div>
-                </label>
+                </div>
+                <div className="border border-vl-border rounded-vl-card p-3">
+                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">Cards</p>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
+                    <span>Visa</span> <span>•</span> <span>Mastercard</span> <span>•</span> <span>RuPay</span> <span>•</span> <span>Amex</span>
+                  </div>
+                </div>
+                <div className="border border-vl-border rounded-vl-card p-3 sm:col-span-2">
+                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">Other</p>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
+                    <span>Net Banking</span> <span>•</span> <span>Wallets</span> <span>•</span> <span>EMI</span>
+                  </div>
+                </div>
+              </div>
 
-                {/* Net Banking */}
-                <label
-                  onClick={() => setSelectedPayment("netbanking")}
-                  className={`flex items-center justify-between p-4 border rounded-vl-card cursor-pointer transition-all duration-vl-fast ${
-                    selectedPayment === "netbanking"
-                      ? "border-vl-primary bg-vl-primary/5"
-                      : "border-vl-border bg-vl-card hover:border-vl-primary"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment-option"
-                      checked={selectedPayment === "netbanking"}
-                      onChange={() => setSelectedPayment("netbanking")}
-                      className="h-4 w-4 text-vl-primary focus:ring-vl-primary border-vl-border accent-vl-primary"
-                    />
-                    <div className="flex items-center gap-3">
-                      <Landmark aria-hidden="true" className="h-5 w-5 text-vl-muted shrink-0" />
-                      <div>
-                        <p className="font-bold text-vl-ink text-sm">Net Banking</p>
-                        <p className="text-xs text-vl-muted mt-0.5">Select from 50+ major Indian banks</p>
-                      </div>
-                    </div>
-                  </div>
-                </label>
+              <div className="mt-6 flex items-center justify-center gap-2 text-xs font-bold text-vl-muted border-t border-vl-border pt-4">
+                <Lock className="h-3.5 w-3.5 text-vl-success" />
+                <span>🔒 Securely processed by Razorpay</span>
               </div>
             </section>
           </div>
@@ -811,8 +752,7 @@ export default function CheckoutClient({
 
       {/* MOBILE STICKY CTA BAR (Mobile viewport bottom-fixed drawer) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-4 lg:hidden flex items-center justify-between gap-4 shadow-vl-large"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-vl-border p-4 lg:hidden flex items-center justify-between gap-4 shadow-vl-large"
       >
         <div className="flex flex-col">
           <span className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Total Payable</span>
