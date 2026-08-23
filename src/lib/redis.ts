@@ -277,4 +277,3 @@ export async function getUserReservations(
   }
   return reservations;
 }
-

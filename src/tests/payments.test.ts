@@ -2,9 +2,73 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { POST as createOrderHandler } from "../app/api/payments/create-order/route";
 import { POST as verifyHandler } from "../app/api/payments/verify/route";
 import { prisma } from "../lib/prisma";
-import { redis } from "../lib/redis";
 import { auth } from "../lib/auth";
 import crypto from "crypto";
+
+// ── In-memory Redis mock (hoisted so it's available in vi.mock factory) ──
+const { redis: mockRedis } = vi.hoisted(() => {
+  const store: Record<string, string | number> = {};
+
+  const redis: any = {
+    get: vi.fn(async (key: string) => {
+      const val = store[key];
+      return val !== undefined ? val : null;
+    }),
+    set: vi.fn(async (key: string, value: any) => {
+      store[key] = typeof value === "string" ? value : JSON.stringify(value);
+      return "OK";
+    }),
+    del: vi.fn(async (key: string) => {
+      const existed = store[key] !== undefined;
+      delete store[key];
+      return existed ? 1 : 0;
+    }),
+    exists: vi.fn(async (key: string) => {
+      return store[key] !== undefined ? 1 : 0;
+    }),
+    keys: vi.fn(async (pattern: string) => {
+      const prefix = pattern.replace("*", "");
+      return Object.keys(store).filter((k) => k.startsWith(prefix));
+    }),
+    sadd: vi.fn(async () => 1),
+    srem: vi.fn(async () => 1),
+    smembers: vi.fn(async () => []),
+    incr: vi.fn(async (key: string) => {
+      const val = Number(store[key] || 0);
+      store[key] = val + 1;
+      return val + 1;
+    }),
+    ttl: vi.fn(async () => -1),
+    expire: vi.fn(async () => 1),
+    eval: vi.fn(async () => "OK"),
+    pipeline: vi.fn(() => {
+      const ops: Array<{ fn: string; args: any[] }> = [];
+      const chain: any = {
+        get: vi.fn((...args: any[]) => { ops.push({ fn: "get", args }); return chain; }),
+        set: vi.fn((...args: any[]) => { ops.push({ fn: "set", args }); return chain; }),
+        del: vi.fn((...args: any[]) => { ops.push({ fn: "del", args }); return chain; }),
+        sadd: vi.fn((...args: any[]) => { ops.push({ fn: "sadd", args }); return chain; }),
+        srem: vi.fn((...args: any[]) => { ops.push({ fn: "srem", args }); return chain; }),
+        smembers: vi.fn((...args: any[]) => { ops.push({ fn: "smembers", args }); return chain; }),
+        incr: vi.fn((...args: any[]) => { ops.push({ fn: "incr", args }); return chain; }),
+        expire: vi.fn((...args: any[]) => { ops.push({ fn: "expire", args }); return chain; }),
+        exec: vi.fn(async () => {
+          const results: any[] = [];
+          for (const op of ops) {
+            const fn = redis[op.fn];
+            results.push(await fn(...op.args));
+          }
+          return results;
+        }),
+      };
+      return chain;
+    }),
+    on: vi.fn(),
+    connect: vi.fn(async () => {}),
+  };
+
+  return { redis, store };
+});
 
 // Mock next/headers
 vi.mock("next/headers", () => ({
@@ -50,7 +114,7 @@ vi.mock("../lib/prisma", () => {
     payment: {
       create: vi.fn(),
     },
-    $transaction: vi.fn((callback) => callback(mockPrisma)),
+    $transaction: vi.fn((callback: any) => callback(mockPrisma)),
   };
   return { prisma: mockPrisma };
 });
@@ -70,6 +134,18 @@ vi.mock("../lib/razorpay", () => ({
   verifyWebhookSignature: vi.fn(() => true),
 }));
 
+// Mock redis module
+vi.mock("../lib/redis", () => ({
+  redis: mockRedis,
+  tryReserveStock: vi.fn(async () => ({ success: true })),
+  checkRateLimit: vi.fn(async () => true),
+  deleteMatchingReservation: vi.fn(async () => {}),
+  getUserReservations: vi.fn(async () => []),
+  addReservationToUserIndex: vi.fn(async () => {}),
+  removeReservationFromUserIndex: vi.fn(async () => {}),
+  getReservedStock: vi.fn(async () => 0),
+}));
+
 describe("Payments API Routes Integration Tests", () => {
   const testKeys: string[] = [];
 
@@ -79,7 +155,7 @@ describe("Payments API Routes Integration Tests", () => {
 
   afterEach(async () => {
     if (testKeys.length > 0) {
-      const pipeline = redis.pipeline();
+      const pipeline = mockRedis.pipeline();
       testKeys.forEach((k) => pipeline.del(k));
       await pipeline.exec();
       testKeys.length = 0;
@@ -109,7 +185,6 @@ describe("Payments API Routes Integration Tests", () => {
         user: { id: "user-123", email: "test@example.com" },
       } as any);
 
-      // Missing addressId
       const req1 = new Request("http://localhost/api/payments/create-order", {
         method: "POST",
         body: JSON.stringify({
@@ -138,7 +213,6 @@ describe("Payments API Routes Integration Tests", () => {
         userProfileId: "profile-123",
       } as any);
 
-      // Write mock checkout session to Redis
       const mockSessionPayload = {
         mode: "CART_CHECKOUT",
         products: [
@@ -156,13 +230,12 @@ describe("Payments API Routes Integration Tests", () => {
         ],
         createdAt: new Date().toISOString(),
       };
-      
+
       const sessionKey = "checkout-session:session-123";
-      await redis.set(sessionKey, JSON.stringify(mockSessionPayload), { ex: 60 });
+      await mockRedis.set(sessionKey, JSON.stringify(mockSessionPayload));
       testKeys.push(sessionKey);
       testKeys.push("pending-order:order_mock_123");
 
-      // Mock Product lookup
       vi.mocked(prisma.product.findUnique).mockResolvedValue({
         id: "prod-123",
         name: "Premium Shirt",
@@ -195,7 +268,7 @@ describe("Payments API Routes Integration Tests", () => {
 
       const data = await res.json();
       expect(data.razorpayOrderId).toBeDefined();
-      expect(data.amount).toBe(10000); // 2 * 5000 = 10000 paise
+      expect(data.amount).toBe(10000);
       expect(data.keyId).toBeDefined();
     }, 20000);
   });
@@ -206,7 +279,6 @@ describe("Payments API Routes Integration Tests", () => {
       const mockPaymentId = "pay_mock_123";
       const mockSignature = "mock_signature";
 
-      // Mock Redis pending order
       const mockPendingPayload = {
         userId: "profile-123",
         addressId: "addr-123",
@@ -228,14 +300,13 @@ describe("Payments API Routes Integration Tests", () => {
       };
 
       const pendingOrderKey = `pending-order:${mockOrderId}`;
-      await redis.set(pendingOrderKey, JSON.stringify(mockPendingPayload), { ex: 60 });
+      await mockRedis.set(pendingOrderKey, JSON.stringify(mockPendingPayload));
       testKeys.push(pendingOrderKey);
       testKeys.push("checkout-session:session-123");
       testKeys.push("reservation:res-123");
 
-      // Setup dummy cart session in redis to verify it gets cleared
-      await redis.set("checkout-session:session-123", "dummy");
-      await redis.set("reservation:res-123", "dummy");
+      await mockRedis.set("checkout-session:session-123", "dummy");
+      await mockRedis.set("reservation:res-123", "dummy");
 
       vi.mocked(prisma.order.create).mockResolvedValue({
         id: "db-order-123",
@@ -260,7 +331,6 @@ describe("Payments API Routes Integration Tests", () => {
       expect(data.success).toBe(true);
       expect(data.orderId).toBe("db-order-123");
 
-      // Verify Prisma order creation is executed
       expect(prisma.order.create).toHaveBeenCalled();
       expect(prisma.orderItem.create).toHaveBeenCalled();
       expect(prisma.payment.create).toHaveBeenCalled();
@@ -271,10 +341,9 @@ describe("Payments API Routes Integration Tests", () => {
         })
       );
 
-      // Verify Redis deletion of checkout session and cart items
-      const hasSession = await redis.exists("checkout-session:session-123");
-      const hasReservation = await redis.exists("reservation:res-123");
-      const hasPending = await redis.exists(pendingOrderKey);
+      const hasSession = await mockRedis.exists("checkout-session:session-123");
+      const hasReservation = await mockRedis.exists("reservation:res-123");
+      const hasPending = await mockRedis.exists(pendingOrderKey);
 
       expect(hasSession).toBe(0);
       expect(hasReservation).toBe(0);
