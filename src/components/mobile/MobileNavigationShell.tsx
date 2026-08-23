@@ -23,7 +23,6 @@ export default function MobileNavigationShell({
   // Hide global header/footer navigation on checkout and order confirmation screens
   const isCheckoutOrClaim = 
     pathname.startsWith("/checkout") ||
-    pathname.startsWith("/order/success") ||
     pathname.startsWith("/claim-order");
 
   if (isCheckoutOrClaim) {
