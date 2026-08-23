@@ -27,6 +27,9 @@ import {
   Loader2,
   Truck,
   ShieldAlert,
+  Smartphone,
+  CreditCard,
+  Wallet,
 } from "lucide-react";
 import HomeHeader from "@/components/home/HomeHeader";
 import { trackClientEvent } from "@/actions/track-event.action";
@@ -401,7 +404,7 @@ export default function CheckoutClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10 pb-32 lg:pb-10">
+      <main className="vl-section-shell flex w-full flex-grow flex-col pt-20 pb-6 sm:py-8 lg:py-10 pb-32 lg:pb-10">
         {/* Stepper progress indicator */}
         <CheckoutStepper />
 
@@ -555,32 +558,6 @@ export default function CheckoutClient({
               </section>
             )}
 
-            {/* 2. Delivery Method Section */}
-            <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
-              <div className="flex items-center gap-2 mb-4">
-                <Truck aria-hidden="true" className="text-vl-primary h-5 w-5 shrink-0" />
-                <h2 className="font-vl-heading text-lg font-bold text-vl-ink">Delivery Method</h2>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="p-4 border-2 border-vl-primary bg-vl-primary/5 rounded-vl-card flex items-start gap-3">
-                  <div className="h-5 w-5 rounded-full bg-vl-primary flex items-center justify-center text-white shrink-0 mt-0.5">
-                    <span className="text-[10px]">✔</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-vl-ink text-sm">Standard Delivery</h3>
-                    <p className="text-xs text-vl-muted mt-1 leading-relaxed">Estimated Delivery by Tomorrow. Secured package shipping via air dispatch.</p>
-                    <span className="inline-block mt-2.5 text-xs font-bold text-vl-success bg-vl-success/10 px-2 py-0.5 rounded-full">FREE</span>
-                  </div>
-                </div>
-                <div className="p-4 border border-vl-border bg-vl-surface opacity-60 rounded-vl-card flex items-start gap-3 select-none">
-                  <div className="h-5 w-5 rounded-full border border-vl-border shrink-0 mt-0.5" />
-                  <div>
-                    <h3 className="font-bold text-vl-ink text-sm">Express Delivery</h3>
-                    <p className="text-xs text-vl-muted mt-1 leading-relaxed">Same-day delivery (Unavailable for this zipcode area).</p>
-                  </div>
-                </div>
-              </div>
-            </section>
 
             {/* 3. Order Items Review Section */}
             <section className="rounded-vl-card border border-vl-border bg-vl-card p-6 shadow-vl-soft">
@@ -635,19 +612,28 @@ export default function CheckoutClient({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="border border-vl-border rounded-vl-card p-3">
-                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">UPI</p>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Smartphone className="h-3.5 w-3.5 text-vl-muted" />
+                    <p className="text-[10px] font-bold text-vl-muted uppercase">UPI</p>
+                  </div>
                   <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
                     <span>UPI</span> <span>•</span> <span>GPay</span> <span>•</span> <span>PhonePe</span> <span>•</span> <span>Paytm</span>
                   </div>
                 </div>
                 <div className="border border-vl-border rounded-vl-card p-3">
-                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">Cards</p>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <CreditCard className="h-3.5 w-3.5 text-vl-muted" />
+                    <p className="text-[10px] font-bold text-vl-muted uppercase">Cards</p>
+                  </div>
                   <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
                     <span>Visa</span> <span>•</span> <span>Mastercard</span> <span>•</span> <span>RuPay</span> <span>•</span> <span>Amex</span>
                   </div>
                 </div>
                 <div className="border border-vl-border rounded-vl-card p-3 sm:col-span-2">
-                  <p className="text-[10px] font-bold text-vl-muted uppercase mb-2">Other</p>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Wallet className="h-3.5 w-3.5 text-vl-muted" />
+                    <p className="text-[10px] font-bold text-vl-muted uppercase">Other</p>
+                  </div>
                   <div className="flex flex-wrap gap-2 text-xs font-semibold text-vl-ink">
                     <span>Net Banking</span> <span>•</span> <span>Wallets</span> <span>•</span> <span>EMI</span>
                   </div>
@@ -711,7 +697,7 @@ export default function CheckoutClient({
                   <button
                     onClick={handlePayment}
                     disabled={isExpired || !selectedAddressId || isPaying}
-                    className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-sm transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isPaying ? (
                       <Loader2 className="h-4.5 w-4.5 animate-spin" />
@@ -762,7 +748,7 @@ export default function CheckoutClient({
           type="button"
           onClick={handlePayment}
           disabled={isExpired || !selectedAddressId || isPaying}
-          className="flex-1 max-w-[220px] inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-xs font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50"
+          className="flex-1 max-w-[220px] inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-xs font-bold text-white shadow-sm transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50"
         >
           {isPaying ? (
             <Loader2 className="h-4 w-4 animate-spin" />
