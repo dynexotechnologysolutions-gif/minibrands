@@ -66,12 +66,12 @@ export default function WishlistIconButton({
       onClick={handleWishlistClick}
       disabled={isToggling}
       aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-      className="absolute right-sm top-sm z-10 inline-flex min-h-9 min-w-9 items-center justify-center rounded-full bg-white/90 text-vl-muted shadow-vl-soft backdrop-blur-sm transition duration-vl-fast hover:scale-105 hover:text-vl-primary disabled:opacity-50"
+      className="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-vl-muted shadow-vl-soft backdrop-blur-sm transition duration-vl-fast hover:scale-105 hover:text-vl-primary disabled:opacity-50"
       suppressHydrationWarning={true}
     >
       <Heart
         aria-hidden="true"
-        className={`h-4 w-4 ${isWishlisted ? "fill-vl-primary text-vl-primary" : ""}`}
+        className={`h-3.5 w-3.5 ${isWishlisted ? "fill-vl-primary text-vl-primary" : ""}`}
         strokeWidth={2}
       />
     </button>
