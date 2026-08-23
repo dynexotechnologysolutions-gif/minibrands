@@ -41,29 +41,29 @@ function StoreCard({ seller }: { seller: SellerData }) {
   const previewImage = seller.logoUrl || fallbackPreviews[seller.category] || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80";
 
   return (
-    <div className="flex min-w-[120px] sm:min-w-[170px] md:min-w-[200px] snap-start flex-col rounded-xl sm:rounded-2xl border border-vl-border bg-vl-card px-2 py-2.5 sm:px-3 sm:py-3.5 md:px-4 md:py-4 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
+    <div className="flex min-w-[110px] sm:min-w-[150px] md:min-w-[180px] snap-start flex-col rounded-xl sm:rounded-2xl border border-vl-border bg-vl-card px-2 py-2 sm:px-2.5 sm:py-2.5 md:px-3 md:py-3 shadow-vl-soft hover:shadow-vl-medium hover:border-vl-primary/20 transition-all duration-200">
       {/* Header: Logo + Name on top left */}
       <div className="flex items-center gap-1.5 sm:gap-2">
-        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
+        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-vl-border overflow-hidden bg-vl-surface flex items-center justify-center shrink-0">
           {seller.logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={seller.logoUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="text-[9px] sm:text-[11px] font-bold text-vl-primary">{initials}</span>
+            <span className="text-[8px] sm:text-[10px] font-bold text-vl-primary">{initials}</span>
           )}
         </div>
         <div className="min-w-0 flex-1 leading-none">
-          <Link href={`/sellers/${seller.id}`} className="truncate block font-vl-heading text-[10px] sm:text-sm font-extrabold text-vl-ink hover:text-vl-primary transition-colors">
+          <Link href={`/sellers/${seller.id}`} className="truncate block font-vl-heading text-[10px] sm:text-xs font-extrabold text-vl-ink hover:text-vl-primary transition-colors">
             {seller.businessName}
           </Link>
-          <span className="text-[8px] sm:text-[9px] text-slate-500 font-semibold mt-1 block">
+          <span className="text-[7.5px] sm:text-[8.5px] text-slate-500 font-semibold mt-0.5 block">
             ⭐ {rating} ({reviewCount})
           </span>
         </div>
       </div>
 
       {/* Showcase Image */}
-      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 mt-3 sm:mt-4 block bg-vl-surface">
+      <Link href={`/sellers/${seller.id}`} className="relative aspect-[4/3] w-full rounded-lg sm:rounded-xl overflow-hidden border border-vl-border/60 mt-2 sm:mt-3 block bg-vl-surface">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={previewImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
       </Link>
@@ -72,7 +72,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
       <button
         type="button"
         onClick={() => setIsFollowed(!isFollowed)}
-        className={`mt-2 sm:mt-3 w-fit mx-auto px-3 sm:px-4 py-1 sm:py-1.5 text-center border rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
+        className={`mt-2 w-fit mx-auto px-2.5 sm:px-3 py-0.5 sm:py-1 text-center border rounded-lg text-[8.5px] sm:text-[11px] font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
           isFollowed
             ? "bg-vl-primary text-white border-vl-primary"
             : "bg-white text-vl-primary border-vl-primary hover:bg-vl-primary/5"

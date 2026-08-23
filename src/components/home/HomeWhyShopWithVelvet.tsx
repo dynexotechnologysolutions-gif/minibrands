@@ -11,7 +11,7 @@ const benefits = [
 export default function HomeWhyShopWithVelvet() {
   return (
     <section className="vl-section-shell mt-10 sm:mt-16">
-      <SectionHeading title="Why Shop With Velvet Lane?" />
+      <SectionHeading title="Why Shop With MiniBrands?" />
       <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {benefits.map(({ Icon, title, desc }) => (
           <div

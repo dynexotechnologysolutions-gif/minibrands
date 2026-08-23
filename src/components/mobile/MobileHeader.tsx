@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Settings, Lock, Menu, Heart, Bell, ShoppingCart, ShoppingBag, Mic, Scan, User } from "lucide-react";
+import { Search, Settings, Lock, Heart, Bell, ShoppingCart, ShoppingBag, Mic, Scan, User } from "lucide-react";
 import MobileSearchHeader from "./MobileSearchHeader";
 import MobilePageHeader from "./MobilePageHeader";
 import { useWishlist } from "@/features/catalog/hooks/useWishlist";
@@ -62,13 +62,8 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
       <div className="w-full flex flex-col bg-[#0d3b36] border-b border-[#0d3b36]/10 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 shadow-md md:hidden font-sans">
         {/* Row 1: Left Menu/Brand Logo + Right Icons */}
         <div className="flex items-center justify-between h-11 gap-2">
-          {/* Left section: Hamburger Menu + Logo */}
-          <div className="flex items-center gap-2">
-            {/* Hamburger Menu Icon */}
-            <button className="text-white hover:opacity-85 active:scale-95 transition-all p-1" aria-label="Menu">
-              <Menu className="w-5.5 h-5.5" />
-            </button>
-
+          {/* Left section: Brand Logo */}
+          <div className="flex items-center">
             {/* Brand Logo with tagline */}
             <Link href="/" className="flex items-center gap-1.5" aria-label="MiniBrands Home">
               <div className="flex items-center gap-1.5 text-white">

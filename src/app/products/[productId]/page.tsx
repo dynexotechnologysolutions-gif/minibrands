@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { trackEvent } from "@/lib/posthog";
 import { redis, getUserReservations } from "@/lib/redis";
+import { verifyAdminSession } from "@/lib/admin-auth";
 import ProductDetailClient from "./ProductDetailClient";
 
 // Cached product query to deduplicate requests between generateMetadata and ProductDetailPage
@@ -36,6 +37,9 @@ const getProduct = cache((productId: string) => {
 interface PageProps {
   params: Promise<{
     productId: string;
+  }>;
+  searchParams: Promise<{
+    preview?: string;
   }>;
 }
 
@@ -74,14 +78,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ProductDetailPage({ params }: PageProps) {
+export default async function ProductDetailPage({ params, searchParams }: PageProps) {
   const { productId } = await params;
+  const { preview } = await searchParams;
 
   // 2. Query product using cached function (deduplicated)
   const product = await getProduct(productId);
 
-  // Verify product eligibility for public listing
-  if (!product || product.isDeleted || !product.isPublished) {
+  // Admin preview mode: allow viewing unpublished / unverified products.
+  let isAdminPreview = false;
+  if (preview === "1") {
+    try {
+      await verifyAdminSession("moderate_products");
+      isAdminPreview = true;
+    } catch {
+      isAdminPreview = false;
+    }
+  }
+
+  if (!product || product.isDeleted) {
+    notFound();
+  }
+
+  if (!product.isPublished && !isAdminPreview) {
     notFound();
   }
 
@@ -91,7 +110,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       product.seller.verification.kycStatus === "approved") &&
     product.seller.verification.bankVerified;
 
-  if (!isSellerVerified) {
+  if (!isSellerVerified && !isAdminPreview) {
     notFound();
   }
 

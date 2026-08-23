@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Package,
   Search,
@@ -137,7 +138,10 @@ export default function ProductsModerationPage() {
               key={p.id}
               className="bg-surface rounded-3xl border border-border-gray/70 p-5 space-y-4 shadow-xs flex flex-col justify-between"
             >
-              <div className="space-y-3">
+              <Link
+                href={`/products/${p.id}${p.isPublished ? "" : "?preview=1"}`}
+                className="space-y-3 block group"
+              >
                 {/* Product Image */}
                 <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border-gray/40 bg-surface-container-low">
                   <Image
@@ -178,7 +182,7 @@ export default function ProductsModerationPage() {
                   <span className="text-on-surface">₹{p.price.toLocaleString("en-IN")}</span>
                   <span className="text-text-muted">Stock: {p.stockCount} units</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 pt-3 border-t border-border-gray/40">
