@@ -71,7 +71,7 @@ export async function shipOrderAction(
         },
         include: { buyer: { include: { user: true } } },
       });
-    });
+    }, { timeout: 20000 });
 
     const awbNumber = trackingIdOverride?.trim() || updatedOrder.icarryAwbNumber;
     const trackingUrl = awbNumber ? getTrackingUrl(awbNumber) : undefined;

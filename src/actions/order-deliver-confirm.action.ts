@@ -70,7 +70,7 @@ export async function confirmDeliveryAction(
           buyer: { include: { user: true } },
         },
       });
-    });
+    }, { timeout: 20000 });
 
     trackEvent(session.user.id, "delivery_confirmed", {
       orderId,

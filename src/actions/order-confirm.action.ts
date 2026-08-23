@@ -76,7 +76,7 @@ export async function confirmOrderAction(
           buyer: { include: { user: true } },
         },
       });
-    });
+    }, { timeout: 20000 });
 
     trackEvent(session.user.id, "order_confirmed", {
       orderId,
