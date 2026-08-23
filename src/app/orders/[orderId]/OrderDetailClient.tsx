@@ -441,11 +441,20 @@ export default function OrderDetailClient({
         {/* Outer Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
           
-          {/* Left Panel: Items & Address */}
-          <div className="lg:col-span-8 space-y-lg">
+            {/* Left Panel: Items & Address */}
+            <div className="lg:col-span-8 space-y-lg">
+              
+              <Link
+                href="/orders"
+                className="flex items-center gap-2 text-primary font-bold text-sm hover:underline mb-4"
+              >
+                <span className="material-symbols-outlined text-base">arrow_back</span>
+                Back to Orders
+              </Link>
             
             <OrderStatusHeroInternal 
               isDelivered={isDelivered}
+
               isCancelled={isCancelled}
               isShipped={isShipped}
               isProcessing={isProcessing}
