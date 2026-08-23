@@ -481,37 +481,8 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-6 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
-        {/* Breadcrumbs */}
-        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-vl-muted" aria-label="Breadcrumb">
-          <Link className="hover:text-vl-primary transition-colors" href="/">
-            Home
-          </Link>
-          <span aria-hidden="true">/</span>
-          <Link
-            className="hover:text-vl-primary transition-colors"
-            href={`/products?category=${encodeURIComponent(product.category)}`}
-          >
-            {product.category}
-          </Link>
-          {product.subcategory && (
-            <>
-              <span aria-hidden="true">/</span>
-              <Link
-                className="hover:text-vl-primary transition-colors"
-                href={`/products?category=${encodeURIComponent(
-                  product.category
-                )}&subcategory=${encodeURIComponent(product.subcategory)}`}
-              >
-                {product.subcategory}
-              </Link>
-            </>
-          )}
-          <span aria-hidden="true">/</span>
-          <span className="text-vl-ink truncate max-w-[120px] sm:max-w-none font-semibold">
-            {product.name}
-          </span>
-        </nav>
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+        {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12">
@@ -520,8 +491,8 @@ export default function ProductDetailClient({
           <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-24">
             {/* Desktop-only gallery layout */}
             <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
-              {/* Main Image Aspect Ratio 3/4 */}
-              <div ref={mainImageRef} className="relative aspect-[3/4] w-full flex-1 overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+              {/* Main Image Aspect Ratio 4/5 */}
+              <div ref={mainImageRef} className="relative aspect-[4/5] w-full flex-1 overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
                 <Image
                   alt={product.name}
                   fill
@@ -594,7 +565,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Mobile-only horizontal swipe gallery layout */}
-            <div className="lg:hidden relative w-full aspect-[3/4] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+            <div className="lg:hidden relative w-full aspect-[4/5] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
               <div
                 ref={mobileScrollContainerRef}
                 onScroll={handleMobileScroll}
