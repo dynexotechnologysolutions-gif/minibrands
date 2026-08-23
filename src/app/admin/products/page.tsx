@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Package,
   Search,
@@ -137,6 +138,17 @@ export default function ProductsModerationPage() {
               className="bg-surface rounded-3xl border border-border-gray/70 p-5 space-y-4 shadow-xs flex flex-col justify-between"
             >
               <div className="space-y-3">
+                {/* Product Image */}
+                <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border-gray/40 bg-surface-container-low">
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-surface-container-low text-text-muted">
