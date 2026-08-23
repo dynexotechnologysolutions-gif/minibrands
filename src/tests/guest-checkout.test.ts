@@ -30,6 +30,8 @@ vi.mock("@/lib/prisma", () => {
 vi.mock("@/lib/redis", () => {
   const store: Record<string, string> = {};
   const hstores: Record<string, Record<string, string>> = {};
+  const userSets: Record<string, Set<string>> = {};
+
   return {
     redis: {
       get: vi.fn(async (key: string) => store[key] || null),
@@ -43,17 +45,46 @@ vi.mock("@/lib/redis", () => {
         return 1;
       }),
       hgetall: vi.fn(async (key: string) => hstores[key] || null),
+      hset: vi.fn(async (key: string, data: Record<string, string>) => {
+        hstores[key] = { ...(hstores[key] || {}), ...data };
+        return 1;
+      }),
+      hdel: vi.fn(async (key: string, field: string) => {
+        if (hstores[key]) delete hstores[key][field];
+        return 1;
+      }),
       keys: vi.fn(async (pattern: string) => {
         const prefix = pattern.replace("*", "");
         return Object.keys(store).filter((k) => k.startsWith(prefix));
       }),
+      sadd: vi.fn(async (key: string, ...members: string[]) => {
+        if (!userSets[key]) userSets[key] = new Set();
+        members.forEach((m) => userSets[key]!.add(m));
+        return members.length;
+      }),
+      srem: vi.fn(async (key: string, ...members: string[]) => {
+        const set = userSets[key];
+        if (!set) return 0;
+        let removed = 0;
+        members.forEach((m) => {
+          if (set.delete(m)) removed++;
+        });
+        return removed;
+      }),
+      smembers: vi.fn(async (key: string) => {
+        return Array.from(userSets[key] || []);
+      }),
       pipeline: vi.fn(() => ({
         get: vi.fn(),
         del: vi.fn(),
+        sadd: vi.fn(),
+        srem: vi.fn(),
         exec: vi.fn(async () => []),
       })),
     },
     deleteMatchingReservation: vi.fn(async () => {}),
+    addReservationToUserIndex: vi.fn(async () => {}),
+    removeReservationFromUserIndex: vi.fn(async () => {}),
   };
 });
 

@@ -47,21 +47,68 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     redirect(`/login?redirectTo=/account/orders/${orderId}`);
   }
 
-  // Query order details with relations
+  // Query order details with relations (selective fields)
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: {
-      address: true,
-      seller: true,
-      review: true,
+    select: {
+      id: true,
+      status: true,
+      orderStatus: true,
+      totalAmount: true,
+      createdAt: true,
+      razorpayOrderId: true,
+      razorpayPaymentId: true,
+      trackingUrl: true,
+      icarryAwbNumber: true,
+      escrowReleaseAt: true,
+      guestShippingAddress: true,
+      guestName: true,
+      guestPhone: true,
+      buyerId: true,
+      seller: {
+        select: {
+          businessName: true,
+        },
+      },
+      address: {
+        select: {
+          fullName: true,
+          phone: true,
+          line1: true,
+          line2: true,
+          city: true,
+          pincode: true,
+        },
+      },
+      review: {
+        select: {
+          id: true,
+        },
+      },
       items: {
-        include: {
+        select: {
+          id: true,
+          productId: true,
+          variantId: true,
+          unitPrice: true,
+          quantity: true,
           product: {
-            include: {
-              images: { orderBy: { sortOrder: "asc" } },
+            select: {
+              name: true,
+              images: {
+                take: 1,
+                orderBy: { sortOrder: "asc" },
+                select: {
+                  url: true,
+                },
+              },
             },
           },
-          variant: true,
+          variant: {
+            select: {
+              size: true,
+            },
+          },
         },
       },
     },

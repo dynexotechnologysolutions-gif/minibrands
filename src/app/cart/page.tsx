@@ -35,21 +35,61 @@ export default async function CartPage() {
         guestKeys.forEach((key) => pipeline.get(key));
         const results = await pipeline.exec();
 
+        // Parse guest items and collect IDs for batch fetch
+        const guestItems: Array<{
+          productId: string;
+          variantId: string;
+          quantity: number;
+          createdAt: string;
+        }> = [];
+        const productIds: string[] = [];
+        const variantIds: string[] = [];
+
         for (const val of results) {
           if (!val) continue;
           const item = typeof val === "string" ? JSON.parse(val) : val;
-
-          const product = await prisma.product.findUnique({
-            where: { id: item.productId, isDeleted: false },
-            include: {
-              images: { orderBy: { sortOrder: "asc" } },
-              seller: true,
-              variants: { where: { id: item.variantId } },
-            },
+          guestItems.push({
+            productId: item.productId,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            createdAt: item.createdAt,
           });
+          productIds.push(item.productId);
+          variantIds.push(item.variantId);
+        }
 
-          const variant = product?.variants[0];
-          if (!product || !variant || !product.isPublished) continue;
+        // Batch fetch products and variants
+        const uniqueProductIds = [...new Set(productIds)];
+        const uniqueVariantIds = [...new Set(variantIds)];
+
+        const [products, variants] = await Promise.all([
+          uniqueProductIds.length > 0
+            ? prisma.product.findMany({
+                where: {
+                  id: { in: uniqueProductIds },
+                  isDeleted: false,
+                  isPublished: true,
+                },
+                include: {
+                  images: { orderBy: { sortOrder: "asc" } },
+                  seller: true,
+                },
+              })
+            : [],
+          uniqueVariantIds.length > 0
+            ? prisma.productVariant.findMany({
+                where: { id: { in: uniqueVariantIds } },
+              })
+            : [],
+        ]);
+
+        const productMap = new Map(products.map((p) => [p.id, p]));
+        const variantMap = new Map(variants.map((v) => [v.id, v]));
+
+        for (const item of guestItems) {
+          const product = productMap.get(item.productId);
+          const variant = variantMap.get(item.variantId);
+          if (!product || !variant) continue;
 
           cartItems.push({
             id: `${guestCartId}:${item.variantId}`,
@@ -99,39 +139,54 @@ export default async function CartPage() {
   // Fetch active reservations
   const reservations = await getUserReservations(userProfile.id);
 
-  // Fetch database details for each reservation
+  // Batch fetch products and variants for all reservations
+  const productIds = [...new Set(reservations.map((r) => r.productId).filter(Boolean))];
+  const variantIds = [...new Set(reservations.map((r) => r.variantId).filter(Boolean))];
+
+  const [products, variants] = await Promise.all([
+    productIds.length > 0
+      ? prisma.product.findMany({
+          where: {
+            id: { in: productIds },
+            isDeleted: false,
+            isPublished: true,
+          },
+          include: {
+            images: { orderBy: { sortOrder: "asc" } },
+            seller: true,
+          },
+        })
+      : [],
+    variantIds.length > 0
+      ? prisma.productVariant.findMany({
+          where: { id: { in: variantIds } },
+        })
+      : [],
+  ]);
+
+  const productMap = new Map(products.map((p) => [p.id, p]));
+  const variantMap = new Map(variants.map((v) => [v.id, v]));
+
+  // Reconstruct cart items from maps
   const cartItems = [];
   for (const res of reservations) {
-    const product = await prisma.product.findUnique({
-      where: { id: res.productId, isDeleted: false },
-      include: {
-        images: {
-          orderBy: { sortOrder: "asc" },
-        },
-        seller: true,
-        variants: {
-          where: { id: res.variantId },
-        },
-      },
+    const product = productMap.get(res.productId);
+    const variant = variantMap.get(res.variantId);
+    if (!product || !variant) continue;
+
+    cartItems.push({
+      id: res.id, // reservationId
+      productId: res.productId,
+      variantId: res.variantId,
+      quantity: res.quantity,
+      createdAt: res.createdAt,
+      name: product.name,
+      price: product.price,
+      image: product.images[0]?.url || "/placeholder.jpg",
+      sellerName: product.seller.businessName,
+      sellerId: product.sellerId,
+      size: variant.size,
     });
-
-    const variant = product?.variants[0];
-
-    if (product && variant) {
-      cartItems.push({
-        id: res.id, // reservationId
-        productId: res.productId,
-        variantId: res.variantId,
-        quantity: res.quantity,
-        createdAt: res.createdAt,
-        name: product.name,
-        price: product.price,
-        size: variant.size,
-        image: product.images[0]?.url || "/placeholder.jpg",
-        sellerName: product.seller.businessName,
-        sellerId: product.sellerId,
-      });
-    }
   }
 
   const cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);

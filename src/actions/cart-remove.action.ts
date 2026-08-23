@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { redis } from "@/lib/redis";
+import { redis, removeReservationFromUserIndex } from "@/lib/redis";
 import { ActionResponse } from "./seller-register.action";
 
 export async function removeCartItem(
@@ -47,6 +47,7 @@ export async function removeCartItem(
         };
       }
       await redis.del(reservationKey);
+      await removeReservationFromUserIndex(userProfile.id, reservationId);
     }
 
     return {

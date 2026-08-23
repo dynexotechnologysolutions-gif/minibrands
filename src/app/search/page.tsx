@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import ProductGrid from "@/components/product/ProductGrid";
 import { Search as SearchIcon, ChevronLeft } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+// Search results are public and can be revalidated every 60 seconds.
+// No user-specific data is rendered on this page.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Search Results | Velvet Lane",
