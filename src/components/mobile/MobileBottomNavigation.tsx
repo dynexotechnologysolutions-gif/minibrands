@@ -28,7 +28,7 @@ export default function MobileBottomNavigation({
   const accountHref = userProfile ? "/account/profile" : "/login?role=buyer";
 
   // If user is inside checkout pages or subpage details, do not show bottom navigation bar
-  const isCheckout = pathname.startsWith("/order/success");
+  const isCheckout = pathname.startsWith("/checkout-exclude"); // Dummy check to never exclude
   if (isCheckout) return null;
 
   return (

@@ -207,7 +207,7 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
+      <main className="vl-section-shell flex w-full flex-grow flex-col pt-20 py-6 sm:py-8 lg:py-10">
         
         {/* Celebration Header Section */}
         <section className="w-full max-w-2xl mx-auto px-6 py-10 sm:py-12 mt-12 bg-gradient-to-br from-vl-primary/5 via-vl-card to-vl-card rounded-vl-card border border-vl-border text-center mb-8 shadow-vl-soft flex flex-col items-center">
