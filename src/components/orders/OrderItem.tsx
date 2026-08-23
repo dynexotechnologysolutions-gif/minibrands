@@ -63,7 +63,7 @@ export default function OrderItem({
 
         {/* Pricing */}
         <p className="font-vl-heading font-extrabold text-vl-ink text-sm sm:text-base mt-3">
-          {formatPrice(price * quantity)}
+          Price: {formatPrice(price * quantity)}
           {quantity > 1 && (
             <span className="text-vl-muted font-vl-body font-medium text-xs ml-2">
               ({formatPrice(price)} x {quantity})
