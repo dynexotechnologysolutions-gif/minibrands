@@ -743,10 +743,9 @@ export default function CartClient({
                   )}
                   
                   {/* Secure checkout CTA button */}
-                  <button
-                    onClick={handleProceedToCheckout}
-                    disabled={!hasActiveItems || isCheckingOut}
-                    className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              <button
+                onClick={handleCheckout}
+                className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-vl-control bg-vl-primary text-sm font-bold text-white shadow-sm transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isCheckingOut ? (
                       <>
