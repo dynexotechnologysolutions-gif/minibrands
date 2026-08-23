@@ -230,7 +230,7 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[480px] mx-auto">
             <Link
               href={`/orders/${order.id}`}
-              className="w-full sm:w-auto inline-flex min-h-12 items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-95"
+              className="w-full sm:w-auto inline-flex min-h-12 items-center justify-center rounded-vl-control bg-vl-primary px-8 text-sm font-bold text-white shadow-sm transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-95"
             >
               Track Order
             </Link>
@@ -301,13 +301,15 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
 
             <div className="pt-4 mt-4 border-t border-vl-border flex justify-between items-center">
               <span className="text-xs text-vl-muted">Download Invoice</span>
-              <button
-                type="button"
+              <a
+                href={`/api/orders/${order.id}/invoice`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-vl-border bg-vl-card text-vl-ink hover:text-vl-primary hover:border-vl-primary transition-all active:scale-95 cursor-pointer"
                 title="Download invoice receipt"
               >
                 <Download aria-hidden="true" className="h-4 w-4" />
-              </button>
+              </a>
             </div>
           </div>
 

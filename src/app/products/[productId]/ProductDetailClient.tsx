@@ -481,7 +481,7 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-8 lg:pt-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
@@ -683,7 +683,7 @@ export default function ProductDetailClient({
               </div>
               <p className="text-vl-success font-bold text-xs flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-vl-success"></span>
-                In stock · Order now for fast delivery
+                Earn 50 Coins on this purchase
               </p>
             </div>
 
