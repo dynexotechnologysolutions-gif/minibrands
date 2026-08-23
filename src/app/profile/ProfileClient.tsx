@@ -476,30 +476,6 @@ export default function ProfileClient({
               <MobileAccountSwitcher userProfile={userProfile} />
             )}
 
-            {/* Statistics Row */}
-            {activeTab === "overview" && (
-              <div className="grid grid-cols-3 gap-4">
-                <button
-                  onClick={() => setActiveTab("orders")}
-                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
-                >
-                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Orders</span>
-                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{ordersCount}</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("wishlist")}
-                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
-                >
-                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Wishlist</span>
-                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{localWishlistCount}</span>
-                </button>
-                <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:scale-[1.01] transition-all">
-                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Coins</span>
-                  <span className="font-vl-heading text-2xl font-extrabold text-vl-accent">{400 + (charSum % 600)}</span>
-                </div>
-              </div>
-            )}
-
             {/* Quick Actions Strip */}
             {activeTab === "overview" && (
               <div className="flex flex-wrap gap-2 select-none">
@@ -523,6 +499,30 @@ export default function ProfileClient({
                   <Store className="w-3.5 h-3.5 text-vl-primary" />
                   <span>Seller Center</span>
                 </Link>
+              </div>
+            )}
+
+            {/* Statistics Row */}
+            {activeTab === "overview" && (
+              <div className="grid grid-cols-3 gap-4">
+                <button
+                  onClick={() => setActiveTab("orders")}
+                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
+                >
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Orders</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{ordersCount}</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("wishlist")}
+                  className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:border-vl-primary/20 hover:scale-[1.01] transition-all cursor-pointer"
+                >
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Wishlist</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-ink">{localWishlistCount}</span>
+                </button>
+                <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 text-center shadow-vl-soft hover:scale-[1.01] transition-all">
+                  <span className="text-vl-muted text-xs font-semibold uppercase tracking-wider block mb-1">Coins</span>
+                  <span className="font-vl-heading text-2xl font-extrabold text-vl-accent">{400 + (charSum % 600)}</span>
+                </div>
               </div>
             )}
 
