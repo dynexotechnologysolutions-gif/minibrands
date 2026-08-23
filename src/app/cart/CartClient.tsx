@@ -406,7 +406,7 @@ export default function CartClient({
       <main className="vl-section-shell flex w-full flex-grow flex-col py-6 sm:py-8 lg:py-10">
         
         {/* Step Progress Bar */}
-        <div className="mb-8 flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-sm font-semibold sm:gap-4 md:justify-start">
+        <div className="mb-8 hidden md:flex items-center justify-center gap-2 border-b border-vl-border pb-5 text-sm font-semibold sm:gap-4 md:justify-start">
           <span className="flex items-center gap-1.5 text-vl-primary font-bold">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vl-primary text-[10px] font-bold text-white">1</span>
             Shopping Bag

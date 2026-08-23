@@ -52,6 +52,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     pathname === "/" || 
     pathname === "/categories" || 
     pathname === "/stores" || 
+    pathname === "/cart" ||
     pathname.startsWith("/category/") || 
     pathname.startsWith("/order/success") || 
     pathname.startsWith("/products/");
