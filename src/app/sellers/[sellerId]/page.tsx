@@ -211,7 +211,7 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
 
   return (
     <div className="bg-vl-surface min-h-screen">
-      <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
+      <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} variant="green" />
       {/* Inject LocalBusiness Structured Data */}
       <script
         type="application/ld+json"
