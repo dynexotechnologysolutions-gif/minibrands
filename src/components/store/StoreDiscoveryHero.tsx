@@ -20,13 +20,13 @@ export default function StoreDiscoveryHero({
   onCategoryChange,
 }: StoreDiscoveryHeroProps) {
   return (
-    <div className="py-6 sm:py-10">
-      <div className="mx-auto max-w-3xl text-center md:text-left">
+    <div className="w-full py-6 sm:py-10">
+      <div className="mx-auto w-full max-w-3xl text-center md:text-left">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-vl-muted">Discover Brands</p>
-        <h1 className="mt-1 font-vl-heading text-3xl font-extrabold tracking-[-0.03em] text-vl-ink sm:text-4xl">
+        <h1 className="mt-2 font-vl-heading text-3xl font-extrabold tracking-[-0.03em] text-vl-ink sm:text-4xl">
           Find boutiques you&apos;ll love
         </h1>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-vl-muted sm:text-[15px] md:mx-0">
+        <p className="mx-auto mt-3 w-full max-w-xl text-center text-sm leading-relaxed text-vl-muted sm:text-[15px] md:mx-0 md:text-left">
           Independent labels and local boutiques — curated, verified, and ready to shop.
         </p>
       </div>
