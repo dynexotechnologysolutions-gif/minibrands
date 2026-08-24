@@ -137,7 +137,7 @@ export default function Header({ userProfile, sellerHref }: HeaderProps) {
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="group flex items-center gap-2">
               <span className="font-display font-extrabold text-2xl tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
-                Velvet Lane
+                MiniBrands
               </span>
             </Link>
           </div>

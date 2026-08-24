@@ -8,7 +8,7 @@ import SellerLayout from "@/components/seller/SellerLayout";
 import { ShieldCheck, Award, CreditCard } from "lucide-react";
 
 export const metadata = {
-  title: "Merchant Verification & Trust Score | Velvet Lane",
+  title: "Merchant Verification & Trust Score | MiniBrands",
   description: "Check your e-KYC status, GSTIN verification, and bank settlement configuration.",
 };
 

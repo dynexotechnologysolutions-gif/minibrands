@@ -2,6 +2,11 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { getUserReservations } from "@/lib/redis";
+import HomeHeader from "@/components/home/HomeHeader";
+import MobileBottomNavigation from "@/components/mobile/MobileBottomNavigation";
 import SellerStorefrontClient from "@/components/seller/SellerStorefrontClient";
 
 interface PageProps {
@@ -51,21 +56,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!seller) {
     return {
-      title: "Seller Storefront Not Found | Velvet Lane",
+      title: "Seller Storefront Not Found | MiniBrands",
     };
   }
 
   if (!seller.verification) {
     return {
-      title: "Storefront Unavailable | Velvet Lane",
+      title: "Storefront Unavailable | MiniBrands",
     };
   }
 
   return {
-    title: `${seller.storeName || seller.businessName} | Fashion Boutique in ${seller.city} | Velvet Lane`,
+    title: `${seller.storeName || seller.businessName} | Fashion Boutique in ${seller.city} | MiniBrands`,
     description: `Shop verified fashion boutique ${seller.storeName || seller.businessName} from ${seller.city}, India. Discover handpicked ethnic wear, custom designs, and streetwear with secure escrow checkouts.`,
     openGraph: {
-      title: `${seller.storeName || seller.businessName} Storefront | Velvet Lane`,
+      title: `${seller.storeName || seller.businessName} Storefront | MiniBrands`,
       description: `Verified independent fashion boutique from ${seller.city}. Shop local with escrow payment protection.`,
     },
   };
@@ -103,6 +108,26 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
     "priceRange": "₹₹",
     "telephone": "",
   };
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  let userProfile: any = null;
+  let cartCount = 0;
+  let sellerHref = "/login?role=seller";
+  if (session?.user) {
+    userProfile = await prisma.userProfile.findUnique({
+      where: { userId: session.user.id },
+      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
+    });
+    if (userProfile?.role === "SELLER") {
+      const ver = userProfile.seller?.verification;
+      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
+      sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
+    }
+    if (userProfile) {
+      const reservations = await getUserReservations(userProfile.id);
+      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
+    }
+  }
 
   // Format products to match ProductCard expectations
   const formattedProducts = seller.products.map((p) => ({
@@ -185,7 +210,8 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
   };
 
   return (
-    <>
+    <div className="bg-vl-surface min-h-screen">
+      <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
       {/* Inject LocalBusiness Structured Data */}
       <script
         type="application/ld+json"
@@ -200,6 +226,7 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
         reviewSummary={reviewSummary}
         formattedInitialReviews={formattedInitialReviews}
       />
-    </>
+      <MobileBottomNavigation userProfile={userProfile} cartCount={cartCount} />
+    </div>
   );
 }

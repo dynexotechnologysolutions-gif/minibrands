@@ -1,17 +1,17 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | Velvet Lane",
-  description: "Learn about Velvet Lane's history, mission, values, and commitment to sustainable premium fashion in Chennai.",
+  title: "About Us | MiniBrands",
+  description: "Learn about MiniBrands's history, mission, values, and commitment to sustainable premium fashion in Chennai.",
 };
 
 export default function AboutPage() {
   return (
     <div className="bg-slate-50 min-h-screen py-16 px-4 sm:px-6 lg:px-8 text-slate-800">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-6">About Velvet Lane</h1>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-6">About MiniBrands</h1>
         <p className="text-lg text-slate-600 leading-relaxed mb-8">
-          Welcome to Velvet Lane, Chennai's forward-looking premium fashion marketplace. We connect style-conscious buyers with verified, handpicked independent designers and boutique labels.
+          Welcome to MiniBrands, Chennai's forward-looking premium fashion marketplace. We connect style-conscious buyers with verified, handpicked independent designers and boutique labels.
         </p>
 
         <section className="mb-12">

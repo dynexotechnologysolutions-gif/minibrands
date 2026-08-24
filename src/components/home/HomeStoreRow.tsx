@@ -70,6 +70,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
 
       {/* Follow Button */}
       <button
+        suppressHydrationWarning
         type="button"
         onClick={() => setIsFollowed(!isFollowed)}
         className={`mt-2 w-fit mx-auto px-2.5 sm:px-3 py-0.5 sm:py-1 text-center border rounded-lg text-[8.5px] sm:text-[11px] font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${

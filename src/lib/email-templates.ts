@@ -44,7 +44,7 @@ export function getVerificationEmailHtml({ name, code, expiresInMinutes = 5 }: V
           <tr>
             <td style="background-color: #0f172a; padding: 24px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px; font-weight: 800;">MINIBRANDS</h1>
-              <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Velvet Lane Fashion Marketplace</p>
+              <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">MiniBrands Fashion Marketplace</p>
             </td>
           </tr>
           <!-- Content -->
@@ -64,7 +64,7 @@ export function getVerificationEmailHtml({ name, code, expiresInMinutes = 5 }: V
           <!-- Footer -->
           <tr>
             <td style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
-              <p style="margin: 0 0 4px 0;">© 2026 MiniBrands Velvet Lane India. All rights reserved.</p>
+              <p style="margin: 0 0 4px 0;">© 2026 MiniBrands India. All rights reserved.</p>
               <p style="margin: 0; color: #94a3b8;">Secure Fashion Marketplace</p>
             </td>
           </tr>
@@ -109,7 +109,7 @@ export function getPasswordResetEmailHtml({ name, resetUrl, code, expiresInMinut
           <tr>
             <td style="background-color: #0f172a; padding: 24px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px; font-weight: 800;">MINIBRANDS</h1>
-              <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Velvet Lane Security</p>
+              <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">MiniBrands Security</p>
             </td>
           </tr>
           <!-- Content -->
@@ -125,7 +125,7 @@ export function getPasswordResetEmailHtml({ name, resetUrl, code, expiresInMinut
           <!-- Footer -->
           <tr>
             <td style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
-              <p style="margin: 0 0 4px 0;">© 2026 MiniBrands Velvet Lane. All rights reserved.</p>
+              <p style="margin: 0 0 4px 0;">© 2026 MiniBrands. All rights reserved.</p>
               <p style="margin: 0; color: #94a3b8;">If you need support, contact support@minibrands.com</p>
             </td>
           </tr>
@@ -156,7 +156,7 @@ export function getWelcomeEmailHtml({ name, role }: WelcomeEmailOptions): string
           <tr>
             <td style="background-color: #0f172a; padding: 28px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px;">WELCOME TO MINIBRANDS</h1>
-              <p style="color: #f59e0b; margin: 6px 0 0 0; font-size: 13px; font-weight: 600;">Velvet Lane Marketplace</p>
+              <p style="color: #f59e0b; margin: 6px 0 0 0; font-size: 13px; font-weight: 600;">MiniBrands Marketplace</p>
             </td>
           </tr>
           <tr>
@@ -212,7 +212,7 @@ export function getAccountLockoutEmailHtml({ name, ipAddress, time, unlockTime }
           </tr>
           <tr>
             <td style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
-              <p style="margin: 0;">© 2026 MiniBrands Velvet Lane Security Team</p>
+              <p style="margin: 0;">© 2026 MiniBrands Security Team</p>
             </td>
           </tr>
         </table>

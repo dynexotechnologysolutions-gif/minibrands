@@ -6,6 +6,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import OrderFilters from "@/components/orders/OrderFilters";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyOrders from "@/components/orders/EmptyOrders";
+import { CheckCircle2, Clock3, Truck, Undo2 } from "lucide-react";
 import { cancelOrderAction } from "@/actions/order-user-actions";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 
@@ -224,50 +225,30 @@ export default function OrdersClient({
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {/* Delivered Stats Card */}
-          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-lg font-bold">check_circle</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Delivered</p>
-              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{deliveredCount}</p>
-            </div>
-          </div>
-
-          {/* Processing Stats Card */}
-          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-pink-50 text-vl-primary flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-lg font-bold">published_with_changes</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Processing</p>
-              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{processingCount}</p>
-            </div>
-          </div>
-
-          {/* Shipped Stats Card */}
-          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-lg font-bold">local_shipping</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Shipped</p>
-              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{shippedCount}</p>
-            </div>
-          </div>
-
-          {/* Returns Stats Card */}
-          <div className="bg-vl-card border border-vl-border rounded-vl-card p-4 shadow-vl-soft flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-lg font-bold">keyboard_return</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-vl-muted uppercase tracking-wider">Returns</p>
-              <p className="font-vl-heading font-extrabold text-lg text-vl-ink">{returnedCount}</p>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            { label: "Delivered", count: deliveredCount, Icon: CheckCircle2, activeKey: "delivered", bg: "bg-emerald-50", color: "text-emerald-600" },
+            { label: "Processing", count: processingCount, Icon: Clock3, activeKey: "processing", bg: "bg-amber-50", color: "text-amber-600" },
+            { label: "Shipped", count: shippedCount, Icon: Truck, activeKey: "shipped", bg: "bg-sky-50", color: "text-sky-600" },
+            { label: "Returns", count: returnedCount, Icon: Undo2, activeKey: "returned", bg: "bg-slate-50", color: "text-slate-600" },
+          ].map((s) => (
+            <button
+              key={s.label}
+              type="button"
+              onClick={() => setActiveStatus(s.activeKey === activeStatus ? "all" : s.activeKey)}
+              className={`text-left bg-white border rounded-xl p-3.5 flex items-center gap-3 transition-all group ${
+                activeStatus === s.activeKey ? "border-vl-primary shadow-sm bg-vl-primary/[0.02]" : "border-vl-border hover:border-vl-border/80 hover:shadow-sm"
+              }`}
+            >
+              <div className={`w-9 h-9 rounded-lg ${s.bg} ${s.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                <s.Icon className="w-[18px] h-[18px] stroke-[2.2]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold text-vl-muted uppercase tracking-widest truncate">{s.label}</p>
+                <p className="font-vl-heading font-extrabold text-xl leading-none text-vl-ink mt-0.5">{s.count}</p>
+              </div>
+            </button>
+          ))}
         </div>
 
         <div className="space-y-6">

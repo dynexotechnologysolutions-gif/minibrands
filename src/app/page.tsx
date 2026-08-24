@@ -12,7 +12,6 @@ import HomeEditorialCollections from "@/components/home/HomeEditorialCollections
 import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
-import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
 import HomeCuratedCollections from "@/components/home/HomeCuratedCollections";
@@ -25,7 +24,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Velvet Lane | Chennai's Fashion-Forward Local Marketplace",
+  title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
   description:
     "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
 };
@@ -229,10 +228,6 @@ export default async function HomePage({ searchParams }: PageProps) {
             ) : null}
           </section>
         ) : null}
-
-        {/* 4.1 Trust Indicators */}
-        <HomeTrustStrip />
-
         {/* 4.2 Curated Collections / Shop by Occasion */}
         <HomeCuratedCollections />
 
@@ -282,7 +277,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 7. Curated Collections */}
         <HomeFeaturedCollections />
 
-        {/* 8. Why Shop With Velvet Lane? */}
+        {/* 8. Why Shop With MiniBrands? */}
         <HomeWhyShopWithVelvet />
 
         {/* 9. Newsletter */}

@@ -10,7 +10,7 @@ import { Search as SearchIcon, ChevronLeft } from "lucide-react";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Search Results | Velvet Lane",
+  title: "Search Results | MiniBrands",
   robots: {
     index: false,
     follow: false,

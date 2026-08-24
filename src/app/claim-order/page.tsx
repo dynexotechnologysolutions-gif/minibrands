@@ -9,7 +9,7 @@ import ClaimOrderClient from "./ClaimOrderClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Claim Your Order | Velvet Lane",
+  title: "Claim Your Order | MiniBrands",
   robots: { index: false, follow: false },
 };
 

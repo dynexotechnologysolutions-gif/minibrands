@@ -617,7 +617,7 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                     />
                   </div>
                   <p className="text-[11px] text-text-muted font-medium">
-                    This is the public selling price displayed to buyers on Velvet Lane.
+                    This is the public selling price displayed to buyers on MiniBrands.
                   </p>
                   {errors.price && (
                     <p className="text-error-red text-xs mt-1 flex items-center gap-1 font-bold">

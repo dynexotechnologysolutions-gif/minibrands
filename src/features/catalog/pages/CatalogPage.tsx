@@ -108,11 +108,11 @@ export default function CatalogPage({ userProfile, initialCartCount, sellerHref 
 
   // 2. Dynamic SEO browser titles
   useEffect(() => {
-    let title = "Products | Velvet Lane";
+    let title = "Products | MiniBrands";
     if (q) {
-      title = `Search Results for "${q}" | Velvet Lane`;
+      title = `Search Results for "${q}" | MiniBrands`;
     } else if (category && category !== "All") {
-      title = `${category} Products | Velvet Lane`;
+      title = `${category} Products | MiniBrands`;
     }
     document.title = title;
   }, [q, category]);

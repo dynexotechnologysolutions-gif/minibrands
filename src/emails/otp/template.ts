@@ -10,7 +10,7 @@ export function renderOTPEmail({ name, code, expiresInMinutes = 5 }: OTPTemplate
   const greeting = name ? `Hi ${name},` : "Hello,";
   const content = `
     <h2 style="font-size: 20px; color: #0f172a; margin-top: 0;">Verify Your Email Address</h2>
-    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin-bottom: 24px;">${greeting} Thank you for using Velvet Lane. Please use the verification code below to complete your sign-in / verification:</p>
+    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin-bottom: 24px;">${greeting} Thank you for using MiniBrands. Please use the verification code below to complete your sign-in / verification:</p>
     
     <!-- Code Box -->
     <div style="background-color: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; margin: 24px 0;">

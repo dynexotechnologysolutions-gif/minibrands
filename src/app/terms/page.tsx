@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Velvet Lane",
-  description: "Read the Terms of Service of Velvet Lane, governing buyer purchases, seller boutique rules, and escrow release protections.",
+  title: "Terms of Service | MiniBrands",
+  description: "Read the Terms of Service of MiniBrands, governing buyer purchases, seller boutique rules, and escrow release protections.",
 };
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Agreement to Terms</h2>
             <p>
-              By accessing or using Velvet Lane, you agree to be bound by these terms. If you do not agree, please do not use our services.
+              By accessing or using MiniBrands, you agree to be bound by these terms. If you do not agree, please do not use our services.
             </p>
           </div>
 
@@ -30,14 +30,14 @@ export default function TermsPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">3. Escrow & Disputes</h2>
             <p>
-              All customer funds are held in escrow for 7 days post-delivery. If no return request is filed during this window, funds are released to the seller. In case of disputes, Velvet Lane has final discretion to resolve issues.
+              All customer funds are held in escrow for 7 days post-delivery. If no return request is filed during this window, funds are released to the seller. In case of disputes, MiniBrands has final discretion to resolve issues.
             </p>
           </div>
 
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">4. User Accounts</h2>
             <p>
-              You must provide accurate verification details. Velvet Lane reserves the right to lock or delete accounts that engage in fraudulent behavior.
+              You must provide accurate verification details. MiniBrands reserves the right to lock or delete accounts that engage in fraudulent behavior.
             </p>
           </div>
         </section>

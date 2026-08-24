@@ -10,7 +10,7 @@ import SellerKpiGrid from "@/components/seller/SellerKpiGrid";
 import SellerInventoryTable from "@/components/seller/SellerInventoryTable";
 
 export const metadata = {
-  title: "Inventory Management | Velvet Lane Seller Hub",
+  title: "Inventory Management | MiniBrands Seller Hub",
   description: "Monitor stock levels, reorder alerts, and manage variant inventory.",
 };
 

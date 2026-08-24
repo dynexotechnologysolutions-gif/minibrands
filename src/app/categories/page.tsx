@@ -5,7 +5,6 @@ import { ArrowRight } from "lucide-react";
 import HomeHeader from "@/components/home/HomeHeader";
 import MobileBottomNavigation from "@/components/mobile/MobileBottomNavigation";
 import CategoryFeaturedGrid from "@/components/categories/CategoryFeaturedGrid";
-import CategoryBrowseGrid from "@/components/categories/CategoryBrowseGrid";
 import CategoryPopularList from "@/components/categories/CategoryPopularList";
 import CategoryDiscoveryBanner from "@/components/categories/CategoryDiscoveryBanner";
 import CategoryPopularSearches from "@/components/categories/CategoryPopularSearches";
@@ -78,15 +77,6 @@ export default async function CategoriesPage() {
           </div>
           <CategoryFeaturedGrid />
         </section>
-
-        {/* BROWSE ALL CATEGORIES */}
-        <section className="mt-8 sm:mt-10">
-          <h2 className="text-xl font-bold tracking-tight text-[#222222] sm:text-2xl">
-            Browse All Categories
-          </h2>
-          <CategoryBrowseGrid />
-        </section>
-
         {/* POPULAR SUBCATEGORIES */}
         <section className="mt-8 sm:mt-10">
           <h2 className="text-xl font-bold tracking-tight text-[#222222] sm:text-2xl">

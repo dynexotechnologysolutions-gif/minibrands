@@ -93,6 +93,7 @@ export default function OrderDetailClient({
 
   // Track Modal States — replaced by real tracking URL
   const [showTrackModal, setShowTrackModal] = useState(false);
+  const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
 
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
@@ -298,49 +299,103 @@ export default function OrderDetailClient({
     return elapsedMs <= limitMs;
   })();
 
-  // Rendering verification/polling view
-  if (status === "created") {
-    return (
-      <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
-        <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-        <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full flex justify-center items-center">
-          <div className="bg-white border border-border-gray p-12 text-center rounded max-w-[448px] w-full shadow-sm">
-            {isTimeout ? (
-              <>
-                <div className="w-16 h-16 bg-amber-50 border border-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <span className="material-symbols-outlined text-[32px]">schedule</span>
-                </div>
-                <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Verification Pending</h1>
-                <p className="text-slate-500 text-xs max-w-sm mx-auto mb-8 leading-relaxed font-body-sm">
-                  We are still waiting for payment confirmation from Razorpay. You can wait on this page or check again manually.
-                </p>
-                <button
-                  onClick={handleManualRefresh}
-                  className="px-6 py-3 bg-primary text-white text-xs font-label-bold text-label-bold rounded hover:opacity-90 transition-all cursor-pointer"
-                >
-                  Check Status Again
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6 mx-auto"></div>
-                <h1 className="text-xl font-extrabold text-slate-800 font-display mb-2">Verifying Payment</h1>
-                <p className="text-slate-400 text-xs max-w-xs mx-auto leading-relaxed font-body-sm">
-                  Processing secure checkout validation with Razorpay. Please do not close or refresh this page.
-                </p>
-                <span className="text-[10px] font-bold text-slate-300 mt-4 block uppercase tracking-wider">
-                  Attempt {pollCount + 1} of 15
-                </span>
-              </>
-            )}
-          </div>
-        </main>
+  const OrderStatusHeroInternal = ({
+    isDelivered,
+    isCancelled,
+    isShipped,
+    isProcessing,
+    isReturned,
+    orderDate,
+    onTrackOrder,
+  }: {
+    isDelivered: boolean;
+    isCancelled: boolean;
+    isShipped: boolean;
+    isProcessing: boolean;
+    isReturned: boolean;
+    orderDate: string;
+    onTrackOrder: () => void;
+  }) => (
+    <section className="bg-white border border-border-gray rounded-vl-card p-lg space-y-md shadow-sm">
+      <div className="flex flex-col gap-sm">
+        <div className="flex items-center gap-xs">
+          <span className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            isDelivered ? "bg-emerald-100 text-emerald-600" : 
+            isCancelled ? "bg-red-100 text-red-600" : 
+            isShipped ? "bg-blue-100 text-blue-600" : 
+            "bg-primary/10 text-primary"
+          }`}>
+            <span className="material-symbols-outlined text-lg">
+              {isDelivered && "check_circle"}
+              {isShipped && "local_shipping"}
+              {isProcessing && "task_alt"}
+              {isCancelled && "cancel"}
+              {isReturned && "settings_backup_restore"}
+            </span>
+          </span>
+          <h2 className="font-headline-sm text-headline-sm text-primary">
+            {isDelivered && "Order Delivered"}
+            {isShipped && "Items in Transit"}
+            {isProcessing && "Order Confirmed"}
+            {isCancelled && "Transaction Cancelled"}
+            {isReturned && "Return Completed"}
+          </h2>
+        </div>
+        <p className="font-body-md text-secondary ml-10">
+          {isDelivered && `Delivered on ${new Date(orderDate).toLocaleDateString("en-IN")}`}
+          {isShipped && "Arriving soon—track your package below."}
+          {isProcessing && "Your order is being packaged by the boutique."}
+          {isCancelled && "This order has been cancelled."}
+          {isReturned && "Return process is completed."}
+        </p>
       </div>
-    );
-  }
+      {isShipped && (
+        <button
+          onClick={onTrackOrder}
+          className="mt-lg w-full py-3 bg-primary text-white font-label-bold text-label-bold rounded-vl-control hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center text-sm"
+        >
+          Track Package
+        </button>
+      )}
+    </section>
+  );
+
+
+  // Order Status Hero Component
+  const OrderStatusHero = () => (
+    <section className="bg-white border border-border-gray rounded-vl-card p-lg space-y-md shadow-sm">
+      <div className="flex flex-col gap-sm">
+        <div className="flex items-center gap-xs">
+          <span className={`w-3 h-3 rounded-full ${isDelivered ? "bg-emerald-500" : isCancelled ? "bg-red-500" : "bg-primary"}`}></span>
+          <h2 className="font-vl-heading text-lg font-bold text-primary">
+            {isDelivered && "Order Delivered"}
+            {isShipped && "Items in Transit"}
+            {isProcessing && "Order Confirmed"}
+            {isCancelled && "Transaction Cancelled"}
+            {isReturned && "Return Completed"}
+          </h2>
+        </div>
+        <p className="text-sm text-secondary">
+          {isDelivered && `Delivered on ${new Date(order.createdAt).toLocaleDateString("en-IN")}`}
+          {isShipped && "Arriving soon—track your package below."}
+          {isProcessing && "Your order is being packaged by the boutique."}
+          {isCancelled && "This order has been cancelled."}
+          {isReturned && "Return process is completed."}
+        </p>
+      </div>
+      {isShipped && (
+        <button
+          onClick={handleTrackOrder}
+          className="mt-lg w-full py-3 bg-primary text-white font-bold rounded-vl-control hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center text-sm"
+        >
+          Track Package
+        </button>
+      )}
+    </section>
+  );
 
   return (
-    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col w-full">
+    <div className="bg-vl-surface text-on-surface font-vl-body min-h-screen flex flex-col w-full">
       {/* Navigation Header */}
       <HomeHeader
         userProfile={userProfile}
@@ -352,7 +407,7 @@ export default function OrderDetailClient({
       {alertMessage && (
         <div className="fixed bottom-base right-base z-50 animate-fade-in-up">
           <div
-            className={`p-base border rounded-lg shadow-lg flex items-center gap-sm font-label-bold text-label-bold ${
+            className={`p-base border rounded-lg shadow-lg flex items-center gap-sm font-bold ${
               alertMessage.type === "success"
                 ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                 : "bg-red-50 border-red-200 text-red-800"
@@ -367,72 +422,63 @@ export default function OrderDetailClient({
       )}
 
       {/* Main Container */}
-      <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full space-y-lg">
+      <main className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-6 lg:py-8 flex-grow w-full space-y-6">
         {/* Navigation & Title */}
-        <div>
-          <Link
-            href="/orders"
-            className="text-secondary font-label-bold text-label-bold hover:text-primary transition-colors flex items-center gap-xs mb-sm cursor-pointer select-none"
-          >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Orders
-          </Link>
-          <h1 className="font-headline-lg text-headline-lg text-primary">Order Details</h1>
-          <p className="font-body-md text-secondary">
-            Placed on {new Date(order.createdAt).toLocaleString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <Link
+              href="/orders"
+              className="inline-flex items-center gap-1.5 text-vl-muted font-bold hover:text-vl-primary transition-colors text-xs uppercase tracking-wider mb-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              Back to Orders
+            </Link>
+            <h1 className="font-vl-heading text-xl lg:text-2xl font-extrabold text-vl-ink tracking-tight">Order #{order.id.slice(0, 8).toUpperCase()}</h1>
+            <p className="text-vl-muted text-xs lg:text-sm mt-1">
+              Placed on {new Date(order.createdAt).toLocaleString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vl-primary/10 text-vl-primary text-xs font-bold uppercase tracking-wider shrink-0">
+            <span className={`w-2 h-2 rounded-full ${isDelivered ? "bg-emerald-500" : isCancelled ? "bg-red-500" : "bg-vl-primary animate-pulse"}`} />
+            {isDelivered ? "Delivered" : isCancelled ? "Cancelled" : isShipped ? "In Transit" : "Confirmed"}
+          </span>
         </div>
 
         {/* Outer Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* Left Panel: Items & Address */}
-          <div className="lg:col-span-8 space-y-lg">
+            {/* Left Panel: Items & Address */}
+            <div className="lg:col-span-8 space-y-5">
+              <Link
+                href="/orders"
+                className="inline-flex items-center gap-2 text-vl-primary font-bold text-sm hover:underline lg:hidden -mb-1"
+              >
+                <span className="material-symbols-outlined text-base">arrow_back</span>
+                Back to Orders
+              </Link>
             
-            {/* Status Banner */}
-            <div className={`p-base border rounded shadow-sm flex items-start gap-base ${
-              isDelivered
-                ? "bg-emerald-50/20 border-emerald-100"
-                : isCancelled
-                ? "bg-red-50/20 border-red-100"
-                : "bg-white border-border-gray"
-            }`}>
-              <div className="mt-xs">
-                <OrderStatusBadge
-                  status={order.status}
-                  orderStatus={order.orderStatus}
-                  date={order.createdAt}
-                />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-label-bold text-label-bold text-primary">
-                  {isDelivered && "Order Delivered Successfully"}
-                  {isShipped && "Items are in Transit"}
-                  {isProcessing && "Your order is being processed by the boutique"}
-                  {isCancelled && "Transaction Cancelled"}
-                  {isReturned && "Return Completed"}
-                </h4>
-                <p className="font-body-sm text-secondary mt-xs">
-                  {isDelivered && "Thank you for shopping on Velvet. Payout released to the boutique seller."}
-                  {isShipped && "The shipping partner is delivering your package to Chennai."}
-                  {isProcessing && "The seller is packaging your items and generating shipping labels."}
-                  {isCancelled && "This order has been cancelled and any stock reserved has been released."}
-                  {isReturned && "Items returned successfully. Refund processed to original payment method."}
-                </p>
-              </div>
-            </div>
+            <OrderStatusHeroInternal 
+              isDelivered={isDelivered}
+
+              isCancelled={isCancelled}
+              isShipped={isShipped}
+              isProcessing={isProcessing}
+              isReturned={isReturned}
+              orderDate={order.createdAt}
+              onTrackOrder={handleTrackOrder}
+            />
 
             {/* Order Items Card */}
-            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+            <div className="bg-white border border-border-gray rounded-vl-card p-base space-y-base shadow-sm">
+              <h3 className="font-vl-heading text-lg font-bold text-primary flex items-center gap-sm">
                 <span className="material-symbols-outlined text-secondary">shopping_bag</span>
-                Order Items
+                Items ({order.items.length})
               </h3>
               <div className="space-y-base pt-xs">
                 {order.items.map((item) => (
@@ -445,372 +491,146 @@ export default function OrderDetailClient({
                       variantSize={item.size}
                       sellerName={order.sellerName}
                     />
-                    <div className="flex gap-base">
-                      {isDelivered && (
-                        <>
-                          <button
-                            onClick={() => handleBuyAgain(item.productId, item.variantId)}
-                            className="flex items-center gap-xs px-base py-1.5 bg-accent-yellow text-primary font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer text-xs"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">refresh</span>
-                            Buy It Again
-                          </button>
-                          <button
-                            onClick={() => handleRateProduct(item.productId, item.name)}
-                            className="flex items-center gap-xs px-base py-1.5 border border-border-gray text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-xs"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">grade</span>
-                            Write Review
-                          </button>
-                        </>
-                      )}
-                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Review Form / Already Reviewed card — shown when delivered */}
-            {isDelivered && (
-              <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
-                <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
-                  <span className="material-symbols-outlined text-secondary">grade</span>
-                  {hasReview ? "Your Review" : "Rate Your Purchase"}
-                </h3>
-                {hasReview ? (
-                  <div className="flex items-center gap-sm p-sm bg-emerald-50 border border-emerald-100 rounded">
-                    <span className="material-symbols-outlined text-emerald-500">check_circle</span>
-                    <p className="font-body-sm text-emerald-800">You have already reviewed this order. Thank you!</p>
-                  </div>
-                ) : order.firstProductId && order.userProfileId ? (
-                  <ReviewForm
-                    orderId={order.id}
-                    productId={order.firstProductId}
-                    productName={order.items[0]?.name ?? "Product"}
-                    buyerId={order.userProfileId}
-                     onSuccess={() => {
-                       setHasReview(true);
-                       triggerToast("Review submitted! Thank you for your feedback.", "success");
-                     }}
-                  />
-                ) : (
-                  <p className="font-body-sm text-secondary text-xs">Review submission is not available for this order.</p>
-                )}
-              </div>
-            )}
-
             {/* Shipping Address Card */}
-            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-sm">
+            <div className="bg-white border border-border-gray rounded-vl-card p-base space-y-base shadow-sm">
+              <h3 className="font-vl-heading text-lg font-bold text-primary flex items-center gap-sm">
                 <span className="material-symbols-outlined text-secondary">local_shipping</span>
                 Delivery Address
               </h3>
-              <div className="pt-xs text-body-md text-on-surface leading-relaxed">
-                <p className="font-label-bold text-label-bold text-primary mb-xs">{order.address.fullName}</p>
+              <div className="pt-xs text-sm text-on-surface leading-relaxed">
+                <p className="font-bold text-primary mb-xs">{order.address.fullName}</p>
                 <p>{order.address.line1}</p>
                 {order.address.line2 && <p>{order.address.line2}</p>}
                 <p>{order.address.city} - {order.address.pincode}</p>
-                <p className="mt-sm text-secondary font-body-sm text-xs">Mobile Number: {order.address.phone}</p>
+                <p className="mt-sm text-secondary text-xs">Mobile Number: {order.address.phone}</p>
               </div>
             </div>
           </div>
 
           {/* Right Panel: Payments & Actions */}
-          <div className="lg:col-span-4 space-y-lg">
+          <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-24">
             
             {/* Payment Summary */}
-            <div className="bg-white border border-border-gray rounded p-base space-y-base shadow-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary border-b border-border-gray pb-sm">
+            <div className="bg-white border border-border-gray rounded-vl-card p-base space-y-base shadow-sm">
+              <h3 className="font-vl-heading text-lg font-bold text-primary border-b border-border-gray pb-sm">
                 Payment Details
               </h3>
-              <div className="space-y-md text-body-sm text-secondary font-medium">
-                <div>
-                  <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Order ID</span>
-                  <span className="text-primary font-mono select-all break-all">{order.id}</span>
-                </div>
-                {order.razorpayOrderId && (
-                  <div>
-                    <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Payment Order ID</span>
-                    <span className="text-primary font-mono select-all break-all">{order.razorpayOrderId}</span>
-                  </div>
-                )}
-                {order.razorpayPaymentId && (
-                  <div>
-                    <span className="text-secondary font-body-sm block text-[10px] uppercase tracking-wider text-slate-400">Razorpay Transaction ID</span>
-                    <span className="text-primary font-mono select-all break-all">{order.razorpayPaymentId}</span>
-                  </div>
-                )}
+              <div className="space-y-md text-sm text-secondary font-medium">
                 <div className="pt-sm border-t border-border-gray/30 flex justify-between items-baseline">
-                  <span className="text-primary font-label-bold">Total Amount Paid</span>
-                  <span className="font-price-lg text-price-lg text-primary">{formatPrice(order.totalAmount)}</span>
+                  <span className="text-primary font-bold">Total Amount Paid</span>
+                  <span className="font-vl-heading text-xl font-extrabold text-primary">{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Dynamic Interactive Order Timeline */}
+            {/* Compact Order Journey */}
             {!isCancelled && !isReturned && (
-              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md space-y-md shadow-sm">
-                <div className="flex items-center justify-between border-b border-border-gray/40 pb-sm">
-                  <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-primary text-xl">route</span>
-                    Order Status Timeline
-                  </h3>
-                  <span className="text-xs font-bold text-success-green bg-success-green/10 px-sm py-0.5 rounded-full uppercase tracking-wider">
-                    {order.status === "DELIVERED" ? "Delivered" : "On Schedule"}
-                  </span>
-                </div>
-                <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
-              </div>
-            )}
-
-            {/* Tax Invoice Download Section — Only shown for delivered/completed orders */}
-            {isDelivered && (
-              <div className="bg-white border border-border-gray rounded-lg p-base sm:p-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-base">
-                <div className="flex items-start gap-md">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="material-symbols-outlined text-xl">description</span>
-                  </div>
-                  <div>
-                    <h4 className="font-label-bold text-on-surface font-bold text-sm sm:text-base">
-                      Tax Invoice
-                    </h4>
-                    <p className="text-body-sm text-text-muted text-xs sm:text-sm">
-                      Your official GST tax invoice is now available for download.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleDownloadInvoice}
-                  disabled={isDownloadingInvoice}
-                  className="px-lg py-sm bg-primary text-on-primary font-bold rounded-sm text-xs sm:text-body-sm flex items-center justify-center gap-xs hover:opacity-90 transition-all cursor-pointer disabled:opacity-60 shrink-0 shadow-sm"
-                >
-                  {isDownloadingInvoice ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Generating PDF...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-base">download</span>
-                      Download Invoice PDF
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-
-            {/* Main Action Side buttons */}
-            <div className="space-y-base">
-              {isShipped && (
-                <button
-                  onClick={handleTrackOrder}
-                  className="w-full py-3 bg-primary text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center"
-                >
-                  Track Package
-                </button>
-              )}
-              {isShipped && (
-                <button
-                  onClick={handleConfirmDelivery}
-                  disabled={isConfirmingDelivery}
-                  className="w-full py-3 bg-emerald-600 text-white font-label-bold text-label-bold rounded hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center disabled:opacity-60 flex items-center justify-center gap-xs"
-                >
-                  {isConfirmingDelivery ? (
-                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Confirming...</>
-                  ) : (
-                    <><span className="material-symbols-outlined text-[18px]">inventory_2</span> I Received My Order</>
-                  )}
-                </button>
-              )}
-
-              {isProcessing && (
-                <>
-                  <button
-                    onClick={handleCancelOrder}
-                    className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center"
-                  >
-                    Cancel Order
-                  </button>
-                  <button
-                    onClick={handleChangeAddress}
-                    className="w-full py-3 border border-border-gray bg-white text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
-                  >
-                    Change Shipping Address
-                  </button>
-                </>
-              )}
-              {canReturn && (
-                <Link
-                  href={`/orders/${order.id}/return`}
-                  className="w-full py-3 border border-error-red text-error-red font-label-bold text-label-bold rounded hover:bg-error-container transition-transform active:scale-95 cursor-pointer text-center block"
-                >
-                  Request Return / Exchange
-                </Link>
-              )}
-              {isReturned && (
-                <Link
-                  href={`/orders/${order.id}/return/track`}
-                  className="w-full py-3 border border-primary text-primary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center block"
-                >
-                  Track Return Progress →
-                </Link>
-              )}
               <button
-                onClick={handleSupport}
-                className="w-full py-3 border border-border-gray bg-white text-secondary font-label-bold text-label-bold rounded hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
+                type="button"
+                onClick={() => setShowJourneyModal(true)}
+                className="w-full text-left bg-white border border-border-gray rounded-vl-card p-4 shadow-sm hover:border-vl-primary/30 hover:shadow-md transition-all active:scale-[0.99] group"
               >
-                Contact Support Desk
+                <h3 className="font-vl-heading text-base font-bold text-primary flex items-center justify-between gap-2 mb-2">
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-[20px]">route</span>
+                    Order Journey
+                  </span>
+                  <span className="text-xs font-semibold text-vl-primary group-hover:underline flex items-center gap-1">
+                    View details <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                  </span>
+                </h3>
+                <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="compact" />
+                <p className="text-[11px] text-center text-vl-muted mt-2">Tap to view full timeline</p>
               </button>
-            </div>
-
-            {/* Escrow countdown — shown when delivered */}
-            {isDelivered && escrowReleaseAt && (
-              <EscrowCountdown escrowReleaseAt={escrowReleaseAt} />
             )}
-
-            {/* Completed banner */}
-            {isCompleted && (
-              <div className="p-base bg-emerald-50 border border-emerald-100 rounded flex items-start gap-sm">
-                <span className="material-symbols-outlined text-emerald-500 mt-xs">task_alt</span>
-                <div>
-                  <p className="font-label-bold text-label-bold text-emerald-800 text-xs">Payment Released</p>
-                  <p className="font-body-sm text-[11px] text-emerald-700 leading-normal mt-xs">
-                    Funds have been released to the boutique seller. Thank you for shopping on Velvet!
-                  </p>
-                </div>
-              </div>
-            )}
-
+            
             {/* Escrow Security Gate banner */}
-            <div className="p-base bg-surface border border-border-gray rounded flex items-start gap-sm">
+            <div className="p-base bg-surface border border-border-gray rounded-vl-card flex items-start gap-sm">
               <span className="material-symbols-outlined text-secondary mt-xs">verified_user</span>
               <div className="space-y-xs">
-                <p className="font-label-bold text-label-bold text-primary text-xs">Escrow Security Gate</p>
-                <p className="font-body-sm text-[11px] text-secondary leading-normal">
-                  Your funds are protected. Velvet holds payments in escrow, releasing them to sellers only after package delivery confirmation.
+                <p className="font-bold text-primary text-sm">Escrow Security Gate</p>
+                <p className="text-secondary text-xs leading-normal">
+                  Your funds are protected. MiniBrands holds payments in escrow, releasing them to sellers only after package delivery confirmation.
                 </p>
               </div>
             </div>
 
+             {/* Main Action Side buttons */}
+             <div className="space-y-base">
+                {isShipped && (
+                  <button
+                    onClick={handleConfirmDelivery}
+                    disabled={isConfirmingDelivery}
+                    className="w-full py-3 bg-emerald-600 text-white font-bold rounded-vl-control hover:opacity-90 transition-transform active:scale-95 cursor-pointer shadow-sm text-center disabled:opacity-60 flex items-center justify-center gap-xs"
+                  >
+                    {isConfirmingDelivery ? (
+                      <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Confirming...</>
+                    ) : (
+                      <><span className="material-symbols-outlined text-[18px]">inventory_2</span> I Received My Order</>
+                    )}
+                  </button>
+                )}
+                {isDelivered && (
+                    <button
+                        onClick={() => handleRateProduct(order.items[0].productId, order.items[0].name)}
+                        className="w-full py-3 border border-border-gray bg-white text-primary font-bold rounded-vl-control hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
+                    >
+                        Write Review
+                    </button>
+                )}
+                <button
+                    onClick={handleSupport}
+                    className="w-full py-3 border border-border-gray bg-white text-secondary font-bold rounded-vl-control hover:bg-surface-container transition-transform active:scale-95 cursor-pointer text-center"
+                >
+                    Contact Support
+                </button>
+            </div>
+           </div>
+         </div>
+       </main>
 
-          </div>
-        </div>
-      </main>
-
-      {/* Star Rating Modal */}
-      {showRateModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary">Rate & Review</h3>
+      {/* Order Journey Details Modal */}
+      {showJourneyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowJourneyModal(false)} />
+          <div className="relative bg-white rounded-2xl border border-vl-border shadow-2xl w-full max-w-2xl lg:max-w-3xl max-h-[88vh] overflow-hidden flex flex-col animate-fade-in mx-4">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-vl-border shrink-0 bg-vl-surface/50">
+              <h3 className="font-vl-heading text-xl font-bold text-vl-ink flex items-center gap-3">
+                <span className="w-9 h-9 rounded-full bg-vl-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-vl-primary">route</span>
+                </span>
+                Order Journey
+              </h3>
               <button
-                onClick={() => setShowRateModal(false)}
-                className="text-secondary hover:text-primary cursor-pointer"
+                type="button"
+                onClick={() => setShowJourneyModal(false)}
+                className="w-9 h-9 rounded-full hover:bg-white border border-transparent hover:border-vl-border flex items-center justify-center text-vl-muted hover:text-vl-ink transition-all"
+                aria-label="Close"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
-            <form onSubmit={submitReview} className="space-y-base">
-              <div>
-                <p className="font-body-sm text-secondary">Reviewing:</p>
-                <p className="font-label-bold text-label-bold text-primary truncate">{rateProductName}</p>
-              </div>
-              <div className="space-y-xs">
-                <label className="font-label-bold text-label-bold text-on-surface">Star Rating</label>
-                <div className="flex gap-xs text-[28px] text-accent-yellow">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRatingValue(star)}
-                      className="cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                    >
-                      <span className="material-symbols-outlined text-[30px]" style={{ fontVariationSettings: ` 'FILL' ${ratingValue >= star ? 1 : 0} ` }}>
-                        grade
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-xs">
-                <label className="font-label-bold text-label-bold text-on-surface">Comments</label>
-                <textarea
-                  className="w-full border-border-gray rounded text-body-sm outline-none focus:border-primary p-sm"
-                  rows={4}
-                  placeholder="Share your experience buying from this boutique..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="flex gap-base justify-end border-t border-border-gray pt-base">
-                <button
-                  type="button"
-                  onClick={() => setShowRateModal(false)}
-                  className="px-base py-2 border border-border-gray text-secondary rounded font-label-bold text-label-bold hover:bg-surface-container cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-base py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
-                >
-                  Submit Review
-                </button>
-              </div>
-            </form>
+            <div className="px-6 sm:px-8 py-6 overflow-y-auto">
+              <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
+            </div>
+            <div className="px-6 py-4 border-t border-vl-border shrink-0 bg-vl-surface/30">
+              <button
+                type="button"
+                onClick={() => setShowJourneyModal(false)}
+                className="w-full py-3.5 bg-vl-primary text-white font-bold rounded-vl-control hover:bg-vl-primary-strong transition-colors text-sm shadow-sm"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
+     </div>
+   );
 
-      {/* Track Package Modal */}
-      {showTrackModal && (
-        <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-base">
-          <div className="bg-white border border-border-gray rounded-lg max-w-[448px] w-full p-base space-y-base shadow-xl animate-fade-in-up">
-            <div className="flex justify-between items-center border-b border-border-gray pb-sm">
-              <h3 className="font-headline-sm text-headline-sm text-primary">Package Tracking</h3>
-              <button
-                onClick={() => setShowTrackModal(false)}
-                className="text-secondary hover:text-primary cursor-pointer"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="space-y-lg py-sm">
-              <div>
-                <p className="font-body-sm text-secondary">Logistics Carrier:</p>
-                <p className="font-label-bold text-label-bold text-primary">BlueDart Express Cargo</p>
-                <p className="font-body-sm text-[11px] text-secondary">Waybill No: BD984713912IN</p>
-              </div>
-              <div className="space-y-base relative pl-base border-l border-border-gray">
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-success-green rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">In Transit - Out For Delivery</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Chennai Distribution Center • 08:30 AM</p>
-                </div>
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">Package Departed Hub</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Guindy Sorting Center • Yesterday, 04:15 PM</p>
-                </div>
-                <div className="relative">
-                  <div className="absolute -left-[23px] top-[2px] w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
-                  <p className="font-label-bold text-label-bold text-primary">Dispatched from Boutique</p>
-                  <p className="font-body-sm text-secondary text-[11px]">Boutique Hub • 2 days ago, 11:00 AM</p>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-border-gray pt-base flex justify-end">
-              <button
-                onClick={() => setShowTrackModal(false)}
-                className="px-xl py-2 bg-primary text-white rounded font-label-bold text-label-bold hover:opacity-90 cursor-pointer"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}    </div>
-  );
 }
