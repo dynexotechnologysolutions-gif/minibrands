@@ -93,6 +93,7 @@ export default function OrderDetailClient({
 
   // Track Modal States — replaced by real tracking URL
   const [showTrackModal, setShowTrackModal] = useState(false);
+  const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
 
   const triggerToast = (text: string, type: "success" | "error" = "success") => {
@@ -524,13 +525,23 @@ export default function OrderDetailClient({
 
             {/* Compact Order Journey */}
             {!isCancelled && !isReturned && (
-              <div className="bg-white border border-border-gray rounded-vl-card p-4 shadow-sm">
-                <h3 className="font-vl-heading text-base font-bold text-primary flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-primary text-[20px]">route</span>
-                  Order Journey
+              <button
+                type="button"
+                onClick={() => setShowJourneyModal(true)}
+                className="w-full text-left bg-white border border-border-gray rounded-vl-card p-4 shadow-sm hover:border-vl-primary/30 hover:shadow-md transition-all active:scale-[0.99] group"
+              >
+                <h3 className="font-vl-heading text-base font-bold text-primary flex items-center justify-between gap-2 mb-2">
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-[20px]">route</span>
+                    Order Journey
+                  </span>
+                  <span className="text-xs font-semibold text-vl-primary group-hover:underline flex items-center gap-1">
+                    View details <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                  </span>
                 </h3>
                 <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="compact" />
-              </div>
+                <p className="text-[11px] text-center text-vl-muted mt-2">Tap to view full timeline</p>
+              </button>
             )}
             
             {/* Escrow Security Gate banner */}
@@ -574,10 +585,45 @@ export default function OrderDetailClient({
                     Contact Support
                 </button>
             </div>
+           </div>
+         </div>
+       </main>
+
+      {/* Order Journey Details Modal */}
+      {showJourneyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowJourneyModal(false)} />
+          <div className="relative bg-white rounded-vl-card border border-vl-border shadow-xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col animate-fade-in">
+            <div className="flex items-center justify-between p-4 border-b border-vl-border shrink-0">
+              <h3 className="font-vl-heading text-lg font-bold text-vl-ink flex items-center gap-2">
+                <span className="material-symbols-outlined text-vl-primary">route</span>
+                Order Journey
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowJourneyModal(false)}
+                className="w-8 h-8 rounded-full hover:bg-vl-surface flex items-center justify-center text-vl-muted hover:text-vl-ink transition-colors"
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 overflow-y-auto">
+              <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
+            </div>
+            <div className="p-4 border-t border-vl-border shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowJourneyModal(false)}
+                className="w-full py-3 bg-vl-primary text-white font-bold rounded-vl-control hover:bg-vl-primary-strong transition-colors text-sm"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
-      </main>
-    </div>
-  );
+      )}
+     </div>
+   );
 
 }
