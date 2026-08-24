@@ -110,7 +110,7 @@ export default function SecurityClient({
       )}
 
       {/* Main Content Layout */}
-      <main className="vl-section-shell flex w-full flex-grow flex-col pt-20 pb-20 md:pt-8 px-4 max-w-[1280px] mx-auto">
+      <main className="vl-section-shell flex w-full flex-grow flex-col pt-32 pb-20 md:pt-8 px-4 max-w-[1280px] mx-auto">
         <div className="flex flex-col md:flex-row gap-lg">
           
           {/* SideNavBar (Hidden on Mobile, Visible on Web) */}
