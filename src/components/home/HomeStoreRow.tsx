@@ -97,7 +97,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
           <h2 className="font-vl-heading text-lg sm:text-3xl font-extrabold tracking-[-0.04em] text-vl-ink">Top Stores For You</h2>
         </div>
         {/* Mobile View All link */}
-        <Link href="/products" className="text-xs font-bold text-vl-primary hover:underline md:hidden select-none">
+        <Link href="/stores" className="text-xs font-bold text-vl-primary hover:underline md:hidden select-none">
           View All Stores
         </Link>
         {/* Desktop scroll arrows */}
