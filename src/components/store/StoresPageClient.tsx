@@ -8,7 +8,6 @@ import StoreCategoryFilter from "./StoreCategoryFilter";
 import StoreSection from "./StoreSection";
 import StoreCard, { StoreSummary } from "./StoreCard";
 import StoreDiscoveryHero from "./StoreDiscoveryHero";
-import FeaturedBrand from "./FeaturedBrand";
 import StoreEditorialEdit from "./StoreEditorialEdit";
 import { followSellerAction, unfollowSellerAction } from "@/actions/seller-follow.action";
 
@@ -96,17 +95,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
     }
   };
 
-  const featuredStore = useMemo(() => {
-    if (stores.length === 0) return null;
-    return [...stores].sort(
-      (a, b) =>
-        b.trustScore - a.trustScore ||
-        b.rating - a.rating ||
-        b.productCount - a.productCount ||
-        b.createdAt.localeCompare(a.createdAt),
-    )[0];
-  }, [stores]);
-
   const nearYouStores = useMemo(() => {
     const cityCounts = new Map<string, number>();
     for (const s of stores) {
@@ -192,12 +180,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
         categories={categories}
         activeCategory={activeCategory}
         onCategoryChange={handleCategoryChange}
-      />
-
-      <FeaturedBrand
-        store={featuredStore}
-        isFollowed={featuredStore ? followedIds.has(featuredStore.id) : false}
-        onToggleFollow={handleToggleFollow}
       />
 
       <StoreSection
