@@ -12,7 +12,6 @@ import HomeEditorialCollections from "@/components/home/HomeEditorialCollections
 import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
-import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
 import HomeCuratedCollections from "@/components/home/HomeCuratedCollections";
@@ -229,10 +228,6 @@ export default async function HomePage({ searchParams }: PageProps) {
             ) : null}
           </section>
         ) : null}
-
-        {/* 4.1 Trust Indicators */}
-        <HomeTrustStrip />
-
         {/* 4.2 Curated Collections / Shop by Occasion */}
         <HomeCuratedCollections />
 

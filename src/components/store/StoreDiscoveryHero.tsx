@@ -20,20 +20,21 @@ export default function StoreDiscoveryHero({
   onCategoryChange,
 }: StoreDiscoveryHeroProps) {
   return (
-    <div className="pt-3 sm:pt-10">
-      <div className="max-w-2xl">
-        <h1 className="font-vl-heading text-2xl font-bold tracking-[-0.03em] text-vl-ink sm:text-3xl">
-          Discover Brands
+    <div className="w-full py-8 sm:py-10">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center md:items-start md:text-left">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-vl-primary">Discover Brands</p>
+        <h1 className="mt-2 font-vl-heading text-[28px] font-extrabold leading-none tracking-[-0.03em] text-vl-ink sm:text-4xl md:text-[38px]">
+          Find boutiques you&apos;ll love
         </h1>
-        <p className="mt-2 text-sm text-vl-muted sm:text-base">
-          Find independent labels, local boutiques, and styles worth discovering.
+        <p className="mx-auto mt-3 w-full max-w-[34ch] text-balance text-center text-sm leading-relaxed text-vl-muted sm:max-w-xl sm:text-[15px] md:mx-0 md:text-left">
+          Independent labels and local boutiques — curated, verified, and ready to shop.
         </p>
       </div>
-      <div className="mt-5">
-        <StoreSearch value={searchValue} onChange={onSearchChange} />
+      <div className="mx-auto mt-7 max-w-2xl">
+        <StoreSearch value={searchValue} onChange={onSearchChange} placeholder="Search brands, boutiques or categories..." />
       </div>
-      <div className="mt-4">
-        <StoreCategoryFilter categories={categories} active={activeCategory} onChange={onCategoryChange} compact />
+      <div className="mt-5 flex justify-center md:justify-start">
+        <StoreCategoryFilter categories={categories} active={activeCategory} onChange={onCategoryChange} />
       </div>
     </div>
   );

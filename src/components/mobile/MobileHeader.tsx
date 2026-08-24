@@ -18,7 +18,13 @@ interface MobileHeaderProps {
 export default function MobileHeader({ userProfile, cartCount }: MobileHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { wishlist = [] } = useWishlist();
+  let wishlist: unknown[] = [];
+  try {
+    const w = useWishlist();
+    wishlist = (w as { wishlist?: unknown[] })?.wishlist ?? [];
+  } catch {
+    wishlist = [];
+  }
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
 
   useEffect(() => {
@@ -57,7 +63,9 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     pathname.startsWith("/category/") || 
     pathname.startsWith("/order/success") ||
     pathname === "/account/orders" ||
-    pathname.startsWith("/account/orders/");
+    pathname.startsWith("/account/orders/") ||
+    pathname === "/account/security" ||
+    pathname.startsWith("/account/security");
   const isExplore = pathname === "/products";
   const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
   const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";

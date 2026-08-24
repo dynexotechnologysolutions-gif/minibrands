@@ -30,44 +30,23 @@ export default function StoresLoading() {
         className="md:hidden fixed inset-x-0 top-0 z-50 h-[calc(4.25rem+env(safe-area-inset-top))] border-b border-vl-border bg-white shadow-vl-soft"
       />
 
-      <main className="w-full overflow-x-hidden pb-[76px] pt-[calc(119px+env(safe-area-inset-top))] md:pb-0 md:pt-0">
+      <main className="w-full overflow-x-hidden bg-vl-surface pb-[76px] pt-4 sm:pt-6 md:pb-0">
         <div className="vl-section-shell">
           {/* Hero */}
-          <div className="pt-3 sm:pt-10">
-            <div className="h-8 w-56 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none sm:h-9 sm:w-64" />
-            <div className="mt-2 h-4 w-72 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none sm:w-96" />
-            <div className="mt-5 h-12 w-full rounded-vl-control bg-vl-border/50 animate-pulse motion-reduce:animate-none" />
-            <div className="mt-4 flex gap-2">
-              {Array.from({ length: 4 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-11 w-24 rounded-full bg-vl-border/60 animate-pulse motion-reduce:animate-none"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Featured brand */}
-          <div className="mt-8 sm:mt-12">
-            <div className="h-6 w-40 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none" />
-            <div className="mt-5 grid overflow-hidden rounded-vl-card border border-vl-border bg-vl-card md:grid-cols-[1.1fr_1fr]">
-              <div className="p-5 sm:p-8">
-                <div className="flex items-center gap-3">
-                  <div className="h-14 w-14 rounded-xl bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-5 w-40 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none" />
-                    <div className="h-3.5 w-24 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
-                  </div>
-                </div>
-                <div className="mt-5 h-3.5 w-52 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
-                <div className="mt-3 h-4 w-full rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
-                <div className="mt-2 h-4 w-4/5 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
-                <div className="mt-6 flex gap-2">
-                  <div className="h-11 w-32 rounded-vl-control bg-vl-border/70 animate-pulse motion-reduce:animate-none" />
-                  <div className="h-11 w-28 rounded-vl-control bg-vl-border/50 animate-pulse motion-reduce:animate-none" />
-                </div>
+          <div className="py-6 sm:py-10">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="mx-auto h-3 w-32 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
+              <div className="mx-auto mt-3 h-8 w-64 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none" />
+              <div className="mx-auto mt-2 h-4 w-80 rounded bg-vl-border/60 animate-pulse motion-reduce:animate-none" />
+              <div className="mx-auto mt-6 h-[52px] w-full max-w-2xl rounded-full bg-vl-border/50 animate-pulse motion-reduce:animate-none" />
+              <div className="mt-4 flex justify-center gap-2">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="h-9 w-20 rounded-full bg-vl-border/60 animate-pulse motion-reduce:animate-none"
+                  />
+                ))}
               </div>
-              <div className="relative hidden min-h-[240px] bg-vl-border/40 md:block animate-pulse motion-reduce:animate-none" />
             </div>
           </div>
 
@@ -75,14 +54,14 @@ export default function StoresLoading() {
           <CarouselRowSkeleton />
           <CarouselRowSkeleton />
 
-          {/* The Edit */}
-          <div className="mt-8 sm:mt-12">
-            <div className="h-6 w-40 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none" />
-            <div className="mt-5 flex gap-3">
+          {/* Explore by Category */}
+          <div className="mt-8 sm:mt-10">
+            <div className="h-6 w-44 rounded bg-vl-border/80 animate-pulse motion-reduce:animate-none" />
+            <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
               {Array.from({ length: 4 }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="h-11 w-36 rounded-vl-control bg-vl-border/60 animate-pulse motion-reduce:animate-none"
+                  className="h-[112px] rounded-vl-card bg-vl-border/50 animate-pulse motion-reduce:animate-none sm:h-[128px]"
                 />
               ))}
             </div>

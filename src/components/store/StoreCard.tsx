@@ -121,24 +121,24 @@ export default function StoreCard({
       </Link>
 
       {/* Body */}
-      <div className={`flex flex-1 flex-col ${carousel ? "p-3" : "p-4"}`}>
+      <div className={`flex flex-1 flex-col ${carousel ? "p-3" : "p-3"}`}>
         <div className="flex items-center gap-2.5">
           {/* Store logo — isolated from buyer profile image, uses seller.storeLogo */}
           <div
             className={`flex shrink-0 items-center justify-center overflow-hidden border border-vl-border bg-vl-surface ${
-              carousel ? "h-10 w-10 rounded-lg" : "h-12 w-12 rounded-xl"
+              carousel ? "h-10 w-10 rounded-lg" : "h-10 w-10 rounded-lg"
             }`}
           >
             {store.logoUrl ? (
               <Image
                 src={store.logoUrl}
                 alt=""
-                width={carousel ? 40 : 48}
-                height={carousel ? 40 : 48}
+                width={40}
+                height={40}
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="text-sm font-bold text-vl-primary">{initials}</span>
+              <span className="text-xs font-bold text-vl-primary">{initials}</span>
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -146,17 +146,17 @@ export default function StoreCard({
               <Link
                 href={href}
                 className={`truncate font-vl-heading font-bold text-vl-ink transition-colors duration-200 hover:text-vl-primary ${
-                  carousel ? "text-sm" : "text-base"
+                  carousel ? "text-sm" : "text-[14px] leading-none"
                 }`}
               >
                 {store.name}
               </Link>
               {store.isVerified ? (
-                <BadgeCheck aria-label="Verified store" className="h-4 w-4 shrink-0 text-vl-success" />
+                <BadgeCheck aria-label="Verified store" className="h-3.5 w-3.5 shrink-0 text-vl-success" />
               ) : null}
             </div>
-            <div className="mt-0.5 flex items-center gap-1 text-xs text-vl-muted">
-              <Star aria-hidden="true" className="h-3.5 w-3.5 fill-vl-accent text-vl-accent" />
+            <div className="mt-0.5 flex items-center gap-1 text-[11px] text-vl-muted">
+              <Star aria-hidden="true" className="h-3 w-3 fill-vl-accent text-vl-accent" />
               <span className="font-semibold text-vl-ink">{store.rating > 0 ? store.rating.toFixed(1) : "New"}</span>
               <span>({store.reviewCount})</span>
             </div>
@@ -164,7 +164,7 @@ export default function StoreCard({
         </div>
 
         {/* Meta row */}
-        <div className={`flex items-center gap-2 text-xs text-vl-muted ${carousel ? "mt-2" : "mt-3"}`}>
+        <div className={`flex items-center gap-1.5 text-[11px] text-vl-muted ${carousel ? "mt-2" : "mt-2.5"}`}>
           <span className="truncate">
             {store.category}
             {store.city ? ` · ${store.city}` : ""}
@@ -174,10 +174,10 @@ export default function StoreCard({
         </div>
 
         {/* Actions: Visit Store (primary) + Follow (secondary) */}
-        <div className={`grid grid-cols-2 gap-2 ${carousel ? "mt-3" : "mt-4"}`}>
+        <div className={`grid grid-cols-2 gap-1.5 ${carousel ? "mt-3" : "mt-3"}`}>
           <Link
             href={href}
-            className="inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-2 text-sm font-bold text-white transition-all duration-150 hover:bg-vl-primary/90 active:scale-[0.98]"
+            className="inline-flex min-h-10 items-center justify-center rounded-vl-control bg-vl-primary px-2 text-xs font-bold text-white transition-all duration-150 hover:bg-vl-primary/90 active:scale-[0.98]"
           >
             Visit Store
           </Link>
@@ -185,7 +185,7 @@ export default function StoreCard({
             type="button"
             onClick={() => onToggleFollow(store.id)}
             aria-pressed={isFollowed}
-            className={`inline-flex min-h-11 items-center justify-center gap-1 rounded-vl-control border px-2 text-sm font-bold transition-all duration-150 active:scale-[0.98] ${
+            className={`inline-flex min-h-10 items-center justify-center gap-1 rounded-vl-control border px-2 text-xs font-bold transition-all duration-150 active:scale-[0.98] ${
               isFollowed
                 ? "border-vl-primary bg-vl-primary/10 text-vl-primary"
                 : "border-vl-primary bg-white text-vl-primary hover:bg-vl-primary/5"
@@ -193,7 +193,7 @@ export default function StoreCard({
           >
             {isFollowed ? (
               <>
-                <Check aria-hidden="true" className="h-4 w-4" />
+                <Check aria-hidden="true" className="h-3.5 w-3.5" />
                 Following
               </>
             ) : (

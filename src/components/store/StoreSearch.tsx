@@ -6,9 +6,10 @@ import { Search, X } from "lucide-react";
 interface StoreSearchProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-export default function StoreSearch({ value, onChange }: StoreSearchProps) {
+export default function StoreSearch({ value, onChange, placeholder = "Search stores by name or category" }: StoreSearchProps) {
   return (
     <div className="relative w-full">
       <Search
@@ -23,9 +24,9 @@ export default function StoreSearch({ value, onChange }: StoreSearchProps) {
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Search stores by name or category"
+        placeholder={placeholder}
         autoComplete="off"
-        className="h-12 w-full rounded-vl-control border border-vl-border bg-white pl-11 pr-11 text-sm text-vl-ink shadow-vl-soft outline-none transition-colors duration-200 placeholder:text-vl-muted focus:border-vl-primary"
+        className="h-12 w-full rounded-full border border-vl-border bg-white pl-11 pr-11 text-sm text-vl-ink shadow-sm outline-none transition-colors duration-200 placeholder:text-vl-muted focus:border-vl-primary sm:h-[52px] sm:text-[15px]"
       />
       {value ? (
         <button

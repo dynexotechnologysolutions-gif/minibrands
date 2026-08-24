@@ -3,12 +3,9 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUpDown, SearchX } from "lucide-react";
-import StoreSearch from "./StoreSearch";
-import StoreCategoryFilter from "./StoreCategoryFilter";
 import StoreSection from "./StoreSection";
 import StoreCard, { StoreSummary } from "./StoreCard";
 import StoreDiscoveryHero from "./StoreDiscoveryHero";
-import FeaturedBrand from "./FeaturedBrand";
 import StoreEditorialEdit from "./StoreEditorialEdit";
 import { followSellerAction, unfollowSellerAction } from "@/actions/seller-follow.action";
 
@@ -95,17 +92,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
       alert("Failed to update follow. Please try again.");
     }
   };
-
-  const featuredStore = useMemo(() => {
-    if (stores.length === 0) return null;
-    return [...stores].sort(
-      (a, b) =>
-        b.trustScore - a.trustScore ||
-        b.rating - a.rating ||
-        b.productCount - a.productCount ||
-        b.createdAt.localeCompare(a.createdAt),
-    )[0];
-  }, [stores]);
 
   const nearYouStores = useMemo(() => {
     const cityCounts = new Map<string, number>();
@@ -194,12 +180,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
         onCategoryChange={handleCategoryChange}
       />
 
-      <FeaturedBrand
-        store={featuredStore}
-        isFollowed={featuredStore ? followedIds.has(featuredStore.id) : false}
-        onToggleFollow={handleToggleFollow}
-      />
-
       <StoreSection
         id="near-you"
         title="Near You"
@@ -280,13 +260,14 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
           </div>
         </div>
 
-        <div className="mt-4">
-          <StoreSearch value={searchInput} onChange={handleSearchChange} />
-        </div>
-
-        <div className="mt-4">
-          <StoreCategoryFilter categories={categories} active={activeCategory} onChange={setActiveCategory} />
-        </div>
+        {hasFilters && (
+          <p className="mt-3 text-xs text-vl-muted">
+            {searchQuery && <>Searching for “{searchQuery}”</>}
+            {searchQuery && activeCategory !== "all" && <> · </>}
+            {activeCategory !== "all" && <>{activeCategory}</>}
+            <span className="ml-2 font-semibold text-vl-primary">→ filtered via Discover</span>
+          </p>
+        )}
 
         {allBrandsStores.length === 0 ? (
           <div className="mt-5 rounded-vl-card border border-dashed border-vl-border bg-vl-card p-10 text-center">
