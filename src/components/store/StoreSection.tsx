@@ -70,7 +70,7 @@ export default function StoreSection({
           ))}
         </div>
       ) : (
-        <div className="-mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-4 pb-2 hide-scrollbar md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="-mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-5 pb-2 hide-scrollbar md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 xl:grid-cols-4">
           {stores.map((store) => (
             <StoreCard
               key={store.id}

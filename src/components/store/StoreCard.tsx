@@ -57,7 +57,7 @@ export default function StoreCard({
       <article className={cardClassName}>
         <Link
           href={href}
-          className="relative block aspect-[16/10] w-full overflow-hidden bg-vl-surface"
+          className="relative block aspect-[16/9] w-full overflow-hidden bg-vl-surface"
           aria-label={`View ${store.name} store`}
         >
           {store.coverImage ? (
@@ -97,7 +97,7 @@ export default function StoreCard({
       {/* Store cover */}
       <Link
         href={href}
-        className={`relative block w-full overflow-hidden bg-vl-surface ${carousel ? "aspect-[16/9]" : "aspect-[16/10]"}`}
+        className={`relative block w-full overflow-hidden bg-vl-surface ${carousel ? "aspect-[16/9]" : "aspect-[16/9]"}`}
         aria-label={`View ${store.name} store`}
       >
         {store.coverImage ? (
