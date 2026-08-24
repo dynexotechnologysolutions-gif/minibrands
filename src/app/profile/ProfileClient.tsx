@@ -26,7 +26,8 @@ import {
   Edit3,
   ArrowRight,
   ArrowLeft,
-  X
+  X,
+  Settings
 } from "lucide-react";
 
 interface OrderInfo {
@@ -310,7 +311,7 @@ export default function ProfileClient({
       )}
 
       {/* Main Content Layout */}
-      <main className="pt-24 pb-20 px-4 md:px-8 max-w-container-max mx-auto w-full flex-grow">
+      <main className="pt-32 pb-20 px-4 md:px-8 max-w-container-max mx-auto w-full flex-grow md:pt-8">
         <div className="flex flex-col md:flex-row gap-8">
           
           {/* SideNavBar (Hidden on Mobile, Visible on Web) */}
@@ -403,6 +404,9 @@ export default function ProfileClient({
             
             {/* Profile Hero Section */}
             <section id="profile-hero" className="bg-vl-card border border-vl-border rounded-vl-card p-6 sm:p-8 shadow-vl-soft flex flex-col md:flex-row items-center md:items-start gap-6 relative">
+              <Link href="/account/security" className="absolute top-4 right-4 w-9 h-9 rounded-full bg-vl-surface border border-vl-border flex items-center justify-center text-vl-muted hover:text-vl-ink hover:border-vl-primary/30 transition-colors" aria-label="Security Settings">
+                <Settings className="w-4.5 h-4.5" />
+              </Link>
               {/* Avatar Section */}
               <div className="relative shrink-0">
                 <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white shadow-md relative bg-vl-surface">
