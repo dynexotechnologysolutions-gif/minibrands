@@ -455,6 +455,13 @@ export default function OrderDetailClient({
           
             {/* Left Panel: Items & Address */}
             <div className="lg:col-span-8 space-y-5">
+              <Link
+                href="/orders"
+                className="inline-flex items-center gap-2 text-vl-primary font-bold text-sm hover:underline lg:hidden -mb-1"
+              >
+                <span className="material-symbols-outlined text-base">arrow_back</span>
+                Back to Orders
+              </Link>
             
             <OrderStatusHeroInternal 
               isDelivered={isDelivered}
