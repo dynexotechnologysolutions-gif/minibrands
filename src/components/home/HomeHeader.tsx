@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ChevronDown,
   Heart,
@@ -46,8 +46,28 @@ interface HomeHeaderProps {
   variant?: "default" | "green";
 }
 
-export default function HomeHeader({ userProfile, cartCount, sellerHref, variant = "default" }: HomeHeaderProps) {
+export default function HomeHeader({ userProfile, cartCount, sellerHref, variant }: HomeHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthRoute =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot") ||
+    pathname.startsWith("/reset") ||
+    pathname.startsWith("/verify") ||
+    pathname.startsWith("/session-expired");
+  const isSellerOrAdmin = pathname.startsWith("/seller") || pathname.startsWith("/admin");
+  const isMarketplaceBuyer =
+    pathname === "/" ||
+    pathname === "/stores" ||
+    pathname === "/categories" ||
+    pathname.startsWith("/sellers") ||
+    pathname.startsWith("/products") ||
+    pathname.startsWith("/category") ||
+    pathname === "/search" ||
+    pathname.startsWith("/search");
+  const isBuyerRoute = isMarketplaceBuyer && !isAuthRoute && !isSellerOrAdmin;
+  const effectiveVariant = variant ?? (isBuyerRoute ? "green" : "default");
   const [searchQuery, setSearchQuery] = useState("");
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -171,7 +191,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
   return (
     <>
       {/* Desktop Header */}
-      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl hidden md:block ${variant === "green" ? "border-[#0d3b36]/10 bg-[#0d3b36] shadow-md" : "border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)]"}`}>
+      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl hidden md:block ${effectiveVariant === "green" ? "border-[#0d3b36]/10 bg-[#0d3b36] shadow-md" : "border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)]"}`}>
         <div className="mx-auto h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 flex">
           <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
             <span
@@ -180,7 +200,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
             >
               M
             </span>
-            <span className={`hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] sm:inline ${variant === "green" ? "text-white" : "text-[#222222]"}`}>MiniBrands</span>
+            <span className={`hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] sm:inline ${effectiveVariant === "green" ? "text-white" : "text-[#222222]"}`}>MiniBrands</span>
           </Link>
 
           <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
@@ -193,26 +213,26 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search brands, products and styles…"
-                className={`h-12 w-full rounded-3xl border-[1.5px] pl-11 pr-4 text-sm placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-vl-primary focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)] ${variant === "green" ? "border-white/20 bg-white text-vl-ink focus:bg-white" : "border-[#ECECEC] bg-[#F5F5F8] text-[#222222] focus:bg-white"}`}
+                className={`h-12 w-full rounded-3xl border-[1.5px] pl-11 pr-4 text-sm placeholder:text-[#9CA3AF] outline-none transition-all duration-200 focus:border-vl-primary focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)] ${effectiveVariant === "green" ? "border-white/20 bg-white text-vl-ink focus:bg-white" : "border-[#ECECEC] bg-[#F5F5F8] text-[#222222] focus:bg-white"}`}
               />
             </div>
           </form>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <button suppressHydrationWarning type="button" onClick={handleHeaderLocationClick} className={`hidden min-h-11 items-center gap-2 rounded-vl-control px-3 text-xs font-semibold transition xl:flex ${variant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"}`} aria-label={`Delivery location: ${locationText}`}>
+            <button suppressHydrationWarning type="button" onClick={handleHeaderLocationClick} className={`hidden min-h-11 items-center gap-2 rounded-vl-control px-3 text-xs font-semibold transition xl:flex ${effectiveVariant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"}`} aria-label={`Delivery location: ${locationText}`}>
               <MapPin aria-hidden="true" className="h-4 w-4 text-vl-primary" />
               <span className="max-w-28 truncate">{locationText}</span>
             </button>
-            <Link href={wishlistHref} className={`hidden min-h-11 min-w-11 items-center justify-center rounded-full transition-all duration-200 sm:inline-flex ${variant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[#6B7280] hover:bg-vl-primary/8 hover:text-vl-primary"}`} aria-label="Wishlist">
+            <Link href={wishlistHref} className={`hidden min-h-11 min-w-11 items-center justify-center rounded-full transition-all duration-200 sm:inline-flex ${effectiveVariant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[#6B7280] hover:bg-vl-primary/8 hover:text-vl-primary"}`} aria-label="Wishlist">
               <Heart aria-hidden="true" className="h-5 w-5" />
             </Link>
-            <Link href="/cart" className={`relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-all duration-200 ${variant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[#6B7280] hover:bg-vl-primary/8 hover:text-vl-primary"}`} aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
+            <Link href="/cart" className={`relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-all duration-200 ${effectiveVariant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-[#6B7280] hover:bg-vl-primary/8 hover:text-vl-primary"}`} aria-label={`Cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}>
               <ShoppingBag aria-hidden="true" className="h-5 w-5" />
               {cartCount > 0 ? <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E53935] px-1 text-[10px] font-bold text-white">{cartCount}</span> : null}
             </Link>
 
             <div ref={accountRef} className="relative">
-              <button suppressHydrationWarning type="button" onClick={() => setIsAccountOpen((open) => !open)} className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control px-2 text-sm font-semibold transition sm:px-3 ${variant === "green" ? "text-white hover:bg-white/10" : "text-vl-ink hover:bg-vl-surface"}`} aria-expanded={isAccountOpen} aria-haspopup="menu">
+              <button suppressHydrationWarning type="button" onClick={() => setIsAccountOpen((open) => !open)} className={`inline-flex min-h-11 items-center gap-2 rounded-vl-control px-2 text-sm font-semibold transition sm:px-3 ${effectiveVariant === "green" ? "text-white hover:bg-white/10" : "text-vl-ink hover:bg-vl-surface"}`} aria-expanded={isAccountOpen} aria-haspopup="menu">
                 {activeMode === "BUYER" ? (
                   userProfile?.user?.image ? (
                     <img src={userProfile.user.image} alt="" className="h-7 w-7 rounded-full object-cover" />
@@ -249,7 +269,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
             </div>
 
             <div ref={moreRef} className="relative hidden lg:block">
-              <button suppressHydrationWarning type="button" onClick={() => setIsMoreOpen((open) => !open)} className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition ${variant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"}`} aria-label="More options" aria-expanded={isMoreOpen}><MoreHorizontal aria-hidden="true" className="h-5 w-5" /></button>
+              <button suppressHydrationWarning type="button" onClick={() => setIsMoreOpen((open) => !open)} className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition ${effectiveVariant === "green" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-vl-muted hover:bg-vl-surface hover:text-vl-ink"}`} aria-label="More options" aria-expanded={isMoreOpen}><MoreHorizontal aria-hidden="true" className="h-5 w-5" /></button>
               {isMoreOpen ? <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 rounded-vl-card border border-vl-border bg-vl-card p-2 shadow-vl-floating"><Link href={becomeSellerHref} className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium text-vl-muted hover:bg-vl-surface hover:text-vl-primary"><Store aria-hidden="true" className="h-4 w-4" />Become a seller</Link></div> : null}
             </div>
           </div>
@@ -261,7 +281,7 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
         userProfile={userProfile}
         cartCount={cartCount}
         sellerHref={sellerHref}
-        variant={variant}
+        variant={effectiveVariant}
       />
     </>
   );
