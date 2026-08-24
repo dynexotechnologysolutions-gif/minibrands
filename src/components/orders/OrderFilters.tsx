@@ -1,4 +1,5 @@
 import React from "react";
+import { Search, ChevronDown } from "lucide-react";
 
 interface OrderFiltersProps {
   searchQuery: string;
@@ -36,9 +37,7 @@ export default function OrderFilters({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-vl-card border border-vl-border rounded-2xl p-4 shadow-vl-soft">
         {/* Large Rounded Search Input */}
         <div className="relative flex-1">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-vl-muted pointer-events-none text-xl">
-            search
-          </span>
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-vl-muted pointer-events-none w-5 h-5" />
           <input
             className="w-full pl-11 pr-4 py-3 bg-vl-surface border border-vl-border rounded-xl text-sm outline-none focus:border-vl-primary focus:ring-1 focus:ring-vl-primary/30 transition-all font-vl-body text-vl-ink"
             placeholder="Search order ID, brand, product..."
@@ -64,9 +63,7 @@ export default function OrderFilters({
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
             </select>
-            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-vl-muted pointer-events-none text-lg">
-              keyboard_arrow_down
-            </span>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-vl-muted pointer-events-none w-4 h-4" />
           </div>
         </div>
       </div>

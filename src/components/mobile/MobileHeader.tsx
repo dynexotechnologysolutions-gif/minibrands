@@ -56,6 +56,7 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     pathname === "/checkout" ||
     pathname.startsWith("/category/") || 
     pathname.startsWith("/order/success") ||
+    pathname === "/account/orders" ||
     pathname.startsWith("/account/orders/");
   const isExplore = pathname === "/products";
   const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
