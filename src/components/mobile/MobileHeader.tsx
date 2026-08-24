@@ -13,9 +13,10 @@ import { UserProfileData } from "@/components/home/HomeHeader";
 interface MobileHeaderProps {
   userProfile?: UserProfileData | null;
   cartCount: number;
+  variant?: "default" | "green";
 }
 
-export default function MobileHeader({ userProfile, cartCount }: MobileHeaderProps) {
+export default function MobileHeader({ userProfile, cartCount, variant = "default" }: MobileHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   let wishlist: unknown[] = [];
@@ -54,18 +55,19 @@ export default function MobileHeader({ userProfile, cartCount }: MobileHeaderPro
     : userProfile?.seller?.storeName || userProfile?.seller?.businessName || "Store";
 
   // Mapped exact route conditions
-  const isHome = 
-    pathname === "/" || 
-    pathname === "/categories" || 
-    pathname === "/stores" || 
+  const isHome =
+    pathname === "/" ||
+    pathname === "/categories" ||
+    pathname === "/stores" ||
     pathname === "/cart" ||
     pathname === "/checkout" ||
-    pathname.startsWith("/category/") || 
+    pathname.startsWith("/category/") ||
     pathname.startsWith("/order/success") ||
     pathname === "/account/orders" ||
     pathname.startsWith("/account/orders/") ||
     pathname === "/account/security" ||
-    pathname.startsWith("/account/security");
+    pathname.startsWith("/account/security") ||
+    (variant === "green" && pathname.startsWith("/sellers/"));
   const isExplore = pathname === "/products";
   const isExploreQuery = pathname.startsWith("/products") && !pathname.startsWith("/products/"); // matches /products/ but not /products/[id]
   const isWishlist = pathname === "/account/wishlist" || pathname === "/wishlist";
