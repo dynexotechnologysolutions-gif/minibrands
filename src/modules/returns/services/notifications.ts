@@ -37,8 +37,8 @@ export class NotificationService {
       }
 
       // 2. Email Dispatch via Resend
-      const subject = `[Velvet Lane] Return Update - Order #${orderId.slice(0, 8)}`;
-      const text = `Hi ${returnRequest.buyer.user.name || "Customer"},\n\nYour return request for Order #${orderId} has been updated to: ${status}.\nEvent detail: ${event}.\n\nThank you,\nVelvet Lane Team`;
+      const subject = `[MiniBrands] Return Update - Order #${orderId.slice(0, 8)}`;
+      const text = `Hi ${returnRequest.buyer.user.name || "Customer"},\n\nYour return request for Order #${orderId} has been updated to: ${status}.\nEvent detail: ${event}.\n\nThank you,\nMiniBrands Team`;
       
       await EmailService.sendAlert(subject, text); // Alerts founder/ops of state changes
     } catch (err) {
@@ -75,8 +75,8 @@ export class NotificationService {
       const sellerEmail = returnRequest.order.seller.userProfile.user.email;
       const orderId = returnRequest.order.id;
 
-      const subject = `[Velvet Lane Seller] Return Action Required - Order #${orderId.slice(0, 8)}`;
-      const text = `Hello Seller,\n\nReturn request for Order #${orderId} requires attention.\nEvent: ${event}.\nStatus: ${returnRequest.status}.\n\nPlease visit your Seller Dashboard to action this request.\n\nThank you,\nVelvet Lane Ops`;
+      const subject = `[MiniBrands Seller] Return Action Required - Order #${orderId.slice(0, 8)}`;
+      const text = `Hello Seller,\n\nReturn request for Order #${orderId} requires attention.\nEvent: ${event}.\nStatus: ${returnRequest.status}.\n\nPlease visit your Seller Dashboard to action this request.\n\nThank you,\nMiniBrands Ops`;
       
       await EmailService.sendAlert(subject, text);
     } catch (err) {
@@ -94,7 +94,7 @@ export class NotificationService {
       });
       const orderId = returnRequest?.orderId || "unknown";
 
-      const subject = `[Velvet Lane ADMIN ALERT] Return Dispute / Failure - Order #${orderId.slice(0, 8)}`;
+      const subject = `[MiniBrands ADMIN ALERT] Return Dispute / Failure - Order #${orderId.slice(0, 8)}`;
       const text = `ATTENTION ADMINS:\n\nReturn request ID: ${returnRequestId} (Order ID: ${orderId}) has encountered a failure or dispute.\nReason: ${reason}.\nStatus: ${returnRequest?.status || "unknown"}.\n\nPlease review and override the dispute immediately in the Admin Console.`;
       
       await EmailService.sendAlert(subject, text);

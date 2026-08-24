@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Refund & Return Policy | Velvet Lane",
-  description: "Read the Refund & Return Policy of Velvet Lane to understand returns, disputes, cancellation conditions, and merchant payout rules.",
+  title: "Refund & Return Policy | MiniBrands",
+  description: "Read the Refund & Return Policy of MiniBrands to understand returns, disputes, cancellation conditions, and merchant payout rules.",
 };
 
 export default function ReturnsPolicyPage() {

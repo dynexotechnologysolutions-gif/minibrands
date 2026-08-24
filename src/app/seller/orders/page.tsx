@@ -10,8 +10,8 @@ import SellerOrdersClient from "./SellerOrdersClient";
 import SellerLayout from "@/components/seller/SellerLayout";
 
 export const metadata = {
-  title: "Orders | Seller Dashboard — Velvet Lane",
-  description: "Manage and fulfil customer orders for your boutique on Velvet Lane.",
+  title: "Orders | Seller Dashboard — MiniBrands",
+  description: "Manage and fulfil customer orders for your boutique on MiniBrands.",
 };
 
 export default async function SellerOrdersPage() {

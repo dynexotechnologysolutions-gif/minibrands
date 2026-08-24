@@ -334,7 +334,7 @@ export default function OnboardingForm({
           </div>
           <div>
             <span className="text-[11px] font-bold text-primary uppercase tracking-widest block">Seller Onboarding Portal</span>
-            <h1 className="text-xl sm:text-2xl font-black font-headline-md text-primary tracking-tight">Velvet Lane Onboarding</h1>
+            <h1 className="text-xl sm:text-2xl font-black font-headline-md text-primary tracking-tight">MiniBrands Onboarding</h1>
           </div>
         </div>
         <button

@@ -10,7 +10,7 @@ import OrderDetailClient from "../../../orders/[orderId]/OrderDetailClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Order Details | Velvet Lane",
+  title: "Order Details | MiniBrands",
   robots: {
     index: false,
     follow: false,

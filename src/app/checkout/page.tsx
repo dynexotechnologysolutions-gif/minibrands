@@ -12,7 +12,7 @@ import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Checkout | Velvet Lane",
+  title: "Checkout | MiniBrands",
   robots: {
     index: false,
     follow: false,

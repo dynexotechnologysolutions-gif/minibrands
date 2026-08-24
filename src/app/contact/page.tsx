@@ -54,7 +54,7 @@ export default function ContactPage() {
             <div>
               <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Office Address</h3>
               <p className="text-slate-900 mt-1 leading-relaxed">
-                Velvet Lane Tech Hub,<br />
+                MiniBrands Tech Hub,<br />
                 Adyar, Chennai - 600020,<br />
                 Tamil Nadu, India
               </p>

@@ -502,7 +502,7 @@ export default function ReturnWizardClient({ order }: ReturnWizardClientProps) {
                 <div>
                   <p className="font-bold text-body-md text-on-surface">Store Credit / Wallet</p>
                   <p className="text-body-sm text-text-muted">
-                    Instant credit to your Velvet Lane account balance upon inspection pass.
+                    Instant credit to your MiniBrands account balance upon inspection pass.
                   </p>
                 </div>
               </label>

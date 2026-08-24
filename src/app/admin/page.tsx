@@ -473,7 +473,7 @@ export default async function FounderDashboardPage() {
             <h3 className="font-display font-extrabold text-base text-on-surface">
               Recent Orders Directory
             </h3>
-            <p className="text-xs text-text-muted">Latest transactional activity across Velvet Lane</p>
+            <p className="text-xs text-text-muted">Latest transactional activity across MiniBrands</p>
           </div>
           <Link
             href="/admin/orders"

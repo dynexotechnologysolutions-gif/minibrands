@@ -51,21 +51,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!seller) {
     return {
-      title: "Seller Storefront Not Found | Velvet Lane",
+      title: "Seller Storefront Not Found | MiniBrands",
     };
   }
 
   if (!seller.verification) {
     return {
-      title: "Storefront Unavailable | Velvet Lane",
+      title: "Storefront Unavailable | MiniBrands",
     };
   }
 
   return {
-    title: `${seller.storeName || seller.businessName} | Fashion Boutique in ${seller.city} | Velvet Lane`,
+    title: `${seller.storeName || seller.businessName} | Fashion Boutique in ${seller.city} | MiniBrands`,
     description: `Shop verified fashion boutique ${seller.storeName || seller.businessName} from ${seller.city}, India. Discover handpicked ethnic wear, custom designs, and streetwear with secure escrow checkouts.`,
     openGraph: {
-      title: `${seller.storeName || seller.businessName} Storefront | Velvet Lane`,
+      title: `${seller.storeName || seller.businessName} Storefront | MiniBrands`,
       description: `Verified independent fashion boutique from ${seller.city}. Shop local with escrow payment protection.`,
     },
   };

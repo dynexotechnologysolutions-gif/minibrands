@@ -1,5 +1,5 @@
 /**
- * Calculates the marketplace commission fee for Velvet Lane.
+ * Calculates the marketplace commission fee for MiniBrands.
  * Uses a flat rate of 8% of the total amount.
  * Returns the commission in paise (INR smallest unit), rounded to the nearest integer.
  */

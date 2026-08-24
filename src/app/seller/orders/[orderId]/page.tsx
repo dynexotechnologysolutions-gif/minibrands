@@ -12,7 +12,7 @@ import SellerLayout from "@/components/seller/SellerLayout";
 export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;
   return {
-    title: `Order ${orderId.slice(0, 8).toUpperCase()} | Seller Dashboard — Velvet Lane`,
+    title: `Order ${orderId.slice(0, 8).toUpperCase()} | Seller Dashboard — MiniBrands`,
   };
 }
 

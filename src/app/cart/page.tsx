@@ -11,7 +11,7 @@ import CartClient from "./CartClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Shopping Cart | Velvet Lane",
+  title: "Shopping Cart | MiniBrands",
   robots: {
     index: false,
     follow: false,

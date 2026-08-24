@@ -82,7 +82,7 @@ export const auth = betterAuth({
               const welcomeHtml = getWelcomeEmailHtml({ name: user.name || "Fashion Enthusiast", role: targetRole });
               EmailService.send({
                 to: user.email,
-                subject: "Welcome to MiniBrands Velvet Lane!",
+                subject: "Welcome to MiniBrands!",
                 html: welcomeHtml,
                 category: "TRANSACTIONAL",
               }).catch((err) => console.error("Error sending welcome email:", err));

@@ -22,7 +22,7 @@ export default function StitchHomeFooter() {
       <div className="max-w-[1280px] lg:max-w-[1200px] xl:max-w-[1280px] 2xl:max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
         {/* Brand Column */}
         <div className="flex flex-col gap-2">
-          <span className="font-bold text-2xl text-[#97F2F1] mb-1">Velvet Lane</span>
+          <span className="font-bold text-2xl text-[#97F2F1] mb-1">MiniBrands</span>
           <p className="text-sm text-white/80">Many Stores. One Trusted Place.</p>
         </div>
 
@@ -69,7 +69,7 @@ export default function StitchHomeFooter() {
 
         {/* Bottom Copyright Row */}
         <div className="col-span-1 md:col-span-4 mt-6 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/60">
-          <p>© 2026 Velvet Lane Marketplace. All Rights Reserved.</p>
+          <p>© 2026 MiniBrands Marketplace. All Rights Reserved.</p>
           <div className="flex gap-2">
             <div className="w-10 h-6 bg-white/10 rounded flex items-center justify-center font-bold text-[9px] text-white">VISA</div>
             <div className="w-10 h-6 bg-white/10 rounded flex items-center justify-center font-bold text-[9px] text-white">MC</div>

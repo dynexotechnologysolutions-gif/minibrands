@@ -71,7 +71,7 @@ export function generateInvoicePDF(data: InvoiceData): Buffer {
 
   let y = margin;
 
-  // 1. Header Bar (MINIBRANDS / Velvet Lane Logo & TAX INVOICE)
+  // 1. Header Bar (MINIBRANDS / MiniBrands Logo & TAX INVOICE)
   doc.setFillColor(15, 23, 42); // #0F172A
   doc.rect(margin, y, contentWidth, 22, "F");
 
@@ -83,7 +83,7 @@ export function generateInvoicePDF(data: InvoiceData): Buffer {
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("Velvet Lane Marketplace", margin + 6, y + 16);
+  doc.text("MiniBrands Marketplace", margin + 6, y + 16);
 
   // TAX INVOICE Title (Right aligned in Header)
   doc.setFont("helvetica", "bold");
@@ -319,7 +319,7 @@ export function generateInvoicePDF(data: InvoiceData): Buffer {
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
   doc.text("1. This is a computer-generated tax invoice and does not require a physical signature.", margin, y);
-  doc.text("2. All goods sold through Velvet Lane Marketplace are subject to standard marketplace return and refund policies.", margin, y + 4);
+  doc.text("2. All goods sold through MiniBrands Marketplace are subject to standard marketplace return and refund policies.", margin, y + 4);
   doc.text("3. For any billing queries, support, or invoice corrections, please contact support@minibrands.com.", margin, y + 8);
 
   // 7. Footer
@@ -329,8 +329,8 @@ export function generateInvoicePDF(data: InvoiceData): Buffer {
 
   doc.setFontSize(7.5);
   doc.setTextColor(148, 163, 184);
-  doc.text("Thank you for shopping on MINIBRANDS Velvet Lane Marketplace!", margin, footerY);
-  doc.text("www.minibrands.com | Support: support@minibrands.com | © 2026 Velvet Lane Inc.", pageWidth - margin, footerY, { align: "right" });
+  doc.text("Thank you for shopping on MINIBRANDS Marketplace!", margin, footerY);
+  doc.text("www.minibrands.com | Support: support@minibrands.com | © 2026 MiniBrands Inc.", pageWidth - margin, footerY, { align: "right" });
 
   // Convert arraybuffer to Node.js Buffer
   const arrayBuffer = doc.output("arraybuffer");

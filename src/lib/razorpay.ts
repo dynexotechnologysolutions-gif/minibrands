@@ -50,7 +50,7 @@ export async function validateBankAccount(
         Authorization: `Basic ${authHeader}`,
       },
       body: JSON.stringify({
-        name: "Velvet Lane Verification",
+        name: "MiniBrands Verification",
         type: "vendor",
         reference_id: `verify_contact_${Date.now()}`,
       }),

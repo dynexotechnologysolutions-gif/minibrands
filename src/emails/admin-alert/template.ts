@@ -15,5 +15,5 @@ export function renderAdminAlertEmail({ subject, body }: AdminAlertTemplateOptio
     <p style="font-size: 12px; color: #64748b; margin-top: 24px; margin-bottom: 0;">This is an automated system security/operational alert. Please inspect the dashboard or audit logs for detail.</p>
   `;
 
-  return getBaseLayout(`[Velvet Alert] ${subject}`, content);
+  return getBaseLayout(`[MiniBrands Alert] ${subject}`, content);
 }

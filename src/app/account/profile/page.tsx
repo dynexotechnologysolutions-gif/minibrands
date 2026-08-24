@@ -10,7 +10,7 @@ import ProfileClient from "../../profile/ProfileClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "My Profile | Velvet Lane",
+  title: "My Profile | MiniBrands",
   robots: {
     index: false,
     follow: false,

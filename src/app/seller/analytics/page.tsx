@@ -9,7 +9,7 @@ import SellerLayout from "@/components/seller/SellerLayout";
 import { BarChart3, TrendingUp, DollarSign, ShoppingBag } from "lucide-react";
 
 export const metadata = {
-  title: "Sales Analytics | Seller Hub — Velvet Lane",
+  title: "Sales Analytics | Seller Hub — MiniBrands",
   description: "Track store revenue, conversion rate, orders, and sales trends.",
 };
 

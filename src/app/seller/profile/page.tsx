@@ -10,7 +10,7 @@ import SellerLayout from "@/components/seller/SellerLayout";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Store Profile Settings | Velvet Lane",
+  title: "Store Profile Settings | MiniBrands",
   description: "Manage your independent boutique store logo, banner, categories, and review your verification status.",
 };
 

@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Velvet Lane",
-  description: "Read the Privacy Policy of Velvet Lane to understand how we secure and process user credentials and transaction records.",
+  title: "Privacy Policy | MiniBrands",
+  description: "Read the Privacy Policy of MiniBrands to understand how we secure and process user credentials and transaction records.",
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">1. Information We Collect</h2>
             <p>
-              We collect personal data such as your name, email, phone number, and physical shipping address when you register or make purchases on Velvet Lane.
+              We collect personal data such as your name, email, phone number, and physical shipping address when you register or make purchases on MiniBrands.
             </p>
           </div>
 
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">3. Payment & Security</h2>
             <p>
-              All payment details are handled securely by third-party processors (Razorpay/Stripe). Velvet Lane does not store raw credit card details on our servers.
+              All payment details are handled securely by third-party processors (Razorpay/Stripe). MiniBrands does not store raw credit card details on our servers.
             </p>
           </div>
 

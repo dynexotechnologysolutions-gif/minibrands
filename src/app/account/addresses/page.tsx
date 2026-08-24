@@ -4,7 +4,7 @@ import AddressPageContent, { AddressesPageProps } from "../../addresses/AddressP
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Address Selection | Velvet Lane",
+  title: "Address Selection | MiniBrands",
   robots: {
     index: false,
     follow: false,

@@ -231,7 +231,7 @@ export default function SellerLoginForm() {
           {/* Register Callout */}
           <div className="mt-xl pt-lg border-t border-outline-variant text-center">
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Want to start selling on Velvet Lane?{" "}
+              Want to start selling on MiniBrands?{" "}
               <Link
                 href="/seller/onboarding"
                 className="text-indigo-600 font-bold hover:underline"

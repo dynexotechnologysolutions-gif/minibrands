@@ -555,7 +555,7 @@ export default function OrderDetailClient({
               <div className="space-y-xs">
                 <p className="font-bold text-primary text-sm">Escrow Security Gate</p>
                 <p className="text-secondary text-xs leading-normal">
-                  Your funds are protected. Velvet holds payments in escrow, releasing them to sellers only after package delivery confirmation.
+                  Your funds are protected. MiniBrands holds payments in escrow, releasing them to sellers only after package delivery confirmation.
                 </p>
               </div>
             </div>

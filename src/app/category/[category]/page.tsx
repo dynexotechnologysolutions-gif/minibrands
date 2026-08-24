@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const resolvedParams = await params;
   const categoryName = decodeURIComponent(resolvedParams.category);
   return {
-    title: `${categoryName} | Chennai's Best Local Fashion | Velvet Lane`,
+    title: `${categoryName} | Chennai's Best Local Fashion | MiniBrands`,
     description: `Shop curated ${categoryName.toLowerCase()} from verified home boutiques and designers in Chennai. Secure escrow payments.`,
   };
 }
