@@ -589,31 +589,33 @@ export default function OrderDetailClient({
 
       {/* Order Journey Details Modal */}
       {showJourneyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowJourneyModal(false)} />
-          <div className="relative bg-white rounded-vl-card border border-vl-border shadow-xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col animate-fade-in">
-            <div className="flex items-center justify-between p-4 border-b border-vl-border shrink-0">
-              <h3 className="font-vl-heading text-lg font-bold text-vl-ink flex items-center gap-2">
-                <span className="material-symbols-outlined text-vl-primary">route</span>
+          <div className="relative bg-white rounded-2xl border border-vl-border shadow-2xl w-full max-w-2xl lg:max-w-3xl max-h-[88vh] overflow-hidden flex flex-col animate-fade-in mx-4">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-vl-border shrink-0 bg-vl-surface/50">
+              <h3 className="font-vl-heading text-xl font-bold text-vl-ink flex items-center gap-3">
+                <span className="w-9 h-9 rounded-full bg-vl-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-vl-primary">route</span>
+                </span>
                 Order Journey
               </h3>
               <button
                 type="button"
                 onClick={() => setShowJourneyModal(false)}
-                className="w-8 h-8 rounded-full hover:bg-vl-surface flex items-center justify-center text-vl-muted hover:text-vl-ink transition-colors"
+                className="w-9 h-9 rounded-full hover:bg-white border border-transparent hover:border-vl-border flex items-center justify-center text-vl-muted hover:text-vl-ink transition-all"
                 aria-label="Close"
               >
                 <span className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
-            <div className="p-4 sm:p-6 overflow-y-auto">
+            <div className="px-6 sm:px-8 py-6 overflow-y-auto">
               <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
             </div>
-            <div className="p-4 border-t border-vl-border shrink-0">
+            <div className="px-6 py-4 border-t border-vl-border shrink-0 bg-vl-surface/30">
               <button
                 type="button"
                 onClick={() => setShowJourneyModal(false)}
-                className="w-full py-3 bg-vl-primary text-white font-bold rounded-vl-control hover:bg-vl-primary-strong transition-colors text-sm"
+                className="w-full py-3.5 bg-vl-primary text-white font-bold rounded-vl-control hover:bg-vl-primary-strong transition-colors text-sm shadow-sm"
               >
                 Close
               </button>
