@@ -422,41 +422,39 @@ export default function OrderDetailClient({
       )}
 
       {/* Main Container */}
-      <main className="max-w-container-max mx-auto px-4 md:px-lg py-xl flex-grow w-full space-y-lg">
+      <main className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-6 lg:py-8 flex-grow w-full space-y-6">
         {/* Navigation & Title */}
-        <div>
-          <Link
-            href="/orders"
-            className="text-secondary font-bold hover:text-primary transition-colors flex items-center gap-xs mb-sm cursor-pointer select-none text-sm"
-          >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Orders
-          </Link>
-          <h1 className="font-vl-heading text-2xl font-extrabold text-primary">Order #{order.id.slice(0, 8).toUpperCase()}</h1>
-          <p className="text-secondary text-sm">
-            Placed on {new Date(order.createdAt).toLocaleString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <Link
+              href="/orders"
+              className="inline-flex items-center gap-1.5 text-vl-muted font-bold hover:text-vl-primary transition-colors text-xs uppercase tracking-wider mb-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              Back to Orders
+            </Link>
+            <h1 className="font-vl-heading text-xl lg:text-2xl font-extrabold text-vl-ink tracking-tight">Order #{order.id.slice(0, 8).toUpperCase()}</h1>
+            <p className="text-vl-muted text-xs lg:text-sm mt-1">
+              Placed on {new Date(order.createdAt).toLocaleString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vl-primary/10 text-vl-primary text-xs font-bold uppercase tracking-wider shrink-0">
+            <span className={`w-2 h-2 rounded-full ${isDelivered ? "bg-emerald-500" : isCancelled ? "bg-red-500" : "bg-vl-primary animate-pulse"}`} />
+            {isDelivered ? "Delivered" : isCancelled ? "Cancelled" : isShipped ? "In Transit" : "Confirmed"}
+          </span>
         </div>
 
         {/* Outer Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
             {/* Left Panel: Items & Address */}
-            <div className="lg:col-span-8 space-y-lg">
-              
-              <Link
-                href="/orders"
-                className="flex items-center gap-2 text-primary font-bold text-sm hover:underline mb-4"
-              >
-                <span className="material-symbols-outlined text-base">arrow_back</span>
-                Back to Orders
-              </Link>
+            <div className="lg:col-span-8 space-y-5">
             
             <OrderStatusHeroInternal 
               isDelivered={isDelivered}
@@ -508,7 +506,7 @@ export default function OrderDetailClient({
           </div>
 
           {/* Right Panel: Payments & Actions */}
-          <div className="lg:col-span-4 space-y-lg">
+          <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-24">
             
             {/* Payment Summary */}
             <div className="bg-white border border-border-gray rounded-vl-card p-base space-y-base shadow-sm">
