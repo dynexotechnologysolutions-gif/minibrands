@@ -72,11 +72,11 @@ export default function OrderCard({
 
   return (
     <div className="bg-white border border-vl-border rounded-2xl hover:shadow-md hover:border-vl-border/80 transition-all duration-200 overflow-hidden" suppressHydrationWarning>
-      <div className="p-4 sm:p-5 lg:p-6 lg:flex lg:items-start lg:gap-6">
+      <div className="p-4 lg:p-5 lg:flex lg:items-start lg:gap-6">
         {/* Order Items & Info */}
-        <div className="flex-1 min-w-0 space-y-4 sm:space-y-5">
+        <div className="flex-1 min-w-0 space-y-3">
           {/* Header row with Order ID / Date */}
-          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs font-semibold text-vl-muted pb-3 sm:pb-4 border-b border-vl-border/60">
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1.5 text-xs font-semibold text-vl-muted pb-3 border-b border-vl-border/60">
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="shrink-0">Order ID:</span>
               <span className="font-mono text-vl-ink font-bold text-[11px] select-all bg-vl-surface px-2 py-0.5 rounded-md border border-vl-border/50 truncate">{order.id.slice(0, 18)}…</span>
@@ -90,7 +90,7 @@ export default function OrderCard({
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {order.items.map((item) => (
               <OrderItem
                 key={item.id}
@@ -106,13 +106,13 @@ export default function OrderCard({
 
           {/* Timeline for active orders */}
           {!isCancelled && !isReturned && (
-            <div className="pt-2 border-t border-vl-border/40">
+            <div className="pt-3 border-t border-vl-border/40">
               <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
             </div>
           )}
 
           {/* Footer Action Buttons */}
-          <div className="mt-5 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 pt-4 border-t border-vl-border/40" suppressHydrationWarning>
+          <div className="mt-3 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 pt-3 border-t border-vl-border/40" suppressHydrationWarning>
             {/* Delivered Actions */}
             {isDelivered && (
               <>
