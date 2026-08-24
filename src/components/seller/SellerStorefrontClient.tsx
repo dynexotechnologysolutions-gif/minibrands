@@ -97,9 +97,8 @@ export default function SellerStorefrontClient({
   });
 
   return (
-    <div className="bg-vl-surface min-h-screen pb-20 text-vl-ink font-sans">
-      {/* Offset for fixed mobile header (64px) + safe area, no offset on desktop where header is not rendered */}
-      <div className="pt-[calc(64px+env(safe-area-inset-top))] md:pt-6">
+    <div className="bg-vl-surface pb-20 text-vl-ink font-sans">
+      <div className="pt-6">
         {/* 1. Store Identity Hero — 55/45 editorial */}
         <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
           <StorefrontIdentity

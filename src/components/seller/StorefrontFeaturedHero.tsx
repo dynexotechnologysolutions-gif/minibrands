@@ -47,15 +47,15 @@ export default function StorefrontFeaturedHero({ products, storeDisplayName }: S
           return (
             <div
               key={product.id}
-              className="w-[75vw] xs:w-[68vw] sm:w-[280px] shrink-0 snap-start rounded-vl-card border border-vl-border bg-vl-card overflow-hidden shadow-vl-soft hover:shadow-vl-medium transition-all group"
+              className="w-[62vw] xs:w-[55vw] sm:w-[240px] shrink-0 snap-start rounded-vl-card border border-vl-border bg-vl-card overflow-hidden shadow-vl-soft hover:shadow-vl-medium transition-all group"
             >
               {/* Product Cover image */}
-              <div className="relative aspect-[3/4] bg-vl-surface overflow-hidden">
+              <div className="relative aspect-[4/5] bg-vl-surface overflow-hidden">
                 <Image
                   src={imgUrl}
                   alt={product.name}
                   fill
-                  sizes="(max-width: 640px) 70vw, 280px"
+                  sizes="(max-width: 640px) 62vw, 240px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
@@ -67,7 +67,7 @@ export default function StorefrontFeaturedHero({ products, storeDisplayName }: S
               </div>
 
               {/* Product info */}
-              <div className="p-4 flex flex-col justify-between">
+              <div className="p-3 flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-vl-muted">
                     {product.category}
