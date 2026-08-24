@@ -125,7 +125,7 @@ export default function ReturnTrackerClient({ returnData }: ReturnTrackerClientP
         <div className="p-md bg-error-container text-error rounded border border-error/20 space-y-xs">
           <p className="font-bold text-body-md">Return Request Rejected by Seller</p>
           <p className="text-body-sm">
-            The seller has rejected this return request. If you believe this is an error, you can escalate a dispute to Velvet Lane support.
+            The seller has rejected this return request. If you believe this is an error, you can escalate a dispute to MiniBrands support.
           </p>
         </div>
       )}

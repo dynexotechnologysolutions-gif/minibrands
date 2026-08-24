@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FAQs & Help Center | Velvet Lane",
-  description: "Browse frequently asked questions regarding order placement, shipping times, returns, and escrow payment safeties at Velvet Lane.",
+  title: "FAQs & Help Center | MiniBrands",
+  description: "Browse frequently asked questions regarding order placement, shipping times, returns, and escrow payment safeties at MiniBrands.",
 };
 
 export default function FAQsPage() {
@@ -11,7 +11,7 @@ export default function FAQsPage() {
       title: "Orders & Shipping",
       questions: [
         {
-          q: "Where does Velvet Lane deliver?",
+          q: "Where does MiniBrands deliver?",
           a: "Delivery is currently restricted to Chennai locations to ensure fast transit times and secure handling."
         },
         {
@@ -25,7 +25,7 @@ export default function FAQsPage() {
       questions: [
         {
           q: "What is escrow-protected payment?",
-          a: "When you purchase an item, your payment is held securely by Velvet Lane. Funds are only disbursed to the seller after delivery verification and the lapse of the return window."
+          a: "When you purchase an item, your payment is held securely by MiniBrands. Funds are only disbursed to the seller after delivery verification and the lapse of the return window."
         },
         {
           q: "Which payment options are supported?",
@@ -53,7 +53,7 @@ export default function FAQsPage() {
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-4 text-center">Help Center & FAQs</h1>
         <p className="text-slate-600 text-center mb-12">
-          Find answers to frequently asked questions about shopping on Velvet Lane.
+          Find answers to frequently asked questions about shopping on MiniBrands.
         </p>
 
         <div className="space-y-8">

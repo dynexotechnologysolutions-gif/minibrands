@@ -9,7 +9,7 @@ import SellerLayout from "@/components/seller/SellerLayout";
 import { Star, MessageSquare } from "lucide-react";
 
 export const metadata = {
-  title: "Customer Reviews | Seller Hub — Velvet Lane",
+  title: "Customer Reviews | Seller Hub — MiniBrands",
   description: "View ratings and customer feedback for your store catalog.",
 };
 

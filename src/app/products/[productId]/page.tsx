@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!product || product.isDeleted || !product.isPublished) {
     return {
-      title: "Product Not Found | Velvet Lane",
+      title: "Product Not Found | MiniBrands",
     };
   }
 
@@ -63,12 +63,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!isSellerVerified) {
     return {
-      title: "Product Not Available | Velvet Lane",
+      title: "Product Not Available | MiniBrands",
     };
   }
 
   return {
-    title: `${product.name} | ${product.seller.businessName} on Velvet Lane`,
+    title: `${product.name} | ${product.seller.businessName} on MiniBrands`,
     description: product.shortDescription,
     openGraph: {
       title: `${product.name} | ${product.seller.businessName}`,

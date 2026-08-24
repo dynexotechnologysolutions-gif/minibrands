@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Seller Hub Dashboard | Velvet Lane",
+  title: "Seller Hub Dashboard | MiniBrands",
   description: "Merchant overview of catalog stock, sales orders, returns, and store performance.",
 };
 

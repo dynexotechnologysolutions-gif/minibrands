@@ -371,7 +371,7 @@ export default function SellerOrderDetailClient({ order, sellerName }: SellerOrd
               <div>
                 <p className="font-label-bold text-label-bold text-primary text-xs">Escrow Security</p>
                 <p className="font-body-sm text-[11px] text-secondary leading-relaxed mt-xs">
-                  Velvet holds payment in escrow. Your payout is released automatically 7 days after the buyer confirms delivery.
+                  MiniBrands holds payment in escrow. Your payout is released automatically 7 days after the buyer confirms delivery.
                 </p>
               </div>
             </div>

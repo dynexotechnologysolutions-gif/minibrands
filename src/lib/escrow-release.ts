@@ -110,7 +110,7 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
         currency: "INR",
         mode: "IMPS",
         purpose: "payout",
-        narration: `Velvet Lane Order ${order.id.slice(0, 8)}`,
+        narration: `MiniBrands Order ${order.id.slice(0, 8)}`,
       });
 
       payoutId = payout.id;

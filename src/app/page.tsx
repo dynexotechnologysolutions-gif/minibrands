@@ -24,7 +24,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Velvet Lane | Chennai's Fashion-Forward Local Marketplace",
+  title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
   description:
     "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
 };
@@ -277,7 +277,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 7. Curated Collections */}
         <HomeFeaturedCollections />
 
-        {/* 8. Why Shop With Velvet Lane? */}
+        {/* 8. Why Shop With MiniBrands? */}
         <HomeWhyShopWithVelvet />
 
         {/* 9. Newsletter */}

@@ -140,7 +140,7 @@ export class EmailService {
 
     return this.send({
       to: founderEmail,
-      subject: `[Velvet Alert] ${subject}`,
+      subject: `[MiniBrands Alert] ${subject}`,
       html,
       category: "SYSTEM",
     });

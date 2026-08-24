@@ -27,7 +27,7 @@ export async function generateProductDescription(
     "";
   const modelName = process.env.AI_MODEL_NAME || "meta-llama/llama-4-scout-17b-16e-instruct";
 
-  const systemPrompt = `You are a fashion product copywriter for Velvet Lane, an Indian fashion marketplace serving Gen Z women in Chennai. Analyze the provided product images and write a compelling, ACCURATE listing. Never invent fabric, color, or design details not clearly visible in the images. Respond ONLY with valid JSON matching this exact schema: { productName: string, shortDescription: string (max 150 chars), fullDescription: string (4-6 sentences covering fabric, occasion, styling, care), tags: string[] (max 10), suggestedPriceMin: number, suggestedPriceMax: number, category: string, subcategory: string, confidenceNote: string (one sentence on what's uncertain, or empty string if confident) }`;
+  const systemPrompt = `You are a fashion product copywriter for MiniBrands, an Indian fashion marketplace serving Gen Z women in Chennai. Analyze the provided product images and write a compelling, ACCURATE listing. Never invent fabric, color, or design details not clearly visible in the images. Respond ONLY with valid JSON matching this exact schema: { productName: string, shortDescription: string (max 150 chars), fullDescription: string (4-6 sentences covering fabric, occasion, styling, care), tags: string[] (max 10), suggestedPriceMin: number, suggestedPriceMax: number, category: string, subcategory: string, confidenceNote: string (one sentence on what's uncertain, or empty string if confident) }`;
 
   // 1. Check if we should use Mock Fallback
   if (!apiKey || apiKey.includes("mock") || apiKey === "") {

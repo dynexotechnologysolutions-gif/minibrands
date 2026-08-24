@@ -25,7 +25,7 @@ export function renderPasswordResetEmail({ name, resetUrl, code, expiresInMinute
 
   const content = `
     <h2 style="font-size: 20px; color: #0f172a; margin-top: 0;">Reset Your Password</h2>
-    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin-bottom: 24px;">${greeting} We received a request to reset your password on your Velvet Lane account. Click the button below to set a new password, or use the code provided:</p>
+    <p style="font-size: 15px; color: #475569; line-height: 1.6; margin-bottom: 24px;">${greeting} We received a request to reset your password on your MiniBrands account. Click the button below to set a new password, or use the code provided:</p>
     
     ${actionButton}
     ${codeDisplay}

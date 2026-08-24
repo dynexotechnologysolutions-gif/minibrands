@@ -10,7 +10,7 @@ import SecurityClient from "./SecurityClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Security Settings | Velvet Lane",
+  title: "Security Settings | MiniBrands",
   robots: {
     index: false,
     follow: false,

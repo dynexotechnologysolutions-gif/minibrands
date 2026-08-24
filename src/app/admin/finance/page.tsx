@@ -107,7 +107,7 @@ export default function FinanceDashboardPage() {
           <h3 className="font-display font-extrabold text-2xl text-success-green">
             ₹{(s.commission || 0).toLocaleString("en-IN")}
           </h3>
-          <p className="text-[11px] text-text-muted">Velvet Lane gross margin</p>
+          <p className="text-[11px] text-text-muted">MiniBrands gross margin</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-surface border border-border-gray/70 shadow-xs space-y-1">
