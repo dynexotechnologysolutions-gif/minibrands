@@ -18,7 +18,13 @@ interface MobileHeaderProps {
 export default function MobileHeader({ userProfile, cartCount }: MobileHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { wishlist = [] } = useWishlist();
+  let wishlist: unknown[] = [];
+  try {
+    const w = useWishlist();
+    wishlist = (w as { wishlist?: unknown[] })?.wishlist ?? [];
+  } catch {
+    wishlist = [];
+  }
   const [activeMode, setActiveMode] = useState<"BUYER" | "SELLER">("BUYER");
 
   useEffect(() => {
