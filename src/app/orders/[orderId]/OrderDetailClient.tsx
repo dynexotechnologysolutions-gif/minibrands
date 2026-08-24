@@ -318,7 +318,12 @@ export default function OrderDetailClient({
     <section className="bg-white border border-border-gray rounded-vl-card p-lg space-y-md shadow-sm">
       <div className="flex flex-col gap-sm">
         <div className="flex items-center gap-xs">
-          <span className={`flex items-center justify-center w-8 h-8 rounded-full ${isDelivered ? "bg-emerald-100 text-emerald-600" : isCancelled ? "bg-red-100 text-red-600" : "bg-primary/10 text-primary"}`}>
+          <span className={`flex items-center justify-center w-8 h-8 rounded-full ${
+            isDelivered ? "bg-emerald-100 text-emerald-600" : 
+            isCancelled ? "bg-red-100 text-red-600" : 
+            isShipped ? "bg-blue-100 text-blue-600" : 
+            "bg-primary/10 text-primary"
+          }`}>
             <span className="material-symbols-outlined text-lg">
               {isDelivered && "check_circle"}
               {isShipped && "local_shipping"}
@@ -517,14 +522,14 @@ export default function OrderDetailClient({
               </div>
             </div>
 
-            {/* Dynamic Interactive Order Timeline */}
+            {/* Compact Order Journey */}
             {!isCancelled && !isReturned && (
-              <div className="bg-white border border-border-gray rounded-vl-card p-base sm:p-md space-y-md shadow-sm">
-                <h3 className="font-vl-heading text-lg font-bold text-primary flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-primary text-xl">route</span>
+              <div className="bg-white border border-border-gray rounded-vl-card p-4 shadow-sm">
+                <h3 className="font-vl-heading text-base font-bold text-primary flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">route</span>
                   Order Journey
                 </h3>
-                <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="detailed" />
+                <OrderTimeline status={order.status} orderStatus={order.orderStatus} variant="compact" />
               </div>
             )}
             
