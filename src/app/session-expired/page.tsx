@@ -48,7 +48,7 @@ function SessionExpiredContent() {
           <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
-              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
+              style={{ background: "linear-gradient(135deg, #0F7F7F 0%, #0d3b36 100%)" }}
             >
               M
             </span>
@@ -56,7 +56,7 @@ function SessionExpiredContent() {
           </Link>
           <Link
             href="/faqs"
-            className="text-sm font-semibold text-[#6B7280] hover:text-[#FF3E6C] transition-colors"
+            className="text-sm font-semibold text-[#6B7280] hover:text-[#0F7F7F] transition-colors"
           >
             Need Help?
           </Link>
@@ -68,7 +68,7 @@ function SessionExpiredContent() {
         <div className="w-full max-w-[480px] bg-white rounded-[28px] border border-[#ECECEC] p-6 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] text-center transition-all duration-300">
           
           {/* Timeout illustration */}
-          <div className="w-20 h-20 bg-rose-50 border border-rose-100 rounded-3xl flex items-center justify-center mx-auto mb-6 text-[#FF3E6C]">
+          <div className="w-20 h-20 bg-[#0F7F7F]/10 border border-[#0F7F7F]/20 rounded-3xl flex items-center justify-center mx-auto mb-6 text-[#0F7F7F]">
             <Clock className="h-10 w-10 animate-pulse" />
           </div>
 
@@ -87,7 +87,7 @@ function SessionExpiredContent() {
             <button
               onClick={handleSignInAgain}
               disabled={isRedirecting || isPending}
-              className="h-[52px] bg-[#FF3E6C] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 px-6 sm:flex-1 shadow-[0_4px_16px_rgba(255,62,108,0.25)]"
+              className="h-[52px] bg-[#0F7F7F] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 px-6 sm:flex-1 shadow-[0_4px_16px_rgba(15,127,127,0.25)]"
             >
               {isRedirecting ? (
                 <>
@@ -112,7 +112,7 @@ function SessionExpiredContent() {
 
           {/* Safety info card */}
           <div className="mt-8 p-4 bg-[#F5F5F8] border border-[#ECECEC] rounded-2xl text-left flex gap-3.5 items-start">
-            <div className="bg-white p-2 border border-[#ECECEC] rounded-xl shrink-0 text-[#FF3E6C]">
+            <div className="bg-white p-2 border border-[#ECECEC] rounded-xl shrink-0 text-[#0F7F7F]">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -129,13 +129,13 @@ function SessionExpiredContent() {
       <footer className="w-full bg-[#FAFAFC] border-t border-[#ECECEC] py-6 select-none mt-auto">
         <div className="max-w-[1440px] mx-auto px-4 flex flex-wrap justify-center gap-x-8 gap-y-3">
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Secure SSL Connection
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Secure SSL Connection
           </span>
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Data Encrypted
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Data Encrypted
           </span>
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Privacy Protected
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Privacy Protected
           </span>
         </div>
       </footer>
@@ -148,7 +148,7 @@ export default function SessionExpiredPage() {
     <Suspense
       fallback={
         <div className="flex-grow flex items-center justify-center min-h-screen bg-[#FAFAFC]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#FF3E6C]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#0F7F7F]" />
         </div>
       }
     >

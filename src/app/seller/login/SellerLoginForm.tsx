@@ -96,8 +96,8 @@ export default function SellerLoginForm() {
       <main className="flex-grow flex flex-col items-center justify-center px-base py-xxl">
         <div className="w-full max-w-[460px] bg-white rounded-2xl p-xl border border-border-gray shadow-md">
           {/* Header Badge */}
-          <div className="flex items-center gap-xs text-indigo-600 font-bold text-xs uppercase tracking-widest mb-xs">
-            <Building2 className="w-4 h-4 text-indigo-600" />
+          <div className="flex items-center gap-xs text-[#0F7F7F] font-bold text-xs uppercase tracking-widest mb-xs">
+            <Building2 className="w-4 h-4 text-[#0F7F7F]" />
             <span>Seller Workspace Portal</span>
           </div>
 
@@ -234,7 +234,7 @@ export default function SellerLoginForm() {
               Want to start selling on MiniBrands?{" "}
               <Link
                 href="/seller/onboarding"
-                className="text-indigo-600 font-bold hover:underline"
+                className="text-[#0F7F7F] font-bold hover:underline"
               >
                 Become a Seller
               </Link>

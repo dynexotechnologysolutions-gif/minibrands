@@ -226,7 +226,7 @@ export default function LoginForm() {
           <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
-              style={{ background: "linear-gradient(135deg, #6C3BFF 0%, #FF4D8D 100%)" }}
+              style={{ background: "linear-gradient(135deg, #0F7F7F 0%, #0d3b36 100%)" }}
             >
               M
             </span>
@@ -234,7 +234,7 @@ export default function LoginForm() {
           </Link>
           <Link
             href="/faqs"
-            className="text-sm font-semibold text-[#6B7280] hover:text-[#FF3E6C] transition-colors"
+            className="text-sm font-semibold text-[#6B7280] hover:text-[#0F7F7F] transition-colors"
           >
             Need Help?
           </Link>
@@ -257,7 +257,7 @@ export default function LoginForm() {
           
           {/* Overlay Content */}
           <div className="absolute inset-0 flex flex-col justify-end p-16 text-white z-10">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#FF4D8D] mb-3">MiniBrands Edit</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F7F7F] mb-3">MiniBrands Edit</span>
             <h2 className="font-vl-heading text-4xl xl:text-5xl font-extrabold leading-[1.1] tracking-[-0.03em] max-w-[480px]">
               Discover independent fashion brands you&apos;ll actually love.
             </h2>
@@ -268,13 +268,13 @@ export default function LoginForm() {
             {/* Trust Badges */}
             <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-3">
               <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Verified Sellers
+                <CheckCircle className="h-4.5 w-4.5 text-[#0F7F7F]" /> Verified Sellers
               </span>
               <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Secure Checkout
+                <CheckCircle className="h-4.5 w-4.5 text-[#0F7F7F]" /> Secure Checkout
               </span>
               <span className="flex items-center gap-2 text-sm font-semibold text-white/90">
-                <CheckCircle className="h-4.5 w-4.5 text-[#FF3E6C]" /> Fast Delivery
+                <CheckCircle className="h-4.5 w-4.5 text-[#0F7F7F]" /> Fast Delivery
               </span>
             </div>
           </div>
@@ -307,7 +307,7 @@ export default function LoginForm() {
                 }}
                 className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
                   authMode === "password"
-                    ? "bg-white text-[#FF3E6C] shadow-sm"
+                    ? "bg-white text-[#0F7F7F] shadow-sm"
                     : "text-[#6B7280] hover:text-[#111827]"
                 }`}
               >
@@ -324,7 +324,7 @@ export default function LoginForm() {
                 }}
                 className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer ${
                   authMode === "otp"
-                    ? "bg-white text-[#FF3E6C] shadow-sm"
+                    ? "bg-white text-[#0F7F7F] shadow-sm"
                     : "text-[#6B7280] hover:text-[#111827]"
                 }`}
               >
@@ -357,7 +357,7 @@ export default function LoginForm() {
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
                     <input
                       suppressHydrationWarning
-                      className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                      className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#0F7F7F] focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)]"
                       placeholder="Enter your email address"
                       type="email"
                       value={email}
@@ -376,7 +376,7 @@ export default function LoginForm() {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
                     <input
                       suppressHydrationWarning
-                      className="w-full h-[52px] pl-12 pr-12 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                      className="w-full h-[52px] pl-12 pr-12 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#0F7F7F] focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)]"
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -386,7 +386,7 @@ export default function LoginForm() {
                     />
                     <button
                       suppressHydrationWarning
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#FF3E6C] transition-colors cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#0F7F7F] transition-colors cursor-pointer"
                       onClick={() => setShowPassword(!showPassword)}
                       type="button"
                       tabIndex={-1}
@@ -400,7 +400,7 @@ export default function LoginForm() {
                 <div className="flex justify-between items-center mt-1">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input
-                      className="w-4 h-4 rounded border-[#ECECEC] text-[#FF3E6C] focus:ring-[#FF3E6C] cursor-pointer"
+                      className="w-4 h-4 rounded border-[#ECECEC] text-[#0F7F7F] focus:ring-[#0F7F7F] cursor-pointer"
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
@@ -412,7 +412,7 @@ export default function LoginForm() {
                   </label>
                   <Link
                     href="/forgot-password"
-                    className="text-xs font-bold text-[#FF3E6C] hover:underline"
+                    className="text-xs font-bold text-[#0F7F7F] hover:underline"
                   >
                     Forgot Password?
                   </Link>
@@ -422,7 +422,7 @@ export default function LoginForm() {
                   suppressHydrationWarning
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-[52px] bg-[#FF3E6C] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_16px_rgba(255,62,108,0.25)]"
+                  className="w-full h-[52px] bg-[#0F7F7F] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_16px_rgba(15,127,127,0.25)]"
                 >
                   {isLoading ? (
                     <>
@@ -448,7 +448,7 @@ export default function LoginForm() {
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#9CA3AF]" />
                     <input
                       suppressHydrationWarning
-                      className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)] disabled:bg-slate-50"
+                      className="w-full h-[52px] pl-12 pr-4 border border-[#ECECEC] rounded-2xl outline-none text-sm text-[#111827] placeholder:text-[#9CA3AF] bg-white transition-all focus:border-[#0F7F7F] focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)] disabled:bg-slate-50"
                       placeholder="Enter your email"
                       type="email"
                       value={email}
@@ -467,7 +467,7 @@ export default function LoginForm() {
                     <div className="relative">
                       <input
                         suppressHydrationWarning
-                        className="w-full h-[52px] border border-[#ECECEC] rounded-2xl outline-none text-base text-[#111827] bg-white tracking-[0.25em] font-mono font-bold text-center transition-all focus:border-[#FF3E6C] focus:shadow-[0_0_0_4px_rgba(255,62,108,0.1)]"
+                        className="w-full h-[52px] border border-[#ECECEC] rounded-2xl outline-none text-base text-[#111827] bg-white tracking-[0.25em] font-mono font-bold text-center transition-all focus:border-[#0F7F7F] focus:shadow-[0_0_0_4px_rgba(15,127,127,0.1)]"
                         placeholder="000000"
                         type="text"
                         maxLength={6}
@@ -487,7 +487,7 @@ export default function LoginForm() {
                           type="button"
                           onClick={handleResendCode}
                           disabled={isLoading}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#FF3E6C] hover:underline select-none font-bold cursor-pointer disabled:opacity-50"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#0F7F7F] hover:underline select-none font-bold cursor-pointer disabled:opacity-50"
                         >
                           Resend
                         </button>
@@ -499,7 +499,7 @@ export default function LoginForm() {
                 <div className="flex justify-between items-center">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input
-                      className="w-4 h-4 rounded border-[#ECECEC] text-[#FF3E6C] focus:ring-[#FF3E6C] cursor-pointer"
+                      className="w-4 h-4 rounded border-[#ECECEC] text-[#0F7F7F] focus:ring-[#0F7F7F] cursor-pointer"
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
@@ -515,7 +515,7 @@ export default function LoginForm() {
                   suppressHydrationWarning
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-[52px] bg-[#FF3E6C] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_16px_rgba(255,62,108,0.25)]"
+                  className="w-full h-[52px] bg-[#0F7F7F] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_4px_16px_rgba(15,127,127,0.25)]"
                 >
                   {isLoading ? (
                     <>
@@ -565,7 +565,7 @@ export default function LoginForm() {
                 New to MiniBrands?{" "}
                 <Link
                   href={roleIntent === "seller" ? "/signup?role=seller" : "/signup"}
-                  className="text-[#FF3E6C] font-bold hover:underline"
+                  className="text-[#0F7F7F] font-bold hover:underline"
                 >
                   Create an Account
                 </Link>
@@ -579,13 +579,13 @@ export default function LoginForm() {
       <footer className="w-full bg-[#FAFAFC] border-t border-[#ECECEC] py-6 select-none mt-auto">
         <div className="max-w-[1440px] mx-auto px-4 flex flex-wrap justify-center gap-x-8 gap-y-3">
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Secure SSL Connection
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Secure SSL Connection
           </span>
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Data Encrypted
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Data Encrypted
           </span>
           <span className="flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">
-            <ShieldCheck className="h-4 w-4 text-[#FF3E6C]" /> Privacy Protected
+            <ShieldCheck className="h-4 w-4 text-[#0F7F7F]" /> Privacy Protected
           </span>
         </div>
       </footer>
