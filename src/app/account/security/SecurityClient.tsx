@@ -110,7 +110,7 @@ export default function SecurityClient({
       )}
 
       {/* Main Content Layout */}
-      <main className="pt-24 pb-20 px-base md:px-xl max-w-container-max mx-auto w-full flex-grow">
+      <main className="vl-section-shell flex w-full flex-grow flex-col pt-20 pb-20 md:pt-8 px-4 max-w-[1280px] mx-auto">
         <div className="flex flex-col md:flex-row gap-lg">
           
           {/* SideNavBar (Hidden on Mobile, Visible on Web) */}
@@ -158,10 +158,10 @@ export default function SecurityClient({
           <div className="flex-1 flex flex-col gap-lg min-w-0">
             
             {/* Header Title */}
-            <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm">
-              <h1 className="text-headline-md font-headline-md mb-xs">Security Settings</h1>
-              <p className="text-body-md text-on-surface-variant">
-                Manage your account credentials, login methods, and track active sessions for Velvet Lane.
+            <section className="bg-white border border-vl-border rounded-2xl p-5 sm:p-6 shadow-sm">
+              <h1 className="font-vl-heading text-xl sm:text-2xl font-extrabold text-vl-ink tracking-tight">Security Settings</h1>
+              <p className="text-sm text-vl-muted mt-1 max-w-[640px] leading-relaxed">
+                Manage your credentials, login methods, and active sessions.
               </p>
             </section>
 
@@ -171,12 +171,11 @@ export default function SecurityClient({
               <div className="w-full lg:w-[65%] flex flex-col gap-lg">
                 
                 {/* Two Factor / Passwordless Access */}
-                <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm flex flex-col gap-md">
-                  <h2 className="text-headline-sm font-headline-sm flex items-center gap-sm">
-                    <span className="material-symbols-outlined text-primary">security</span>
+                <section className="bg-white border border-vl-border rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-4">
+                  <h2 className="font-vl-heading text-base font-bold text-vl-ink flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-lg bg-vl-primary/10 flex items-center justify-center text-vl-primary"><span className="material-symbols-outlined text-[18px]">security</span></span>
                     Account Verification Status
                   </h2>
-                  <div className="h-px bg-border-gray w-full"></div>
 
                   <div className="space-y-base">
                     {/* Email Verification Card */}
@@ -226,10 +225,10 @@ export default function SecurityClient({
                 </section>
 
                 {/* Active Sessions */}
-                <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm flex flex-col gap-md">
-                  <div className="flex items-center justify-between flex-wrap gap-base">
-                    <h2 className="text-headline-sm font-headline-sm flex items-center gap-sm">
-                      <span className="material-symbols-outlined text-primary">devices</span>
+                <section className="bg-white border border-vl-border rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-4">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <h2 className="font-vl-heading text-base font-bold text-vl-ink flex items-center gap-2">
+                      <span className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600"><span className="material-symbols-outlined text-[18px]">devices</span></span>
                       Active Login Sessions
                     </h2>
                     {sessions.length > 1 && (
@@ -277,19 +276,19 @@ export default function SecurityClient({
               </div>
 
               {/* Right Column (Security Tips & Quick Links) */}
-              <div className="w-full lg:w-[35%] flex flex-col gap-lg">
+              <div className="w-full lg:w-[35%] flex flex-col gap-5">
                 
                 {/* Security Status Box */}
-                <section className="bg-surface-container-lowest border border-border-gray rounded-lg p-lg shadow-sm">
-                  <h3 className="text-label-bold font-label-bold mb-md flex items-center justify-between">
+                <section className="bg-white border border-vl-border rounded-2xl p-5 shadow-sm">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-vl-muted mb-3 flex items-center justify-between">
                     Security Score
-                    <span className="bg-success-green/10 text-success-green text-[10px] px-sm py-0.5 rounded-full uppercase tracking-wider font-semibold">Excellent</span>
+                    <span className="bg-emerald-50 text-emerald-600 text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">Excellent</span>
                   </h3>
-                  <div className="flex items-center gap-sm mb-lg p-sm bg-surface-container-low rounded">
-                    <span className="material-symbols-outlined text-primary text-[24px]">verified_user</span>
+                  <div className="flex items-center gap-3 mb-4 p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+                    <span className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center"><span className="material-symbols-outlined text-[20px]">verified_user</span></span>
                     <div>
-                      <p className="text-body-sm font-label-bold">MFA & Session Safe</p>
-                      <p className="text-[10px] text-on-surface-variant">Your account is fully protected.</p>
+                      <p className="text-sm font-bold text-vl-ink">MFA & Session Safe</p>
+                      <p className="text-xs text-vl-muted">Your account is fully protected.</p>
                     </div>
                   </div>
                   
@@ -304,9 +303,9 @@ export default function SecurityClient({
                 </section>
 
                 {/* Quick Links */}
-                <section className="flex flex-col gap-sm">
-                  <h3 className="text-label-bold font-label-bold px-base">Quick Links</h3>
-                  <div className="bg-surface-container-lowest border border-border-gray rounded-lg overflow-hidden shadow-sm">
+                <section className="flex flex-col gap-2">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-vl-muted px-1">Quick Links</h3>
+                  <div className="bg-white border border-vl-border rounded-2xl overflow-hidden shadow-sm">
                     <Link className="flex items-center justify-between p-base border-b border-border-gray hover:bg-surface-container-low transition-colors" href="/account/profile">
                       <span className="text-body-md">Personal Profile</span>
                       <span className="material-symbols-outlined text-outline">chevron_right</span>
