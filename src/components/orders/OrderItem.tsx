@@ -26,9 +26,9 @@ export default function OrderItem({
   };
 
   return (
-    <div className="flex gap-4 items-start py-4 first:pt-0 last:pb-0 border-b border-vl-border/60 last:border-b-0">
+    <div className="flex gap-3 items-start py-3 first:pt-0 last:pb-0 border-b border-vl-border/60 last:border-b-0">
       {/* 3:4 Aspect Ratio Image Crop */}
-      <div className="w-20 sm:w-24 aspect-[3/4] flex-shrink-0 bg-vl-surface border border-vl-border rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+      <div className="w-16 sm:w-20 aspect-[3/4] flex-shrink-0 bg-vl-surface border border-vl-border rounded-lg overflow-hidden">
         <img
           className="w-full h-full object-cover transition-transform duration-vl-slow hover:scale-105"
           src={image || "/placeholder.jpg"}
@@ -43,7 +43,7 @@ export default function OrderItem({
         </h3>
         
         {/* Modern Pill Chips */}
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
           {variantSize && (
             <span className="px-2 py-0.5 bg-vl-surface border border-vl-border text-[11px] font-bold text-vl-muted rounded">
               Size: {variantSize}
@@ -62,8 +62,8 @@ export default function OrderItem({
         </div>
 
         {/* Pricing */}
-        <p className="font-vl-heading font-extrabold text-vl-ink text-sm sm:text-base mt-3">
-          {formatPrice(price * quantity)}
+        <p className="font-vl-heading font-extrabold text-vl-ink text-sm mt-2">
+          Price: {formatPrice(price * quantity)}
           {quantity > 1 && (
             <span className="text-vl-muted font-vl-body font-medium text-xs ml-2">
               ({formatPrice(price)} x {quantity})

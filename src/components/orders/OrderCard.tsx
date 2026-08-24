@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Download, RefreshCw, Star, Undo2, ChevronRight, Headset, MapPin, XCircle } from "lucide-react";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderTimeline from "./OrderTimeline";
 import OrderItem from "./OrderItem";
@@ -70,17 +71,17 @@ export default function OrderCard({
   })();
 
   return (
-    <div className="bg-vl-card border border-vl-border rounded-vl-card hover:shadow-vl-medium hover:-translate-y-0.5 transition-all duration-vl-standard overflow-hidden" suppressHydrationWarning>
-      <div className="p-5 sm:p-6 md:flex items-start gap-6">
+    <div className="bg-white border border-vl-border rounded-2xl hover:shadow-md hover:border-vl-border/80 transition-all duration-200 overflow-hidden" suppressHydrationWarning>
+      <div className="p-4 lg:p-5 lg:flex lg:items-start lg:gap-6">
         {/* Order Items & Info */}
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 min-w-0 space-y-3">
           {/* Header row with Order ID / Date */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-vl-muted pb-4 border-b border-vl-border/60">
-            <div className="flex items-center gap-1.5">
-              <span>Order ID:</span>
-              <span className="font-mono text-vl-ink font-bold text-[11px] select-all bg-vl-surface px-2 py-0.5 rounded border border-vl-border/50">{order.id}</span>
+          <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1.5 text-xs font-semibold text-vl-muted pb-3 border-b border-vl-border/60">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="shrink-0">Order ID:</span>
+              <span className="font-mono text-vl-ink font-bold text-[11px] select-all bg-vl-surface px-2 py-0.5 rounded-md border border-vl-border/50 truncate">{order.id.slice(0, 18)}…</span>
             </div>
-            <span>
+            <span className="text-[11px] sm:text-xs shrink-0">
               Placed: {new Date(order.createdAt).toLocaleDateString("en-IN", {
                 month: "short",
                 day: "numeric",
@@ -89,7 +90,7 @@ export default function OrderCard({
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {order.items.map((item) => (
               <OrderItem
                 key={item.id}
@@ -105,22 +106,22 @@ export default function OrderCard({
 
           {/* Timeline for active orders */}
           {!isCancelled && !isReturned && (
-            <div className="pt-2 border-t border-vl-border/40">
+            <div className="pt-3 border-t border-vl-border/40">
               <OrderTimeline status={order.status} orderStatus={order.orderStatus} />
             </div>
           )}
 
           {/* Footer Action Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-4 border-t border-vl-border/40" suppressHydrationWarning>
+          <div className="mt-3 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 pt-3 border-t border-vl-border/40" suppressHydrationWarning>
             {/* Delivered Actions */}
             {isDelivered && (
               <>
                 <a
                   href={`/api/orders/${order.id}/invoice`}
                   download={`minibrands_Invoice_${order.id.substring(0, 8).toUpperCase()}.pdf`}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-sm hover:bg-vl-primary-strong active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined text-base">download</span>
+                  <Download className="w-4 h-4" />
                   Invoice PDF
                 </a>
                 <button
@@ -128,27 +129,27 @@ export default function OrderCard({
                     const firstItem = order.items[0];
                     if (firstItem) onBuyAgain(firstItem.productId, firstItem.variantId);
                   }}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-white border border-vl-border text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined text-base">refresh</span>
-                  Buy It Again
+                  <RefreshCw className="w-4 h-4" />
+                  Buy Again
                 </button>
                 <button
                   onClick={() => {
                     const firstItem = order.items[0];
                     if (firstItem) onRate(firstItem.productId, firstItem.name);
                   }}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-white border border-vl-border text-vl-ink hover:border-amber-300 hover:text-amber-600 font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined text-base">grade</span>
+                  <Star className="w-4 h-4" />
                   Rate Product
                 </button>
                 {canReturn && (
                   <button
                     onClick={() => onReturn(order.id)}
-                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-red-100 text-vl-danger font-bold text-xs rounded-xl hover:border-vl-danger hover:bg-red-50/50 active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-white text-vl-muted hover:border-red-200 hover:text-vl-danger hover:bg-red-50/50 font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                   >
-                    <span className="material-symbols-outlined text-base">keyboard_return</span>
+                    <Undo2 className="w-4 h-4" />
                     Return Order
                   </button>
                 )}
@@ -160,14 +161,15 @@ export default function OrderCard({
               <>
                 <button
                   onClick={() => onTrack(order.id)}
-                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-sm hover:bg-vl-primary-strong active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
                   Track Package
                 </button>
                 <button
                   onClick={() => onSupport(order.id)}
-                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-white text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
+                  <Headset className="w-4 h-4" />
                   Support
                 </button>
               </>
@@ -178,14 +180,16 @@ export default function OrderCard({
               <>
                 <button
                   onClick={() => onCancel(order.id)}
-                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-red-100 text-vl-danger font-bold text-xs rounded-xl hover:border-vl-danger hover:bg-red-50/50 active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-white text-vl-danger font-bold text-xs rounded-xl hover:border-red-200 hover:bg-red-50 active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
+                  <XCircle className="w-4 h-4" />
                   Cancel Order
                 </button>
                 <button
                   onClick={() => onChangeAddress(order.id)}
-                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-white text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
+                  <MapPin className="w-4 h-4" />
                   Change Address
                 </button>
               </>
@@ -199,15 +203,16 @@ export default function OrderCard({
                     const firstItem = order.items[0];
                     if (firstItem) onBuyAgain(firstItem.productId, firstItem.variantId);
                   }}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-[0_4px_12px_rgba(255,62,108,0.12)] hover:bg-vl-primary-strong active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 bg-vl-primary text-white font-bold text-xs rounded-xl shadow-sm hover:bg-vl-primary-strong active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
-                  <span className="material-symbols-outlined text-base">refresh</span>
+                  <RefreshCw className="w-4 h-4" />
                   Reorder Items
                 </button>
                 <button
                   onClick={() => onSupport(order.id)}
-                  className="inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 border border-vl-border bg-vl-card text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-95 transition-all duration-vl-fast cursor-pointer w-full sm:w-auto text-center"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-5 py-2.5 border border-vl-border bg-white text-vl-ink hover:border-vl-primary hover:text-vl-primary font-bold text-xs rounded-xl active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto text-center"
                 >
+                  <Headset className="w-4 h-4" />
                   Support
                 </button>
               </>
@@ -219,13 +224,13 @@ export default function OrderCard({
               className="inline-flex items-center justify-center gap-1 text-xs font-bold text-vl-primary hover:text-vl-primary-strong transition-colors cursor-pointer select-none group w-full sm:w-auto sm:ml-auto pt-2 sm:pt-0"
             >
               <span>View Details</span>
-              <span className="material-symbols-outlined text-base transition-transform group-hover:translate-x-0.5">chevron_right</span>
+              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>
 
         {/* Right Side Order Status Info Badge (desktop alignment) */}
-        <div className="w-full md:w-auto md:text-right mt-6 md:mt-0 flex flex-col items-start md:items-end justify-start flex-shrink-0 md:pl-6 border-t md:border-t-0 md:border-l border-vl-border/60 pt-4 md:pt-0 self-stretch">
+        <div className="w-full lg:w-[200px] lg:text-right mt-5 lg:mt-0 flex flex-col items-start lg:items-end justify-start flex-shrink-0 lg:pl-6 border-t lg:border-t-0 lg:border-l border-vl-border/60 pt-4 lg:pt-0 self-stretch">
           <OrderStatusBadge
             status={order.status}
             orderStatus={order.orderStatus}
