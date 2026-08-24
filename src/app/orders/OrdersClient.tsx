@@ -6,6 +6,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import OrderFilters from "@/components/orders/OrderFilters";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyOrders from "@/components/orders/EmptyOrders";
+import { CheckCircle2, Clock3, Truck, Undo2 } from "lucide-react";
 import { cancelOrderAction } from "@/actions/order-user-actions";
 import { reserveCartItem } from "@/actions/cart-reserve.action";
 
@@ -226,10 +227,10 @@ export default function OrdersClient({
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { label: "Delivered", count: deliveredCount, icon: "check_circle", activeKey: "delivered", bg: "bg-emerald-50", color: "text-emerald-600" },
-            { label: "Processing", count: processingCount, icon: "published_with_changes", activeKey: "processing", bg: "bg-amber-50", color: "text-amber-600" },
-            { label: "Shipped", count: shippedCount, icon: "local_shipping", activeKey: "shipped", bg: "bg-sky-50", color: "text-sky-600" },
-            { label: "Returns", count: returnedCount, icon: "keyboard_return", activeKey: "returned", bg: "bg-vl-surface", color: "text-vl-muted" },
+            { label: "Delivered", count: deliveredCount, Icon: CheckCircle2, activeKey: "delivered", bg: "bg-emerald-50", color: "text-emerald-600" },
+            { label: "Processing", count: processingCount, Icon: Clock3, activeKey: "processing", bg: "bg-amber-50", color: "text-amber-600" },
+            { label: "Shipped", count: shippedCount, Icon: Truck, activeKey: "shipped", bg: "bg-sky-50", color: "text-sky-600" },
+            { label: "Returns", count: returnedCount, Icon: Undo2, activeKey: "returned", bg: "bg-slate-50", color: "text-slate-600" },
           ].map((s) => (
             <button
               key={s.label}
@@ -240,7 +241,7 @@ export default function OrdersClient({
               }`}
             >
               <div className={`w-9 h-9 rounded-lg ${s.bg} ${s.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
-                <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
+                <s.Icon className="w-[18px] h-[18px] stroke-[2.2]" />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold text-vl-muted uppercase tracking-widest truncate">{s.label}</p>
