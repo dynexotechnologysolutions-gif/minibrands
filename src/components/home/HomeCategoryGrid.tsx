@@ -34,7 +34,7 @@ const categories = [
   {
     label: "Toys",
     href: "/products?category=toys",
-    iconClass: "fa-solid fa-teddy-bear text-slate-700",
+    iconClass: "fa-solid fa-gamepad text-slate-700",
   },
   {
     label: "Electronics",
