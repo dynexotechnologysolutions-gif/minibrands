@@ -54,10 +54,10 @@ function SellerForgotPasswordForm() {
       <main className="flex-grow flex flex-col items-center justify-center px-base py-xxl">
         <div className="w-full max-w-[460px] bg-white rounded-2xl p-xl border border-border-gray shadow-md">
           <div className="mb-xl text-center">
-            <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center mx-auto mb-md text-indigo-600">
+            <div className="w-12 h-12 bg-[#0F7F7F]/10 border border-[#0F7F7F]/20 rounded-full flex items-center justify-center mx-auto mb-md text-[#0F7F7F]">
               <Lock className="w-6 h-6" />
             </div>
-            <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest block mb-1">Seller Security Portal</span>
+            <span className="text-xs font-semibold text-[#0F7F7F] uppercase tracking-widest block mb-1">Seller Security Portal</span>
             <h1 className="font-headline-md text-headline-md text-primary mb-xs font-bold font-display">
               Seller Forgot Password
             </h1>

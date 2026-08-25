@@ -70,6 +70,7 @@ function StoreCard({ seller }: { seller: SellerData }) {
 
       {/* Follow Button */}
       <button
+        suppressHydrationWarning
         type="button"
         onClick={() => setIsFollowed(!isFollowed)}
         className={`mt-2 w-fit mx-auto px-2.5 sm:px-3 py-0.5 sm:py-1 text-center border rounded-lg text-[8.5px] sm:text-[11px] font-extrabold cursor-pointer transition-all duration-150 active:scale-95 ${
@@ -96,7 +97,7 @@ export default function HomeStoreRow({ sellers }: HomeStoreRowProps) {
           <h2 className="font-vl-heading text-lg sm:text-3xl font-extrabold tracking-[-0.04em] text-vl-ink">Top Stores For You</h2>
         </div>
         {/* Mobile View All link */}
-        <Link href="/products" className="text-xs font-bold text-vl-primary hover:underline md:hidden select-none">
+        <Link href="/stores" className="text-xs font-bold text-vl-primary hover:underline md:hidden select-none">
           View All Stores
         </Link>
         {/* Desktop scroll arrows */}

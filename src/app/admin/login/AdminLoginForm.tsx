@@ -31,12 +31,12 @@ export default function AdminLoginForm() {
     <div className="min-h-screen bg-surface-bg flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Dynamic Background Glass & Glow Orbs */}
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#0F7F7F]/100/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md bg-surface/90 backdrop-blur-xl border border-border-gray/70 rounded-3xl p-8 shadow-2xl z-10 animate-fade-in-up">
         {/* Brand Header */}
         <div className="text-center space-y-2 mb-8">
-          <div className="w-14 h-14 bg-gradient-to-br from-primary via-indigo-600 to-black rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+          <div className="w-14 h-14 bg-gradient-to-br from-[#0F7F7F] via-[#0d3b36] to-black rounded-2xl flex items-center justify-center mx-auto shadow-lg">
             <Sparkles className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-display font-extrabold text-2xl text-on-surface tracking-tight">

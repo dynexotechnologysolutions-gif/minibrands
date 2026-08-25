@@ -12,11 +12,13 @@ interface MobileNavigationShellProps {
   userProfile?: UserProfileData | null;
   cartCount: number;
   sellerHref: string;
+  variant?: "default" | "green";
 }
 
 export default function MobileNavigationShell({
   userProfile,
   cartCount,
+  variant = "default",
 }: MobileNavigationShellProps) {
   const pathname = usePathname();
   
@@ -32,7 +34,7 @@ export default function MobileNavigationShell({
     <div className="md:hidden block">
       {/* Dynamic Mobile Header */}
       <header className="fixed top-0 left-0 right-0 z-50">
-        <MobileHeader userProfile={userProfile} cartCount={cartCount} />
+        <MobileHeader userProfile={userProfile} cartCount={cartCount} variant={variant} />
       </header>
 
       {/* Dynamic Mobile Bottom Navigation */}

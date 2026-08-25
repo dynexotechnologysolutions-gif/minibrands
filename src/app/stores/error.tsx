@@ -9,9 +9,9 @@ interface StoresErrorProps {
 
 export default function StoresError({ reset }: StoresErrorProps) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-white font-sans text-vl-ink">
+    <div className="flex min-h-screen w-full flex-col bg-vl-surface font-sans text-vl-ink">
       <main className="flex w-full flex-grow items-center justify-center px-4 py-16">
-        <div className="max-w-md rounded-vl-card border border-vl-border bg-vl-card p-8 text-center">
+        <div className="w-full max-w-[400px] rounded-vl-card border border-vl-border bg-vl-card p-8 text-center shadow-vl-soft">
           <p className="font-vl-heading text-lg font-bold text-vl-ink">Something went wrong</p>
           <p className="mt-2 text-sm text-vl-muted">We couldn&apos;t load the brands right now. Please try again.</p>
           <button
