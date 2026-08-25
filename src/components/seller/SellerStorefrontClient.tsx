@@ -78,6 +78,9 @@ export default function SellerStorefrontClient({
 
   const storeDisplayName = seller.storeName || seller.businessName;
   void _joinedYear;
+  // Real image fallbacks: use first product image when store has no logo/banner
+  const realStoreLogo = seller.storeLogo || formattedProducts[0]?.images[0]?.url || null;
+  const realStoreBanner = seller.storeBanner || formattedProducts[0]?.images[0]?.url || null;
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
@@ -98,11 +101,11 @@ export default function SellerStorefrontClient({
 
   return (
     <div className="bg-vl-surface pb-20 text-vl-ink font-sans">
-      <div className="pt-[calc(64px+env(safe-area-inset-top))] md:pt-6">
+      <div className="pt-[calc(96px+env(safe-area-inset-top))] md:pt-6">
         {/* 1. Store Identity Hero — 55/45 editorial */}
         <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
           <StorefrontIdentity
-            seller={seller}
+            seller={{ ...seller, storeLogo: realStoreLogo, storeBanner: realStoreBanner }}
             isSellerVerified={isSellerVerified}
             averageRating={reviewSummary.averageRating}
             reviewCount={reviewSummary.reviewCount}
