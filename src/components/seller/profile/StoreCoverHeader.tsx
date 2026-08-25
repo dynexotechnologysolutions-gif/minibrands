@@ -41,14 +41,27 @@ export default function StoreCoverHeader({
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center text-slate-400">
+          <div className="w-full h-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center justify-center gap-2 text-slate-400">
+            <Camera className="w-8 h-8 text-slate-300/70" />
             <span className="text-xs font-semibold uppercase tracking-widest text-slate-300">
               No Cover Banner Uploaded
             </span>
           </div>
         )}
 
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all" />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all flex items-center justify-center">
+          {bannerUrl ? (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-full p-3 backdrop-blur-sm">
+              <Camera className="w-6 h-6 text-white" />
+            </div>
+          ) : null}
+        </div>
+        {bannerUrl && (
+          <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 flex items-center gap-1.5 shadow-md border border-emerald-200/60">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            Banner Saved
+          </div>
+        )}
 
         {/* Change Banner Button Overlay */}
         <label className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 hover:bg-white transition-all shadow-md cursor-pointer active:scale-95">
