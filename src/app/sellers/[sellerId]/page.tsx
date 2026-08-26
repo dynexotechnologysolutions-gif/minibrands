@@ -93,7 +93,9 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
     seller.verification.bankVerified;
 
   // 3. Construct LocalBusiness JSON-LD Schema
-  const coverImage = seller.products[0]?.images[0]?.url || "https://res.cloudinary.com/MiniBrands/image/upload/placeholder.jpg";
+const coverImage =
+  seller.storeBanner ||
+  "https://res.cloudinary.com/MiniBrands/image/upload/placeholder.jpg";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",

@@ -74,7 +74,7 @@ export default async function StoresPage() {
       category: seller.category,
       city: seller.city,
       logoUrl: seller.storeLogo || null,
-      coverImage: seller.storeBanner || seller.products[0]?.images[0]?.url || null,
+      coverImage: seller.storeBanner || null,
       rating,
       reviewCount: seller._count.reviews,
       productCount: seller._count.products,
