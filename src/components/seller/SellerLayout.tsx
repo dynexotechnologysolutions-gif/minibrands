@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import SellerSidebar from "./SellerSidebar";
 import SellerTopbar from "./SellerTopbar";
+import SellerGlobalSearch from "./SellerGlobalSearch";
 
 interface SellerLayoutProps {
   children: React.ReactNode;
@@ -36,6 +37,9 @@ export default function SellerLayout({ children, sellerInfo }: SellerLayoutProps
           onToggleMobileSidebar={() => setIsOpenMobile(!isOpenMobile)}
           sellerId={sellerInfo?.id}
         />
+
+        {/* Global Search Modal */}
+        <SellerGlobalSearch />
 
         {/* Page Content Shell */}
         <main className="flex-1 p-base md:p-lg max-w-[1920px] w-full mx-auto space-y-lg">
