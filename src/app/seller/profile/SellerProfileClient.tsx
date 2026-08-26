@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,6 +60,11 @@ export default function SellerProfileClient({
   const watchedBanner = watch("storeBanner");
   const watchedDescription = watch("storeDescription");
   const watchedCategory = watch("category");
+
+  useEffect(() => {
+    setValue("storeLogo", seller.storeLogo || "");
+    setValue("storeBanner", seller.storeBanner || "");
+  }, [seller.storeLogo, seller.storeBanner, setValue]);
 
   // Cloudinary Logo Upload Handler
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,8 +194,8 @@ export default function SellerProfileClient({
         storeName={seller.storeName || seller.businessName}
         category={seller.category}
         city={seller.city}
-        bannerUrl={watchedBanner || undefined}
-        logoUrl={watchedLogo || undefined}
+        bannerUrl={watchedBanner || seller.storeBanner || undefined}
+        logoUrl={watchedLogo || seller.storeLogo || undefined}
         isKycVerified={isKycVerified}
         trustScore={verification?.trustScore || 98}
         isUploadingBanner={isUploadingBanner}

@@ -9,7 +9,6 @@ import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
-import HomeBrandSpotlight from "@/components/home/HomeBrandSpotlight";
 import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
@@ -265,7 +264,6 @@ export default async function HomePage({ searchParams }: PageProps) {
             });
             return (
               <>
-                <HomeBrandSpotlight brand={spotlightBrand} userCity={userCity} />
                 <HomeNearbyStores stores={sortedNearbyStores} userCity={userCity} />
               </>
             );
