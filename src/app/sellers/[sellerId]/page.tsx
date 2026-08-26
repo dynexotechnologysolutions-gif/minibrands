@@ -147,6 +147,7 @@ const coverImage =
     })),
     seller: {
       businessName: seller.storeName || seller.businessName,
+      storeLogo: seller.storeLogo,
       verification: {
         kycStatus: seller.verification!.kycStatus,
         bankVerified: seller.verification!.bankVerified,
