@@ -13,11 +13,12 @@ export async function approveSellerKycAction(
   try {
     await verifyAdminSession("approve_kyc");
 
+    const cookie = (await headers()).get("cookie") ?? "";
     const res = await fetch(
       `${getAppUrl()}/api/admin/sellers/${sellerId}/approve-kyc`,
       {
         method: "PATCH",
-        headers: await headers(),
+        headers: { cookie },
       }
     );
 
@@ -43,11 +44,12 @@ export async function rejectSellerKycAction(
       return { success: false, error: { code: "BAD_REQUEST", message: "A valid rejection reason is required." } };
     }
 
+    const cookie = (await headers()).get("cookie") ?? "";
     const res = await fetch(
       `${getAppUrl()}/api/admin/sellers/${sellerId}/reject-kyc`,
       {
         method: "PATCH",
-        headers: await headers(),
+        headers: { cookie, "content-type": "application/json" },
         body: JSON.stringify({ reason }),
       }
     );
@@ -71,11 +73,12 @@ export async function suspendUserAction(
   try {
     await verifyAdminSession("suspend_users");
 
+    const cookie = (await headers()).get("cookie") ?? "";
     const res = await fetch(
       `${getAppUrl()}/api/admin/users/${userProfileId}/suspend`,
       {
         method: "PATCH",
-        headers: await headers(),
+        headers: { cookie, "content-type": "application/json" },
         body: JSON.stringify({ suspend, reason }),
       }
     );
@@ -99,11 +102,12 @@ export async function updatePlatformSettingAction(
   try {
     await verifyAdminSession("manage_settings");
 
+    const cookie = (await headers()).get("cookie") ?? "";
     const res = await fetch(
       `${getAppUrl()}/api/admin/settings`,
       {
         method: "PATCH",
-        headers: await headers(),
+        headers: { cookie, "content-type": "application/json" },
         body: JSON.stringify({ key, value, reason }),
       }
     );

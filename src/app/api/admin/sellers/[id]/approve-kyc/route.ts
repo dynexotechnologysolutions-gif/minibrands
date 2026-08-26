@@ -21,22 +21,33 @@ export async function PATCH(
     }
 
     const previousStatus = seller.verification?.kycStatus || "pending";
+    const previousSellerStatus = (seller as { status?: string }).status || "unknown";
 
-    const updatedVerification = await prisma.sellerVerification.upsert({
-      where: { sellerId: id },
-      update: {
-        kycStatus: "approved",
-        trustScore: 95,
-        rejectionReason: null,
-        verifiedAt: new Date(),
-      },
-      create: {
-        sellerId: id,
-        kycStatus: "approved",
-        trustScore: 95,
-        bankVerified: true,
-        verifiedAt: new Date(),
-      },
+    const { updatedVerification } = await prisma.$transaction(async (tx) => {
+      await tx.seller.update({
+        where: { id },
+        data: { status: "APPROVED" as const, verifiedAt: new Date() },
+      });
+
+      const verification = await tx.sellerVerification.upsert({
+        where: { sellerId: id },
+        update: {
+          kycStatus: "approved",
+          trustScore: 95,
+          bankVerified: true,
+          rejectionReason: null,
+          verifiedAt: new Date(),
+        },
+        create: {
+          sellerId: id,
+          kycStatus: "approved",
+          trustScore: 95,
+          bankVerified: true,
+          verifiedAt: new Date(),
+        },
+      });
+
+      return { updatedVerification: verification };
     });
 
     await createAuditLog({
@@ -46,8 +57,8 @@ export async function PATCH(
       action: "APPROVE_SELLER_KYC",
       targetType: "SellerVerification",
       targetId: updatedVerification.id,
-      oldValue: { kycStatus: previousStatus },
-      newValue: { kycStatus: "approved", trustScore: 95 },
+      oldValue: { kycStatus: previousStatus, sellerStatus: previousSellerStatus },
+      newValue: { kycStatus: "approved", trustScore: 95, bankVerified: true, sellerStatus: "APPROVED" },
       reason: "Manual admin approval verified by Founder Hub.",
     });
 

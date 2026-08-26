@@ -48,17 +48,27 @@ export default function SellerTopbar({
           <Menu className="w-6 h-6" />
         </button>
 
-        {/* Global Search Bar */}
+        {/* Global Search Bar — Admin-style */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-sm md:max-w-md">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-text-muted pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products, SKUs, inventory..."
-            className="w-full pl-9 pr-4 py-1.5 bg-surface-container-low border border-border-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-body-md text-body-md text-on-surface transition-all placeholder:text-text-muted"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-surface border border-border-gray/70 text-xs font-medium text-on-surface focus:outline-none focus:border-primary placeholder:text-text-muted transition-all"
             suppressHydrationWarning={true}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors"
+              aria-label="Clear search"
+            >
+              <span className="text-xs font-bold">✕</span>
+            </button>
+          )}
         </form>
       </div>
 
