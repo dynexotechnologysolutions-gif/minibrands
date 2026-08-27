@@ -38,19 +38,22 @@ const typeLabels = {
   inventory: "Inventory",
 };
 
-const badgeColors = {
-  "Out of Stock": "bg-red-100 text-red-700 border-red-200",
-  "Low Stock": "bg-yellow-100 text-yellow-700 border-yellow-200",
-  "Delivered": "bg-green-100 text-green-700 border-green-200",
-  "Shipped": "bg-blue-100 text-blue-700 border-blue-200",
-  "Paid": "bg-green-100 text-green-700 border-green-200",
-  "Pending": "bg-yellow-100 text-yellow-700 border-yellow-200",
-  "Approved": "bg-green-100 text-green-700 border-green-200",
-  "Rejected": "bg-red-100 text-red-700 border-red-200",
-  "Pending": "bg-yellow-100 text-yellow-700 border-yellow-200",
+const badgeColors: Record<string, string> = {
   "Out of Stock": "bg-red-100 text-red-700 border-red-200",
   "Low Stock": "bg-yellow-100 text-yellow-700 border-yellow-200",
   "In Stock": "bg-green-100 text-green-700 border-green-200",
+  "Delivered": "bg-green-100 text-green-700 border-green-200",
+  "Shipped": "bg-blue-100 text-blue-700 border-blue-200",
+  "Paid": "bg-green-100 text-green-700 border-green-200",
+  "Confirmed": "bg-blue-100 text-blue-700 border-blue-200",
+  "Pending": "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "Approved": "bg-green-100 text-green-700 border-green-200",
+  "Rejected": "bg-red-100 text-red-700 border-red-200",
+  "Requested": "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "Seller Review": "bg-blue-100 text-blue-700 border-blue-200",
+  "Refunded": "bg-green-100 text-green-700 border-green-200",
+  "Disputed": "bg-red-100 text-red-700 border-red-200",
+  "Cancelled": "bg-gray-100 text-gray-700 border-gray-200",
 };
 
 export default function SellerSearchResult({ result, isSelected, onClick }: SellerSearchResultProps) {
