@@ -2,9 +2,8 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import HomeHeader from "@/components/home/HomeHeader";
 import MobileBottomNavigation from "@/components/mobile/MobileBottomNavigation";
 import SellerStorefrontClient from "@/components/seller/SellerStorefrontClient";
@@ -111,24 +110,11 @@ const coverImage =
     "telephone": "",
   };
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  let userProfile: any = null;
+  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
   let cartCount = 0;
-  let sellerHref = "/login?role=seller";
-  if (session?.user) {
-    userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
-    });
-    if (userProfile?.role === "SELLER") {
-      const ver = userProfile.seller?.verification;
-      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
-      sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-    }
-    if (userProfile) {
-      const reservations = await getUserReservations(userProfile.id);
-      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-    }
+  if (userProfile) {
+    const reservations = await getUserReservations(userProfile.id);
+    cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
   }
 
   // Format products to match ProductCard expectations

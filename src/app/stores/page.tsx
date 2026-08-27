@@ -1,7 +1,6 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import StoresPageClient from "@/components/store/StoresPageClient";
@@ -10,54 +9,38 @@ import { StoreSummary } from "@/components/store/StoreCard";
 export const dynamic = "force-dynamic";
 
 export default async function StoresPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  let userProfile = null;
-  let cartCount = 0;
-  let sellerHref = "/login?role=seller";
-  let followedSellerIds: string[] = [];
+  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (session?.user) {
-    userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
-    });
-
-    if (userProfile?.role === "SELLER") {
-      const ver = userProfile.seller?.verification;
-      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
-      sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-    }
-
-    if (userProfile) {
-      const reservations = await getUserReservations(userProfile.id);
-      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-      const follows = await prisma.sellerFollow.findMany({
-        where: { userProfileId: userProfile.id },
-        select: { sellerId: true },
-      });
-      followedSellerIds = follows.map((f) => f.sellerId);
-    }
-  }
-
-  const verifiedSellers = await prisma.seller.findMany({
-    where: {
-      verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-      products: { some: { isPublished: true, isDeleted: false } },
-    },
-    include: {
-      userProfile: { include: { user: true } },
-      verification: true,
-      reviews: { select: { rating: true } },
-      products: {
-        where: { isPublished: true, isDeleted: false },
-        include: { images: { orderBy: { sortOrder: "asc" } } },
-        take: 1,
+  const [allReservations, follows, verifiedSellers] = await Promise.all([
+    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
+    userProfile
+      ? prisma.sellerFollow.findMany({
+          where: { userProfileId: userProfile.id },
+          select: { sellerId: true },
+        })
+      : Promise.resolve([]),
+    prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
       },
-      _count: { select: { products: true, reviews: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: { select: { rating: true } },
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } } },
+          take: 1,
+        },
+        _count: { select: { products: true, reviews: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
+  const followedSellerIds = follows.map((f) => f.sellerId);
 
   const stores: StoreSummary[] = verifiedSellers.map((seller) => {
     const rating = seller.reviews.length

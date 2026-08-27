@@ -1,6 +1,4 @@
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getRequestSession, getRequestUserProfile } from "@/lib/request-auth";
 
 export type AdminRole = "ADMIN" | "SUPER_ADMIN" | "OPERATIONS" | "FINANCE" | "SUPPORT";
 
@@ -95,8 +93,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, PermissionAction[]> = {
 export async function verifyAdminSession(
   requiredAction?: PermissionAction
 ): Promise<AdminSession> {
-  const reqHeaders = await headers();
-  const session = await auth.api.getSession({ headers: reqHeaders });
+  const session = await getRequestSession();
 
   if (!session || !session.user) {
     throw new Error("UNAUTHORIZED: Admin session required.");
@@ -107,9 +104,7 @@ export async function verifyAdminSession(
     throw new Error("FORBIDDEN: Admin permissions required.");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-  });
+  const userProfile = await getRequestUserProfile(session.user.id);
 
   if (!userProfile) {
     throw new Error("FORBIDDEN: Admin profile not found.");

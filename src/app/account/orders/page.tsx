@@ -1,10 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import OrdersClient from "../../orders/OrdersClient";
 
 export const dynamic = "force-dynamic";
@@ -18,70 +17,59 @@ export const metadata: Metadata = {
 };
 
 export default async function OrdersPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     redirect("/login?redirectTo=/account/orders");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
-
-  if (!userProfile) {
-    redirect("/login?redirectTo=/account/orders");
-  }
-
-  // Fetch all orders placed by this buyer (capped at 100 for safety)
-  const orders = await prisma.order.findMany({
-    where: { buyerId: userProfile.id },
-    select: {
-      id: true,
-      status: true,
-      orderStatus: true,
-      totalAmount: true,
-      createdAt: true,
-      seller: {
-        select: {
-          businessName: true,
+  // Fetch orders and cart count in parallel
+  const [orders, allReservations] = await Promise.all([
+    prisma.order.findMany({
+      where: { buyerId: userProfile.id },
+      select: {
+        id: true,
+        status: true,
+        orderStatus: true,
+        totalAmount: true,
+        createdAt: true,
+        seller: {
+          select: {
+            businessName: true,
+          },
         },
-      },
-      items: {
-        select: {
-          id: true,
-          productId: true,
-          variantId: true,
-          unitPrice: true,
-          quantity: true,
-          product: {
-            select: {
-              name: true,
-              images: {
-                take: 1,
-                orderBy: { sortOrder: "asc" },
-                select: {
-                  url: true,
+        items: {
+          select: {
+            id: true,
+            productId: true,
+            variantId: true,
+            unitPrice: true,
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                images: {
+                  take: 1,
+                  orderBy: { sortOrder: "asc" },
+                  select: {
+                    url: true,
+                  },
                 },
               },
             },
-          },
-          variant: {
-            select: {
-              size: true,
+            variant: {
+              select: {
+                size: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    }),
+    getUserReservations(userProfile.id),
+  ]);
 
   const formattedOrders = orders.map((order) => ({
     id: order.id,
@@ -102,19 +90,7 @@ export default async function OrdersPage() {
     })),
   }));
 
-  // Fetch cart count from Redis
-  const allReservations = await getUserReservations(userProfile.id);
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
 
   return (
     <OrdersClient

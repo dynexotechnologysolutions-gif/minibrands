@@ -1,10 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import OrderDetailClient from "../../../orders/[orderId]/OrderDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -27,92 +26,81 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const resolvedParams = await params;
   const orderId = resolvedParams.orderId;
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     redirect(`/login?redirectTo=/account/orders/${orderId}`);
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
-
-  if (!userProfile) {
-    redirect(`/login?redirectTo=/account/orders/${orderId}`);
-  }
-
-  // Query order details with relations (selective fields)
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: {
-      id: true,
-      status: true,
-      orderStatus: true,
-      totalAmount: true,
-      createdAt: true,
-      razorpayOrderId: true,
-      razorpayPaymentId: true,
-      trackingUrl: true,
-      icarryAwbNumber: true,
-      escrowReleaseAt: true,
-      guestShippingAddress: true,
-      guestName: true,
-      guestPhone: true,
-      buyerId: true,
-      seller: {
-        select: {
-          businessName: true,
+  // Query order details and active reservations in parallel
+  const [order, allReservations] = await Promise.all([
+    prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        status: true,
+        orderStatus: true,
+        totalAmount: true,
+        createdAt: true,
+        razorpayOrderId: true,
+        razorpayPaymentId: true,
+        trackingUrl: true,
+        icarryAwbNumber: true,
+        escrowReleaseAt: true,
+        guestShippingAddress: true,
+        guestName: true,
+        guestPhone: true,
+        buyerId: true,
+        seller: {
+          select: {
+            businessName: true,
+          },
         },
-      },
-      address: {
-        select: {
-          fullName: true,
-          phone: true,
-          line1: true,
-          line2: true,
-          city: true,
-          pincode: true,
+        address: {
+          select: {
+            fullName: true,
+            phone: true,
+            line1: true,
+            line2: true,
+            city: true,
+            pincode: true,
+          },
         },
-      },
-      review: {
-        select: {
-          id: true,
+        review: {
+          select: {
+            id: true,
+          },
         },
-      },
-      items: {
-        select: {
-          id: true,
-          productId: true,
-          variantId: true,
-          unitPrice: true,
-          quantity: true,
-          product: {
-            select: {
-              name: true,
-              images: {
-                take: 1,
-                orderBy: { sortOrder: "asc" },
-                select: {
-                  url: true,
+        items: {
+          select: {
+            id: true,
+            productId: true,
+            variantId: true,
+            unitPrice: true,
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                images: {
+                  take: 1,
+                  orderBy: { sortOrder: "asc" },
+                  select: {
+                    url: true,
+                  },
                 },
               },
             },
-          },
-          variant: {
-            select: {
-              size: true,
+            variant: {
+              select: {
+                size: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    getUserReservations(userProfile.id),
+  ]);
 
   if (!order) {
     notFound();
@@ -143,8 +131,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     createdAt: order.createdAt.toISOString(),
     razorpayOrderId: order.razorpayOrderId,
     razorpayPaymentId: order.razorpayPaymentId,
+    trackingUrl: order.trackingUrl,
+    icarryAwbNumber: order.icarryAwbNumber,
+    escrowReleaseAt: order.escrowReleaseAt ? order.escrowReleaseAt.toISOString() : null,
+    guestShippingAddress: order.guestShippingAddress,
+    guestName: order.guestName,
+    guestPhone: order.guestPhone,
     sellerName: order.seller.businessName,
-    address: order.address
+    hasReview: !!order.review,
+    shippingAddress: order.address
       ? {
           fullName: order.address.fullName,
           phone: order.address.phone,
@@ -154,37 +149,25 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           pincode: order.address.pincode,
         }
       : {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           fullName: (order.guestShippingAddress as any)?.name || order.guestName || "Customer",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           phone: (order.guestShippingAddress as any)?.phone || order.guestPhone || "",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           line1: (order.guestShippingAddress as any)?.line1 || "",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           line2: (order.guestShippingAddress as any)?.line2 || "",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           city: (order.guestShippingAddress as any)?.city || "",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           pincode: (order.guestShippingAddress as any)?.postalCode || "",
         },
     items: formattedItems,
-    // Epic 4 fields
-    trackingUrl: order.trackingUrl,
-    icarryAwbNumber: order.icarryAwbNumber,
-    escrowReleaseAt: order.escrowReleaseAt ? order.escrowReleaseAt.toISOString() : null,
-    hasReview: !!order.review,
     userProfileId: userProfile.id,
     firstProductId: order.items[0]?.productId,
   };
 
-
-  // Fetch cart count from Redis
-  const allReservations = await getUserReservations(userProfile.id);
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
 
   return (
     <OrderDetailClient

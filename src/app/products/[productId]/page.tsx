@@ -2,11 +2,10 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { trackEvent } from "@/lib/posthog";
 import { redis, getUserReservations } from "@/lib/redis";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import ProductDetailClient from "./ProductDetailClient";
 
 // Cached product query to deduplicate requests between generateMetadata and ProductDetailPage
@@ -115,9 +114,7 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
   }
 
   // Fetch session to track product_viewed and load user identity
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile } = await getRequestSessionAndProfile();
   const distinctId = session?.user?.id || "anonymous";
   trackEvent(distinctId, "product_viewed", {
     productId: product.id,
@@ -129,36 +126,15 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
 
   // Fetch all secondary data in parallel
   const [
-    userData,
+    reservations,
+    isWishlistedMember,
     similarProducts,
     recentlyViewedFallback,
     reviewGroups,
     initialReviews
   ] = await Promise.all([
-    (async () => {
-      if (!session?.user) return { userProfile: null, cartCount: 0, initialIsWishlisted: false };
-      const userProfile = await prisma.userProfile.findUnique({
-        where: { userId: session.user.id },
-        include: {
-          user: true,
-          seller: {
-            include: {
-              verification: true,
-            },
-          },
-        },
-      });
-      if (!userProfile) return { userProfile: null, cartCount: 0, initialIsWishlisted: false };
-
-      const [reservations, isMember] = await Promise.all([
-        getUserReservations(userProfile.id),
-        redis.sismember(`wishlist:${userProfile.id}`, product.id),
-      ]);
-      const cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-      const initialIsWishlisted = isMember === 1;
-
-      return { userProfile, cartCount, initialIsWishlisted };
-    })(),
+    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
+    userProfile ? redis.sismember(`wishlist:${userProfile.id}`, product.id) : Promise.resolve(0),
     prisma.product.findMany({
       where: {
         category: product.category,
@@ -202,7 +178,7 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
         },
         seller: true,
       },
-      take: 14, // Fetch extra so we can filter duplicates in JS
+      take: 14,
     }),
     prisma.review.groupBy({
       by: ["rating"],
@@ -225,7 +201,8 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
     }),
   ]);
 
-  const { userProfile, cartCount, initialIsWishlisted } = userData || { userProfile: null, cartCount: 0, initialIsWishlisted: false };
+  const cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
+  const initialIsWishlisted = isWishlistedMember === 1;
 
   const formattedInitialReviews = initialReviews.map((r) => ({
     id: r.id,

@@ -1,9 +1,8 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redis, ReservationData, getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import AddressClient from "./AddressClient";
 import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
 
@@ -34,11 +33,9 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
     }
   }
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     const loginRedirect = redirectTo
       ? `/login?redirectTo=/addresses?redirectTo=${encodeURIComponent(redirectTo)}` +
         (sessionId ? `&sessionId=${sessionId}` : "") +
@@ -47,26 +44,22 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
     redirect(loginRedirect);
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
+  // Fetch addresses, active reservations, and optional session in parallel
+  const sessionKey = sessionId ? `checkout-session:${sessionId}` : null;
+  const reservationKey = !sessionId && reservationId ? `reservation:${reservationId}` : null;
 
-  if (!userProfile) {
-    redirect("/login?redirectTo=/addresses");
-  }
-
-  // Fetch addresses
-  const addresses = await prisma.address.findMany({
-    where: {
-      userProfileId: userProfile.id,
-      isDeleted: false,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [addresses, allReservations, sessionRaw, reservationRaw] = await Promise.all([
+    prisma.address.findMany({
+      where: {
+        userProfileId: userProfile.id,
+        isDeleted: false,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    getUserReservations(userProfile.id),
+    sessionKey ? redis.get(sessionKey) : Promise.resolve(null),
+    reservationKey ? redis.get(reservationKey) : Promise.resolve(null),
+  ]);
 
   const formattedAddresses = addresses.map((addr) => ({
     id: addr.id,
@@ -79,26 +72,30 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
     isDefault: addr.isDefault,
   }));
 
-  // Fetch active reservations to calculate cart count
-  const allReservations = await getUserReservations(userProfile.id);
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
 
-  // Fetch products for checkout summary
+  // Fetch products for checkout summary in a single batch query (No N+1 loops)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkoutProducts: any[] = [];
 
-  if (sessionId) {
-    const sessionKey = `checkout-session:${sessionId}`;
-    const sessionRaw = await redis.get(sessionKey);
-    if (sessionRaw) {
-      const checkoutSession = (
-        typeof sessionRaw === "string" ? JSON.parse(sessionRaw) : sessionRaw
-      ) as CheckoutSessionPayload;
+  if (sessionRaw) {
+    const checkoutSession = (
+      typeof sessionRaw === "string" ? JSON.parse(sessionRaw) : sessionRaw
+    ) as CheckoutSessionPayload;
+
+    const productIds = [
+      ...new Set(checkoutSession.products.map((p) => p.productId).filter(Boolean)),
+    ];
+
+    if (productIds.length > 0) {
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds }, isDeleted: false },
+        select: { id: true, name: true, price: true },
+      });
+      const productMap = new Map(products.map((p) => [p.id, p]));
 
       for (const item of checkoutSession.products) {
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId, isDeleted: false },
-        });
+        const product = productMap.get(item.productId);
         if (product) {
           checkoutProducts.push({
             id: product.id,
@@ -109,32 +106,35 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
         }
       }
     }
-  } else if (reservationId) {
-    const reservationKey = `reservation:${reservationId}`;
-    const reservationRaw = await redis.get(reservationKey);
-    if (reservationRaw) {
-      const reservation = (
-        typeof reservationRaw === "string" ? JSON.parse(reservationRaw) : reservationRaw
-      ) as ReservationData;
+  } else if (reservationRaw) {
+    const reservation = (
+      typeof reservationRaw === "string" ? JSON.parse(reservationRaw) : reservationRaw
+    ) as ReservationData;
 
-      const product = await prisma.product.findUnique({
-        where: { id: reservation.productId, isDeleted: false },
+    const product = await prisma.product.findUnique({
+      where: { id: reservation.productId, isDeleted: false },
+      select: { id: true, name: true, price: true },
+    });
+
+    if (product) {
+      checkoutProducts.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: reservation.quantity,
       });
-      if (product) {
-        checkoutProducts.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          quantity: reservation.quantity,
-        });
-      }
     }
-  } else {
-    // Fallback: active cart reservations
+  } else if (allReservations.length > 0) {
+    // Fallback: active cart reservations batched in 1 query
+    const productIds = [...new Set(allReservations.map((r) => r.productId).filter(Boolean))];
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds }, isDeleted: false },
+      select: { id: true, name: true, price: true },
+    });
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
     for (const res of allReservations) {
-      const product = await prisma.product.findUnique({
-        where: { id: res.productId, isDeleted: false },
-      });
+      const product = productMap.get(res.productId);
       if (product) {
         checkoutProducts.push({
           id: product.id,
@@ -144,16 +144,6 @@ export default async function AddressPageContent({ searchParams }: AddressesPage
         });
       }
     }
-  }
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
   }
 
   return (
