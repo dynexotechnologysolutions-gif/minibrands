@@ -27,12 +27,12 @@ export interface UserProfileData {
   } | null;
   addresses?: Array<{
     id: string;
-    fullName?: string;
-    phone?: string;
-    line1?: string;
-    line2?: string | null;
+    fullName: string;
+    phone: string;
+    line1: string;
+    line2: string | null;
     city: string;
-    pincode?: string;
+    pincode: string;
     isDefault: boolean;
     isDeleted: boolean;
   }>;

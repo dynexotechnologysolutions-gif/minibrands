@@ -98,7 +98,18 @@ export default async function ProfilePage() {
   });
 
   // Load default address
-  const defaultAddress = userProfile.addresses?.find((addr) => addr.isDefault) || null;
+  const rawDefaultAddress = userProfile.addresses?.find((addr) => addr.isDefault) || null;
+  const defaultAddress = rawDefaultAddress
+    ? {
+        id: rawDefaultAddress.id,
+        fullName: rawDefaultAddress.fullName,
+        phone: rawDefaultAddress.phone,
+        line1: rawDefaultAddress.line1,
+        line2: rawDefaultAddress.line2 ?? null,
+        city: rawDefaultAddress.city,
+        pincode: rawDefaultAddress.pincode,
+      }
+    : null;
 
   // Cart count
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
