@@ -40,12 +40,10 @@ export default async function HomePage({ searchParams }: PageProps) {
     allReservations,
     rawWishlistIds,
     featuredSellers,
-    suggestedProducts,
+    recentProducts,
     trendingCount,
-    trendingProducts,
+    pagedTrendingProducts,
     nearbyStores,
-    newArrivalsProducts,
-    trendingProductsSection,
   ] = await Promise.all([
     userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
     userProfile ? redis.smembers(`wishlist:${userProfile.id}`) : Promise.resolve([]),
@@ -76,8 +74,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         seller: { include: { verification: true } },
       },
       orderBy: { createdAt: "desc" },
-      skip: 2,
-      take: 4,
+      take: 12,
     }),
     prisma.product.count({
       where: {
@@ -88,23 +85,25 @@ export default async function HomePage({ searchParams }: PageProps) {
         },
       },
     }),
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      skip: (currentPage - 1) * itemsPerPage,
-      take: itemsPerPage,
-    }),
+    currentPage > 1
+      ? prisma.product.findMany({
+          where: {
+            isDeleted: false,
+            isPublished: true,
+            seller: {
+              verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+            },
+          },
+          include: {
+            images: { orderBy: { sortOrder: "asc" } },
+            variants: true,
+            seller: { include: { verification: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: (currentPage - 1) * itemsPerPage,
+          take: itemsPerPage,
+        })
+      : Promise.resolve(null),
     prisma.seller.findMany({
       where: {
         verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
@@ -123,39 +122,12 @@ export default async function HomePage({ searchParams }: PageProps) {
       orderBy: [{ verification: { trustScore: "desc" } }, { createdAt: "desc" }],
       take: 10,
     }),
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
   ]);
+
+  const trendingProducts = pagedTrendingProducts || recentProducts.slice(0, itemsPerPage);
+  const newArrivalsProducts = recentProducts.slice(0, 8);
+  const trendingProductsSection = recentProducts.slice(0, 8);
+  const suggestedProducts = recentProducts.slice(2, 6);
 
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
   const wishlistIds: string[] = rawWishlistIds || [];

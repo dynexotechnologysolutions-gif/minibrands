@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getUserReservations } from "@/lib/redis";
 import { getRequestSessionAndProfile } from "@/lib/request-auth";
@@ -8,18 +9,9 @@ import { StoreSummary } from "@/components/store/StoreCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function StoresPage() {
-  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
-
-  const [allReservations, follows, verifiedSellers] = await Promise.all([
-    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
-    userProfile
-      ? prisma.sellerFollow.findMany({
-          where: { userProfileId: userProfile.id },
-          select: { sellerId: true },
-        })
-      : Promise.resolve([]),
-    prisma.seller.findMany({
+const getCachedVerifiedSellers = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
       where: {
         verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
         products: { some: { isPublished: true, isDeleted: false } },
@@ -36,7 +28,24 @@ export default async function StoresPage() {
         _count: { select: { products: true, reviews: true } },
       },
       orderBy: { createdAt: "desc" },
-    }),
+    });
+  },
+  ["verified-sellers-list"],
+  { revalidate: 60, tags: ["stores", "sellers"] }
+);
+
+export default async function StoresPage() {
+  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
+
+  const [allReservations, follows, verifiedSellers] = await Promise.all([
+    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
+    userProfile
+      ? prisma.sellerFollow.findMany({
+          where: { userProfileId: userProfile.id },
+          select: { sellerId: true },
+        })
+      : Promise.resolve([]),
+    getCachedVerifiedSellers(),
   ]);
 
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);

@@ -1,32 +1,72 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redis } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import { enrichProductWithComputedFields, getProductDiscountAndMrp, getProductRatingAndReviews } from "@/features/catalog/utils/deterministic";
 
 export const dynamic = "force-dynamic";
 
 async function getWishlistProductIds() {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-    if (!session || !session.user) return [];
+    const { userProfile } = await getRequestSessionAndProfile();
+    if (!userProfile) return [];
     
-    const profile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true },
-    });
-    if (!profile) return [];
-    
-    const key = `wishlist:${profile.id}`;
-    return await redis.smembers(key) || [];
+    const key = `wishlist:${userProfile.id}`;
+    return (await redis.smembers(key)) || [];
   } catch (error) {
     console.error("Failed to get wishlist product IDs:", error);
     return [];
   }
 }
+
+const PRODUCT_SELECT_FIELDS = {
+  id: true,
+  sellerId: true,
+  name: true,
+  shortDescription: true,
+  fullDescription: true,
+  category: true,
+  subcategory: true,
+  tags: true,
+  price: true,
+  isPublished: true,
+  isDeleted: true,
+  createdAt: true,
+  updatedAt: true,
+  images: {
+    orderBy: { sortOrder: "asc" as const },
+    select: {
+      id: true,
+      productId: true,
+      url: true,
+      sortOrder: true,
+    },
+  },
+  variants: {
+    select: {
+      id: true,
+      productId: true,
+      size: true,
+      stockCount: true,
+    },
+  },
+  seller: {
+    select: {
+      id: true,
+      businessName: true,
+      storeName: true,
+      storeLogo: true,
+      verification: {
+        select: {
+          kycStatus: true,
+          bankVerified: true,
+          trustScore: true,
+        },
+      },
+    },
+  },
+};
 
 export async function GET(request: Request) {
   try {
@@ -40,10 +80,10 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "12", 10);
     const sort = searchParams.get("sort") || "popularity";
 
-    const wishlistIds = await getWishlistProductIds();
+    const wishlistIdsPromise = getWishlistProductIds();
 
     // 1. Prisma base filters
-    const whereClause: any = {
+    const whereClause: Prisma.ProductWhereInput = {
       isDeleted: false,
       isPublished: true,
       status: "PUBLISHED",
@@ -85,15 +125,58 @@ export async function GET(request: Request) {
       }
     }
 
-    // Fetch lightweight list of all matching products to apply computed field filters/sorting
-    const allMatchingProducts = await prisma.product.findMany({
-      where: whereClause,
-      select: {
-        id: true,
-        price: true,
-        createdAt: true,
-      },
-    });
+    const hasComputedFilter = Boolean(ratingParam || discountParam);
+    const isDbSortable = sort === "price_asc" || sort === "price_desc" || sort === "newest";
+
+    // Direct SQL execution path for database-sortable queries without custom filters
+    if (!hasComputedFilter && isDbSortable) {
+      const orderBy =
+        sort === "price_asc"
+          ? { price: "asc" as const }
+          : sort === "price_desc"
+          ? { price: "desc" as const }
+          : { createdAt: "desc" as const };
+
+      const offset = (page - 1) * limit;
+
+      const [wishlistIds, totalItems, dbProducts] = await Promise.all([
+        wishlistIdsPromise,
+        prisma.product.count({ where: whereClause }),
+        prisma.product.findMany({
+          where: whereClause,
+          orderBy,
+          skip: offset,
+          take: limit,
+          select: PRODUCT_SELECT_FIELDS,
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalItems / limit);
+      const enrichedProducts = dbProducts.map((p) => enrichProductWithComputedFields(p, wishlistIds));
+
+      return NextResponse.json({
+        products: enrichedProducts,
+        pagination: {
+          totalItems,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
+      });
+    }
+
+    // Fallback path for deterministic computed filters/sorts (popularity, rating, discount)
+    const [wishlistIds, allMatchingProducts] = await Promise.all([
+      wishlistIdsPromise,
+      prisma.product.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          price: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     // 2. Enrich with minimal computed fields for filtering & sorting in memory
     let productsForFiltering = allMatchingProducts.map((p) => {
@@ -163,53 +246,7 @@ export async function GET(request: Request) {
       where: {
         id: { in: paginatedIds },
       },
-      select: {
-        id: true,
-        sellerId: true,
-        name: true,
-        shortDescription: true,
-        fullDescription: true,
-        category: true,
-        subcategory: true,
-        tags: true,
-        price: true,
-        isPublished: true,
-        isDeleted: true,
-        createdAt: true,
-        updatedAt: true,
-        images: {
-          orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            productId: true,
-            url: true,
-            sortOrder: true,
-          },
-        },
-        variants: {
-          select: {
-            id: true,
-            productId: true,
-            size: true,
-            stockCount: true,
-          },
-        },
-        seller: {
-          select: {
-            id: true,
-            businessName: true,
-            storeName: true,
-            storeLogo: true,
-            verification: {
-              select: {
-                kycStatus: true,
-                bankVerified: true,
-                trustScore: true,
-              },
-            },
-          },
-        },
-      },
+      select: PRODUCT_SELECT_FIELDS,
     });
 
     // Map dbProducts back to the correct sorted order of paginatedIds
