@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Search, Loader2 } from "lucide-react";
 import { useSellerGlobalSearch } from "@/hooks/useSellerGlobalSearch";
 import SellerSearchResult from "./SellerSearchResult";
 
 export default function SellerGlobalSearch() {
+  const [mounted, setMounted] = useState(false);
   const {
     isOpen,
     query,
@@ -22,6 +23,10 @@ export default function SellerGlobalSearch() {
   const modalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Focus input on open
   useEffect(() => {
@@ -86,15 +91,14 @@ export default function SellerGlobalSearch() {
     return () => {
       document.removeEventListener("keydown", handleEsc);
     };
-  }, [isOpen]);
+  }, [isOpen, closeSearch]);
 
-  if (typeof window === "undefined" || !isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
       <div
-        ref={modalRef}
         className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
         onClick={closeSearch}
         aria-hidden="true"
@@ -102,7 +106,7 @@ export default function SellerGlobalSearch() {
 
       {/* Search Modal */}
       <div
-        ref={resultsRef}
+        ref={modalRef}
         className="relative z-10 w-full max-w-2xl mx-4 sm:max-w-3xl lg:max-w-4xl max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-vl-border overflow-hidden flex flex-col animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -196,7 +200,7 @@ export default function SellerGlobalSearch() {
               <p className="text-sm text-vl-muted">Search across products, orders, returns, and inventory</p>
             </div>
           ) : (
-            <div role="listbox" aria-label="Search results">
+            <div role="listbox" ref={resultsRef} aria-label="Search results">
               {results.map((result, index) => (
                 <SellerSearchResult
                   key={result.id}
