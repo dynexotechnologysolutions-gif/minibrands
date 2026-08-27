@@ -17,6 +17,8 @@ import HomeWhyShopWithVelvet from "@/components/home/HomeWhyShopWithVelvet";
 import ProductCard from "@/components/product/ProductCard";
 import Link from "next/link";
 
+import { unstable_cache } from "next/cache";
+
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -28,6 +30,90 @@ export const metadata: Metadata = {
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
+
+const getCachedFeaturedSellers = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        _count: { select: { products: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    });
+  },
+  ["home-featured-sellers"],
+  { revalidate: 60, tags: ["sellers", "home"] }
+);
+
+const getCachedRecentProducts = unstable_cache(
+  async () => {
+    return prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        },
+      },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        variants: true,
+        seller: { include: { verification: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+    });
+  },
+  ["home-recent-products"],
+  { revalidate: 60, tags: ["products", "home"] }
+);
+
+const getCachedTrendingCount = unstable_cache(
+  async () => {
+    return prisma.product.count({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        },
+      },
+    });
+  },
+  ["home-trending-count"],
+  { revalidate: 60, tags: ["products", "home"] }
+);
+
+const getCachedNearbyStores = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
+      },
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: true,
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } } },
+          take: 1,
+        },
+      },
+      orderBy: [{ verification: { trustScore: "desc" } }, { createdAt: "desc" }],
+      take: 10,
+    });
+  },
+  ["home-nearby-stores"],
+  { revalidate: 60, tags: ["sellers", "home"] }
+);
 
 export default async function HomePage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -47,44 +133,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   ] = await Promise.all([
     userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
     userProfile ? redis.smembers(`wishlist:${userProfile.id}`) : Promise.resolve([]),
-    prisma.seller.findMany({
-      where: {
-        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        products: { some: { isPublished: true, isDeleted: false } },
-      },
-      include: {
-        userProfile: { include: { user: true } },
-        verification: true,
-        _count: { select: { products: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
-    prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        },
-      },
-      include: {
-        images: { orderBy: { sortOrder: "asc" } },
-        variants: true,
-        seller: { include: { verification: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 12,
-    }),
-    prisma.product.count({
-      where: {
-        isDeleted: false,
-        isPublished: true,
-        seller: {
-          verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        },
-      },
-    }),
+    getCachedFeaturedSellers(),
+    getCachedRecentProducts(),
+    getCachedTrendingCount(),
     currentPage > 1
       ? prisma.product.findMany({
           where: {
@@ -104,24 +155,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           take: itemsPerPage,
         })
       : Promise.resolve(null),
-    prisma.seller.findMany({
-      where: {
-        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-        products: { some: { isPublished: true, isDeleted: false } },
-      },
-      include: {
-        userProfile: { include: { user: true } },
-        verification: true,
-        reviews: true,
-        products: {
-          where: { isPublished: true, isDeleted: false },
-          include: { images: { orderBy: { sortOrder: "asc" } } },
-          take: 1,
-        },
-      },
-      orderBy: [{ verification: { trustScore: "desc" } }, { createdAt: "desc" }],
-      take: 10,
-    }),
+    getCachedNearbyStores(),
   ]);
 
   const trendingProducts = pagedTrendingProducts || recentProducts.slice(0, itemsPerPage);

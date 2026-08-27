@@ -107,11 +107,25 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
     }
 
     if (userProfile) {
+      try {
+        const cachedAddress = sessionStorage.getItem("velvet_default_address_location");
+        if (cachedAddress) {
+          setTimeout(() => setLocationText(cachedAddress), 0);
+          return;
+        }
+      } catch {
+        // sessionStorage unavailable, proceed to fetch
+      }
+
       getDefaultAddress()
         .then((res) => {
           if (res.success && res.data) {
             const area = res.data.line2 || res.data.line1;
-            setLocationText(area ? `${area.split(",")[0].trim()}, ${res.data.city}` : res.data.city);
+            const formatted = area ? `${area.split(",")[0].trim()}, ${res.data.city}` : res.data.city;
+            setLocationText(formatted);
+            try {
+              sessionStorage.setItem("velvet_default_address_location", formatted);
+            } catch {}
           }
         })
         .catch((error) => console.error("Failed to fetch default address:", error));
