@@ -3,15 +3,11 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import {
   DollarSign,
-  ShoppingBag,
-  Store,
-  Users,
   Package,
   ShieldCheck,
   RotateCcw,
   Star,
   TrendingUp,
-  AlertTriangle,
   ArrowUpRight,
   Clock,
   Sparkles,
@@ -29,22 +25,17 @@ export default async function FounderDashboardPage() {
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const [
-    totalGmvAgg,
+    allTimeFinanceAgg,
     todayGmvAgg,
     thirtyDayGmvAgg,
-    commissionEarnedAgg,
     pendingEscrowAgg,
     releasedEscrowAgg,
-    completedOrders,
-    pendingOrders,
-    cancelledOrders,
-    pendingKyc,
-    verifiedSellers,
+    orderStatusGroups,
+    kycStatusGroups,
     activeSellers,
     buyerCount,
     productCount,
-    totalReviews,
-    reviewsRatingAgg,
+    reviewsAgg,
     trustScoreAgg,
     pendingReturns,
     lowStock,
@@ -53,9 +44,9 @@ export default async function FounderDashboardPage() {
     recentOrdersForFeedAndTable,
     recentReturns,
   ] = await Promise.all([
-    // GMV All-Time
+    // GMV All-Time & Commission
     prisma.order.aggregate({
-      _sum: { totalAmount: true },
+      _sum: { totalAmount: true, commissionAmount: true },
       where: { status: { not: "cancelled" } },
     }),
     // GMV Today
@@ -68,11 +59,6 @@ export default async function FounderDashboardPage() {
       _sum: { totalAmount: true },
       where: { status: { not: "cancelled" }, createdAt: { gte: thirtyDaysAgo } },
     }),
-    // Net Commission
-    prisma.order.aggregate({
-      _sum: { commissionAmount: true },
-      where: { status: { not: "cancelled" } },
-    }),
     // Pending Escrow
     prisma.order.aggregate({
       _sum: { totalAmount: true, commissionAmount: true },
@@ -83,20 +69,25 @@ export default async function FounderDashboardPage() {
       _sum: { totalAmount: true, commissionAmount: true },
       where: { status: "completed" },
     }),
-    // Order Counts
-    prisma.order.count({ where: { status: "completed" } }),
-    prisma.order.count({ where: { status: { in: ["created", "paid", "confirmed"] } } }),
-    prisma.order.count({ where: { status: "cancelled" } }),
-    // KYC Counts
-    prisma.sellerVerification.count({ where: { kycStatus: "pending" } }),
-    prisma.sellerVerification.count({ where: { kycStatus: { in: ["approved", "auto_approved"] } } }),
+    // Order Counts by Status
+    prisma.order.groupBy({
+      by: ["status"],
+      _count: { status: true },
+    }),
+    // KYC Counts by Status
+    prisma.sellerVerification.groupBy({
+      by: ["kycStatus"],
+      _count: { kycStatus: true },
+    }),
     // Active Sellers, Buyers, Products
     prisma.seller.count(),
     prisma.userProfile.count(),
     prisma.product.count(),
-    // Reviews Stats
-    prisma.review.count(),
-    prisma.review.aggregate({ _avg: { rating: true } }),
+    // Reviews Stats (Count & Avg)
+    prisma.review.aggregate({
+      _count: { id: true },
+      _avg: { rating: true },
+    }),
     prisma.sellerVerification.aggregate({
       _avg: { trustScore: true },
       where: { kycStatus: { in: ["approved", "auto_approved"] } },
@@ -127,19 +118,36 @@ export default async function FounderDashboardPage() {
     }),
   ]);
 
+  // Derive order status counts
+  const orderCountsMap = new Map(orderStatusGroups.map((g) => [g.status, g._count.status]));
+  const completedOrders = orderCountsMap.get("completed") || 0;
+  const pendingOrders =
+    (orderCountsMap.get("created") || 0) +
+    (orderCountsMap.get("paid") || 0) +
+    (orderCountsMap.get("confirmed") || 0);
+  const cancelledOrders = orderCountsMap.get("cancelled") || 0;
+
+  // Derive KYC status counts
+  const kycCountsMap = new Map(kycStatusGroups.map((g) => [g.kycStatus, g._count.kycStatus]));
+  const pendingKyc = kycCountsMap.get("pending") || 0;
+  const verifiedSellers =
+    (kycCountsMap.get("approved") || 0) + (kycCountsMap.get("auto_approved") || 0);
+
+  const totalReviews = reviewsAgg._count.id;
+
   // ── Financial Metrics (paise → INR) ─────────────────────────────────────
-  const totalGmv = (totalGmvAgg._sum.totalAmount || 0) / 100;
+  const totalGmv = (allTimeFinanceAgg._sum.totalAmount || 0) / 100;
   const todayGmv = (todayGmvAgg._sum.totalAmount || 0) / 100;
   const thirtyDayGmv = (thirtyDayGmvAgg._sum.totalAmount || 0) / 100;
-  const commissionEarned = (commissionEarnedAgg._sum.commissionAmount || 0) / 100;
+  const commissionEarned = (allTimeFinanceAgg._sum.commissionAmount || 0) / 100;
 
   // ── Escrow Metrics ───────────────────────────────────────────────────────
   const pendingEscrow = ((pendingEscrowAgg._sum.totalAmount || 0) - (pendingEscrowAgg._sum.commissionAmount || 0)) / 100;
   const releasedEscrow = ((releasedEscrowAgg._sum.totalAmount || 0) - (releasedEscrowAgg._sum.commissionAmount || 0)) / 100;
 
   // ── Reviews / Trust ──────────────────────────────────────────────────────
-  const averageRating = reviewsRatingAgg._avg.rating
-    ? Number(reviewsRatingAgg._avg.rating.toFixed(1))
+  const averageRating = reviewsAgg._avg.rating
+    ? Number(reviewsAgg._avg.rating.toFixed(1))
     : 5.0;
   const trustScoreAverage = trustScoreAgg._avg.trustScore
     ? Number(trustScoreAgg._avg.trustScore.toFixed(1))
