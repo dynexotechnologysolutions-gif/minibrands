@@ -7,6 +7,8 @@ export interface UserProfileData {
   id: string;
   userId: string;
   role: "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
+  isSuspended: boolean;
+  suspendedReason?: string | null;
   user: {
     id?: string;
     name: string;
