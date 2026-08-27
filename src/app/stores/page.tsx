@@ -35,7 +35,7 @@ const getCachedVerifiedSellers = unstable_cache(
 );
 
 export default async function StoresPage() {
-  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
   const [allReservations, follows, verifiedSellers] = await Promise.all([
     userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
