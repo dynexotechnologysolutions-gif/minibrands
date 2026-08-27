@@ -42,11 +42,16 @@ export class ReturnPolicyService {
       return { eligible: false, reason: `Only delivered or completed orders can be returned. Current status: ${order.status}`, policyVersion: this.POLICY_VERSION };
     }
 
-    // 3. Check Return Window (7 days from Order creation as a safe approximation or from escrow release)
-    const orderDate = new Date(order.createdAt).getTime();
-    const elapsedMs = Date.now() - orderDate;
+    // 3. Check Return Window (7 days from authoritative delivery date)
+    const deliveryDate = order.deliveredAt
+      ? new Date(order.deliveredAt).getTime()
+      : order.escrowReleaseAt
+      ? new Date(order.escrowReleaseAt).getTime() - this.RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000
+      : new Date(order.createdAt).getTime();
+
+    const elapsedMs = Date.now() - deliveryDate;
     const limitMs = this.RETURN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-    const eligibleUntil = new Date(orderDate + limitMs);
+    const eligibleUntil = new Date(deliveryDate + limitMs);
 
     if (elapsedMs > limitMs) {
       return { eligible: false, reason: "The 7-day return window for this order has expired.", policyVersion: this.POLICY_VERSION };

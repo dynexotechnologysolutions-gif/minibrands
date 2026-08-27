@@ -152,6 +152,8 @@ model Seller {
   bankAccountNumber     String?
   bankIfsc              String?
   bankAccountName       String?
+  encryptedBankAccountNumber String?
+  encryptedBankIfsc     String?
   cancelledChequeUrl    String?
   verificationMetadata  String?
   adminNotes            String?
@@ -162,6 +164,8 @@ model Seller {
   approvedBy            String?
   rejectedBy            String?
   suspendedBy           String?
+
+  payouts               Payout[]
 
   currentStep           Int                 @default(1)
   updatedAt             DateTime            @updatedAt
@@ -303,7 +307,8 @@ model Order {
   orderStatus          String       @default("created")
   razorpayOrderId      String?      @unique
   razorpayPaymentId    String?      @unique
-  escrowReleaseAt      DateTime?    // set when buyer confirms delivery
+  deliveredAt          DateTime?    // authoritative delivery timestamp
+  escrowReleaseAt      DateTime?    // set when buyer/logistics confirms delivery
   icarryOrderId        String?
   icarryAwbNumber      String?
   icarryLabelUrl       String?
@@ -312,6 +317,7 @@ model Order {
   items                OrderItem[]
   review               Review?
   returnRequest        ReturnRequest?
+  payout               Payout?
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
 
@@ -610,5 +616,40 @@ model EmailAuditLog {
   @@index([recipient])
   @@index([status])
   @@map("email_audit_log")
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+
+model Payout {
+  id               String       @id @default(uuid())
+  orderId          String       @unique
+  order            Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sellerId         String
+  seller           Seller       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  amount           Int          // paise (seller net payable)
+  currency         String       @default("INR")
+  status           PayoutStatus @default(PENDING)
+  razorpayPayoutId String?      @unique
+  fundAccountId    String
+  utr              String?
+  initiatedAt      DateTime     @default(now())
+  processedAt      DateTime?
+  failedAt         DateTime?
+  reversedAt       DateTime?
+  failureReason    String?
+  retryCount       Int          @default(0)
+  idempotencyKey   String       @unique
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([sellerId])
+  @@index([status])
+  @@map("payout")
 }
 

@@ -6,11 +6,12 @@ export async function GET() {
   try {
     await verifyAdminSession("manage_finance");
 
-    const [orders, refunds, sellers] = await Promise.all([
+    const [orders, refunds, sellers, payouts] = await Promise.all([
       prisma.order.findMany({
         include: {
           seller: true,
           buyer: { include: { user: true } },
+          payout: true,
         },
         orderBy: { createdAt: "desc" },
       }),
@@ -26,6 +27,13 @@ export async function GET() {
       }),
       prisma.seller.findMany({
         include: { verification: true },
+      }),
+      prisma.payout.findMany({
+        include: {
+          seller: true,
+          order: true,
+        },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
@@ -68,12 +76,28 @@ export async function GET() {
         businessName: s.businessName,
         razorpayFundAccountId: s.razorpayFundAccountId || "NOT_CONFIGURED",
         bankVerified: s.verification?.bankVerified || false,
-        bankLast4: s.verification?.bankAccountLast4 || "N/A",
+        bankLast4: s.verification?.bankAccountLast4 ? `XXXX XXXX ${s.verification.bankAccountLast4}` : "N/A",
         totalReleasedAmount: totalReleasedPaise / 100,
         pendingEscrowAmount: totalPendingPaise / 100,
         status: s.verification?.bankVerified ? "READY_FOR_PAYOUT" : "NEEDS_BANK_VERIFICATION",
       };
     });
+
+    // Detailed Payout Ledger
+    const payoutLedger = payouts.map((p) => ({
+      id: p.id,
+      orderId: p.orderId,
+      sellerName: p.seller.businessName,
+      amount: p.amount / 100,
+      currency: p.currency,
+      status: p.status,
+      razorpayPayoutId: p.razorpayPayoutId || "N/A",
+      utr: p.utr || "N/A",
+      initiatedAt: p.initiatedAt.toISOString(),
+      processedAt: p.processedAt?.toISOString() || null,
+      failureReason: p.failureReason || null,
+      retryCount: p.retryCount,
+    }));
 
     // Transaction Ledger
     const transactions = orders.slice(0, 15).map((o) => ({
@@ -87,6 +111,7 @@ export async function GET() {
       netPayout: (o.totalAmount - o.commissionAmount) / 100,
       paymentMethod: o.razorpayPaymentId ? "Razorpay Online" : "Escrow Standard",
       escrowStatus: o.status === "completed" ? "RELEASED" : o.status === "cancelled" ? "REFUNDED" : "HELD_IN_ESCROW",
+      payoutStatus: o.payout?.status || "NOT_INITIATED",
     }));
 
     return NextResponse.json({
@@ -100,6 +125,7 @@ export async function GET() {
         upcomingReleases: pendingEscrowPaise / 100,
       },
       payoutQueue,
+      payoutLedger,
       transactions,
     });
   } catch (err: any) {

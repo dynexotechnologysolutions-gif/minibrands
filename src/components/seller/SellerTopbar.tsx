@@ -80,7 +80,7 @@ return (
           <input
             type="text"
             value={query}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search products, SKUs, inventory..."
             className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-surface border border-border-gray/70 text-xs font-medium text-on-surface outline-none focus:border-primary placeholder:text-text-muted transition-all"
@@ -89,7 +89,7 @@ return (
           {query && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
+              onClick={() => setQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors"
               aria-label="Clear search"
             >
