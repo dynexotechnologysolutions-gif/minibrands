@@ -139,7 +139,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     guestPhone: order.guestPhone,
     sellerName: order.seller.businessName,
     hasReview: !!order.review,
-    shippingAddress: order.address
+    address: order.address
       ? {
           fullName: order.address.fullName,
           phone: order.address.phone,
@@ -149,18 +149,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           pincode: order.address.pincode,
         }
       : {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          fullName: (order.guestShippingAddress as any)?.name || order.guestName || "Customer",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          phone: (order.guestShippingAddress as any)?.phone || order.guestPhone || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          line1: (order.guestShippingAddress as any)?.line1 || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          line2: (order.guestShippingAddress as any)?.line2 || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          city: (order.guestShippingAddress as any)?.city || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          pincode: (order.guestShippingAddress as any)?.postalCode || "",
+          fullName:
+            (order.guestShippingAddress as { name?: string } | null)?.name ||
+            order.guestName ||
+            "Customer",
+          phone:
+            (order.guestShippingAddress as { phone?: string } | null)?.phone ||
+            order.guestPhone ||
+            "",
+          line1:
+            (order.guestShippingAddress as { line1?: string } | null)?.line1 || "",
+          line2:
+            (order.guestShippingAddress as { line2?: string } | null)?.line2 || null,
+          city:
+            (order.guestShippingAddress as { city?: string } | null)?.city || "",
+          pincode:
+            (order.guestShippingAddress as { postalCode?: string } | null)?.postalCode || "",
         },
     items: formattedItems,
     userProfileId: userProfile.id,
