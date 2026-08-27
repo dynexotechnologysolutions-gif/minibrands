@@ -22,7 +22,7 @@ export interface UserProfileData {
     verification?: {
       kycStatus: string;
       bankVerified: boolean;
-      trustScore?: number;
+      trustScore: number;
     } | null;
   } | null;
   addresses?: Array<{
