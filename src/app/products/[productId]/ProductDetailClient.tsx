@@ -318,7 +318,6 @@ export default function ProductDetailClient({
           if (data.success) {
             setSuccessMessage("Added to guest cart successfully!");
             setCartCount((prev) => prev + 1);
-            router.refresh();
             window.dispatchEvent(new Event("cart-updated"));
           } else {
             setErrorMessage(data.error || "Failed to add to cart. Please try again.");
@@ -340,7 +339,7 @@ export default function ProductDetailClient({
       if (response.success) {
         setSuccessMessage("Added to cart successfully!");
         setCartCount((prev) => prev + 1);
-        router.refresh();
+        window.dispatchEvent(new Event("cart-updated"));
       } else {
         if (response.error?.code === "UNAUTHORIZED") {
           router.push(`/login?redirectTo=/products/${product.id}`);

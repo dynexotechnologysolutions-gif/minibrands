@@ -76,7 +76,7 @@ vi.mock("../lib/icarry", () => ({
 vi.mock("../lib/razorpay-payouts", () => ({
   createPayout: vi.fn().mockResolvedValue({
     id: "pout_test_12345",
-    status: "processing",
+    status: "processed",
     amount: 10000,
     currency: "INR",
   }),
@@ -122,6 +122,11 @@ vi.mock("../lib/prisma", () => ({
     },
     orderItem: {
       findFirst: vi.fn(),
+    },
+    payout: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
     $transaction: vi.fn((cb) => cb(prisma)),
   },
@@ -271,40 +276,63 @@ describe("Epic 4 — Transaction Close & Escrow Flow Tests", () => {
 
   describe("escrowRelease engine", () => {
     it("should automatically process released escrows and skip missing bank accounts", async () => {
-      const now = new Date();
-      // Setup orders
-      vi.mocked(prisma.order.findMany).mockResolvedValue([
-        {
-          id: "order-escrow-1",
-          totalAmount: 15000,
-          commissionAmount: 1500,
-          status: "delivered",
-          seller: {
-            id: "seller-1",
-            businessName: "Seller One",
-            razorpayFundAccountId: null, // missing linked account
-            userProfile: { user: { name: "919999999999", email: "seller1@test.com" } },
-          },
-          buyer: { user: { name: "Buyer One", email: "buyer@test.com" } },
+      const pastDate = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+      const mockOrder1 = {
+        id: "order-escrow-1",
+        totalAmount: 15000,
+        commissionAmount: 1500,
+        status: "delivered",
+        paymentStatus: "paid",
+        deliveredAt: pastDate,
+        escrowReleaseAt: pastDate,
+        sellerId: "seller-1",
+        seller: {
+          id: "seller-1",
+          businessName: "Seller One",
+          razorpayFundAccountId: null, // missing fund account
+          verification: { bankVerified: true },
+          userProfile: { user: { name: "919999999999", email: "seller1@test.com" } },
         },
-        {
-          id: "order-escrow-2",
-          totalAmount: 20000,
-          commissionAmount: 2000,
-          status: "delivered",
-          seller: {
-            id: "seller-2",
-            businessName: "Seller Two",
-            razorpayFundAccountId: "fa_verified_123", // link exists
-            userProfile: { user: { name: "918888888888", email: "seller2@test.com" } },
-          },
-          buyer: { user: { name: "Buyer Two", email: "buyer@test.com" } },
+        buyer: { user: { name: "Buyer One", email: "buyer@test.com" } },
+        returnRequest: null,
+        payout: null,
+      };
+
+      const mockOrder2 = {
+        id: "order-escrow-2",
+        totalAmount: 20000,
+        commissionAmount: 2000,
+        status: "delivered",
+        paymentStatus: "paid",
+        deliveredAt: pastDate,
+        escrowReleaseAt: pastDate,
+        sellerId: "seller-2",
+        seller: {
+          id: "seller-2",
+          businessName: "Seller Two",
+          razorpayFundAccountId: "fa_verified_123", // link exists
+          verification: { bankVerified: true },
+          userProfile: { user: { name: "918888888888", email: "seller2@test.com" } },
         },
-      ] as any);
+        buyer: { user: { name: "Buyer Two", email: "buyer@test.com" } },
+        returnRequest: null,
+        payout: null,
+      };
+
+      vi.mocked(prisma.order.findMany).mockResolvedValue([mockOrder1, mockOrder2] as any);
+      vi.mocked(prisma.order.findUnique).mockImplementation(async (args: any) => {
+        if (args?.where?.id === "order-escrow-1") return mockOrder1 as any;
+        if (args?.where?.id === "order-escrow-2") return mockOrder2 as any;
+        return null;
+      });
+      (prisma as any).payout = {
+        create: vi.fn().mockResolvedValue({ id: "pout-db-2", status: "PROCESSING" }),
+        update: vi.fn().mockResolvedValue({ id: "pout-db-2", status: "SUCCESS" }),
+      };
 
       const result = await runEscrowRelease();
       expect(result.processed).toBe(2);
-      expect(result.skippedNoFundAccount).toBe(1);
+      expect(result.skippedIneligible).toBe(1);
       expect(result.succeeded).toBe(1);
     });
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -12,6 +12,7 @@ import {
   Sparkles,
   ExternalLink
 } from "lucide-react";
+import { useSellerGlobalSearch } from "@/hooks/useSellerGlobalSearch";
 
 interface SellerTopbarProps {
   onToggleMobileSidebar: () => void;
@@ -25,17 +26,42 @@ export default function SellerTopbar({
   unreadNotifications = 2,
 }: SellerTopbarProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+  const { 
+    isOpen, 
+    setIsOpen, 
+    query, 
+    setQuery, 
+    searchType, 
+    setSearchType,
+    openSearch,
+    closeSearch,
+    handleKeyDown 
+  } = useSellerGlobalSearch();
+
+  // Handle global keyboard shortcut (Cmd/Ctrl + K)
+  useEffect(() => {
+    function handleGlobalKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openSearch();
+      }
+    }
+
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [openSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/seller/inventory?search=${encodeURIComponent(searchQuery.trim())}`);
+    if (query.trim()) {
+      // Redirect to inventory with search query
+      window.location.href = `/seller/inventory?search=${encodeURIComponent(query.trim())}`;
+      closeSearch();
     }
   };
 
-  return (
+return (
     <header className="flex justify-between items-center w-full px-base md:px-lg h-16 sticky top-0 z-50 bg-surface/95 backdrop-blur-md border-b border-border-gray shadow-xs">
       <div className="flex items-center gap-base md:gap-lg flex-1">
         {/* Mobile Hamburger Menu Toggle */}
@@ -48,21 +74,22 @@ export default function SellerTopbar({
           <Menu className="w-6 h-6" />
         </button>
 
-        {/* Global Search Bar — Admin-style */}
+        {/* Global Search Bar — Admin-style with Cmd+K */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-sm md:max-w-md">
           <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-text-muted pointer-events-none" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Search products, SKUs, inventory..."
-            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-surface border border-border-gray/70 text-xs font-medium text-on-surface focus:outline-none focus:border-primary placeholder:text-text-muted transition-all"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-surface border border-border-gray/70 text-xs font-medium text-on-surface outline-none focus:border-primary placeholder:text-text-muted transition-all"
             suppressHydrationWarning={true}
           />
-          {searchQuery && (
+          {query && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
+              onClick={() => setQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors"
               aria-label="Clear search"
             >

@@ -1,10 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redis, ReservationData, getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import Link from "next/link";
 import CheckoutClient from "./CheckoutClient";
 import { CheckoutSessionPayload } from "@/actions/checkout-session.action";
@@ -36,31 +35,31 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     redirect("/cart");
   }
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     const redirectUrl = sessionId
       ? `/login?redirectTo=/checkout?sessionId=${sessionId}`
       : `/login?redirectTo=/checkout?reservationId=${reservationId}`;
     redirect(redirectUrl);
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
+  const sessionKey = sessionId ? `checkout-session:${sessionId}` : null;
+  const reservationKey = !sessionId && reservationId ? `reservation:${reservationId}` : null;
 
-  if (!userProfile) {
-    const redirectUrl = sessionId
-      ? `/login?redirectTo=/checkout?sessionId=${sessionId}`
-      : `/login?redirectTo=/checkout?reservationId=${reservationId}`;
-    redirect(redirectUrl);
-  }
+  // Execute address lookup, cart count, and Redis session/reservation fetches in parallel
+  const [addresses, allReservations, sessionRaw, reservationRaw] = await Promise.all([
+    prisma.address.findMany({
+      where: {
+        userProfileId: userProfile.id,
+        isDeleted: false,
+      },
+      orderBy: { isDefault: "desc" },
+    }),
+    getUserReservations(userProfile.id),
+    sessionKey ? redis.get(sessionKey) : Promise.resolve(null),
+    reservationKey ? redis.get(reservationKey) : Promise.resolve(null),
+  ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checkoutProducts: any[] = [];
@@ -68,10 +67,6 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
   let createdAt = new Date().toISOString();
 
   if (sessionId) {
-    // Fetch checkout session from Redis
-    const sessionKey = `checkout-session:${sessionId}`;
-    const sessionRaw = await redis.get(sessionKey);
-
     if (!sessionRaw) {
       redirect("/session-expired?redirectTo=/cart");
     }
@@ -158,10 +153,6 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
       });
     }
   } else if (reservationId) {
-    // Fetch reservation from Redis (legacy compatibility)
-    const reservationKey = `reservation:${reservationId}`;
-    const reservationRaw = await redis.get(reservationKey);
-
     if (!reservationRaw) {
       redirect("/session-expired?redirectTo=/cart");
     }
@@ -236,15 +227,6 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     });
   }
 
-  // Fetch addresses
-  const addresses = await prisma.address.findMany({
-    where: {
-      userProfileId: userProfile.id,
-      isDeleted: false,
-    },
-    orderBy: { isDefault: "desc" },
-  });
-
   const formattedAddresses = addresses.map((addr) => ({
     id: addr.id,
     fullName: addr.fullName,
@@ -256,19 +238,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     isDefault: addr.isDefault,
   }));
 
-  // Fetch active reservations to calculate cart count
-  const allReservations = await getUserReservations(userProfile.id);
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
 
   return (
     <main className="min-h-screen bg-background">

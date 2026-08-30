@@ -134,9 +134,11 @@ async function handleDelivered(orderReference: string, awbNumber: string): Promi
     Date.now() + ESCROW_WINDOW_DAYS * 24 * 60 * 60 * 1000
   );
 
+  const deliveredAt = new Date();
   await prisma.order.update({
     where: { id: orderReference },
     data: {
+      deliveredAt,
       status: "delivered",
       orderStatus: "delivered",
       escrowReleaseAt,

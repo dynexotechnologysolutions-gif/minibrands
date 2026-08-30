@@ -127,7 +127,6 @@ export default function ProductCard({
           setAdded(true);
           setTimeout(() => setAdded(false), 2000);
           window.dispatchEvent(new Event("cart-updated"));
-          router.refresh();
         } else {
           alert(res.error?.message || "Failed to add to cart");
         }
@@ -143,7 +142,6 @@ export default function ProductCard({
             setAdded(true);
             setTimeout(() => setAdded(false), 2000);
             window.dispatchEvent(new Event("cart-updated"));
-            router.refresh();
           } else {
             alert(data.error || "Failed to add to cart");
           }

@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import StoresPageClient from "@/components/store/StoresPageClient";
@@ -9,55 +9,47 @@ import { StoreSummary } from "@/components/store/StoreCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function StoresPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  let userProfile = null;
-  let cartCount = 0;
-  let sellerHref = "/login?role=seller";
-  let followedSellerIds: string[] = [];
-
-  if (session?.user) {
-    userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
-    });
-
-    if (userProfile?.role === "SELLER") {
-      const ver = userProfile.seller?.verification;
-      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
-      sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-    }
-
-    if (userProfile) {
-      const reservations = await getUserReservations(userProfile.id);
-      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-      const follows = await prisma.sellerFollow.findMany({
-        where: { userProfileId: userProfile.id },
-        select: { sellerId: true },
-      });
-      followedSellerIds = follows.map((f) => f.sellerId);
-    }
-  }
-
-  const verifiedSellers = await prisma.seller.findMany({
-    where: {
-      verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
-      products: { some: { isPublished: true, isDeleted: false } },
-    },
-    include: {
-      userProfile: { include: { user: true } },
-      verification: true,
-      reviews: { select: { rating: true } },
-      products: {
-        where: { isPublished: true, isDeleted: false },
-        include: { images: { orderBy: { sortOrder: "asc" } } },
-        take: 1,
+const getCachedVerifiedSellers = unstable_cache(
+  async () => {
+    return prisma.seller.findMany({
+      where: {
+        verification: { kycStatus: { in: ["auto_approved", "approved"] }, bankVerified: true },
+        products: { some: { isPublished: true, isDeleted: false } },
       },
-      _count: { select: { products: true, reviews: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      include: {
+        userProfile: { include: { user: true } },
+        verification: true,
+        reviews: { select: { rating: true } },
+        products: {
+          where: { isPublished: true, isDeleted: false },
+          include: { images: { orderBy: { sortOrder: "asc" } } },
+          take: 1,
+        },
+        _count: { select: { products: true, reviews: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+  ["verified-sellers-list"],
+  { revalidate: 60, tags: ["stores", "sellers"] }
+);
+
+export default async function StoresPage() {
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
+
+  const [allReservations, follows, verifiedSellers] = await Promise.all([
+    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
+    userProfile
+      ? prisma.sellerFollow.findMany({
+          where: { userProfileId: userProfile.id },
+          select: { sellerId: true },
+        })
+      : Promise.resolve([]),
+    getCachedVerifiedSellers(),
+  ]);
+
+  const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
+  const followedSellerIds = follows.map((f) => f.sellerId);
 
   const stores: StoreSummary[] = verifiedSellers.map((seller) => {
     const rating = seller.reviews.length
@@ -74,7 +66,7 @@ export default async function StoresPage() {
       category: seller.category,
       city: seller.city,
       logoUrl: seller.storeLogo || null,
-      coverImage: seller.storeBanner || seller.products[0]?.images[0]?.url || null,
+      coverImage: seller.storeBanner || null,
       rating,
       reviewCount: seller._count.reviews,
       productCount: seller._count.products,

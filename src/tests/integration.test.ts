@@ -28,6 +28,7 @@ vi.mock("../lib/prisma", () => {
     seller: {
       create: vi.fn(),
       findUnique: vi.fn(),
+      update: vi.fn(),
     },
     sellerVerification: {
       create: vi.fn(),

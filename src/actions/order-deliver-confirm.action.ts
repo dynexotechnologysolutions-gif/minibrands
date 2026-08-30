@@ -58,9 +58,11 @@ export async function confirmDeliveryAction(
       if (order.buyerId !== userProfile.id) throw new Error("FORBIDDEN");
       if (order.status !== "shipped") throw new Error(`INVALID_STATUS:${order.status}`);
 
+      const deliveredAt = new Date();
       return tx.order.update({
         where: { id: orderId },
         data: {
+          deliveredAt,
           status: "delivered",
           orderStatus: "delivered",
           escrowReleaseAt,

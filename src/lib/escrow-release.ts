@@ -1,47 +1,69 @@
 /**
- * lib/escrow-release.ts — Automated escrow release engine.
- * Called by the Vercel Cron route at /api/cron/escrow-release.
- * Processes all delivered orders with escrowReleaseAt in the past
- * and no existing razorpayPayoutId.
+ * lib/escrow-release.ts — Authoritative escrow release engine.
+ * Called by Vercel Cron at /api/cron/escrow-release.
+ * Processes all delivered orders whose return window has passed.
  *
- * Error strategy:
- * - Missing fundAccountId → Sentry + Resend alert, skip order, continue.
- * - Razorpay payout failure → Sentry + Resend alert, order stays in delivered, will retry next run.
- * - DB update failure → Sentry, continue processing remaining orders.
+ * Flow:
+ *  1. Query delivered candidate orders.
+ *  2. Check server-side payout eligibility (deliveredAt, return active, bank verified, etc).
+ *  3. In atomic DB transaction (race protection):
+ *     - Re-check return request status.
+ *     - Create or fetch Payout record in status PENDING -> PROCESSING with deterministic idempotencyKey = "payout_{orderId}".
+ *  4. Call RazorpayX Payouts API with X-Payout-Idempotency header matching idempotencyKey.
+ *  5. Normalize RazorpayX response status via PayoutStateMachine:
+ *     - SUCCESS: Payout.status = SUCCESS, Order.status = completed, Order.razorpayPayoutId = payoutId.
+ *     - PROCESSING: Payout.status = PROCESSING. Order stays delivered (wait for webhook reconciliation).
+ *     - FAILED: Payout.status = FAILED, increment retryCount, failureReason logged. Order stays delivered for retry.
  */
 
 import { prisma } from "@/lib/prisma";
 import { createPayout } from "@/lib/razorpay-payouts";
+import { checkPayoutEligibility } from "@/lib/payout-eligibility";
+import { normalizeRazorpayXStatus, validatePayoutTransition } from "@/lib/payout-state-machine";
 import { captureAndLogError } from "@/lib/sentry";
 import { EmailService } from "@/lib/email.service";
 import { sendMessage, TEMPLATES } from "@/lib/whatsapp";
+import { PayoutStatus, ReturnRequestStatus } from "@prisma/client";
 
 export interface EscrowReleaseResult {
   processed: number;
   succeeded: number;
+  processing: number;
   failed: number;
-  skippedNoFundAccount: number;
+  skippedIneligible: number;
 }
 
-/**
- * Main escrow release runner.
- * Finds all delivered orders whose escrow window has passed and no payout exists.
- * Processes them sequentially to avoid race conditions.
- */
+const ACTIVE_RETURN_STATUSES: ReturnRequestStatus[] = [
+  ReturnRequestStatus.RETURN_REQUESTED,
+  ReturnRequestStatus.SELLER_REVIEW,
+  ReturnRequestStatus.APPROVED,
+  ReturnRequestStatus.PICKUP_SCHEDULED,
+  ReturnRequestStatus.PICKED_UP,
+  ReturnRequestStatus.IN_TRANSIT,
+  ReturnRequestStatus.DELIVERED_TO_SELLER,
+  ReturnRequestStatus.UNDER_INSPECTION,
+  ReturnRequestStatus.REFUND_APPROVED,
+  ReturnRequestStatus.REFUND_PROCESSING,
+  ReturnRequestStatus.REFUNDED,
+  ReturnRequestStatus.RETURN_COMPLETED,
+  ReturnRequestStatus.ESCALATED,
+  ReturnRequestStatus.DISPUTED,
+];
+
 export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
   const now = new Date();
   const result: EscrowReleaseResult = {
     processed: 0,
     succeeded: 0,
+    processing: 0,
     failed: 0,
-    skippedNoFundAccount: 0,
+    skippedIneligible: 0,
   };
 
-  // Find all eligible orders
-  const eligibleOrders = await prisma.order.findMany({
+  // Find candidate delivered orders
+  const candidateOrders = await prisma.order.findMany({
     where: {
       status: "delivered",
-      razorpayPayoutId: null,
       escrowReleaseAt: {
         lte: now,
         not: null,
@@ -50,142 +72,193 @@ export async function runEscrowRelease(): Promise<EscrowReleaseResult> {
     include: {
       seller: {
         include: {
-          userProfile: {
-            include: { user: true },
-          },
+          userProfile: { include: { user: true } },
         },
       },
-      buyer: {
-        include: { user: true },
-      },
+      buyer: { include: { user: true } },
+      payout: true,
+      returnRequest: true,
     },
   });
 
-  console.log(`[EscrowRelease] Found ${eligibleOrders.length} eligible orders at ${now.toISOString()}`);
+  console.log(`[EscrowRelease] Found ${candidateOrders.length} candidate delivered orders at ${now.toISOString()}`);
 
-  for (const order of eligibleOrders) {
+  for (const order of candidateOrders) {
     result.processed++;
 
-    // ── Guard: Seller fund account must exist ──────────────────────────────────
-    if (!order.seller.razorpayFundAccountId) {
-      result.skippedNoFundAccount++;
-      const msg = `Order ${order.id} skipped: seller ${order.seller.id} has no razorpayFundAccountId`;
-      console.warn(`[EscrowRelease] ${msg}`);
-
-      captureAndLogError(
-        new Error(msg),
-        "escrowRelease.missingFundAccount",
-        { orderId: order.id, sellerId: order.seller.id }
-      );
-
-      await EmailService.sendAlert(
-        `Escrow blocked — seller fund account missing`,
-        `<p><strong>Order ID:</strong> ${order.id}</p>
-         <p><strong>Seller ID:</strong> ${order.seller.id}</p>
-         <p><strong>Business Name:</strong> ${order.seller.businessName}</p>
-         <p><strong>Amount:</strong> ₹${((order.totalAmount - order.commissionAmount) / 100).toFixed(2)}</p>
-         <p>The seller has not linked a verified bank account. Please reach out to them immediately.</p>`
-      );
-
+    // ── 1. Validate Eligibility ────────────────────────────────────────────────
+    const eligibility = await checkPayoutEligibility(order.id);
+    if (!eligibility.eligible || !eligibility.sellerAmount || !eligibility.fundAccountId) {
+      result.skippedIneligible++;
+      console.log(`[EscrowRelease] Skipping Order ${order.id}: ${eligibility.reason}`);
       continue;
     }
 
-    // ── Calculate seller payout amount ─────────────────────────────────────────
-    const sellerAmount = order.totalAmount - order.commissionAmount;
+    const sellerAmount = eligibility.sellerAmount;
+    const fundAccountId = eligibility.fundAccountId;
+    const idempotencyKey = `payout_${order.id}`;
 
-    if (sellerAmount <= 0) {
-      result.failed++;
-      const msg = `Order ${order.id} has invalid sellerAmount: ${sellerAmount}. totalAmount=${order.totalAmount}, commission=${order.commissionAmount}`;
-      console.error(`[EscrowRelease] ${msg}`);
-      captureAndLogError(new Error(msg), "escrowRelease.invalidAmount", { orderId: order.id });
-      continue;
-    }
-
-    // ── Create Razorpay Payout ─────────────────────────────────────────────────
-    let payoutId: string;
+    // ── 2. Atomic Transaction: Race protection & Payout Ledger Initialization ──
+    let payoutRecord: any;
     try {
-      const payout = await createPayout({
-        fundAccountId: order.seller.razorpayFundAccountId,
+      payoutRecord = await prisma.$transaction(async (tx) => {
+        // Re-query order & return request inside transaction to lock against concurrent return filing
+        const freshOrder = await tx.order.findUnique({
+          where: { id: order.id },
+          include: { returnRequest: true, payout: true },
+        });
+
+        if (!freshOrder || freshOrder.status !== "delivered") {
+          throw new Error("RACE_CANCELLED: Order status changed.");
+        }
+
+        if (freshOrder.returnRequest && ACTIVE_RETURN_STATUSES.includes(freshOrder.returnRequest.status)) {
+          throw new Error(`RACE_CANCELLED: Return request '${freshOrder.returnRequest.status}' filed.`);
+        }
+
+        let existingPayout = freshOrder.payout;
+
+        if (existingPayout) {
+          if (existingPayout.status === PayoutStatus.SUCCESS) {
+            throw new Error("RACE_CANCELLED: Payout already succeeded.");
+          }
+          if (existingPayout.status === PayoutStatus.PROCESSING) {
+            throw new Error("RACE_CANCELLED: Payout is currently processing.");
+          }
+
+          // If previously FAILED, validate controlled retry transition FAILED -> PROCESSING
+          validatePayoutTransition(existingPayout.status, PayoutStatus.PROCESSING);
+
+          return await tx.payout.update({
+            where: { id: existingPayout.id },
+            data: {
+              status: PayoutStatus.PROCESSING,
+              initiatedAt: new Date(),
+              retryCount: { increment: 1 },
+              failureReason: null,
+            },
+          });
+        }
+
+        // Create new Payout record with deterministic idempotencyKey
+        return await tx.payout.create({
+          data: {
+            orderId: order.id,
+            sellerId: order.sellerId,
+            amount: sellerAmount,
+            currency: "INR",
+            fundAccountId,
+            status: PayoutStatus.PROCESSING,
+            idempotencyKey,
+            initiatedAt: new Date(),
+          },
+        });
+      });
+    } catch (raceErr: any) {
+      if (raceErr.message?.startsWith("RACE_CANCELLED")) {
+        result.skippedIneligible++;
+        console.warn(`[EscrowRelease] ${raceErr.message} for Order ${order.id}`);
+        continue;
+      }
+      result.failed++;
+      console.error(`[EscrowRelease] Transaction failed for Order ${order.id}:`, raceErr.message);
+      continue;
+    }
+
+    // ── 3. Call RazorpayX Payouts API ──────────────────────────────────────────
+    try {
+      const payoutResult = await createPayout({
+        fundAccountId,
         amount: sellerAmount,
         currency: "INR",
         mode: "IMPS",
         purpose: "payout",
         narration: `MiniBrands Order ${order.id.slice(0, 8)}`,
+        idempotencyKey,
       });
 
-      payoutId = payout.id;
-      console.log(`[EscrowRelease] Payout created: ${payoutId} for Order ${order.id}`);
+      const normalizedStatus = normalizeRazorpayXStatus(payoutResult.status);
+
+      if (normalizedStatus === PayoutStatus.SUCCESS) {
+        // Payout completed instantly (or in mock mode)
+        await prisma.$transaction(async (tx) => {
+          await tx.payout.update({
+            where: { id: payoutRecord.id },
+            data: {
+              status: PayoutStatus.SUCCESS,
+              razorpayPayoutId: payoutResult.id,
+              utr: payoutResult.utr || null,
+              processedAt: new Date(),
+            },
+          });
+
+          await tx.order.update({
+            where: { id: order.id },
+            data: {
+              status: "completed",
+              orderStatus: "completed",
+              razorpayPayoutId: payoutResult.id,
+            },
+          });
+        });
+
+        result.succeeded++;
+        console.log(`[EscrowRelease] Order ${order.id} payout SUCCESS: ${payoutResult.id}`);
+
+        // Notify seller via WhatsApp
+        const formattedAmount = `₹${(sellerAmount / 100).toFixed(2)}`;
+        void sendMessage(
+          order.seller.userProfile.user.email,
+          TEMPLATES.ESCROW_RELEASED,
+          [order.seller.businessName, formattedAmount, order.id.slice(0, 8)]
+        );
+      } else {
+        // Payout accepted and processing in RazorpayX (queued/pending/processing)
+        await prisma.payout.update({
+          where: { id: payoutRecord.id },
+          data: {
+            status: PayoutStatus.PROCESSING,
+            razorpayPayoutId: payoutResult.id,
+            utr: payoutResult.utr || null,
+          },
+        });
+
+        result.processing++;
+        console.log(`[EscrowRelease] Order ${order.id} payout PROCESSING: ${payoutResult.id}. Waiting for webhook reconciliation.`);
+      }
     } catch (payoutErr: any) {
       result.failed++;
-      console.error(`[EscrowRelease] Payout failed for Order ${order.id}:`, payoutErr.message);
+      console.error(`[EscrowRelease] Payout API error for Order ${order.id}:`, payoutErr.message);
+
+      // Record failure on Payout ledger
+      await prisma.payout.update({
+        where: { id: payoutRecord.id },
+        data: {
+          status: PayoutStatus.FAILED,
+          failedAt: new Date(),
+          failureReason: payoutErr.message || "RazorpayX API request failed",
+        },
+      });
 
       captureAndLogError(payoutErr, "escrowRelease.payoutFailed", {
         orderId: order.id,
         sellerId: order.seller.id,
-        sellerAmount,
+        idempotencyKey,
       });
 
       await EmailService.sendAlert(
-        `Razorpay Payout FAILED for Order ${order.id.slice(0, 8)}`,
+        `RazorpayX Payout FAILED for Order ${order.id.slice(0, 8)}`,
         `<p><strong>Order ID:</strong> ${order.id}</p>
          <p><strong>Seller:</strong> ${order.seller.businessName}</p>
          <p><strong>Amount:</strong> ₹${(sellerAmount / 100).toFixed(2)}</p>
          <p><strong>Error:</strong> ${payoutErr.message}</p>
-         <p>Order remains in <code>delivered</code> status. Will retry on next cron run.</p>`
-      );
-
-      continue; // Do NOT update order — retry next cron run
-    }
-
-    // ── Atomic DB Update: delivered → completed + payoutId ────────────────────
-    try {
-      await prisma.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: order.id },
-          data: {
-            status: "completed",
-            orderStatus: "completed",
-            razorpayPayoutId: payoutId,
-          },
-        });
-      });
-
-      result.succeeded++;
-      console.log(`[EscrowRelease] Order ${order.id} → completed. Payout: ${payoutId}`);
-
-      // ── WhatsApp notifications — non-blocking ────────────────────────────────
-      const sellerPhone = order.seller.userProfile.user.name; // phone stored in user.name fallback
-      const buyerName = order.buyer?.user?.name?.split(" ")[0] || order.guestName?.split(" ")[0] || "Customer";
-      const formattedAmount = `₹${(sellerAmount / 100).toFixed(2)}`;
-
-      // Notify seller
-      void sendMessage(
-        order.seller.userProfile.user.email, // used as fallback identifier
-        TEMPLATES.ESCROW_RELEASED,
-        [order.seller.businessName, formattedAmount, order.id.slice(0, 8)]
-      );
-    } catch (dbErr: any) {
-      result.failed++;
-      console.error(`[EscrowRelease] DB update failed for Order ${order.id} after payout ${payoutId}:`, dbErr.message);
-
-      captureAndLogError(dbErr, "escrowRelease.dbUpdateFailed.CRITICAL", {
-        orderId: order.id,
-        payoutId,
-        note: "CRITICAL: Payout succeeded but DB not updated. Manual intervention required.",
-      });
-
-      await EmailService.sendAlert(
-        `CRITICAL: Payout succeeded but DB update FAILED for Order ${order.id.slice(0, 8)}`,
-        `<p><strong>Order ID:</strong> ${order.id}</p>
-         <p><strong>Payout ID:</strong> ${payoutId}</p>
-         <p><strong>Error:</strong> ${dbErr.message}</p>
-         <p style="color:red;"><strong>CRITICAL: Manual database update required immediately.</strong></p>`
+         <p>Payout ledger updated to <code>FAILED</code>. Order remains in <code>delivered</code> for controlled retry.</p>`
       );
     }
   }
 
   console.log(
-    `[EscrowRelease] Run complete. Processed: ${result.processed}, Succeeded: ${result.succeeded}, Failed: ${result.failed}, Skipped (no fund account): ${result.skippedNoFundAccount}`
+    `[EscrowRelease] Run complete. Processed: ${result.processed}, Succeeded: ${result.succeeded}, Processing: ${result.processing}, Failed: ${result.failed}, Skipped: ${result.skippedIneligible}`
   );
 
   return result;

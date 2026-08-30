@@ -45,7 +45,7 @@ export default function StorefrontIdentity({
       {/* Desktop 55/45 split, Mobile stacked */}
       <div className="grid grid-cols-1 lg:grid-cols-[55%_45%]">
         {/* Cover / Brand Image */}
-        <div className="relative h-[220px] sm:h-[280px] lg:h-[380px] bg-vl-surface overflow-hidden">
+        <div className="relative h-[180px] sm:h-[220px] lg:h-[300px] bg-vl-surface overflow-hidden">
           <Image
             src={coverImage}
             alt={`${storeDisplayName} cover`}
@@ -58,10 +58,10 @@ export default function StorefrontIdentity({
         </div>
 
         {/* Store Information */}
-        <div className="flex flex-col justify-center gap-4 p-5 sm:p-6 lg:p-8 bg-vl-card">
+        <div className="flex flex-col justify-center gap-3 p-4 sm:p-5 lg:p-6 bg-vl-card">
           {/* Logo + Verified */}
-          <div className="flex items-center gap-3">
-            <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border border-vl-border bg-vl-primary text-white flex items-center justify-center text-lg font-extrabold shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border border-vl-border bg-vl-primary text-white flex items-center justify-center text-base font-extrabold shadow-sm">
               {seller.storeLogo ? (
                 <Image src={seller.storeLogo} alt={storeDisplayName} fill className="object-cover" />
               ) : (
@@ -77,38 +77,38 @@ export default function StorefrontIdentity({
           </div>
 
           {/* Store Name */}
-          <div className="space-y-1">
-            <h1 className="font-vl-heading text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-vl-ink leading-none">
+          <div className="space-y-0.5">
+            <h1 className="font-vl-heading text-xl sm:text-2xl font-extrabold tracking-[-0.03em] text-vl-ink leading-none">
               {storeDisplayName}
             </h1>
-            <p className="text-sm font-medium text-vl-secondary flex flex-wrap items-center gap-1.5">
+            <p className="text-xs font-medium text-vl-secondary flex flex-wrap items-center gap-1">
               <span>{seller.category}</span>
               <span className="text-vl-border">·</span>
               <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-vl-primary" />
+                <MapPin className="h-3 w-3 text-vl-primary" />
                 {seller.city}, India
               </span>
             </p>
           </div>
 
           {/* Rating · Products */}
-          <div className="flex flex-wrap items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 font-bold text-vl-ink">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               {averageRating > 0 ? averageRating.toFixed(1) : "New"}
             </span>
-            <span className="h-3 w-px bg-vl-border" />
+            <span className="h-2.5 w-px bg-vl-border" />
             <span className="font-medium text-vl-secondary">
               {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
             </span>
-            <span className="h-3 w-px bg-vl-border" />
+            <span className="h-2.5 w-px bg-vl-border" />
             <span className="font-medium text-vl-secondary">
               {productsCount} {productsCount === 1 ? "product" : "products"}
             </span>
           </div>
 
           {/* Short description */}
-          <p className="text-[15px] leading-relaxed text-vl-muted line-clamp-3">
+          <p className="text-[13px] leading-relaxed text-vl-muted line-clamp-2">
             {bioText}
           </p>
         </div>

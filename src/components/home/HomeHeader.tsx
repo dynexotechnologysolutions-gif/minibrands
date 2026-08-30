@@ -107,11 +107,25 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
     }
 
     if (userProfile) {
+      try {
+        const cachedAddress = sessionStorage.getItem("velvet_default_address_location");
+        if (cachedAddress) {
+          setTimeout(() => setLocationText(cachedAddress), 0);
+          return;
+        }
+      } catch {
+        // sessionStorage unavailable, proceed to fetch
+      }
+
       getDefaultAddress()
         .then((res) => {
           if (res.success && res.data) {
             const area = res.data.line2 || res.data.line1;
-            setLocationText(area ? `${area.split(",")[0].trim()}, ${res.data.city}` : res.data.city);
+            const formatted = area ? `${area.split(",")[0].trim()}, ${res.data.city}` : res.data.city;
+            setLocationText(formatted);
+            try {
+              sessionStorage.setItem("velvet_default_address_location", formatted);
+            } catch {}
           }
         })
         .catch((error) => console.error("Failed to fetch default address:", error));
@@ -188,22 +202,54 @@ export default function HomeHeader({ userProfile, cartCount, sellerHref, variant
   const getInitials = (name: string) => name ? name.split(" ").map((part) => part[0]).join("").toUpperCase().slice(0, 2) : "U";
   const displayName = activeMode === "BUYER" ? userProfile?.user?.name : userProfile?.seller?.storeName || userProfile?.seller?.businessName;
 
+  const navLinkClass = (href: string) => {
+    const isActive = pathname === href || (href !== "/" && pathname?.startsWith(href));
+    if (effectiveVariant === "green") {
+      return `transition-all duration-vl-fast relative py-2 text-sm font-semibold font-vl-heading after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-vl-fast hover:after:w-full ${
+        isActive 
+          ? "text-white after:w-full" 
+          : "text-white/80 hover:text-white"
+      }`;
+    } else {
+      return `transition-all duration-vl-fast relative py-2 text-sm font-semibold font-vl-heading after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-vl-primary after:transition-all after:duration-vl-fast hover:after:w-full ${
+        isActive 
+          ? "text-vl-primary after:w-full" 
+          : "text-vl-secondary hover:text-vl-primary"
+      }`;
+    }
+  };
+
   return (
     <>
       {/* Desktop Header */}
       <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl hidden md:block ${effectiveVariant === "green" ? "border-[#0d3b36]/10 bg-[#0d3b36] shadow-md" : "border-[#ECECEC]/80 bg-white/92 shadow-[0_1px_16px_rgba(17,24,39,0.05)]"}`}>
         <div className="mx-auto h-20 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 flex">
-          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
-            <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
-              style={{ background: "linear-gradient(135deg, #0F7F7F 0%, #16B3B3 100%)" }}
-            >
-              M
-            </span>
-            <span className={`hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] sm:inline ${effectiveVariant === "green" ? "text-white" : "text-[#222222]"}`}>MiniBrands</span>
-          </Link>
+          <div className="flex items-center gap-6 xl:gap-10 shrink-0">
+            <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="MiniBrands home">
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-vl-heading text-lg font-extrabold text-white shadow-md transition-all duration-200 group-hover:scale-105 group-hover:rotate-3"
+                style={{ background: "linear-gradient(135deg, #0F7F7F 0%, #16B3B3 100%)" }}
+              >
+                M
+              </span>
+              <span className={`hidden font-vl-heading text-lg font-extrabold tracking-[-0.04em] sm:inline ${effectiveVariant === "green" ? "text-white" : "text-[#222222]"}`}>MiniBrands</span>
+            </Link>
 
-          <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[580px] md:basis-auto lg:w-[680px]" role="search">
+            {/* Desktop Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8 shrink-0">
+              <Link href="/products" className={navLinkClass("/products")}>
+                Shop Catalog
+              </Link>
+              <Link href="/categories" className={navLinkClass("/categories")}>
+                Categories
+              </Link>
+              <Link href="/stores" className={navLinkClass("/stores")}>
+                Brands & Stores
+              </Link>
+            </nav>
+          </div>
+
+          <form onSubmit={handleSearchSubmit} className="flex w-full basis-full md:mx-auto md:w-[320px] md:basis-auto lg:w-[380px] xl:w-[480px] 2xl:w-[580px]" role="search">
             <label htmlFor="global-search" className="sr-only">Search products, brands and categories</label>
             <div className="relative w-full">
               <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF] transition-colors duration-200" />

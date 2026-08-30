@@ -80,7 +80,7 @@ export async function tryReserveStock(
     } else {
       return { success: false, error: String(result) };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Redis Lua execution failed:", error);
     throw error;
   }
@@ -98,9 +98,9 @@ export async function getReservedStock(variantId: string): Promise<number> {
       keys.forEach((key) => pipeline.get(key));
       const results = await pipeline.exec();
 
-      results.forEach((val: any) => {
+      results.forEach((val: unknown) => {
         if (val) {
-          const data = typeof val === "string" ? JSON.parse(val) : val;
+          const data = typeof val === "string" ? JSON.parse(val) : (val as ReservationData);
           if (data && data.variantId === variantId) {
             totalReserved += Number(data.quantity) || 0;
           }
@@ -221,9 +221,8 @@ export async function deleteMatchingReservation(
 
 /**
  * Retrieves all active reservations for a specific userProfileId.
- * Uses a per-user Redis Set index for O(M) lookup instead of O(N) keyspace scan.
- * Falls back to keyspace scan only when the user set is empty (backward compatibility
- * for reservations created before the index was introduced).
+ * Uses a per-user Redis Set index for fast O(M) lookup.
+ * Returns [] immediately when the user has no reservations (zero global keyspace scanning).
  */
 export async function getUserReservations(
   userProfileId: string
@@ -232,13 +231,14 @@ export async function getUserReservations(
   const setKey = `reservations:user:${userProfileId}`;
 
   try {
-    // 1. Fast path: use per-user index set
     const reservationIds = await redis.smembers(setKey);
 
     if (reservationIds && reservationIds.length > 0) {
       const pipeline = redis.pipeline();
       reservationIds.forEach((id) => pipeline.get(`reservation:${id}`));
       const results = await pipeline.exec();
+
+      const expiredIds: string[] = [];
 
       reservationIds.forEach((id, idx) => {
         const val = results[idx];
@@ -247,33 +247,28 @@ export async function getUserReservations(
           if (data && data.userProfileId === userProfileId) {
             reservations.push({ id, ...data });
           }
+        } else {
+          // Key expired in Redis (TTL reached)
+          expiredIds.push(id);
         }
       });
+
+      // Lazily cleanup expired reservation IDs from the user set
+      if (expiredIds.length > 0) {
+        const cleanupPipeline = redis.pipeline();
+        expiredIds.forEach((id) => cleanupPipeline.srem(setKey, id));
+        cleanupPipeline.exec().catch((err) =>
+          console.error("Failed to cleanup expired reservations from user index:", err)
+        );
+      }
+
       return reservations;
     }
 
-    // 2. Fallback: keyspace scan for backward compatibility with
-    // reservations created before the user-index was introduced.
-    // This path only executes once per user until all old reservations expire.
-    const keys = await redis.keys("reservation:*");
-    if (keys.length === 0) return [];
-
-    const pipeline = redis.pipeline();
-    keys.forEach((key) => pipeline.get(key));
-    const results = await pipeline.exec();
-
-    keys.forEach((key, idx) => {
-      const val = results[idx];
-      if (val) {
-        const data = (typeof val === "string" ? JSON.parse(val) : val) as ReservationData;
-        if (data && data.userProfileId === userProfileId) {
-          const id = key.replace("reservation:", "");
-          reservations.push({ id, ...data });
-        }
-      }
-    });
+    // Fast O(1) return when user has no active reservations
+    return [];
   } catch (error) {
     console.error("Failed to fetch user reservations:", error);
+    return [];
   }
-  return reservations;
 }

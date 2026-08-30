@@ -5,6 +5,7 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 export interface RazorpayValidationResult {
   success: boolean;
+  fundAccountId?: string;
   message?: string;
 }
 
@@ -24,7 +25,7 @@ export async function validateBankAccount(
 
   if (isMock) {
     console.log(`[MOCK RAZORPAY] Validating bank account: ${accountNumber}, IFSC: ${ifsc}`);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     
     if (accountNumber === "0000000000") {
       return {
@@ -32,7 +33,10 @@ export async function validateBankAccount(
         message: "Bank verification failed (Simulated failure for sandbox testing)",
       };
     }
-    return { success: true };
+    return {
+      success: true,
+      fundAccountId: `fa_mock_${Math.random().toString(36).substring(2, 11)}`,
+    };
   }
 
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
@@ -117,7 +121,10 @@ export async function validateBankAccount(
       };
     }
 
-    return { success: true };
+    return {
+      success: true,
+      fundAccountId: fundAccount.id,
+    };
   } catch (error: any) {
     console.error("Razorpay bank validation failed:", error);
     return {

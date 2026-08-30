@@ -36,6 +36,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
+    if (eventType.startsWith("payout.")) {
+      const { handlePayoutWebhook } = await import("@/lib/payout-webhook");
+      await handlePayoutWebhook(eventType, body.payload?.payout);
+      return NextResponse.json({ received: true });
+    }
+
     if (eventType !== "payment.captured") {
       console.log(`[Razorpay Webhook] Received unhandled event type: ${eventType}`);
       return NextResponse.json({ received: true });

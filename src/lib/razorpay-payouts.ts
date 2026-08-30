@@ -14,6 +14,7 @@ export interface CreatePayoutParams {
   mode: "IMPS" | "NEFT" | "RTGS" | "UPI";
   purpose: string;
   narration: string;
+  idempotencyKey: string;
 }
 
 export interface PayoutResult {
@@ -21,12 +22,13 @@ export interface PayoutResult {
   status: string;
   amount: number;
   currency: string;
+  utr?: string;
 }
 
 /**
  * Creates a Razorpay payout to a seller's verified fund account.
  * In test/mock mode, returns a simulated payout response.
- * In production, POST to Razorpay /v1/payouts with Basic Auth.
+ * In production, POST to Razorpay /v1/payouts with Basic Auth and X-Payout-Idempotency header.
  */
 export async function createPayout(params: CreatePayoutParams): Promise<PayoutResult> {
   const accountNumber = process.env.RAZORPAY_PAYOUT_ACCOUNT_NUMBER;
@@ -40,18 +42,23 @@ export async function createPayout(params: CreatePayoutParams): Promise<PayoutRe
 
   if (isMock) {
     console.log(
-      `[MOCK RAZORPAY PAYOUTS] Creating payout to fund_account: ${params.fundAccountId}, amount: ${params.amount} paise`
+      `[MOCK RAZORPAY PAYOUTS] Creating payout (IdempotencyKey: ${params.idempotencyKey}) to fund_account: ${params.fundAccountId}, amount: ${params.amount} paise`
     );
     return {
       id: `pout_mock_${Math.random().toString(36).substring(2, 14)}`,
       status: "processing",
       amount: params.amount,
       currency: params.currency,
+      utr: `UTR_MOCK_${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
     };
   }
 
-  // Razorpay Payouts API uses Basic Auth: key_id:key_secret
-  // For Payouts, key_id is the account number (RazorpayX)
+  // Notice: RazorpayX Payouts API in production requires static server IP allowlisting in RazorpayX Dashboard
+  if (process.env.NODE_ENV === "production") {
+    console.log("[RazorpayX] Production payout request initiated. Ensuring outbound server IP is allowlisted in RazorpayX Dashboard.");
+  }
+
+  // Razorpay Payouts API uses Basic Auth: account_number:key_secret
   const authHeader = Buffer.from(`${accountNumber}:${keySecret}`).toString("base64");
 
   const body = {
@@ -62,7 +69,7 @@ export async function createPayout(params: CreatePayoutParams): Promise<PayoutRe
     mode: params.mode,
     purpose: params.purpose,
     queue_if_low_balance: true,
-    reference_id: `velvet_payout_${Date.now()}`,
+    reference_id: params.idempotencyKey,
     narration: params.narration,
   };
 
@@ -71,6 +78,7 @@ export async function createPayout(params: CreatePayoutParams): Promise<PayoutRe
     headers: {
       "Content-Type": "application/json",
       Authorization: `Basic ${authHeader}`,
+      "X-Payout-Idempotency": params.idempotencyKey,
     },
     body: JSON.stringify(body),
   });
@@ -89,5 +97,6 @@ export async function createPayout(params: CreatePayoutParams): Promise<PayoutRe
     status: data.status,
     amount: data.amount,
     currency: data.currency,
+    utr: data.utr || undefined,
   };
 }

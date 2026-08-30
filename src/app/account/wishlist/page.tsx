@@ -2,9 +2,8 @@ import React from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redis, getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import WishlistClient, { WishlistProduct } from "../../wishlist/WishlistClient";
 
 export const dynamic = "force-dynamic";
@@ -57,85 +56,63 @@ const mockRecentlyViewed = [
 ];
 
 export default async function WishlistPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     redirect("/login?redirectTo=/account/wishlist");
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
-
-  if (!userProfile) {
-    redirect("/login?redirectTo=/account/wishlist");
-  }
-
-  // Fetch active reservations for cart count
-  const allReservations = await getUserReservations(userProfile.id);
-  const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
-
-  // Fetch wishlist product IDs from Redis Set
   const wishlistKey = `wishlist:${userProfile.id}`;
-  const wishlistProductIds = await redis.smembers(wishlistKey);
 
-  let wishlistProducts: WishlistProduct[] = [];
-  if (wishlistProductIds && wishlistProductIds.length > 0) {
-    const dbWishlistProducts = await prisma.product.findMany({
+  // Parallelize active cart reservations and wishlist ID retrieval from Redis
+  const [allReservations, wishlistProductIds] = await Promise.all([
+    getUserReservations(userProfile.id),
+    redis.smembers(wishlistKey),
+  ]);
+
+  const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
+  const rawIds = wishlistProductIds || [];
+
+  // Parallelize wishlist products and recently viewed recommendations
+  const [dbWishlistProducts, dbRecentlyViewed] = await Promise.all([
+    rawIds.length > 0
+      ? prisma.product.findMany({
+          where: {
+            id: { in: rawIds },
+            isDeleted: false,
+          },
+          include: {
+            images: { orderBy: { sortOrder: "asc" } },
+            seller: true,
+            variants: true,
+          },
+        })
+      : Promise.resolve([]),
+    prisma.product.findMany({
       where: {
-        id: { in: wishlistProductIds },
         isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+        id: { notIn: rawIds },
       },
       include: {
         images: { orderBy: { sortOrder: "asc" } },
         seller: true,
         variants: true,
       },
-    });
+      take: 4,
+    }),
+  ]);
 
-    // Sort to match the order returned by Redis Set members (retains consistency)
-    wishlistProducts = wishlistProductIds
-      .map((id) => dbWishlistProducts.find((p) => p.id === id))
-      .filter(Boolean) as WishlistProduct[];
-  }
-
-  // Fetch recently viewed active published products to display in the carousel
-  const dbRecentlyViewed = await prisma.product.findMany({
-    where: {
-      isDeleted: false,
-      isPublished: true,
-      seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
-      },
-      // Exclude items already in wishlist to provide diverse recommendations
-      id: { notIn: wishlistProductIds },
-    },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      seller: true,
-      variants: true,
-    },
-    take: 4,
-  });
+  // Sort to match the order returned by Redis Set members (retains consistency)
+  const wishlistProducts: WishlistProduct[] = rawIds
+    .map((id) => dbWishlistProducts.find((p) => p.id === id))
+    .filter(Boolean) as WishlistProduct[];
 
   const finalRecentlyViewed = [...dbRecentlyViewed];
   if (finalRecentlyViewed.length < 4) {
@@ -146,7 +123,6 @@ export default async function WishlistPage() {
     }
   }
 
-  // Format the Profile image prop correctly to fit interface
   const formattedUserProfile = {
     id: userProfile.id,
     role: userProfile.role,

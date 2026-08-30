@@ -5,9 +5,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import HomeHeader from "@/components/home/HomeHeader";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { getUserReservations, redis } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import Recommendations from "./Recommendations";
 import {
   CheckCircle2,
@@ -79,84 +78,60 @@ interface SuccessPageProps {
 export default async function OrderSuccessPage({ params }: SuccessPageProps) {
   const { orderId } = await params;
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     redirect(`/login?redirectTo=/order/success/${orderId}`);
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: { include: { verification: true } },
-    },
-  });
+  const wishlistKey = `wishlist:${userProfile.id}`;
 
-  if (!userProfile) {
-    redirect("/login");
-  }
-
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: {
-      address: true,
-      items: {
-        include: {
-          product: {
-            include: {
-              images: { orderBy: { sortOrder: "asc" } },
-              seller: true,
-            }
+  // Parallelize order details, active cart count, wishlist IDs, and live recommended products
+  const [order, allReservations, rawWishlistIds, dbProducts] = await Promise.all([
+    prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        address: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: { orderBy: { sortOrder: "asc" } },
+                seller: true,
+              },
+            },
+            variant: true,
           },
-          variant: true,
-        }
-      }
-    }
-  });
+        },
+      },
+    }),
+    getUserReservations(userProfile.id),
+    redis.smembers(wishlistKey),
+    prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        isPublished: true,
+        seller: {
+          verification: {
+            kycStatus: { in: ["auto_approved", "approved"] },
+            bankVerified: true,
+          },
+        },
+      },
+      include: {
+        images: { orderBy: { sortOrder: "asc" } },
+        seller: { include: { verification: true } },
+      },
+      take: 4,
+    }),
+  ]);
 
   if (!order || order.buyerId !== userProfile.id) {
     redirect("/products");
   }
 
-  // Fetch active reservations for cart count in header
-  const allReservations = await getUserReservations(userProfile.id);
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let wishlistIds: string[] = [];
-  const key = `wishlist:${userProfile.id}`;
-  wishlistIds = (await redis.smembers(key)) || [];
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
-
-  // Fetch recommended products from database to show live recommendations
-  const dbProducts = await prisma.product.findMany({
-    where: {
-      isDeleted: false,
-      isPublished: true,
-      seller: {
-        verification: {
-          kycStatus: { in: ["auto_approved", "approved"] },
-          bankVerified: true,
-        },
-      },
-    },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      seller: { include: { verification: true } },
-    },
-    take: 4,
-  });
+  const wishlistIds: string[] = rawWishlistIds || [];
 
   // Pad recommendations with mock products if there are fewer than 4 active database products
   const finalRecommended = [...dbProducts];
@@ -329,13 +304,27 @@ export default async function OrderSuccessPage({ params }: SuccessPageProps) {
                 </>
               ) : (
                 <>
-                  <p className="font-bold text-vl-ink text-base">{(order.guestShippingAddress as any)?.name || order.guestName}</p>
-                  <div className="text-sm text-vl-muted leading-relaxed">
-                    <p>{(order.guestShippingAddress as any)?.line1}</p>
-                    {(order.guestShippingAddress as any)?.line2 && <p>{(order.guestShippingAddress as any)?.line2}</p>}
-                    <p>{(order.guestShippingAddress as any)?.city} - {(order.guestShippingAddress as any)?.postalCode}</p>
-                    <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {(order.guestShippingAddress as any)?.phone || order.guestPhone}</p>
-                  </div>
+                  {(() => {
+                    const guestAddr = order.guestShippingAddress as {
+                      name?: string;
+                      line1?: string;
+                      line2?: string;
+                      city?: string;
+                      postalCode?: string;
+                      phone?: string;
+                    } | null;
+                    return (
+                      <>
+                        <p className="font-bold text-vl-ink text-base">{guestAddr?.name || order.guestName}</p>
+                        <div className="text-sm text-vl-muted leading-relaxed">
+                          <p>{guestAddr?.line1}</p>
+                          {guestAddr?.line2 && <p>{guestAddr.line2}</p>}
+                          <p>{guestAddr?.city} - {guestAddr?.postalCode}</p>
+                          <p className="mt-2.5"><span className="font-bold text-vl-ink">Phone:</span> {guestAddr?.phone || order.guestPhone}</p>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </>
               )}
             </div>

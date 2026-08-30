@@ -9,6 +9,7 @@ import { calculateTrustScore } from "@/lib/trust-score";
 import { captureAndLogError } from "@/lib/sentry";
 import { trackEvent } from "@/lib/posthog";
 import { ActionResponse } from "./seller-register.action";
+import { encryptText, maskBankAccountNumber } from "@/lib/encryption";
 
 export async function verifyBank(formData: {
   accountNumber: string;
@@ -79,24 +80,25 @@ export async function verifyBank(formData: {
       };
     }
 
-    // 4. Validate bank account via Razorpay API (penny drop) - TEMPORARILY BYPASSED
-    // const validationResult = await validateBankAccount(accountNumber, ifsc);
-    const validationResult = { success: true, message: "Penny drop verification bypassed" };
+    // 4. Validate bank account via Razorpay API (penny drop)
+    const validationResult = await validateBankAccount(accountNumber, ifsc);
 
-    if (!validationResult.success) {
+    if (!validationResult.success || !validationResult.fundAccountId) {
       return {
         success: false,
         error: {
           code: "BANK_VERIFICATION_FAILED",
-          message: validationResult.message || "Penny drop verification failed.",
+          message: validationResult.message || "Penny drop bank verification failed.",
         },
       };
     }
 
     // Extract last 4 digits of the account number
     const last4 = accountNumber.slice(-4);
+    const encAccount = encryptText(accountNumber);
+    const encIfsc = encryptText(ifsc);
 
-    // 5. Update bank verification status, calculate trust score in db transaction
+    // 5. Update bank verification status, save fundAccountId, and calculate trust score in db transaction
     await prisma.$transaction(async (tx) => {
       // Find current kycStatus
       const currentVerification = await tx.sellerVerification.findUnique({
@@ -105,6 +107,16 @@ export async function verifyBank(formData: {
 
       const kycStatus = currentVerification?.kycStatus || "pending";
       const newTrustScore = calculateTrustScore({ kycStatus, bankVerified: true });
+
+      // Save fundAccountId and encrypted details on Seller
+      await tx.seller.update({
+        where: { id: seller.id },
+        data: {
+          razorpayFundAccountId: validationResult.fundAccountId,
+          encryptedBankAccountNumber: encAccount,
+          encryptedBankIfsc: encIfsc,
+        },
+      });
 
       await tx.sellerVerification.update({
         where: { id: verification.id },

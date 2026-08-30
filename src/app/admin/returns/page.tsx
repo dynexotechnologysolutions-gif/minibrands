@@ -1,22 +1,15 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import AdminReturnConsoleClient from "./AdminReturnConsoleClient";
 
 export default async function AdminReturnConsolePage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile } = await getRequestSessionAndProfile();
 
   if (!session || !session.user) {
     redirect("/login?role=admin");
   }
-
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-  });
 
   if (!userProfile || userProfile.role !== "ADMIN") {
     redirect("/");

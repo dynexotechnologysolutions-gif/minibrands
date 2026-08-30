@@ -1,11 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redis, getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import CartClient from "./CartClient";
 
 export const dynamic = "force-dynamic";
@@ -19,20 +17,21 @@ export const metadata: Metadata = {
 };
 
 export default async function CartPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     const cookieStore = await cookies();
     const guestCartId = cookieStore.get("mb-guest-cart")?.value;
     const cartItems = [];
 
     if (guestCartId) {
-      const guestKeys = await redis.keys(`guest-reservation:${guestCartId}:*`);
-      if (guestKeys.length > 0) {
+      // Use guest-cart hash for fast O(1) index lookup without keyspace scanning
+      const cartData = await redis.hgetall(`guest-cart:${guestCartId}`);
+
+      if (cartData && Object.keys(cartData).length > 0) {
+        const variantIds = Object.keys(cartData);
         const pipeline = redis.pipeline();
-        guestKeys.forEach((key) => pipeline.get(key));
+        variantIds.forEach((vid) => pipeline.get(`guest-reservation:${guestCartId}:${vid}`));
         const results = await pipeline.exec();
 
         // Parse guest items and collect IDs for batch fetch
@@ -43,24 +42,25 @@ export default async function CartPage() {
           createdAt: string;
         }> = [];
         const productIds: string[] = [];
-        const variantIds: string[] = [];
+        const activeVariantIds: string[] = [];
 
-        for (const val of results) {
-          if (!val) continue;
+        results.forEach((val, idx) => {
+          if (!val) return;
           const item = typeof val === "string" ? JSON.parse(val) : val;
+          const variantId = variantIds[idx];
           guestItems.push({
             productId: item.productId,
-            variantId: item.variantId,
+            variantId: item.variantId || variantId,
             quantity: item.quantity,
-            createdAt: item.createdAt,
+            createdAt: item.createdAt || new Date().toISOString(),
           });
           productIds.push(item.productId);
-          variantIds.push(item.variantId);
-        }
+          activeVariantIds.push(item.variantId || variantId);
+        });
 
         // Batch fetch products and variants
         const uniqueProductIds = [...new Set(productIds)];
-        const uniqueVariantIds = [...new Set(variantIds)];
+        const uniqueVariantIds = [...new Set(activeVariantIds)];
 
         const [products, variants] = await Promise.all([
           uniqueProductIds.length > 0
@@ -120,22 +120,6 @@ export default async function CartPage() {
     );
   }
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-    },
-  });
-
-  if (!userProfile) {
-    redirect("/login?redirectTo=/cart");
-  }
-
   // Fetch active reservations
   const reservations = await getUserReservations(userProfile.id);
 
@@ -190,16 +174,6 @@ export default async function CartPage() {
   }
 
   const cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
 
   return (
     <CartClient

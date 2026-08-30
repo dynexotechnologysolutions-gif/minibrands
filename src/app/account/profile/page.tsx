@@ -1,10 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { redis, getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import ProfileClient from "../../profile/ProfileClient";
 
 export const dynamic = "force-dynamic";
@@ -18,47 +17,50 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  if (!session || !session.user) {
+  if (!session || !session.user || !userProfile) {
     redirect("/login?redirectTo=/account/profile");
   }
-
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: true,
-      seller: {
-        include: {
-          verification: true,
-        },
-      },
-      addresses: {
-        where: {
-          isDeleted: false,
-        },
-      },
-    },
-  });
-
-  if (!userProfile) {
-    redirect("/login?redirectTo=/account/profile");
-  }
-
-  // Calculate statistics
-  const ordersCount = await prisma.order.count({
-    where: { buyerId: userProfile.id },
-  });
 
   const wishlistKey = `wishlist:${userProfile.id}`;
-  const wishlistProductIds = await redis.smembers(wishlistKey);
-  const wishlistCount = wishlistProductIds.length;
 
-  // Load latest 4 wishlist products for preview
-  let wishlistProducts: any[] = [];
-  if (wishlistProductIds.length > 0) {
+  // Execute independent statistics, wishlist IDs, recent orders, and cart count queries in parallel
+  const [ordersCount, wishlistProductIds, recentOrders, allReservations] = await Promise.all([
+    prisma.order.count({
+      where: { buyerId: userProfile.id },
+    }),
+    redis.smembers(wishlistKey),
+    prisma.order.findMany({
+      where: { buyerId: userProfile.id },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                images: { orderBy: { sortOrder: "asc" } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+    getUserReservations(userProfile.id),
+  ]);
+
+  const wishlistCount = wishlistProductIds ? wishlistProductIds.length : 0;
+
+  // Load latest 4 wishlist products for preview if IDs exist
+  let wishlistProducts: Array<{
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    variantId: string;
+  }> = [];
+  if (wishlistProductIds && wishlistProductIds.length > 0) {
     const products = await prisma.product.findMany({
       where: {
         id: { in: wishlistProductIds },
@@ -71,7 +73,7 @@ export default async function ProfilePage() {
     });
     wishlistProducts = wishlistProductIds
       .map((id) => products.find((p) => p.id === id))
-      .filter((p): p is any => !!p)
+      .filter((p): p is NonNullable<typeof p> => !!p)
       .slice(0, 4)
       .map((p) => ({
         id: p.id,
@@ -81,24 +83,6 @@ export default async function ProfilePage() {
         variantId: p.variants[0]?.id || "",
       }));
   }
-
-  // Load latest 3 orders placed by this buyer
-  const recentOrders = await prisma.order.findMany({
-    where: { buyerId: userProfile.id },
-    include: {
-      items: {
-        include: {
-          product: {
-            include: {
-              images: { orderBy: { sortOrder: "asc" } },
-            },
-          },
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-  });
 
   const formattedOrders = recentOrders.map((order) => {
     const firstItem = order.items[0];
@@ -114,21 +98,21 @@ export default async function ProfilePage() {
   });
 
   // Load default address
-  const defaultAddress = userProfile.addresses.find((addr) => addr.isDefault) || null;
+  const rawDefaultAddress = userProfile.addresses?.find((addr) => addr.isDefault) || null;
+  const defaultAddress = rawDefaultAddress
+    ? {
+        id: rawDefaultAddress.id,
+        fullName: rawDefaultAddress.fullName,
+        phone: rawDefaultAddress.phone,
+        line1: rawDefaultAddress.line1,
+        line2: rawDefaultAddress.line2 ?? null,
+        city: rawDefaultAddress.city,
+        pincode: rawDefaultAddress.pincode,
+      }
+    : null;
 
-  // Redis cart count
-  const allReservations = await getUserReservations(userProfile.id);
+  // Cart count
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  let sellerHref = "/login?role=seller";
-  if (userProfile.role === "SELLER") {
-    const ver = userProfile.seller?.verification;
-    const isVerified =
-      ver &&
-      (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") &&
-      ver.bankVerified;
-    sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-  }
 
   return (
     <ProfileClient

@@ -8,10 +8,8 @@ import CategoryFeaturedGrid from "@/components/categories/CategoryFeaturedGrid";
 import CategoryPopularList from "@/components/categories/CategoryPopularList";
 import CategoryDiscoveryBanner from "@/components/categories/CategoryDiscoveryBanner";
 import CategoryPopularSearches from "@/components/categories/CategoryPopularSearches";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { getUserReservations } from "@/lib/redis";
+import { getRequestSessionAndProfile } from "@/lib/request-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,27 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default async function CategoriesPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  let userProfile = null;
+  const { userProfile, sellerHref } = await getRequestSessionAndProfile();
+
   let cartCount = 0;
-  let sellerHref = "/login?role=seller";
-
-  if (session?.user) {
-    userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { user: true, seller: { include: { verification: true } }, addresses: { where: { isDeleted: false } } },
-    });
-
-    if (userProfile?.role === "SELLER") {
-      const ver = userProfile.seller?.verification;
-      const isVerified = ver && (ver.kycStatus === "auto_approved" || ver.kycStatus === "approved") && ver.bankVerified;
-      sellerHref = isVerified ? "/seller/dashboard" : "/seller/onboarding";
-    }
-
-    if (userProfile) {
-      const reservations = await getUserReservations(userProfile.id);
-      cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
-    }
+  if (userProfile) {
+    const reservations = await getUserReservations(userProfile.id);
+    cartCount = reservations.reduce((acc, curr) => acc + curr.quantity, 0);
   }
 
   return (
