@@ -269,8 +269,10 @@ export default async function HomePage({ searchParams }: PageProps) {
           <HomeInspiration />
         </div>
 
-        {/* 7. Curated Collections */}
-        <HomeFeaturedCollections />
+        {/* 7. Curated Collections - hidden on mobile */}
+        <div className="hidden sm:block">
+          <HomeFeaturedCollections />
+        </div>
 
         {/* 8. Why Shop With MiniBrands? - hidden on mobile */}
         <div className="hidden sm:block">
