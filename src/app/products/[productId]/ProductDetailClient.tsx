@@ -564,7 +564,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Mobile-only horizontal swipe gallery layout */}
-            <div className="lg:hidden relative w-full aspect-[4/5] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+            <div className="lg:hidden relative w-full aspect-square max-h-[55vh] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
               <div
                 ref={mobileScrollContainerRef}
                 onScroll={handleMobileScroll}
