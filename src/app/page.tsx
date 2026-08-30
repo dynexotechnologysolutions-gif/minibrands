@@ -11,7 +11,6 @@ import HomeNearbyStores from "@/components/home/HomeNearbyStores";
 import HomeInspiration from "@/components/home/HomeInspiration";
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
-import HomeCuratedCollections from "@/components/home/HomeCuratedCollections";
 import HomeFeaturedCollections from "@/components/home/HomeFeaturedCollections";
 import HomeWhyShopWithVelvet from "@/components/home/HomeWhyShopWithVelvet";
 import ProductCard from "@/components/product/ProductCard";
@@ -226,8 +225,6 @@ export default async function HomePage({ searchParams }: PageProps) {
             ) : null}
           </section>
         ) : null}
-        {/* 4.2 Curated Collections / Shop by Occasion */}
-        <HomeCuratedCollections />
 
         {/* 4.3 Trending Products */}
         <HomeProductSection
@@ -236,6 +233,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             href="/products?sort=trending"
             isLoggedIn={!!session?.user}
             wishlistIds={wishlistIds}
+            hideTitleOnMobile
         />
 
         {/* 5. New Arrivals */}
@@ -274,11 +272,15 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 7. Curated Collections */}
         <HomeFeaturedCollections />
 
-        {/* 8. Why Shop With MiniBrands? */}
-        <HomeWhyShopWithVelvet />
+        {/* 8. Why Shop With MiniBrands? - hidden on mobile */}
+        <div className="hidden sm:block">
+          <HomeWhyShopWithVelvet />
+        </div>
 
-        {/* 9. Newsletter */}
-        <HomeNewsletter />
+        {/* 9. Newsletter - hidden on mobile */}
+        <div className="hidden sm:block">
+          <HomeNewsletter />
+        </div>
       </main>
     </div>
   );
