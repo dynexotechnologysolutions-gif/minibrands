@@ -93,7 +93,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
     }
   };
 
-
   const trendingStores = useMemo(
     () =>
       [...stores]
@@ -162,7 +161,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
         activeCategory={activeCategory}
         onCategoryChange={handleCategoryChange}
       />
-
 
       <StoreSection
         id="trending-labels"
