@@ -26,7 +26,7 @@ export default function StoreDiscoveryHero({
         <h1 className="mt-2 font-vl-heading text-[28px] font-extrabold leading-none tracking-[-0.03em] text-vl-ink sm:text-4xl md:text-[38px]">
           Find boutiques you&apos;ll love
         </h1>
-        <p className="mx-auto mt-3 w-full max-w-[34ch] text-balance text-center text-sm leading-relaxed text-vl-muted sm:max-w-xl sm:text-[15px] md:mx-0 md:text-left">
+        <p className="mx-auto mt-3 w-full max-w-xl text-balance text-center text-sm leading-relaxed text-vl-muted sm:text-[15px] md:mx-0 md:text-left">
           Independent labels and local boutiques — curated, verified, and ready to shop.
         </p>
       </div>
