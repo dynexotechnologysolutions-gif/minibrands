@@ -93,23 +93,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
     }
   };
 
-  const nearYouStores = useMemo(() => {
-    const cityCounts = new Map<string, number>();
-    for (const s of stores) {
-      if (!s.city) continue;
-      cityCounts.set(s.city, (cityCounts.get(s.city) || 0) + 1);
-    }
-    if (cityCounts.size === 0) return [];
-    let bestCity = "";
-    let bestCount = 0;
-    for (const [city, count] of cityCounts) {
-      if (count > bestCount) {
-        bestCity = city;
-        bestCount = count;
-      }
-    }
-    return stores.filter((s) => s.city === bestCity).slice(0, 8);
-  }, [stores]);
 
   const trendingStores = useMemo(
     () =>
@@ -180,16 +163,6 @@ export default function StoresPageClient({ stores, isLoggedIn, initialFollowedId
         onCategoryChange={handleCategoryChange}
       />
 
-      <StoreSection
-        id="near-you"
-        title="Near You"
-        description="Boutiques around you."
-        href="#all-brands"
-        seeAllLabel="See All"
-        stores={nearYouStores}
-        followedIds={followedIds}
-        onToggleFollow={handleToggleFollow}
-      />
 
       <StoreSection
         id="trending-labels"
