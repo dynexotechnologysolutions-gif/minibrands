@@ -480,14 +480,14 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-4 py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-[calc(env(safe-area-inset-top)+108px)] md:pt-4 lg:pt-4 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
-        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12 mt-4 lg:mt-0">
           
           {/* LEFT COLUMN: Gallery (5 cols on lg) */}
-          <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-24">
+          <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[88px]">
             {/* Desktop-only gallery layout */}
             <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
               {/* Main Image Aspect Ratio 4/5 */}
@@ -720,7 +720,7 @@ export default function ProductDetailClient({
                 
                 {/* Size pills list */}
                 <div className="flex flex-wrap gap-2">
-                  {product.variants.map((v) => {
+                  {Array.from(new Map(product.variants.map(v => [v.size, v])).values()).map((v) => {
                     const isAvailable = v.stockCount > 0;
                     const isSelected = selectedSize === v.size;
                     return (
