@@ -8,7 +8,7 @@ import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
 
-import HomeInspiration from "@/components/home/HomeInspiration";
+
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
 import HomeFeaturedCollections from "@/components/home/HomeFeaturedCollections";
@@ -250,7 +250,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           <HomeEditorialCollections />
 
           {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
-          <HomeInspiration />
+
         </div>
 
         {/* 7. Curated Collections - hidden on mobile */}
