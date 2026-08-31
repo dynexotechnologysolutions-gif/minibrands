@@ -3,14 +3,34 @@ import { Redis } from "@upstash/redis";
 const redisUrl = process.env.REDIS_URL;
 const redisToken = process.env.REDIS_TOKEN;
 
-if (!redisUrl) {
-  console.warn("WARNING: REDIS_URL environment variable is missing. Redis operations will fail at runtime.");
-}
+const isConfigured = Boolean(redisUrl && redisToken);
 
-export const redis = new Redis({
-  url: redisUrl || "http://mock-redis-url-for-build-time-purposes",
-  token: redisToken || "",
-});
+export const redis = isConfigured
+  ? new Redis({
+      url: redisUrl!,
+      token: redisToken!,
+    })
+  : ({
+      get: async () => null,
+      set: async () => "OK",
+      del: async () => 0,
+      smembers: async () => [],
+      sadd: async () => 0,
+      srem: async () => 0,
+      eval: async () => null,
+      pipeline: () => {
+        const p = {
+          get: () => p,
+          set: () => p,
+          del: () => p,
+          smembers: () => p,
+          sadd: () => p,
+          srem: () => p,
+          exec: async () => [],
+        };
+        return p;
+      },
+    } as unknown as Redis);
 
 export interface ReservationData {
   userProfileId: string;

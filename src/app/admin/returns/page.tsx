@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getRequestSessionAndProfile } from "@/lib/request-auth";
 import AdminReturnConsoleClient from "./AdminReturnConsoleClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminReturnConsolePage() {
   const { session, userProfile } = await getRequestSessionAndProfile();
 

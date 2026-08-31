@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import ReturnWizardClient from "./ReturnWizardClient";
 
+export const dynamic = "force-dynamic";
+
 interface ReturnPageProps {
   params: Promise<{
     orderId: string;
