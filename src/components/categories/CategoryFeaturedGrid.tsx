@@ -24,7 +24,7 @@ const featuredCategories: FeaturedCategory[] = [
   {
     name: "Spiritual",
     href: "/products?category=spiritual",
-    image: "https://images.unsplash.com/photo-1611462987358-307379c2c890?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1606744824163-985d376605aa?auto=format&fit=crop&w=800&q=80",
     alt: "Traditional spiritual products and decor",
   },
   {

@@ -18,7 +18,7 @@ const categoryMeta: Record<string, { image: string; description: string }> = {
     description: "Everything you need to cook, store and organize your space.",
   },
   spiritual: {
-    image: "https://images.unsplash.com/photo-1611462987358-307379c2c890?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1606744824163-985d376605aa?auto=format&fit=crop&w=800&q=80",
     description: "Sacred essentials for your daily rituals and spaces.",
   },
   bottles: {
