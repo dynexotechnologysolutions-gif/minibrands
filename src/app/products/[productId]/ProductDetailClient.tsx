@@ -480,7 +480,7 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-4 py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-2 py-4 sm:py-8 sm:pt-2 lg:py-10 lg:pt-0 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
