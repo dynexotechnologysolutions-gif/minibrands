@@ -14,30 +14,32 @@ export default function HomeNewsletter() {
           <p className="mt-3 text-sm leading-6 text-vl-muted sm:text-base">
             Get updates on new arrivals, offers &amp; more.
           </p>
-          <form onSubmit={(e) => e.preventDefault()} className="mt-6 flex w-full flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:gap-3">
-            <label htmlFor="newsletter-email" className="sr-only">
-              Email address
-            </label>
-            <div className="relative flex w-full min-h-12 flex-1 items-center gap-2 overflow-hidden rounded-vl-control border border-vl-border bg-white px-4 text-sm text-vl-ink focus-within:border-vl-primary">
-              <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-vl-muted" />
-              <input
-                id="newsletter-email"
-                type="email"
-                placeholder="Your email address"
-                className="w-full min-w-0 flex-1 bg-transparent text-sm text-vl-ink placeholder:text-vl-muted outline-none focus:ring-0"
-                required
+          <div className="mt-6 w-full max-w-[520px]">
+            <form onSubmit={(e) => e.preventDefault()} className="flex w-full flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+              <label htmlFor="newsletter-email" className="sr-only">
+                Email address
+              </label>
+              <div className="relative flex min-w-[240px] min-h-12 flex-1 items-center gap-2 overflow-hidden rounded-vl-control border border-vl-border bg-white px-4 text-sm text-vl-ink focus-within:border-vl-primary">
+                <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-vl-muted" />
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  placeholder="Your email address"
+                  className="w-full min-w-0 flex-1 bg-transparent text-sm text-vl-ink placeholder:text-vl-muted outline-none focus:ring-0"
+                  required
+                  suppressHydrationWarning
+                />
+              </div>
+              <button
                 suppressHydrationWarning
-              />
-            </div>
-            <button
-              suppressHydrationWarning
-              type="submit"
-              className="group inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-vl-control bg-vl-primary px-6 text-sm font-semibold text-white transition duration-vl-fast hover:bg-vl-primary-strong hover:shadow-vl-medium cursor-pointer sm:w-auto"
-            >
-              Subscribe
-              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-vl-fast group-hover:translate-x-0.5" />
-            </button>
-          </form>
+                type="submit"
+                className="group inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-vl-control bg-vl-primary px-6 text-sm font-semibold text-white transition duration-vl-fast hover:bg-vl-primary-strong hover:shadow-vl-medium cursor-pointer sm:w-auto"
+              >
+                Subscribe
+                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-vl-fast group-hover:translate-x-0.5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </section>
