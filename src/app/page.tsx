@@ -213,16 +213,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
               {trendingProducts.slice(0, 4).map(productCard)}
             </div>
-            {currentPage < totalPages ? (
-              <div className="mt-8 flex justify-center hidden md:flex">
-                <Link
-                  href={`/?page=${currentPage + 1}`}
-                  className="inline-flex min-h-11 items-center rounded-vl-control border border-vl-border bg-vl-card px-5 text-sm font-semibold text-vl-ink transition hover:border-vl-primary hover:text-vl-primary"
-                >
-                  Load more
-                </Link>
-              </div>
-            ) : null}
+
           </section>
         ) : null}
 
