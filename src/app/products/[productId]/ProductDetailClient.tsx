@@ -480,14 +480,14 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-2 py-4 sm:py-8 sm:pt-2 lg:py-10 lg:pt-0 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden lg:overflow-x-visible pt-20 md:pt-2 py-4 sm:py-8 sm:pt-2 lg:py-10 lg:pt-0 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12 mt-4 lg:mt-0">
           
           {/* LEFT COLUMN: Gallery (4 cols on lg) */}
-          <div className="lg:col-span-4 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[64px] lg:-mt-16">
+          <div className="lg:col-span-4 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[160px] lg:h-fit lg:z-10 lg:mt-[10vh]">
             {/* Desktop-only gallery layout */}
             <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
               {/* Main Image Aspect Ratio 4/5 */}
