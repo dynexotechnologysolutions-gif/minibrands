@@ -486,8 +486,8 @@ export default function ProductDetailClient({
         {/* Product View Split Pane */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12 mt-4 lg:mt-0">
           
-          {/* LEFT COLUMN: Gallery (5 cols on lg) */}
-          <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[64px] lg:-mt-16">
+          {/* LEFT COLUMN: Gallery (4 cols on lg) */}
+          <div className="lg:col-span-4 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[64px] lg:-mt-16">
             {/* Desktop-only gallery layout */}
             <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
               {/* Main Image Aspect Ratio 4/5 */}
@@ -634,8 +634,8 @@ export default function ProductDetailClient({
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Product Info & Selection (7 cols on lg) */}
-          <div className="lg:col-span-7 flex flex-col gap-5 min-w-0 lg:mt-16">
+          {/* RIGHT COLUMN: Product Info & Selection (8 cols on lg) */}
+          <div className="lg:col-span-8 flex flex-col gap-5 min-w-0 lg:mt-16">
             
             {/* Title & Brand heading */}
             <div className="space-y-1">
