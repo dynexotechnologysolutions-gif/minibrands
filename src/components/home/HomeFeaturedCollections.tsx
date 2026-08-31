@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
 
 const collections = [
-  { title: "Festive Edit", href: "/products?category=festive", image: "https://images.unsplash.com/photo-1611462987358-307379c2c890?auto=format&fit=crop&w=800&q=80", alt: "Festive edit collection" },
+  { title: "Festive Edit", href: "/products?category=festive", image: "https://images.unsplash.com/photo-1581338834647-b0fb40704e21?auto=format&fit=crop&w=800&q=80", alt: "Festive edit collection" },
   { title: "Under ₹999", href: "/products?maxPrice=999", image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80", alt: "Affordable finds under 999" },
   { title: "Weekend Looks", href: "/products?category=casual", image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80", alt: "Weekend looks collection" },
   { title: "Minimal Essentials", href: "/products?category=minimal", image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=800&q=80", alt: "Minimal essentials collection" },
