@@ -37,16 +37,25 @@ const getCachedVerifiedSellers = unstable_cache(
 export default async function StoresPage() {
   const { session, userProfile, sellerHref } = await getRequestSessionAndProfile();
 
-  const [allReservations, follows, verifiedSellers] = await Promise.all([
-    userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
-    userProfile
-      ? prisma.sellerFollow.findMany({
-          where: { userProfileId: userProfile.id },
-          select: { sellerId: true },
-        })
-      : Promise.resolve([]),
-    getCachedVerifiedSellers(),
-  ]);
+  let allReservations: Awaited<ReturnType<typeof getUserReservations>> = [];
+  let follows: { sellerId: string }[] = [];
+  let verifiedSellers: Awaited<ReturnType<typeof getCachedVerifiedSellers>> = [];
+
+  try {
+    [allReservations, follows, verifiedSellers] = await Promise.all([
+      userProfile ? getUserReservations(userProfile.id) : Promise.resolve([]),
+      userProfile
+        ? prisma.sellerFollow.findMany({
+            where: { userProfileId: userProfile.id },
+            select: { sellerId: true },
+          })
+        : Promise.resolve([]),
+      getCachedVerifiedSellers(),
+    ]);
+  } catch (error) {
+    console.error("[StoresPage] data fetch error:", error);
+    // Fall through with empty defaults — page still renders
+  }
 
   const cartCount = allReservations.reduce((acc, curr) => acc + curr.quantity, 0);
   const followedSellerIds = follows.map((f) => f.sellerId);
@@ -72,7 +81,7 @@ export default async function StoresPage() {
       productCount: seller._count.products,
       trustScore: seller.verification?.trustScore || 0,
       isVerified,
-      createdAt: seller.createdAt.toISOString(),
+      createdAt: new Date(seller.createdAt).toISOString(),
       description: seller.storeDescription || "",
     };
   });
