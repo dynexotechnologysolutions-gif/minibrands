@@ -50,9 +50,9 @@ const categories = [
 
 export default function HomeCategoryGrid() {
   return (
-    <section className="w-full bg-white border-b border-gray-100 py-1 md:py-1.5" data-purpose="categories-nav">
+    <section className="w-full bg-white border-b border-gray-100 py-1 md:py-1.5 mt-1.5 md:mt-0" data-purpose="categories-nav">
       {/* Horizontally scrolling list of category icons */}
-      <div className="flex overflow-x-auto md:overflow-x-visible gap-5 md:gap-9 justify-start md:justify-center py-1 hide-scrollbar snap-x scroll-px-5 px-5 max-w-[1280px] mx-auto font-sans">
+      <div className="flex overflow-x-auto md:overflow-x-visible gap-5 md:gap-9 justify-start md:justify-center py-1 md:py-1 hide-scrollbar snap-x scroll-px-5 px-5 max-w-[1280px] mx-auto font-sans">
         {categories.map((category) => (
           <Link
             key={category.label}
