@@ -754,7 +754,7 @@ export default function ProductDetailClient({
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || isReserving}
-                  className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary px-6 font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary px-6 font-bold text-white shadow-vl-soft transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isReserving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
