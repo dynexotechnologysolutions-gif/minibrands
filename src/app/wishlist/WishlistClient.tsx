@@ -284,6 +284,7 @@ export default function WishlistClient({
                       product={mapToProduct(prod)}
                       isLoggedIn={!!userProfile}
                       onWishlistToggle={handleWishlistToggle}
+                      hideCartButton
                     />
                   </div>
 
