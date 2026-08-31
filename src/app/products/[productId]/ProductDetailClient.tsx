@@ -790,33 +790,6 @@ export default function ProductDetailClient({
               )}
             </div>
 
-            {/* Delivery Pincode Card */}
-            <div className="rounded-vl-card border border-vl-border bg-vl-surface/40 p-4 space-y-2">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-1.5 text-sm text-vl-ink font-medium">
-                  <MapPin aria-hidden="true" className="text-vl-muted h-4.5 w-4.5 shrink-0" />
-                  Deliver to <span className="font-bold">
-                    {deliveryAddress ? `${deliveryAddress.city} ${deliveryAddress.pincode}` : "Chennai 600001"}
-                  </span>
-                </div>
-                <Link
-                  href={`/account/addresses?redirectTo=${encodeURIComponent(`/products/${product.id}`)}`}
-                  className="text-vl-primary font-bold text-xs hover:underline cursor-pointer"
-                >
-                  Change
-                </Link>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap text-sm text-vl-ink font-medium">
-                <p>
-                  Delivery by <span className="font-bold">Tomorrow, Oct 24</span>
-                </p>
-                <span className="h-4 w-[1px] bg-vl-border hidden sm:inline-block"></span>
-                <p className="text-vl-success font-bold uppercase text-xs">
-                  FREE
-                </p>
-              </div>
-            </div>
-
             {/* Seller profile Card */}
             <div className="flex items-center justify-between gap-4 p-4 rounded-vl-card border border-vl-border bg-vl-card shadow-vl-soft min-w-0">
               <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -863,6 +836,33 @@ export default function ProductDetailClient({
                 >
                   Visit Store
                 </Link>
+              </div>
+            </div>
+
+            {/* Delivery Pincode Card */}
+            <div className="rounded-vl-card border border-vl-border bg-vl-surface/40 p-4 space-y-2">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-1.5 text-sm text-vl-ink font-medium">
+                  <MapPin aria-hidden="true" className="text-vl-muted h-4.5 w-4.5 shrink-0" />
+                  Deliver to <span className="font-bold">
+                    {deliveryAddress ? `${deliveryAddress.city} ${deliveryAddress.pincode}` : "Chennai 600001"}
+                  </span>
+                </div>
+                <Link
+                  href={`/account/addresses?redirectTo=${encodeURIComponent(`/products/${product.id}`)}`}
+                  className="text-vl-primary font-bold text-xs hover:underline cursor-pointer"
+                >
+                  Change
+                </Link>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap text-sm text-vl-ink font-medium">
+                <p>
+                  Delivery by <span className="font-bold">Tomorrow, Oct 24</span>
+                </p>
+                <span className="h-4 w-[1px] bg-vl-border hidden sm:inline-block"></span>
+                <p className="text-vl-success font-bold uppercase text-xs">
+                  FREE
+                </p>
               </div>
             </div>
 
