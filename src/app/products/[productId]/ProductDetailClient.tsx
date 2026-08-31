@@ -480,7 +480,7 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-[calc(env(safe-area-inset-top)+108px)] md:pt-4 lg:pt-4 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-4 py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
@@ -564,7 +564,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Mobile-only horizontal swipe gallery layout */}
-            <div className="lg:hidden relative w-full aspect-square max-h-[55vh] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+            <div className="lg:hidden relative w-full aspect-[4/5] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
               <div
                 ref={mobileScrollContainerRef}
                 onScroll={handleMobileScroll}
