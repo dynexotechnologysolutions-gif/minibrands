@@ -14,11 +14,11 @@ export default function HomeNewsletter() {
           <p className="mt-3 text-sm leading-6 text-vl-muted sm:text-base">
             Get updates on new arrivals, offers &amp; more.
           </p>
-          <form onSubmit={(e) => e.preventDefault()} className="mt-6 flex w-full flex-col items-stretch gap-2.5 sm:max-w-md sm:flex-row sm:items-center sm:gap-3">
+          <form onSubmit={(e) => e.preventDefault()} className="mt-6 flex w-full flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:gap-3">
             <label htmlFor="newsletter-email" className="sr-only">
               Email address
             </label>
-            <div className="relative flex min-h-12 min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-vl-control border border-vl-border bg-white px-4 text-sm text-vl-ink focus-within:border-vl-primary">
+            <div className="relative flex w-full min-h-12 flex-1 items-center gap-2 overflow-hidden rounded-vl-control border border-vl-border bg-white px-4 text-sm text-vl-ink focus-within:border-vl-primary">
               <Mail aria-hidden="true" className="h-5 w-5 shrink-0 text-vl-muted" />
               <input
                 id="newsletter-email"
