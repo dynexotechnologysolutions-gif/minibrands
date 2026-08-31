@@ -27,6 +27,8 @@ interface ProductCardProps {
   index?: number;
   /** When true, hides the Add to Cart button (e.g. on the wishlist page) */
   hideCartButton?: boolean;
+  /** Optional custom action button to render instead of the default cart button */
+  actionSlot?: React.ReactNode;
 }
 
 export default function ProductCard({
@@ -35,6 +37,7 @@ export default function ProductCard({
   onWishlistToggle,
   index = 99,
   hideCartButton = false,
+  actionSlot,
 }: ProductCardProps) {
   const router = useRouter();
   const [isToggling, setIsToggling] = useState(false);
@@ -310,6 +313,11 @@ export default function ProductCard({
               {isOutOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added!" : "Add to Cart"}
             </span>
           </button>
+        )}
+        {hideCartButton && actionSlot && (
+          <div className="mt-3">
+            {actionSlot}
+          </div>
         )}
       </div>
     </div>
