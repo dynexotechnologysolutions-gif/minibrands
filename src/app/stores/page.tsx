@@ -81,7 +81,7 @@ export default async function StoresPage() {
       productCount: seller._count.products,
       trustScore: seller.verification?.trustScore || 0,
       isVerified,
-      createdAt: seller.createdAt.toISOString(),
+      createdAt: new Date(seller.createdAt).toISOString(),
       description: seller.storeDescription || "",
     };
   });
