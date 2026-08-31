@@ -189,7 +189,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-vl-surface font-vl-body text-vl-ink">
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-      <main className="pb-[76px] md:pb-0 pt-[calc(env(safe-area-inset-top)+88px)] md:pt-0">
+      <main className="pb-[76px] md:pb-0 pt-[calc(env(safe-area-inset-top)+108px)] md:pt-0">
         {/* 1. Category Ribbon */}
         <HomeCategoryGrid />
 
