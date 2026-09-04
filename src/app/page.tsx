@@ -20,10 +20,32 @@ import { unstable_cache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
+import { getCanonicalUrl, getSiteUrl } from "@/lib/seo/url";
+
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
   title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
   description:
     "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
+  alternates: {
+    canonical: getCanonicalUrl("/"),
+  },
+  openGraph: {
+    title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
+    description:
+      "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
+    url: siteUrl,
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
+    description:
+      "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories with escrow payment safety.",
+  },
 };
 
 interface PageProps {
@@ -186,8 +208,38 @@ export default async function HomePage({ searchParams }: PageProps) {
     />
   );
 
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        "name": "MiniBrands",
+        "url": siteUrl,
+        "description":
+          "Chennai's fashion-forward local marketplace connecting buyers with verified independent boutique labels and escrow safety.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "url": siteUrl,
+        "name": "MiniBrands",
+        "publisher": { "@id": `${siteUrl}/#organization` },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${siteUrl}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-vl-surface font-vl-body text-vl-ink">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, "\\u003c") }}
+      />
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
       <main className="pb-[76px] md:pb-0 pt-[calc(env(safe-area-inset-top)+108px)] md:pt-0">
         {/* 1. Category Ribbon */}

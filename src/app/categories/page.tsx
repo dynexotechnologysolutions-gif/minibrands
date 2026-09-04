@@ -11,12 +11,33 @@ import CategoryPopularSearches from "@/components/categories/CategoryPopularSear
 import { getUserReservations } from "@/lib/redis";
 import { getRequestSessionAndProfile } from "@/lib/request-auth";
 
+import { getCanonicalUrl } from "@/lib/seo/url";
+
 export const dynamic = "force-dynamic";
 
+const title = "Categories | MiniBrands";
+const description =
+  "Explore curated fashion items from trusted boutique stores by category: ethnic wear, streetwear, accessories, and handloom.";
+
 export const metadata: Metadata = {
-  title: "Categories | MINIBRANDS",
-  description:
-    "Explore products from trusted stores by category. Home decor, kitchen, spiritual, bottles, beauty, wellness, fashion and more.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/categories"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/categories"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default async function CategoriesPage() {

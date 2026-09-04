@@ -18,21 +18,42 @@ interface PageProps {
   }>;
 }
 
+import { getCanonicalUrl, getSiteUrl } from "@/lib/seo/url";
+
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = await searchParams;
   const q = params.q || "";
   const category = params.category || "";
 
-  let title = "Products | MINIBRANDS";
+  let title = "Products | MiniBrands";
   if (q) {
-    title = `Search Results for "${q}" | MINIBRANDS`;
+    title = `Search Results for "${q}" | MiniBrands`;
   } else if (category && category !== "All") {
-    title = `${category} Products | MINIBRANDS`;
+    title = `${category} Products | MiniBrands`;
   }
+
+  const description =
+    "Explore curated fashion items, streetwear, ethnic wear, handlooms, and accessories from verified independent boutiques in Chennai.";
 
   return {
     title,
-    description: "Explore curated items, streetwear, handlooms, and accessories from verified boutiques in Chennai.",
+    description,
+    alternates: {
+      canonical: getCanonicalUrl("/products"),
+    },
+    openGraph: {
+      title,
+      description,
+      url: getCanonicalUrl("/products"),
+      siteName: "MiniBrands",
+      locale: "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 

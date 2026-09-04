@@ -1,8 +1,29 @@
 import { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
+
+const title = "About Us | MiniBrands";
+const description =
+  "Learn about MiniBrands's history, mission, values, and commitment to supporting independent fashion designers and boutiques in Chennai.";
 
 export const metadata: Metadata = {
-  title: "About Us | MiniBrands",
-  description: "Learn about MiniBrands's history, mission, values, and commitment to sustainable premium fashion in Chennai.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/about"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/about"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function AboutPage() {

@@ -1,8 +1,29 @@
 import { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
+
+const title = "Refund & Return Policy | MiniBrands";
+const description =
+  "Read the Refund & Return Policy of MiniBrands to understand returns, disputes, cancellation conditions, and merchant payout rules.";
 
 export const metadata: Metadata = {
-  title: "Refund & Return Policy | MiniBrands",
-  description: "Read the Refund & Return Policy of MiniBrands to understand returns, disputes, cancellation conditions, and merchant payout rules.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/returns-policy"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/returns-policy"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function ReturnsPolicyPage() {

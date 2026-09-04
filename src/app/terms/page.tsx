@@ -1,8 +1,29 @@
 import { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
+
+const title = "Terms of Service | MiniBrands";
+const description =
+  "Read the Terms of Service of MiniBrands, governing buyer purchases, seller boutique rules, and escrow release protections.";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | MiniBrands",
-  description: "Read the Terms of Service of MiniBrands, governing buyer purchases, seller boutique rules, and escrow release protections.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/terms"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/terms"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function TermsPage() {

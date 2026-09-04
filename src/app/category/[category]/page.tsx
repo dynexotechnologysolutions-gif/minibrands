@@ -16,12 +16,34 @@ interface CategoryPageProps {
   }>;
 }
 
+import { getCanonicalUrl } from "@/lib/seo/url";
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const categoryName = decodeURIComponent(resolvedParams.category);
+  const categoryUrl = getCanonicalUrl(`/category/${encodeURIComponent(categoryName)}`);
+  const title = `${categoryName} | Chennai's Best Local Fashion | MiniBrands`;
+  const description = `Shop curated ${categoryName.toLowerCase()} from verified home boutiques and designers in Chennai. Secure escrow payments.`;
+
   return {
-    title: `${categoryName} | Chennai's Best Local Fashion | MiniBrands`,
-    description: `Shop curated ${categoryName.toLowerCase()} from verified home boutiques and designers in Chennai. Secure escrow payments.`,
+    title,
+    description,
+    alternates: {
+      canonical: categoryUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: categoryUrl,
+      siteName: "MiniBrands",
+      locale: "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
@@ -64,8 +86,27 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     },
   });
 
+  const categoryJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": getCanonicalUrl("/") },
+      { "@type": "ListItem", "position": 2, "name": "Categories", "item": getCanonicalUrl("/categories") },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": categoryName,
+        "item": getCanonicalUrl(`/category/${encodeURIComponent(categoryName)}`),
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen px-4 sm:px-6 lg:px-8 py-10 max-w-7xl mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd).replace(/</g, "\\u003c") }}
+      />
       {/* Breadcrumb / Back Navigation */}
       <div className="mb-6">
         <Link

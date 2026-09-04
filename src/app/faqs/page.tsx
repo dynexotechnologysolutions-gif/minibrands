@@ -1,8 +1,29 @@
 import { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
+
+const title = "FAQs & Help Center | MiniBrands";
+const description =
+  "Browse frequently asked questions regarding order placement, shipping times, returns, and escrow payment safeties at MiniBrands.";
 
 export const metadata: Metadata = {
-  title: "FAQs & Help Center | MiniBrands",
-  description: "Browse frequently asked questions regarding order placement, shipping times, returns, and escrow payment safeties at MiniBrands.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/faqs"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/faqs"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function FAQsPage() {

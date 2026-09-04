@@ -6,8 +6,35 @@ import HomeHeader from "@/components/home/HomeHeader";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import StoresPageClient from "@/components/store/StoresPageClient";
 import { StoreSummary } from "@/components/store/StoreCard";
+import type { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
 
 export const dynamic = "force-dynamic";
+
+const title = "Verified Fashion Stores & Boutiques | MiniBrands";
+const description =
+  "Discover verified independent fashion labels, home boutiques, and local designers in Chennai. Trust-first shopping with escrow payment safety.";
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/stores"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/stores"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+};
 
 const getCachedVerifiedSellers = unstable_cache(
   async () => {
