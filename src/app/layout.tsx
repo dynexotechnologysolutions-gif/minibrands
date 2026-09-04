@@ -42,6 +42,9 @@ export const metadata: Metadata = {
     description:
       "Connect with verified independent fashion sellers and boutique designers in Chennai. Trust-first commerce with escrow-protected payments.",
   },
+  verification: {
+    google: "1PsXLcbI_29j1sR5rCwVaLoTSVoBcCTHwoBzDSVZ4z8",
+  },
 };
 
 export default function RootLayout({
