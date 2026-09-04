@@ -47,6 +47,8 @@ const getCachedSeller = cache(async (sellerId: string) => {
   });
 });
 
+import { getCanonicalUrl } from "@/lib/seo/url";
+
 // 1. Dynamic SEO Metadata Generation for Seller Storefront
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { sellerId } = await params;
@@ -65,12 +67,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const storeName = seller.storeName || seller.businessName;
+  const sellerUrl = getCanonicalUrl(`/sellers/${seller.id}`);
+  const title = `${storeName} | Fashion Boutique in ${seller.city} | MiniBrands`;
+  const description = `Shop verified fashion boutique ${storeName} from ${seller.city}, India. Discover handpicked ethnic wear, custom designs, and streetwear with secure escrow checkouts.`;
+  const images = seller.storeBanner || seller.storeLogo ? [seller.storeBanner || seller.storeLogo!] : [];
+
   return {
-    title: `${seller.storeName || seller.businessName} | Fashion Boutique in ${seller.city} | MiniBrands`,
-    description: `Shop verified fashion boutique ${seller.storeName || seller.businessName} from ${seller.city}, India. Discover handpicked ethnic wear, custom designs, and streetwear with secure escrow checkouts.`,
+    title,
+    description,
+    alternates: {
+      canonical: sellerUrl,
+    },
     openGraph: {
-      title: `${seller.storeName || seller.businessName} Storefront | MiniBrands`,
+      title: `${storeName} Storefront | MiniBrands`,
       description: `Verified independent fashion boutique from ${seller.city}. Shop local with escrow payment protection.`,
+      url: sellerUrl,
+      siteName: "MiniBrands",
+      locale: "en_IN",
+      type: "profile",
+      images: images.map((url) => ({ url })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${storeName} Storefront | MiniBrands`,
+      description: `Verified independent fashion boutique from ${seller.city}. Shop local with escrow payment protection.`,
+      images,
     },
   };
 }
@@ -91,23 +113,38 @@ export default async function SellerStorefrontPage({ params }: PageProps) {
       seller.verification.kycStatus === "approved") &&
     seller.verification.bankVerified;
 
-  // 3. Construct LocalBusiness JSON-LD Schema
-const coverImage =
-  seller.storeBanner ||
-  "https://res.cloudinary.com/MiniBrands/image/upload/placeholder.jpg";
+  const sellerStoreName = seller.storeName || seller.businessName;
+  const sellerUrl = getCanonicalUrl(`/sellers/${seller.id}`);
+  const coverImage =
+    seller.storeBanner ||
+    seller.storeLogo ||
+    "https://res.cloudinary.com/MiniBrands/image/upload/placeholder.jpg";
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": seller.storeName || seller.businessName,
-    "image": coverImage,
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": seller.city,
-      "addressRegion": "Tamil Nadu",
-      "addressCountry": "IN",
-    },
-    "priceRange": "₹₹",
-    "telephone": "",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": getCanonicalUrl("/") },
+          { "@type": "ListItem", "position": 2, "name": "Stores", "item": getCanonicalUrl("/stores") },
+          { "@type": "ListItem", "position": 3, "name": sellerStoreName, "item": sellerUrl },
+        ],
+      },
+      {
+        "@type": "LocalBusiness",
+        "name": sellerStoreName,
+        "image": coverImage,
+        "url": sellerUrl,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": seller.city,
+          "addressRegion": "Tamil Nadu",
+          "addressCountry": "IN",
+        },
+        "priceRange": "₹₹",
+      },
+    ],
   };
 
   const { userProfile, sellerHref } = await getRequestSessionAndProfile();
@@ -204,7 +241,7 @@ const coverImage =
       {/* Inject LocalBusiness Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       <SellerStorefrontClient

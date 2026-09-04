@@ -1,10 +1,18 @@
 import React from "react";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
 import { validateSessionAndRole } from "@/lib/auth-services/guard";
 import { RedirectService } from "@/lib/auth-services/redirect.service";
 import AdminLayout from "@/components/admin/AdminLayout";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AdminRootLayout({
   children,

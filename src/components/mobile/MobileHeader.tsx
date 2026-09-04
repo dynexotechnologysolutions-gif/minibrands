@@ -84,14 +84,14 @@ export default function MobileHeader({ userProfile, cartCount, variant = "defaul
           {/* Left section: Brand Logo */}
           <div className="flex items-center">
             {/* Brand Logo with tagline */}
-            <Link href="/" className="flex items-center gap-1.5" aria-label="MiniBrands Home">
-              <div className="flex items-center gap-1.5 text-white">
-                <ShoppingBag className="w-5.5 h-5.5 text-white" />
+            <Link href="/" className="flex items-center gap-2" aria-label="MiniBrands Home">
+              <div className="flex items-center gap-2 text-white">
+                <ShoppingBag className="w-6 h-6 text-white" />
                 <div className="flex flex-col items-start leading-none">
-                  <div className="text-sm font-extrabold tracking-tight">
+                  <div className="text-[15px] font-extrabold tracking-tight">
                     <span className="text-white font-sans">MiniBrands</span>
                   </div>
-                  <span className="text-[7.5px] opacity-75 font-normal tracking-wide mt-0.5">
+                  <span className="text-[8.5px] opacity-75 font-normal tracking-wide mt-0.5">
                     Many Stores. One Trusted Place.
                   </span>
                 </div>

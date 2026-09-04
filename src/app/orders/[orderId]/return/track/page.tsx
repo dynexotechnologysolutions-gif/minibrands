@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import ReturnTrackerClient from "./ReturnTrackerClient";
 
+export const dynamic = "force-dynamic";
+
 interface ReturnTrackerPageProps {
   params: Promise<{
     orderId: string;

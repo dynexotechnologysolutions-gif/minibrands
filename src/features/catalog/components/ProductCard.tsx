@@ -25,6 +25,10 @@ interface ProductCardProps {
   onWishlistToggle: (productId: string, isWishlisted: boolean) => Promise<void>;
   /** Index in the grid — used to set priority on first 4 images */
   index?: number;
+  /** When true, hides the Add to Cart button (e.g. on the wishlist page) */
+  hideCartButton?: boolean;
+  /** Optional custom action button to render instead of the default cart button */
+  actionSlot?: React.ReactNode;
 }
 
 export default function ProductCard({
@@ -32,6 +36,8 @@ export default function ProductCard({
   isLoggedIn,
   onWishlistToggle,
   index = 99,
+  hideCartButton = false,
+  actionSlot,
 }: ProductCardProps) {
   const router = useRouter();
   const [isToggling, setIsToggling] = useState(false);
@@ -287,25 +293,32 @@ export default function ProductCard({
         </Link>
 
         {/* Add to Cart — existing auth + guest cart flow */}
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding || isOutOfStock}
-          aria-label="Add product to cart"
-          className={`
-            mt-3 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-vl-control text-xs font-bold transition-all duration-vl-fast active:scale-[0.98] select-none ${
-              isOutOfStock
-                ? "cursor-not-allowed bg-vl-border text-vl-muted"
-                : added
-                  ? "bg-vl-success text-white"
-                  : "bg-vl-primary text-white hover:bg-vl-primary-strong"
-            }
-          `}
-        >
-          <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
-          <span>
-            {isOutOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added!" : "Add to Cart"}
-          </span>
-        </button>
+        {!hideCartButton && (
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding || isOutOfStock}
+            aria-label="Add product to cart"
+            className={`
+              mt-3 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-vl-control text-xs font-bold transition-all duration-vl-fast active:scale-[0.98] select-none ${
+                isOutOfStock
+                  ? "cursor-not-allowed bg-vl-border text-vl-muted"
+                  : added
+                    ? "bg-vl-success text-white"
+                    : "bg-vl-primary text-white hover:bg-vl-primary-strong"
+              }
+            `}
+          >
+            <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
+            <span>
+              {isOutOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added!" : "Add to Cart"}
+            </span>
+          </button>
+        )}
+        {hideCartButton && actionSlot && (
+          <div className="mt-3">
+            {actionSlot}
+          </div>
+        )}
       </div>
     </div>
   );

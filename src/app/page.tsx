@@ -7,8 +7,8 @@ import HomeStoreRow from "@/components/home/HomeStoreRow";
 import HomeHero from "@/components/home/HomeHero";
 import HomeCategoryGrid from "@/components/home/HomeCategoryGrid";
 import HomeEditorialCollections from "@/components/home/HomeEditorialCollections";
-import HomeNearbyStores from "@/components/home/HomeNearbyStores";
-import HomeInspiration from "@/components/home/HomeInspiration";
+
+
 import HomeNewsletter from "@/components/home/HomeNewsletter";
 import HomeProductSection from "@/components/home/HomeProductSection";
 import HomeFeaturedCollections from "@/components/home/HomeFeaturedCollections";
@@ -20,10 +20,32 @@ import { unstable_cache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
+import { getCanonicalUrl, getSiteUrl } from "@/lib/seo/url";
+
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
   title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
   description:
     "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
+  alternates: {
+    canonical: getCanonicalUrl("/"),
+  },
+  openGraph: {
+    title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
+    description:
+      "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories — with KYC-verified boutiques and escrow payment safety.",
+    url: siteUrl,
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MiniBrands | Chennai's Fashion-Forward Local Marketplace",
+    description:
+      "Discover verified independent fashion sellers in Chennai. Ethnic wear, streetwear, handlooms, and accessories with escrow payment safety.",
+  },
 };
 
 interface PageProps {
@@ -186,10 +208,40 @@ export default async function HomePage({ searchParams }: PageProps) {
     />
   );
 
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        "name": "MiniBrands",
+        "url": siteUrl,
+        "description":
+          "Chennai's fashion-forward local marketplace connecting buyers with verified independent boutique labels and escrow safety.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "url": siteUrl,
+        "name": "MiniBrands",
+        "publisher": { "@id": `${siteUrl}/#organization` },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${siteUrl}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-vl-surface font-vl-body text-vl-ink">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, "\\u003c") }}
+      />
       <HomeHeader userProfile={userProfile} cartCount={cartCount} sellerHref={sellerHref} />
-      <main className="pb-[76px] md:pb-0 pt-[108px] md:pt-0">
+      <main className="pb-[76px] md:pb-0 pt-[calc(env(safe-area-inset-top)+108px)] md:pt-0">
         {/* 1. Category Ribbon */}
         <HomeCategoryGrid />
 
@@ -213,16 +265,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 px-2 md:px-4">
               {trendingProducts.slice(0, 4).map(productCard)}
             </div>
-            {currentPage < totalPages ? (
-              <div className="mt-8 flex justify-center hidden md:flex">
-                <Link
-                  href={`/?page=${currentPage + 1}`}
-                  className="inline-flex min-h-11 items-center rounded-vl-control border border-vl-border bg-vl-card px-5 text-sm font-semibold text-vl-ink transition hover:border-vl-primary hover:text-vl-primary"
-                >
-                  Load more
-                </Link>
-              </div>
-            ) : null}
+
           </section>
         ) : null}
 
@@ -248,25 +291,9 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* 6. Desktop-Only Secondary Sections */}
         <div className="hidden md:block">
           <HomeEditorialCollections />
-          {(() => {
-            const userCity = userProfile?.addresses?.find((a) => a.isDefault)?.city || null;
-            const sortedNearbyStores = [...nearbyStores].sort((a, b) => {
-              if (userCity) {
-                const aMatch = a.city.toLowerCase() === userCity.toLowerCase();
-                const bMatch = b.city.toLowerCase() === userCity.toLowerCase();
-                if (aMatch && !bMatch) return -1;
-                if (!aMatch && bMatch) return 1;
-              }
-              return 0;
-            });
-            return (
-              <>
-                <HomeNearbyStores stores={sortedNearbyStores} userCity={userCity} />
-              </>
-            );
-          })()}
+
           {suggestedProducts.length > 0 ? <section className="vl-section-shell mt-16 sm:mt-24"><div className="flex items-end justify-between gap-4"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-vl-secondary">New arrivals</p><h2 className="font-vl-heading text-2xl font-bold tracking-[-0.04em] text-vl-ink sm:text-3xl">Fresh from the labels</h2></div><Link href="/products?sort=newest" className="hidden rounded-vl-control px-3 py-2 text-sm font-semibold text-vl-muted transition hover:bg-vl-card hover:text-vl-primary sm:inline-flex">See newness</Link></div><div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">{suggestedProducts.map(productCard)}</div></section> : null}
-          <HomeInspiration />
+
         </div>
 
         {/* 7. Curated Collections - hidden on mobile */}

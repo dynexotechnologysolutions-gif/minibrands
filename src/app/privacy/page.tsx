@@ -1,8 +1,29 @@
 import { Metadata } from "next";
+import { getCanonicalUrl } from "@/lib/seo/url";
+
+const title = "Privacy Policy | MiniBrands";
+const description =
+  "Read the Privacy Policy of MiniBrands to understand how we secure and process user credentials and transaction records.";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | MiniBrands",
-  description: "Read the Privacy Policy of MiniBrands to understand how we secure and process user credentials and transaction records.",
+  title,
+  description,
+  alternates: {
+    canonical: getCanonicalUrl("/privacy"),
+  },
+  openGraph: {
+    title,
+    description,
+    url: getCanonicalUrl("/privacy"),
+    siteName: "MiniBrands",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 export default function PrivacyPage() {

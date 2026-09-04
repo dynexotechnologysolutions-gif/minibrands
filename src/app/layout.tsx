@@ -3,10 +3,48 @@ import "./globals.css";
 import Providers from "./providers";
 import Footer from "@/components/Footer";
 
+import { getSiteUrl } from "@/lib/seo/url";
+
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "ShopHub | Many Stores. One Trusted Place.",
-  description: "Connect with verified independent fashion sellers and designers. Trust-first commerce with escrow-protected payments.",
-  keywords: ["fashion", "local designers", "boutiques", "independent fashion labels", "social commerce"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "MiniBrands | Fashion-Forward Local Marketplace",
+    template: "%s | MiniBrands",
+  },
+  description:
+    "Connect with verified independent fashion sellers and boutique designers in Chennai. Trust-first commerce with escrow-protected payments.",
+  applicationName: "MiniBrands",
+  keywords: [
+    "fashion",
+    "local designers",
+    "boutiques",
+    "independent fashion labels",
+    "chennai fashion",
+    "ethnic wear",
+    "streetwear",
+    "handloom",
+    "escrow shopping",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: siteUrl,
+    siteName: "MiniBrands",
+    title: "MiniBrands | Fashion-Forward Local Marketplace",
+    description:
+      "Connect with verified independent fashion sellers and boutique designers in Chennai. Trust-first commerce with escrow-protected payments.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MiniBrands | Fashion-Forward Local Marketplace",
+    description:
+      "Connect with verified independent fashion sellers and boutique designers in Chennai. Trust-first commerce with escrow-protected payments.",
+  },
+  verification: {
+    google: "1PsXLcbI_29j1sR5rCwVaLoTSVoBcCTHwoBzDSVZ4z8",
+  },
 };
 
 export default function RootLayout({

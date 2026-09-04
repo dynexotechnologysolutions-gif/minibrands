@@ -42,6 +42,8 @@ interface PageProps {
   }>;
 }
 
+import { getCanonicalUrl } from "@/lib/seo/url";
+
 // 1. Dynamic SEO Metadata Generation
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { productId } = await params;
@@ -66,13 +68,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const productUrl = getCanonicalUrl(`/products/${product.id}`);
+  const title = `${product.name} | ${product.seller.businessName} on MiniBrands`;
+  const description = product.shortDescription;
+  const imageUrls = product.images?.[0] ? [{ url: product.images[0].url }] : [];
+
   return {
-    title: `${product.name} | ${product.seller.businessName} on MiniBrands`,
-    description: product.shortDescription,
+    title,
+    description,
+    alternates: {
+      canonical: productUrl,
+    },
     openGraph: {
-      title: `${product.name} | ${product.seller.businessName}`,
-      description: product.shortDescription,
-      images: product.images?.[0] ? [{ url: product.images[0].url }] : [],
+      title,
+      description,
+      url: productUrl,
+      siteName: "MiniBrands",
+      locale: "en_IN",
+      type: "article",
+      images: imageUrls,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrls.map((img) => img.url),
     },
   };
 }
@@ -229,30 +249,58 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
   };
 
   const hasInStock = product.variants.some((v) => v.stockCount > 0);
+  const productUrl = getCanonicalUrl(`/products/${product.id}`);
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    "name": product.name,
-    "image": product.images.map((img) => img.url),
-    "description": product.shortDescription,
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "INR",
-      "price": (product.price / 100).toFixed(2),
-      "availability": hasInStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      "seller": {
-        "@type": "LocalBusiness",
-        "name": product.seller.businessName,
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": product.seller.city,
-          "addressRegion": "Tamil Nadu",
-          "addressCountry": "IN",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": getCanonicalUrl("/") },
+          { "@type": "ListItem", "position": 2, "name": "Products", "item": getCanonicalUrl("/products") },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": product.category,
+            "item": getCanonicalUrl(`/category/${encodeURIComponent(product.category)}`),
+          },
+          { "@type": "ListItem", "position": 4, "name": product.name, "item": productUrl },
+        ],
+      },
+      {
+        "@type": "Product",
+        "name": product.name,
+        "image": product.images.map((img) => img.url),
+        "description": product.shortDescription,
+        ...(product.reviewCount > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: product.averageRating.toFixed(1),
+                reviewCount: product.reviewCount,
+              },
+            }
+          : {}),
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "INR",
+          "price": (product.price / 100).toFixed(2),
+          "availability": hasInStock
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          "seller": {
+            "@type": "LocalBusiness",
+            "name": product.seller.businessName,
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": product.seller.city,
+              "addressRegion": "Tamil Nadu",
+              "addressCountry": "IN",
+            },
+          },
         },
       },
-    },
+    ],
   };
 
   const formattedProduct = {
@@ -320,7 +368,7 @@ export default async function ProductDetailPage({ params, searchParams }: PagePr
       {/* Inject Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
       <ProductDetailClient

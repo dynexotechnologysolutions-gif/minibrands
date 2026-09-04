@@ -266,7 +266,7 @@ export default function WishlistClient({
           </div>
         ) : (
           /* Product Grid */
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5 mb-16">
             {wishlistItems.map((prod) => {
               const isRemoving = removingIds.includes(prod.id);
               const isProcessing = processingIds.includes(prod.id);
@@ -274,36 +274,32 @@ export default function WishlistClient({
               return (
                 <div
                   key={prod.id}
-                  className={`group relative flex flex-col bg-vl-card border border-vl-border rounded-vl-card overflow-hidden shadow-vl-soft hover:shadow-vl-medium transition-all duration-vl-fast ${
+                  className={`group relative flex flex-col transition-all duration-vl-fast ${
                     isRemoving ? "opacity-0 scale-95 pointer-events-none" : ""
                   }`}
                 >
-                  {/* Top ProductCard container */}
-                  <div className="flex-grow">
-                    <ProductCard
-                      product={mapToProduct(prod)}
-                      isLoggedIn={!!userProfile}
-                      onWishlistToggle={handleWishlistToggle}
-                    />
-                  </div>
-
-                  {/* Move to Cart Quick Trigger Bar */}
-                  <div className="p-4 pt-0">
-                    <button
-                      onClick={() => handleMoveToCart(prod)}
-                      disabled={isRemoving || isProcessing}
-                      className="w-full inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-4 text-xs font-bold text-white hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                          PROCESSING...
-                        </>
-                      ) : (
-                        "MOVE TO CART"
-                      )}
-                    </button>
-                  </div>
+                  <ProductCard
+                    product={mapToProduct(prod)}
+                    isLoggedIn={!!userProfile}
+                    onWishlistToggle={handleWishlistToggle}
+                    hideCartButton
+                    actionSlot={
+                      <button
+                        onClick={() => handleMoveToCart(prod)}
+                        disabled={isRemoving || isProcessing}
+                        className="w-full inline-flex min-h-11 items-center justify-center rounded-vl-control bg-vl-primary px-4 text-xs font-bold text-white hover:bg-vl-primary-strong active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                            PROCESSING...
+                          </>
+                        ) : (
+                          "MOVE TO CART"
+                        )}
+                      </button>
+                    }
+                  />
                 </div>
               );
             })}

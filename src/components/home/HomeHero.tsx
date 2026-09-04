@@ -98,7 +98,7 @@ export default function HomeHero() {
       {/* object-contain ensures the full image is always visible — nothing is hidden. */}
       <div
         ref={containerRef}
-        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/7] sm:aspect-[16/5] md:aspect-[3.4/1] lg:max-w-[1100px] xl:max-w-[1200px]"
+        className="relative mx-auto w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-white aspect-[16/7] lg:aspect-[16/4] lg:max-w-[1100px] xl:max-w-[1200px]"
         style={{
           maxWidth: "1200px",
           boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
@@ -124,37 +124,22 @@ export default function HomeHero() {
                   pointerEvents: isActive ? "auto" : "none",
                 }}
               >
-                {/* Desktop Version */}
-                <div className="hidden md:block absolute inset-0">
-                  <Image
-                    src={slide.src}
-                    alt={slide.alt}
-                    fill
-                    priority={i === 0}
-                    sizes="100vw"
-                    className="object-contain object-center"
-                    style={{
-                      transform: isActive ? "scale(1.00)" : "scale(1.03)",
-                      transition: "transform 700ms cubic-bezier(0.16,1,0.3,1)",
-                    }}
-                  />
-                </div>
-                {/* Mobile Version (ShopHub split style) */}
-                <div className="md:hidden flex h-full w-full bg-[#FAF9F6] font-sans">
+                {/* Unified split-card hero — same design on all breakpoints, text/spacing scales up */}
+                <div className="flex h-full w-full bg-[#FAF9F6] font-sans">
                   {/* Left content block */}
-                  <div className="w-[58%] flex flex-col justify-center pl-5 pr-2 select-none">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0F7F7F] mb-0.5">
+                  <div className="w-[58%] flex flex-col justify-center pl-5 pr-2 sm:pl-10 sm:pr-4 md:pl-14 md:pr-6 select-none">
+                    <span className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider text-[#0F7F7F] mb-0.5 sm:mb-1">
                       {slide.label}
                     </span>
-                    <h2 className="font-display text-xl font-extrabold text-[#222222] leading-tight tracking-tight">
+                    <h2 className="font-display text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#222222] leading-tight tracking-tight">
                       {slide.title}
                     </h2>
-                    <p className="text-[11px] text-[#666666] mt-0.5 font-semibold leading-normal font-sans">
+                    <p className="text-[11px] sm:text-sm md:text-base text-[#666666] mt-0.5 sm:mt-1 font-semibold leading-normal font-sans">
                       {slide.subtitle}
                     </p>
                     <Link
                       href="/products"
-                      className="mt-2.5 inline-flex h-7 w-fit items-center justify-center rounded-lg bg-[#0d3b36] hover:bg-[#002020] px-3.5 text-[10px] font-bold text-white shadow-sm active:scale-95 transition-all font-sans"
+                      className="mt-2.5 sm:mt-4 md:mt-5 inline-flex h-7 sm:h-9 md:h-11 w-fit items-center justify-center rounded-lg bg-[#0d3b36] hover:bg-[#002020] px-3.5 sm:px-5 md:px-7 text-[10px] sm:text-xs md:text-sm font-bold text-white shadow-sm active:scale-95 transition-all font-sans"
                     >
                       Shop Now
                     </Link>
@@ -166,7 +151,7 @@ export default function HomeHero() {
                       alt={slide.alt}
                       fill
                       priority={i === 0}
-                      sizes="(max-width: 768px) 50vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 45vw, 500px"
                       className="object-cover object-center"
                       style={{
                         transform: isActive ? "scale(1.00)" : "scale(1.05)",

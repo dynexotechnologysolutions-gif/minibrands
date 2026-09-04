@@ -480,14 +480,14 @@ export default function ProductDetailClient({
         sellerHref={sellerHref}
       />
 
-      <main className="vl-section-shell w-full max-w-full overflow-x-hidden pt-20 md:pt-4 py-4 sm:py-8 lg:py-10 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
+      <main className="vl-section-shell w-full max-w-full overflow-x-hidden lg:overflow-x-visible pt-20 md:pt-2 py-4 sm:py-8 sm:pt-2 lg:py-10 lg:pt-0 pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-10">
         {/* Breadcrumb section removed - was hidden by header */}
 
         {/* Product View Split Pane */}
-        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-12 mt-4 lg:mt-0">
           
-          {/* LEFT COLUMN: Gallery (5 cols on lg) */}
-          <div className="lg:col-span-5 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-24">
+          {/* LEFT COLUMN: Gallery (4 cols on lg) */}
+          <div className="lg:col-span-4 flex flex-col gap-3 lg:flex-row-reverse lg:sticky lg:top-[160px] lg:h-fit lg:z-10 lg:mt-[10vh]">
             {/* Desktop-only gallery layout */}
             <div className="hidden lg:flex lg:flex-row-reverse w-full gap-3">
               {/* Main Image Aspect Ratio 4/5 */}
@@ -564,7 +564,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Mobile-only horizontal swipe gallery layout */}
-            <div className="lg:hidden relative w-full aspect-square max-h-[55vh] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
+            <div className="lg:hidden relative w-full aspect-[4/5] overflow-hidden rounded-vl-card border border-vl-border bg-vl-surface shadow-vl-soft">
               <div
                 ref={mobileScrollContainerRef}
                 onScroll={handleMobileScroll}
@@ -634,8 +634,8 @@ export default function ProductDetailClient({
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Product Info & Selection (7 cols on lg) */}
-          <div className="lg:col-span-7 flex flex-col gap-5 min-w-0">
+          {/* RIGHT COLUMN: Product Info & Selection (8 cols on lg) */}
+          <div className="lg:col-span-8 flex flex-col gap-5 min-w-0 lg:mt-16">
             
             {/* Title & Brand heading */}
             <div className="space-y-1">
@@ -720,7 +720,7 @@ export default function ProductDetailClient({
                 
                 {/* Size pills list */}
                 <div className="flex flex-wrap gap-2">
-                  {product.variants.map((v) => {
+                  {Array.from(new Map(product.variants.map(v => [v.size, v])).values()).map((v) => {
                     const isAvailable = v.stockCount > 0;
                     const isSelected = selectedSize === v.size;
                     return (
@@ -754,7 +754,7 @@ export default function ProductDetailClient({
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || isReserving}
-                  className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary px-6 font-bold text-white shadow-[0_4px_16px_rgb(255_63_108_/_0.25)] transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-vl-control bg-vl-primary px-6 font-bold text-white shadow-vl-soft transition-all duration-vl-fast hover:bg-vl-primary-strong active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isReserving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -788,33 +788,6 @@ export default function ProductDetailClient({
                   {successMessage}
                 </p>
               )}
-            </div>
-
-            {/* Delivery Pincode Card */}
-            <div className="rounded-vl-card border border-vl-border bg-vl-surface/40 p-4 space-y-2">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-1.5 text-sm text-vl-ink font-medium">
-                  <MapPin aria-hidden="true" className="text-vl-muted h-4.5 w-4.5 shrink-0" />
-                  Deliver to <span className="font-bold">
-                    {deliveryAddress ? `${deliveryAddress.city} ${deliveryAddress.pincode}` : "Chennai 600001"}
-                  </span>
-                </div>
-                <Link
-                  href={`/account/addresses?redirectTo=${encodeURIComponent(`/products/${product.id}`)}`}
-                  className="text-vl-primary font-bold text-xs hover:underline cursor-pointer"
-                >
-                  Change
-                </Link>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap text-sm text-vl-ink font-medium">
-                <p>
-                  Delivery by <span className="font-bold">Tomorrow, Oct 24</span>
-                </p>
-                <span className="h-4 w-[1px] bg-vl-border hidden sm:inline-block"></span>
-                <p className="text-vl-success font-bold uppercase text-xs">
-                  FREE
-                </p>
-              </div>
             </div>
 
             {/* Seller profile Card */}
@@ -863,6 +836,33 @@ export default function ProductDetailClient({
                 >
                   Visit Store
                 </Link>
+              </div>
+            </div>
+
+            {/* Delivery Pincode Card */}
+            <div className="rounded-vl-card border border-vl-border bg-vl-surface/40 p-4 space-y-2">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-1.5 text-sm text-vl-ink font-medium">
+                  <MapPin aria-hidden="true" className="text-vl-muted h-4.5 w-4.5 shrink-0" />
+                  Deliver to <span className="font-bold">
+                    {deliveryAddress ? `${deliveryAddress.city} ${deliveryAddress.pincode}` : "Chennai 600001"}
+                  </span>
+                </div>
+                <Link
+                  href={`/account/addresses?redirectTo=${encodeURIComponent(`/products/${product.id}`)}`}
+                  className="text-vl-primary font-bold text-xs hover:underline cursor-pointer"
+                >
+                  Change
+                </Link>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap text-sm text-vl-ink font-medium">
+                <p>
+                  Delivery by <span className="font-bold">Tomorrow, Oct 24</span>
+                </p>
+                <span className="h-4 w-[1px] bg-vl-border hidden sm:inline-block"></span>
+                <p className="text-vl-success font-bold uppercase text-xs">
+                  FREE
+                </p>
               </div>
             </div>
 

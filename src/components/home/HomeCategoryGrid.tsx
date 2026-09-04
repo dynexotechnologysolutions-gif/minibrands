@@ -50,9 +50,9 @@ const categories = [
 
 export default function HomeCategoryGrid() {
   return (
-    <section className="w-full bg-white border-b border-gray-100 py-2 md:py-3" data-purpose="categories-nav">
+    <section className="w-full bg-white border-b border-gray-100 py-1 md:py-1.5 mt-1.5 md:mt-0" data-purpose="categories-nav">
       {/* Horizontally scrolling list of category icons */}
-      <div className="flex overflow-x-auto md:overflow-x-visible gap-6 md:gap-10 justify-start md:justify-center py-1.5 hide-scrollbar snap-x scroll-px-5 px-5 max-w-[1280px] mx-auto font-sans">
+      <div className="flex overflow-x-auto md:overflow-x-visible gap-5 md:gap-9 justify-start md:justify-center py-1 md:py-1 hide-scrollbar snap-x scroll-px-5 px-5 max-w-[1280px] mx-auto font-sans">
         {categories.map((category) => (
           <Link
             key={category.label}
@@ -60,7 +60,7 @@ export default function HomeCategoryGrid() {
             className="flex flex-col items-center group flex-shrink-0 snap-start cursor-pointer"
             aria-label={`View ${category.label} products`}
           >
-            <div className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+            <div className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
               <i className={`${category.iconClass.replace("text-slate-700", "text-[#0F7F7F]")} text-sm md:text-base transition-colors duration-150`}></i>
             </div>
             <span className="text-[8px] md:text-[10px] font-semibold text-slate-700 mt-0.5 text-center leading-tight max-w-[3.25rem] group-hover:text-[#0F7F7F] transition-colors duration-150 select-none">
